@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- <TargetFramework>net6.0-android</TargetFramework> -->
+    <TargetFrameworks>net7.0-android</TargetFrameworks>
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <!-- <RuntimeIdentifiers>android-arm64;android-x86;android-arm;android-x64</RuntimeIdentifiers> -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<AndroidSdkDirectory>/SSD1/Android/SDK</AndroidSdkDirectory>
+
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="shader.frag" />
+    <None Remove="shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="shader.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AndroidAsset>
+    <AndroidAsset Include="shader.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AndroidAsset>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Silk.NET" Version="2.17.1" />
+    <PackageReference Include="Silk.NET.Input" Version="2.17.1" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.17.1" />
+    <PackageReference Include="Silk.NET.Windowing" Version="2.17.1" />
+
+    <!-- <ProjectReference Include="..\..\..\..\src\Input\Silk.NET.Input\Silk.NET.Input.csproj" /> -->
+    <!-- <ProjectReference Include="..\..\..\..\src\OpenGL\Silk.NET.OpenGL\Silk.NET.OpenGL.csproj" /> -->
+    <!-- <ProjectReference Include="..\..\..\..\src\Windowing\Silk.NET.Windowing\Silk.NET.Windowing.csproj" /> -->
+  </ItemGroup>
+
+</Project>
