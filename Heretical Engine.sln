@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HereticalEngine", "HereticalEngine\HereticalEngine.csproj", "{E3FB0217-AA80-4D2E-8AC1-05890FC3E3C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine Silk.NET Sample", "HEngine SilkNET Sample\HereticalEngineSilkNetSample.csproj", "{E3FB0217-AA80-4D2E-8AC1-05890FC3E3C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine Mobile", "Heretical Engine Mobile\Heretical Engine Mobile.csproj", "{EACDC0F2-7F50-4A61-8000-0548650E3A32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine Android MAUI Sample", "HEngine Android MAUI Sample\HereticalEngineAndroidMAUISample.csproj", "{EACDC0F2-7F50-4A61-8000-0548650E3A32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HereticalEngineMobileNoMAUI", "Heretical Engine Mobile No MAUI\Heretical Engine Mobile No MAUI.csproj", "{81D3111A-6D1C-4AE3-843A-562169618100}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine Android Silk.NET Sample", "HEngine Android SilkNET Sample\HereticalEngineAndroidSilkNETSample.csproj", "{81D3111A-6D1C-4AE3-843A-562169618100}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

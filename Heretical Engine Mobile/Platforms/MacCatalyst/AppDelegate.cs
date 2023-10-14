@@ -1,9 +1,0 @@
-﻿using Foundation;
-
-namespace Heretical_Engine_Mobile;
-
-[Register("AppDelegate")]
-public class AppDelegate : MauiUIApplicationDelegate
-{
-	protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
-}
