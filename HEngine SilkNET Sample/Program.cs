@@ -14,7 +14,10 @@ using Silk.NET.Windowing;
 
 using Silk.NET.Input;
 
+//For SDL
+/*
 using Silk.NET.SDL;
+*/
 
 //For Dear ImGUI
 /*
@@ -34,9 +37,13 @@ namespace HereticalSolutions.HereticalEngine.Samples
 {
 	public class Program
 	{
+		//Blank
+
+		///*
 		static void Main(string[] args)
 		{
 		}
+		//*/
 
 		//SDL. WIP as there is no SDL.something, need to adjust everything
 
