@@ -112,5 +112,18 @@ namespace HereticalSolutions.Persistence.Factories
             
             return new CSVSerializer(strategyRepository);
         }
+
+        public static PlainTextSerializer BuildSimplePlainTextSerializer()
+        {
+            IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
+
+            database.Add(typeof(StringArgument), new SerializePlainTextIntoStringStrategy());
+            database.Add(typeof(StreamArgument), new SerializePlainTextIntoStreamStrategy());
+            database.Add(typeof(TextFileArgument), new SerializePlainTextIntoTextFileStrategy());
+
+            IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
+
+            return new PlainTextSerializer(strategyRepository);
+        }
     }
 }

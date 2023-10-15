@@ -6,21 +6,6 @@ namespace HereticalSolutions.ResourceManagement
     public enum EResourceSources
     {
         /// <summary>
-        /// The resource is obtained from a scriptable settings file.
-        /// </summary>
-        SCRIPTABLE_SETTINGS_FILE,
-
-        /// <summary>
-        /// The resource is obtained using Unity's Resources.Load() method.
-        /// </summary>
-        UNITY_RESOURCES_LOAD,
-
-        /// <summary>
-        /// The resource is obtained from Unity's StreamingAssets folder.
-        /// </summary>
-        UNITY_STREAMING_ASSETS,
-
-        /// <summary>
         /// The resource is obtained from cloud storage.
         /// </summary>
         CLOUD_STORAGE,

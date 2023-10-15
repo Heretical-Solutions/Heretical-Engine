@@ -43,5 +43,10 @@ namespace HereticalSolutions.ResourceManagement.Factories
                 descriptor,
                 storageHandle);
         }
+
+        public static RuntimeResourceStorageHandle BuildRuntimeResourceStorageHandle(object resource)
+        {
+            return new RuntimeResourceStorageHandle(resource);
+        }
     }
 }

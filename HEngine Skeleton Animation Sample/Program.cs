@@ -9,13 +9,22 @@ using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 
+using HereticalSolutions.ResourceManagement.Factories;
+using HereticalSolutions.ResourceManagement;
+
+using HereticalSolutions.HereticalEngine.Rendering;
+
+using HereticalSolutions.Persistence.Arguments;
+using HereticalSolutions.Persistence.IO;
+
 using HereticalSolutions.HereticalEngine.Math;
+using HereticalSolutions.Persistence.Factories;
 
 namespace HereticalSolutions.HereticalEngine.Samples
 {
 	public class Program
 	{
-		private const string PATH_TO_MODEL = "Assets/Suit.blend";
+		private const string PATH_TO_SHADERS = "Shaders/default";
 
 		static void Main(string[] args)
 		{
@@ -31,10 +40,16 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			IInputContext inputContext = null;
 
+			IRuntimeResourceManager runtimeResourceManager = RuntimeResourceManagerFactory.BuildRuntimeResourceManager();
+
 			// Our loading function
 			window.Load += () =>
 			{
 				gl = InitGL(window);
+
+				LoadAssets(
+					runtimeResourceManager,
+					gl);
 
 				inputContext = InitInputContext(window);
 
@@ -108,9 +123,43 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			);
 		}
 
-		public static void LoadModel()
+		public static void LoadAssets(
+			IRuntimeResourceManager runtimeResourceManager,
+			GL gl)
 		{
-			
+			var pathToExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+			//TODO: change
+			var pathToAssets = pathToExe.Substring(
+				0,
+				pathToExe.IndexOf("/bin/"))
+				+ "/Assets/";
+
+			var vertexShaderArgument = new TextFileArgument();
+
+			vertexShaderArgument.Settings = new FileSystemSettings
+			{
+				RelativePath = PATH_TO_SHADERS + ".vert",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var fragmentShaderArgument = new TextFileArgument();
+
+			fragmentShaderArgument.Settings = new FileSystemSettings
+			{
+				RelativePath = PATH_TO_SHADERS + ".frag",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var shaderAssimp = new ShaderAssimp(
+				runtimeResourceManager,
+				"Default shader",
+				PersistenceFactory.BuildSimplePlainTextSerializer(),
+				vertexShaderArgument,
+				fragmentShaderArgument,
+				new ShaderVisitor(gl));
+
+			shaderAssimp.Import();
 		}
 
 		#endregion
