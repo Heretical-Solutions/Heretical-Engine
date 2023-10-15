@@ -1,23 +1,10 @@
-﻿using System;
-
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
-using System.Drawing;
-
-using Silk.NET.Core;
-using Silk.NET.Core.Native;
+﻿using System.Drawing;
 
 using Silk.NET.Maths;
 
 using Silk.NET.Windowing;
 
 using Silk.NET.Input;
-
-//For SDL
-/*
-using Silk.NET.SDL;
-*/
 
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
@@ -28,6 +15,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 {
 	public class Program
 	{
+		private const string PATH_TO_MODEL = "Assets/Suit.blend";
+
 		static void Main(string[] args)
 		{
 			//var program = new Program();
@@ -117,6 +106,11 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				window, // pass in our window
 				inputContext // create an input context
 			);
+		}
+
+		public static void LoadModel()
+		{
+			
 		}
 
 		#endregion
