@@ -26,6 +26,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 	{
 		private const string PATH_TO_SHADERS = "Shaders/default";
 
+		//TODO: https://github.com/dotnet/Silk.NET/discussions/534
 		static void Main(string[] args)
 		{
 			//var program = new Program();
