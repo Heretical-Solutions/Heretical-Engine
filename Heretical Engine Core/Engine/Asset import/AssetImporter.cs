@@ -11,6 +11,6 @@ namespace HereticalSolutions.HereticalEngine.Assimp
 			this.resourceManager = resourceManager;
 		}
 
-		public abstract void Import();
+		public abstract object Import();
 	}
 }

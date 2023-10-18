@@ -136,6 +136,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				pathToExe.IndexOf("/bin/"))
 				+ "/Assets/";
 
+			#region Shader import
+
 			var vertexShaderArgument = new TextFileArgument();
 
 			vertexShaderArgument.Settings = new FileSystemSettings
@@ -161,6 +163,26 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				new ShaderVisitor(gl));
 
 			shaderAssimp.Import();
+
+			#endregion
+
+			#region Model import
+
+			var modelAssimp = new ModelAssimp(
+				runtimeResourceManager,
+				"Suit",
+				new FileSystemSettings
+				{
+					RelativePath = "3D/Characters/Suit/Models/Suit.fbx",
+					ApplicationDataFolder = pathToAssets
+				},
+				gl);
+
+				modelAssimp.Import();
+
+			#endregion
+
+			Console.WriteLine("Import finished");
 		}
 
 		#endregion

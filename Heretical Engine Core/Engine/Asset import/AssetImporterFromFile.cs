@@ -28,7 +28,7 @@ namespace HereticalSolutions.HereticalEngine.Assimp
 			this.visitor = visitor;
 		}
 
-		public override void Import()
+		public override object Import()
 		{
 			serializer.Deserialize<TDTO>(
 				serializationArgument,
@@ -45,6 +45,8 @@ namespace HereticalSolutions.HereticalEngine.Assimp
 			AddResource(
 				asset,
 				resourceData);
+
+			return asset;
 		}
 
 		protected abstract string ResourceID { get; }

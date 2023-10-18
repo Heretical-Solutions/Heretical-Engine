@@ -40,7 +40,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.visitor = visitor;
 		}
 
-		public override void Import()
+		public override object Import()
 		{
 			VertexFragmentShaderDTO dto = new VertexFragmentShaderDTO();
 
@@ -61,6 +61,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			AddResource(
 				asset,
 				resourceData);
+
+			return asset;
 		}
 
 		protected IResourceData GetResourceData(

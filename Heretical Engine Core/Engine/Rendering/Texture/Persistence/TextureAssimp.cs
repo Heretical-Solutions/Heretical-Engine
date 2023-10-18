@@ -7,41 +7,56 @@ using HereticalSolutions.Persistence.IO;
 
 using Silk.NET.OpenGL;
 
+using Silk.NET.Assimp;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureAssimp : AssetImporter
 	{
-		private string resourceID;
+		private readonly string resourceID;
+
+		private readonly string variantID;
 
 		//Due to the fact that Silk.NET uses Image.Load<T>(path) instead of loading from byte array or some kind of DTO we are limited to using
 		//one type of serialization. That's why I've put FileSystemSettings here directly instead of using ISerializationArgument
-		private FileSystemSettings fsSettings;
+		private readonly FileSystemSettings fsSettings;
 
 		//And for the same reason gl is not fed into a visitor but is used directly here
-		private GL gl;
+		private readonly GL gl;
+
+		private readonly TextureType textureType;
 
 		public TextureAssimp(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
+			string variantID,
 			FileSystemSettings fsSettings,
-			GL gl)
+			GL gl,
+			TextureType textureType = TextureType.None)
 			: base(
 				resourceManager)
 		{
 			this.resourceID = resourceID;
 
+			this.variantID = variantID;
+
+			this.variantID = variantID;
+
 			this.fsSettings = fsSettings;
 
 			this.gl = gl;
+
+			this.textureType = textureType;
 		}
 
-		public override void Import()
+		public override object Import()
 		{
 			var image = Image.Load<Rgba32>(fsSettings.FullPath);
 
 			var asset = new Texture(
 				gl,
-				image);
+				image,
+				textureType);
 
 			//In the tutorial image was wrapped in using statement. Calling Dispose here because it's fed directly into Texture constructor and therefore
 			//it's not disposed there as it would if path was fed instead
@@ -52,6 +67,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			AddResource(
 				asset,
 				resourceData);
+
+			return asset;
 		}
 
 		//TODO: this is a third class (after AssetImporterFromFile and ShaderAssimp) that has this method and the methods below. Extract?
@@ -84,28 +101,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			IResourceData resourceData,
 			IProgress<float> progress = null)
 		{
-			AddResourceAsDefault(
-				asset,
-				resourceData,
-				progress);
-		}
-
-		private void AddResourceAsDefault(
-			Texture asset,
-			IResourceData resourceData,
-			IProgress<float> progress = null)
-		{
 			var variantData = RuntimeResourceManagerFactory.BuildResourceVariantData(
-					new ResourceVariantDescriptor()
-					{
-						VariantID = string.Empty,
-						VariantIDHash = string.Empty.AddressToHash(),
-						Priority = 0,
-						Source = EResourceSources.LOCAL_STORAGE,
-						ResourceType = typeof(Texture)
-					},
-					RuntimeResourceManagerFactory.BuildRuntimeResourceStorageHandle(
-						asset));
+				new ResourceVariantDescriptor()
+				{
+					VariantID = variantID,
+					VariantIDHash = variantID.AddressToHash(),
+					Priority = 0,
+					Source = EResourceSources.LOCAL_STORAGE,
+					ResourceType = typeof(Texture)
+				},
+				RuntimeResourceManagerFactory.BuildRuntimeResourceStorageHandle(
+					asset));
 
 			resourceData.AddVariant(
 				variantData,
