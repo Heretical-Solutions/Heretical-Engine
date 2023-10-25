@@ -173,7 +173,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				"Suit",
 				new FileSystemSettings
 				{
-					RelativePath = "3D/Characters/Suit/Models/Suit.fbx",
+					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
 				},
 				gl);
