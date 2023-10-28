@@ -5,7 +5,8 @@ namespace HereticalSolutions.ResourceManagement
     /// <summary>
     /// Represents a runtime resource manager.
     /// </summary>
-    public class RuntimeResourceManager : IReadOnlyRuntimeResourceManager, IRuntimeResourceManager
+    public class RuntimeResourceManager
+        : IRuntimeResourceManager
     {
         private readonly IRepository<int, IReadOnlyResourceData> resourceRepository;
 

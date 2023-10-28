@@ -62,10 +62,6 @@ namespace HereticalSolutions.Pools.AllocationCallbacks
         /// <param name="currentElement">The currently allocated element.</param>
         public void OnAllocated(IPoolElement<T> currentElement)
         {
-            //SUPPLY AND MERGE POOLS DO NOT PRODUCE ELEMENTS WITH VALUES
-            //if (currentElement.Value == null)
-            //    return;
-
             if (root == null)
             {
                 deferredCallbackQueue?.Enqueue(currentElement);

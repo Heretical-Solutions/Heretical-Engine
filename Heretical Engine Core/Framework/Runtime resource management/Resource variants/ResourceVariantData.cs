@@ -3,7 +3,8 @@ namespace HereticalSolutions.ResourceManagement
     /// <summary>
     /// Represents a variant of a resource.
     /// </summary>
-    public class ResourceVariantData : IResourceVariantData
+    public class ResourceVariantData
+        : IResourceVariantData
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceVariantData"/> class.
@@ -15,6 +16,7 @@ namespace HereticalSolutions.ResourceManagement
             IResourceStorageHandle storageHandle)
         {
             Descriptor = descriptor;
+            
             StorageHandle = storageHandle;
         }
         

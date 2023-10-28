@@ -26,7 +26,10 @@ namespace HereticalSolutions.ResourceManagement.Factories
         {
             return new ResourceData(
                 descriptor,
-                RepositoriesFactory.BuildDictionaryRepository<int, IResourceVariantData>());
+                RepositoriesFactory.BuildDictionaryRepository<int, string>(),
+                RepositoriesFactory.BuildDictionaryRepository<int, IResourceVariantData>(),
+                RepositoriesFactory.BuildDictionaryRepository<int, string>(),
+                RepositoriesFactory.BuildDictionaryRepository<int, IReadOnlyResourceData>());
         }
         
         /// <summary>

@@ -11,7 +11,6 @@ namespace HereticalSolutions.Repositories
     /// <typeparam name="TValue">The type of the values in the repository.</typeparam>
     public class DictionaryRepository<TKey, TValue> :
         IRepository<TKey, TValue>,
-        IReadOnlyRepository<TKey, TValue>,
         IClonableRepository<TKey, TValue>
     {
         private readonly Dictionary<TKey, TValue> database;
@@ -60,10 +59,19 @@ namespace HereticalSolutions.Repositories
             return database.TryGetValue(key, out value);
         }
 
+        public int Count { get { return database.Count; } }
+
         /// <summary>
         /// Gets an enumerable collection that contains the keys in the repository.
         /// </summary>
         public IEnumerable<TKey> Keys { get { return database.Keys; } }
+
+        public IEnumerable<TValue> Values { get { return database.Values; } }
+
+        public void Clear()
+        {
+            database.Clear();
+        }
 
         #endregion
 

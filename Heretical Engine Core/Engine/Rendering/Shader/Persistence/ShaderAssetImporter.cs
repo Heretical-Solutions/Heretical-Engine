@@ -7,7 +7,7 @@ using HereticalSolutions.HereticalEngine.Assimp;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class ShaderAssimp : AssetImporter
+	public class ShaderAssetImporter : AssetImporter
 	{
 		private string resourceID;
 
@@ -19,7 +19,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private ILoadVisitorGeneric<Shader, VertexFragmentShaderDTO> visitor;
 
-		public ShaderAssimp(
+		public ShaderAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			ISerializer serializer,

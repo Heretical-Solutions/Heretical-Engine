@@ -30,10 +30,14 @@ namespace HereticalSolutions.Repositories
 		/// <param name="value">When this method returns, contains the value associated with the specified <paramref name="key"/> if found; otherwise, the default value for the value type.</param>
 		/// <returns><c>true</c> if the value was found; otherwise, <c>false</c>.</returns>
 		bool TryGet(TKey key, out TValue value);
-        
+
+		int Count { get; }
+
 		/// <summary>
 		/// Gets the collection of keys in the repository.
 		/// </summary>
 		IEnumerable<TKey> Keys { get; }
+
+		IEnumerable<TValue> Values { get; }
 	}
 }

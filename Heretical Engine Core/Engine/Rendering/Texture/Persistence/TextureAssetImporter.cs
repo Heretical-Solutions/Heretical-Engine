@@ -11,7 +11,7 @@ using Silk.NET.Assimp;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class TextureAssimp : AssetImporter
+	public class TextureAssetImporter : AssetImporter
 	{
 		private readonly string resourceID;
 
@@ -26,7 +26,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly TextureType textureType;
 
-		public TextureAssimp(
+		public TextureAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			string variantID,

@@ -24,11 +24,11 @@ using HereticalSolutions.HereticalEngine.Assimp;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class ModelAssimp
+	public class ModelAssetImporter
 		: AssetImporter,
 		IDisposable
 	{
-		public ModelAssimp(
+		public ModelAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			FileSystemSettings fsSettings,
@@ -367,7 +367,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 					Console.WriteLine($"Variant ID: {variantID}");
 
-					var textureAssimp = new TextureAssimp(
+					var textureAssimp = new TextureAssetImporter(
 						resourceManager,
 						resourceID,
 						variantID,

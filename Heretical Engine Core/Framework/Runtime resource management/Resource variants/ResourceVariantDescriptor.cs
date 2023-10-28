@@ -27,6 +27,8 @@ namespace HereticalSolutions.ResourceManagement
         /// </summary>
         public EResourceSources Source;
 
+        public EResourceStorages Storage;
+
         /// <summary>
         /// The type of the resource associated with the variant.
         /// </summary>

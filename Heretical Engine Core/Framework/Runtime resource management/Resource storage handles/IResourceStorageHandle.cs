@@ -23,7 +23,7 @@ namespace HereticalSolutions.ResourceManagement
         /// <summary>
         /// Gets the resource object.
         /// </summary>
-        object Resource { get; }
+        object RawResource { get; }
 
         /// <summary>
         /// Gets the resource object of the specified type.

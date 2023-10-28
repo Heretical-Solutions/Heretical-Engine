@@ -3,15 +3,17 @@ using System.Threading.Tasks;
 
 namespace HereticalSolutions.ResourceManagement
 {
-    public class RuntimeResourceStorageHandle : IResourceStorageHandle
+    public class RuntimeResourceStorageHandle
+        : IResourceStorageHandle
     {
         private bool allocated = false;
 
-        private object resource;
+        private object rawResource;
 
-        public RuntimeResourceStorageHandle(object resource)
+        public RuntimeResourceStorageHandle(
+            object rawResource)
         {
-            this.resource = resource;
+            this.rawResource = rawResource;
 
             allocated = true;
         }
@@ -31,17 +33,20 @@ namespace HereticalSolutions.ResourceManagement
         /// </summary>
         /// <param name="progress">An optional progress reporter for tracking the allocation progress.</param>
         /// <returns>A task representing the asynchronous allocation operation.</returns>
-        public async Task Allocate(IProgress<float> progress = null)
+        public virtual async Task Allocate(
+            IProgress<float> progress = null)
         {
+            allocated = true;
+
             progress?.Report(1f);
         }
 
         /// <summary>
         /// Gets the resource object.
         /// </summary>
-        public object Resource
+        public object RawResource
         {
-            get => resource;
+            get => rawResource;
         }
 
         /// <summary>
@@ -51,7 +56,7 @@ namespace HereticalSolutions.ResourceManagement
         /// <returns>The resource object of the specified type.</returns>
         public TValue GetResource<TValue>()
         {
-            return (TValue)resource;
+            return (TValue)rawResource;
         }
 
         /// <summary>
@@ -59,8 +64,11 @@ namespace HereticalSolutions.ResourceManagement
         /// </summary>
         /// <param name="progress">An optional progress reporter for tracking the free operation progress.</param>
         /// <returns>A task representing the asynchronous free operation.</returns>
-        public async Task Free(IProgress<float> progress = null)
+        public virtual async Task Free(
+            IProgress<float> progress = null)
         {
+            allocated = false;
+
             progress?.Report(1f);
         }
 

@@ -154,7 +154,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var shaderAssimp = new ShaderAssimp(
+			var shaderAssimp = new ShaderAssetImporter(
 				runtimeResourceManager,
 				"Default shader",
 				PersistenceFactory.BuildSimplePlainTextSerializer(),
@@ -168,7 +168,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			#region Model import
 
-			var modelAssimp = new ModelAssimp(
+			var modelAssimp = new ModelAssetImporter(
 				runtimeResourceManager,
 				"Suit",
 				new FileSystemSettings
