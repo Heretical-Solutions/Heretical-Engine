@@ -20,7 +20,7 @@ using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.Math;
 
-using HereticalSolutions.HereticalEngine.Assimp;
+using HereticalSolutions.HereticalEngine.AssetImport;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -57,7 +57,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private AssimpAPI assimp;
 
-		private Dictionary<string, Texture> texturesLoaded = new Dictionary<string, Texture>();
+		private Dictionary<string, TextureOpenGL> texturesLoaded = new Dictionary<string, TextureOpenGL>();
 
 		private List<Mesh> meshes = new List<Mesh>();
 
@@ -94,9 +94,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			IResourceData resourceData = null;
 
-			if (resourceManager.HasResource(resourceID))
+			if (resourceManager.HasRootResource(resourceID))
 			{
-				resourceData = (IResourceData)resourceManager.GetResource(resourceID);
+				resourceData = (IResourceData)resourceManager.GetRootResource(resourceID);
 			}
 			else
 			{
@@ -107,7 +107,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						IDHash = resourceID.AddressToHash()
 					});
 
-				resourceManager.AddResource((IReadOnlyResourceData)resourceData);
+				resourceManager.AddRootResource((IReadOnlyResourceData)resourceData);
 			}
 
 			return resourceData;
@@ -128,7 +128,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					Source = EResourceSources.LOCAL_STORAGE,
 					ResourceType = typeof(TValue)
 				},
-				RuntimeResourceManagerFactory.BuildRuntimeResourceStorageHandle(
+				RuntimeResourceManagerFactory.BuildPreallocatedRuntimeResourceStorageHandle(
 					asset));
 
 			resourceData.AddVariant(
@@ -173,7 +173,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			List<uint> indices = new List<uint>();
 
-			List<Texture> textures = new List<Texture>();
+			List<TextureOpenGL> textures = new List<TextureOpenGL>();
 
 			// walk through each of the mesh's vertices
 			for (uint i = 0; i < mesh->MNumVertices; i++)
@@ -290,7 +290,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			return result;
 		}
 
-		private unsafe List<Texture> LoadMaterialTextures(
+		private unsafe List<TextureOpenGL> LoadMaterialTextures(
 			Material* mat,
 			TextureType type,
 			string typeName)
@@ -301,7 +301,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			Console.WriteLine($"Texture count: {textureCount}");
 
-			List<Texture> textures = new List<Texture>();
+			List<TextureOpenGL> textures = new List<TextureOpenGL>();
 
 			for (uint i = 0; i < textureCount; i++)
 			{
@@ -367,7 +367,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 					Console.WriteLine($"Variant ID: {variantID}");
 
-					var textureAssimp = new TextureAssetImporter(
+					var textureAssimp = new TextureRAMAssetImporter(
 						resourceManager,
 						resourceID,
 						variantID,
@@ -375,7 +375,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						gl,
 						type);
 
-					var texture = (Texture)textureAssimp.Import();
+					var texture = (TextureOpenGL)textureAssimp.Import();
 
 					textures.Add(texture);
 

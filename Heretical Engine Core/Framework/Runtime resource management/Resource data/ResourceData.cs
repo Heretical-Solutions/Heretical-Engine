@@ -6,438 +6,460 @@ using HereticalSolutions.Repositories;
 
 namespace HereticalSolutions.ResourceManagement
 {
-    /// <summary>
-    /// Represents resource data that can be read and modified.
-    /// </summary>
-    public class ResourceData
-        : IResourceData
-    {
-        private readonly IRepository<int, string> variantIDHashToID;
+	/// <summary>
+	/// Represents resource data that can be read and modified.
+	/// </summary>
+	public class ResourceData
+		: IResourceData
+	{
+		private readonly IRepository<int, string> variantIDHashToID;
 
-        private readonly IRepository<int, IResourceVariantData> variantsRepository;
+		private readonly IRepository<int, IResourceVariantData> variantsRepository;
 
-        private IResourceVariantData defaultVariant;
+		private IResourceVariantData defaultVariant;
 
 
-        private readonly IRepository<int, string> nestedResourceIDHashToID;
+		private readonly IRepository<int, string> nestedResourceIDHashToID;
 
-        private readonly IRepository<int, IReadOnlyResourceData> nestedResourcesRepository;
+		private readonly IRepository<int, IReadOnlyResourceData> nestedResourcesRepository;
 
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceData"/> class.
-        /// </summary>
-        /// <param name="descriptor">The descriptor of the resource.</param>
-        /// <param name="variantsRepository">The repository containing the resource variants.</param>
-        public ResourceData(
-            ResourceDescriptor descriptor,
-            IRepository<int, string> variantIDHashToID,
-            IRepository<int, IResourceVariantData> variantsRepository,
-            IRepository<int, string> nestedResourceIDHashToID,
-            IRepository<int, IReadOnlyResourceData> nestedResourcesRepository)
-        {
-            Descriptor = descriptor;
-            
-            this.variantIDHashToID = variantIDHashToID;
+		public ResourceData(
+			ResourceDescriptor descriptor,
+			IRepository<int, string> variantIDHashToID,
+			IRepository<int, IResourceVariantData> variantsRepository,
+			IRepository<int, string> nestedResourceIDHashToID,
+			IRepository<int, IReadOnlyResourceData> nestedResourcesRepository)
+		{
+			Descriptor = descriptor;
+			
+			this.variantIDHashToID = variantIDHashToID;
 
-            this.variantsRepository = variantsRepository;
+			this.variantsRepository = variantsRepository;
 
-            this.nestedResourceIDHashToID = nestedResourceIDHashToID;
+			this.nestedResourceIDHashToID = nestedResourceIDHashToID;
 
-            this.nestedResourcesRepository = nestedResourcesRepository;
+			this.nestedResourcesRepository = nestedResourcesRepository;
 
 
-            defaultVariant = null;
-        }
+			defaultVariant = null;
 
-        #region IResourceData
+			ParentResource = null;
+		}
 
-        #region IReadOnlyResourceData
+		#region IResourceData
 
-        /// <summary>
-        /// Gets the descriptor of the resource.
-        /// </summary>
-        public ResourceDescriptor Descriptor { get; private set; }
+		#region IReadOnlyResourceData
 
-        #region IContainsResourceVariants
+		/// <summary>
+		/// Gets the descriptor of the resource.
+		/// </summary>
+		public ResourceDescriptor Descriptor { get; private set; }
 
-        /// <summary>
-        /// Gets the default variant data of the resource.
-        /// </summary>
-        public IResourceVariantData DefaultVariant => defaultVariant;
+		#region IContainsResourceVariants
 
-        public bool HasVariant(int variantIDHash)
-        {
-            return variantsRepository.Has(variantIDHash);
-        }
+		/// <summary>
+		/// Gets the default variant data of the resource.
+		/// </summary>
+		public IResourceVariantData DefaultVariant => defaultVariant;
 
-        public bool HasVariant(string variantID)
-        {
-            return HasVariant(variantID.AddressToHash());
-        }
+		public bool HasVariant(int variantIDHash)
+		{
+			return variantsRepository.Has(variantIDHash);
+		}
 
-        /// <summary>
-        /// Gets the variant data of the resource based on the variant ID hash.
-        /// </summary>
-        /// <param name="variantIDHash">The hash of the variant ID.</param>
-        /// <returns>The variant data associated with the specified variant ID hash.</returns>
-        public IResourceVariantData GetVariant(int variantIDHash)
-        {
-            if (!variantsRepository.TryGet(variantIDHash, out var variant))
-                return null;
+		public bool HasVariant(string variantID)
+		{
+			return HasVariant(variantID.AddressToHash());
+		}
 
-            return variant;
-        }
+		/// <summary>
+		/// Gets the variant data of the resource based on the variant ID hash.
+		/// </summary>
+		/// <param name="variantIDHash">The hash of the variant ID.</param>
+		/// <returns>The variant data associated with the specified variant ID hash.</returns>
+		public IResourceVariantData GetVariant(int variantIDHash)
+		{
+			if (!variantsRepository.TryGet(
+				variantIDHash,
+				out var variant))
+				return null;
 
-        /// <summary>
-        /// Gets the variant data of the resource based on the variant ID.
-        /// </summary>
-        /// <param name="variantID">The ID of the variant.</param>
-        /// <returns>The variant data associated with the specified variant ID.</returns>
-        public IResourceVariantData GetVariant(string variantID)
-        {
-            return GetVariant(variantID.AddressToHash());
-        }
+			return variant;
+		}
 
-        /// <summary>
-        /// Gets the variant hashes available for the resource.
-        /// </summary>
-        public IEnumerable<int> VariantIDHashes => variantsRepository.Keys;
+		/// <summary>
+		/// Gets the variant data of the resource based on the variant ID.
+		/// </summary>
+		/// <param name="variantID">The ID of the variant.</param>
+		/// <returns>The variant data associated with the specified variant ID.</returns>
+		public IResourceVariantData GetVariant(string variantID)
+		{
+			return GetVariant(variantID.AddressToHash());
+		}
 
-        public IEnumerable<string> VariantIDs => variantIDHashToID.Values;
+		/// <summary>
+		/// Gets the variant hashes available for the resource.
+		/// </summary>
+		public IEnumerable<int> VariantIDHashes => variantsRepository.Keys;
 
-        public IEnumerable<IResourceVariantData> AllVariants => variantsRepository.Values;
+		public IEnumerable<string> VariantIDs => variantIDHashToID.Values;
 
-        #endregion
+		public IEnumerable<IResourceVariantData> AllVariants => variantsRepository.Values;
 
-        #region IContainsNestedResources
+		#endregion
 
-        public bool HasNestedResource(int nestedResourceIDHash)
-        {
-            return nestedResourcesRepository.Has(nestedResourceIDHash);
-        }
+		#region IContainsNestedResources
 
-        public bool HasNestedResource(string nestedResourceID)
-        {
-            return HasNestedResource(nestedResourceID.AddressToHash());
-        }
+		public IReadOnlyResourceData ParentResource { get; set; }
 
-        public IReadOnlyResourceData GetNestedResource(int nestedResourceIDHash)
-        {
-            if (!nestedResourcesRepository.TryGet(nestedResourceIDHash, out var nestedResource))
-                return null;
+		public bool IsRoot { get => ParentResource == null; }
 
-            return nestedResource;
-        }
+		public bool HasNestedResource(int nestedResourceIDHash)
+		{
+			return nestedResourcesRepository.Has(nestedResourceIDHash);
+		}
 
-        public IReadOnlyResourceData GetNestedResource(string nestedResourceID)
-        {
-            return GetNestedResource(nestedResourceID.AddressToHash());
-        }
+		public bool HasNestedResource(string nestedResourceID)
+		{
+			return HasNestedResource(nestedResourceID.AddressToHash());
+		}
 
-        public IEnumerable<int> NestedResourceIDHashes => nestedResourcesRepository.Keys;
+		public IReadOnlyResourceData GetNestedResource(int nestedResourceIDHash)
+		{
+			if (!nestedResourcesRepository.TryGet(
+				nestedResourceIDHash,
+				out var nestedResource))
+				return null;
 
-        public IEnumerable<string> NestedResourceIDs => nestedResourceIDHashToID.Values;
+			return nestedResource;
+		}
 
-        public IEnumerable<IReadOnlyResourceData> AllNestedResources => nestedResourcesRepository.Values;
+		public IReadOnlyResourceData GetNestedResource(string nestedResourceID)
+		{
+			return GetNestedResource(nestedResourceID.AddressToHash());
+		}
 
-        #endregion
+		public IEnumerable<int> NestedResourceIDHashes => nestedResourcesRepository.Keys;
 
+		public IEnumerable<string> NestedResourceIDs => nestedResourceIDHashToID.Values;
 
-        #endregion
+		public IEnumerable<IReadOnlyResourceData> AllNestedResources => nestedResourcesRepository.Values;
 
-        /// <summary>
-        /// Adds a variant to the resource.
-        /// </summary>
-        /// <param name="variant">The variant data to add.</param>
-        /// <param name="progress">An optional progress reporter for tracking the add operation.</param>
-        /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task AddVariant(
-            IResourceVariantData variant,
-            bool allocate = true,
-            IProgress<float> progress = null)
-        {
-            progress?.Report(0f);
+		#endregion
 
-            if (!variantsRepository.TryAdd(
-                variant.Descriptor.VariantIDHash,
-                variant))
-            {
-                progress?.Report(1f);
 
-                return;
-            }
+		#endregion
 
-            variantIDHashToID.TryAdd(
-                variant.Descriptor.VariantIDHash,
-                variant.Descriptor.VariantID);
+		/// <summary>
+		/// Adds a variant to the resource.
+		/// </summary>
+		/// <param name="variant">The variant data to add.</param>
+		/// <param name="progress">An optional progress reporter for tracking the add operation.</param>
+		/// <returns>A task representing the asynchronous operation.</returns>
+		public async Task AddVariant(
+			IResourceVariantData variant,
+			bool allocate = true,
+			IProgress<float> progress = null)
+		{
+			progress?.Report(0f);
 
-            UpdateDefaultVariant();
+			if (!variantsRepository.TryAdd(
+				variant.Descriptor.VariantIDHash,
+				variant))
+			{
+				progress?.Report(1f);
 
-            if (allocate)
-                await variant.StorageHandle.Allocate(progress);
+				return;
+			}
 
-            progress?.Report(1f);
-        }
+			variantIDHashToID.TryAdd(
+				variant.Descriptor.VariantIDHash,
+				variant.Descriptor.VariantID);
 
-        public async Task RemoveVariant(
-            int variantHash = -1,
-            bool free = true,
-            IProgress<float> progress = null)
-        {
-            progress?.Report(0f);
+			UpdateDefaultVariant();
 
-            if (!variantsRepository.TryGet(variantHash, out var variant))
-            {
-                progress?.Report(1f);
+			if (allocate)
+				await variant.StorageHandle.Allocate(progress);
 
-                return;
-            }
+			progress?.Report(1f);
+		}
 
-            variantIDHashToID.TryRemove(variantHash);
+		public async Task RemoveVariant(
+			int variantHash = -1,
+			bool free = true,
+			IProgress<float> progress = null)
+		{
+			progress?.Report(0f);
 
-            variantsRepository.TryRemove(variantHash);
+			if (!variantsRepository.TryGet(
+				variantHash,
+				out var variant))
+			{
+				progress?.Report(1f);
 
-            UpdateDefaultVariant();
+				return;
+			}
 
-            if (free)
-                await variant.StorageHandle.Free(progress);
+			variantIDHashToID.TryRemove(variantHash);
 
-            progress?.Report(1f);
-        }
+			variantsRepository.TryRemove(variantHash);
 
-        public async Task RemoveVariant(
-            string variantID,
-            bool free = true,
-            IProgress<float> progress = null)
-        {
-            await RemoveVariant(
-                variantID.AddressToHash(),
-                free,
-                progress);
-        }
+			UpdateDefaultVariant();
 
-        private void UpdateDefaultVariant()
-        {
-            defaultVariant = null;
+			if (free)
+				await variant.StorageHandle.Free(progress);
 
-            int topPriority = int.MinValue;
+			progress?.Report(1f);
+		}
 
-            foreach (var hashID in variantsRepository.Keys)
-            {
-                var currentVariant = variantsRepository.Get(hashID);
+		public async Task RemoveVariant(
+			string variantID,
+			bool free = true,
+			IProgress<float> progress = null)
+		{
+			await RemoveVariant(
+				variantID.AddressToHash(),
+				free,
+				progress);
+		}
 
-                var currentPriority = currentVariant.Descriptor.Priority;
+		private void UpdateDefaultVariant()
+		{
+			defaultVariant = null;
 
-                if (currentPriority > topPriority)
-                {
-                    topPriority = currentPriority;
+			int topPriority = int.MinValue;
 
-                    defaultVariant = currentVariant;
-                }
-            }
-        }
+			foreach (var hashID in variantsRepository.Keys)
+			{
+				var currentVariant = variantsRepository.Get(hashID);
 
-        public async Task ClearAllVariants(
-            bool free = true,
-            IProgress<float> progress = null)
-        {
-            progress?.Report(0f);
+				var currentPriority = currentVariant.Descriptor.Priority;
 
-            int totalVariantsCount = variantsRepository.Count;
+				if (currentPriority > topPriority)
+				{
+					topPriority = currentPriority;
 
-            int counter = 0;
+					defaultVariant = currentVariant;
+				}
+			}
+		}
 
-            foreach (var key in variantsRepository.Keys)
-            {
-                if (free)
-                {
-                    IProgress<float> localProgress = null;
+		public async Task ClearAllVariants(
+			bool free = true,
+			IProgress<float> progress = null)
+		{
+			progress?.Report(0f);
 
-                    if (progress != null)
-                    {
-                        var localProgressInstance = new Progress<float>();
+			int totalVariantsCount = variantsRepository.Count;
 
-                        localProgressInstance.ProgressChanged += (sender, value) =>
-                        {
-                            progress.Report((float)counter / (float)totalVariantsCount + value / (float)totalVariantsCount);
-                        };
+			int counter = 0;
 
-                        localProgress = localProgressInstance;
-                    }
+			foreach (var key in variantsRepository.Keys)
+			{
+				if (variantsRepository.TryGet(
+					key,
+					out var variant))
+				{
+					if (free)
+					{
+						IProgress<float> localProgress = null;
 
-                    await RemoveVariant(
-                        key,
-                        free,
-                        localProgress);
+						if (progress != null)
+						{
+							var localProgressInstance = new Progress<float>();
 
-                    counter++;
+							localProgressInstance.ProgressChanged += (sender, value) =>
+							{
+								progress.Report((float)counter / (float)totalVariantsCount + value / (float)totalVariantsCount);
+							};
 
-                    progress?.Report((float)counter / (float)totalVariantsCount);
-                }
-            }
+							localProgress = localProgressInstance;
+						}
+					
+						await variant.StorageHandle.Free(localProgress);
+					}
+				}
 
-            variantIDHashToID.Clear();
+				counter++;
 
-            variantsRepository.Clear();
+				progress?.Report((float)counter / (float)totalVariantsCount);
+			}
 
-            defaultVariant = null;
+			variantIDHashToID.Clear();
 
-            progress?.Report(1f);
-        }
+			variantsRepository.Clear();
 
-        public async Task AddNestedResource(
-            IReadOnlyResourceData nestedResource,
-            IProgress<float> progress = null)
-        {
-            progress?.Report(0f);
+			defaultVariant = null;
 
-            if (!nestedResourcesRepository.TryAdd(
-                nestedResource.Descriptor.IDHash,
-                nestedResource))
-            {
-                progress?.Report(1f);
+			progress?.Report(1f);
+		}
 
-                return;
-            }
+		public async Task AddNestedResource(
+			IReadOnlyResourceData nestedResource,
+			IProgress<float> progress = null)
+		{
+			progress?.Report(0f);
 
-            nestedResourceIDHashToID.TryAdd(
-                nestedResource.Descriptor.IDHash,
-                nestedResource.Descriptor.ID);
+			if (!nestedResourcesRepository.TryAdd(
+				nestedResource.Descriptor.IDHash,
+				nestedResource))
+			{
+				progress?.Report(1f);
 
-            progress?.Report(1f);
-        }
+				return;
+			}
 
-        public async Task RemoveNestedResource(
-            int nestedResourceHash = -1,
-            bool free = true,
-            IProgress<float> progress = null)
-        {
-            progress?.Report(0f);
+			((IResourceData)nestedResource).ParentResource = this;
 
-            if (!nestedResourcesRepository.TryGet(nestedResourceHash, out var nestedResource))
-            {
-                progress?.Report(1f);
+			nestedResourceIDHashToID.TryAdd(
+				nestedResource.Descriptor.IDHash,
+				nestedResource.Descriptor.ID);
 
-                return;
-            }
+			progress?.Report(1f);
+		}
 
-            nestedResourceIDHashToID.TryRemove(nestedResourceHash);
+		public async Task RemoveNestedResource(
+			int nestedResourceHash = -1,
+			bool free = true,
+			IProgress<float> progress = null)
+		{
+			progress?.Report(0f);
 
-            nestedResourcesRepository.TryRemove(nestedResourceHash);
+			if (!nestedResourcesRepository.TryGet(
+				nestedResourceHash,
+				out var nestedResource))
+			{
+				progress?.Report(1f);
 
-            if (free)
-                await ((IResourceData)nestedResource).Clear(
-                    free,
-                    progress);
+				return;
+			}
 
-            progress?.Report(1f);
-        }
+			((IResourceData)nestedResource).ParentResource = null;
 
-        public async Task RemoveNestedResource(
-            string nestedResourceID,
-            bool free = true,
-            IProgress<float> progress = null)
-        {
-            await RemoveNestedResource(
-                nestedResourceID.AddressToHash(),
-                free,
-                progress);
-        }
+			nestedResourceIDHashToID.TryRemove(nestedResourceHash);
 
-        public async Task ClearAllNestedResources(
-            bool free = true,
-            IProgress<float> progress = null)
-        {
-            progress?.Report(0f);
+			nestedResourcesRepository.TryRemove(nestedResourceHash);
 
-            int totalNestedResourcesCount = nestedResourcesRepository.Count;
+			if (free)
+				await ((IResourceData)nestedResource).Clear(
+					free,
+					progress);
 
-            int counter = 0;
+			progress?.Report(1f);
+		}
 
-            foreach (var key in nestedResourcesRepository.Keys)
-            {
-                if (free)
-                {
-                    IProgress<float> localProgress = null;
+		public async Task RemoveNestedResource(
+			string nestedResourceID,
+			bool free = true,
+			IProgress<float> progress = null)
+		{
+			await RemoveNestedResource(
+				nestedResourceID.AddressToHash(),
+				free,
+				progress);
+		}
 
-                    if (progress != null)
-                    {
-                        var localProgressInstance = new Progress<float>();
+		public async Task ClearAllNestedResources(
+			bool free = true,
+			IProgress<float> progress = null)
+		{
+			progress?.Report(0f);
 
-                        localProgressInstance.ProgressChanged += (sender, value) =>
-                        {
-                            progress.Report((float)counter / (float)totalNestedResourcesCount + value / (float)totalNestedResourcesCount);
-                        };
+			int totalNestedResourcesCount = nestedResourcesRepository.Count;
 
-                        localProgress = localProgressInstance;
-                    }
+			int counter = 0;
 
-                    await RemoveNestedResource(
-                        key,
-                        free,
-                        localProgress);
+			foreach (var key in nestedResourcesRepository.Keys)
+			{
+				if (!nestedResourcesRepository.TryGet(
+					key,
+					out var nestedResource))
+				{
+					((IResourceData)nestedResource).ParentResource = null;
 
-                    counter++;
+					IProgress<float> localProgress = null;
 
-                    progress?.Report((float)counter / (float)totalNestedResourcesCount);
-                }
-            }
+					if (progress != null)
+					{
+						var localProgressInstance = new Progress<float>();
 
-            nestedResourceIDHashToID.Clear();
+						localProgressInstance.ProgressChanged += (sender, value) =>
+						{
+							progress.Report((float)counter / (float)totalNestedResourcesCount + value / (float)totalNestedResourcesCount);
+						};
 
-            nestedResourcesRepository.Clear();
+						localProgress = localProgressInstance;
+					}
 
-            progress?.Report(1f);
-        }
+					await ((IResourceData)nestedResource).Clear(
+						free,
+						localProgress);
+				}
 
-        public async Task Clear(
-            bool free = true,
-            IProgress<float> progress = null)
-        {
-            progress?.Report(0f);
+				counter++;
 
-            IProgress<float> localProgress = null;
+				progress?.Report((float)counter / (float)totalNestedResourcesCount);
+			}
 
-            if (progress != null)
-            {
-                var localProgressInstance = new Progress<float>();
+			nestedResourceIDHashToID.Clear();
 
-                localProgressInstance.ProgressChanged += (sender, value) =>
-                {
-                    progress.Report(value * 0.5f);
-                };
+			nestedResourcesRepository.Clear();
 
-                localProgress = localProgressInstance;
-            }
+			progress?.Report(1f);
+		}
 
-            await ClearAllVariants(
-                free,
-                localProgress);
+		public async Task Clear(
+			bool free = true,
+			IProgress<float> progress = null)
+		{
+			progress?.Report(0f);
 
-            progress?.Report(0.5f);
+			IProgress<float> localProgress = null;
 
-            localProgress = null;
+			if (progress != null)
+			{
+				var localProgressInstance = new Progress<float>();
 
-            if (progress != null)
-            {
-                var localProgressInstance = new Progress<float>();
+				localProgressInstance.ProgressChanged += (sender, value) =>
+				{
+					progress.Report(value * 0.5f);
+				};
 
-                localProgressInstance.ProgressChanged += (sender, value) =>
-                {
-                    progress.Report(value * 0.5f + 0.5f);
-                };
+				localProgress = localProgressInstance;
+			}
 
-                localProgress = localProgressInstance;
-            }
+			await ClearAllVariants(
+				free,
+				localProgress);
 
-            await ClearAllNestedResources(
-                free,
-                localProgress);
+			progress?.Report(0.5f);
 
-            progress?.Report(1f);
-        }
+			localProgress = null;
 
-        #endregion
-    }
+			if (progress != null)
+			{
+				var localProgressInstance = new Progress<float>();
+
+				localProgressInstance.ProgressChanged += (sender, value) =>
+				{
+					progress.Report(value * 0.5f + 0.5f);
+				};
+
+				localProgress = localProgressInstance;
+			}
+
+			await ClearAllNestedResources(
+				free,
+				localProgress);
+
+			defaultVariant = null;
+
+			ParentResource = null;
+
+			progress?.Report(1f);
+		}
+
+		#endregion
+	}
 }

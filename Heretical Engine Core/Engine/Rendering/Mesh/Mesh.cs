@@ -11,7 +11,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			GL gl,
 			float[] vertices,
 			uint[] indices,
-			List<Texture> textures)
+			List<TextureOpenGL> textures)
 		{
 			GL = gl;
 
@@ -28,7 +28,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public uint[] Indices { get; private set; }
 
-		public IReadOnlyList<Texture> Textures { get; private set; }
+		public IReadOnlyList<TextureOpenGL> Textures { get; private set; }
 
 		public VertexArrayObject<float, uint> VAO { get; set; }
 

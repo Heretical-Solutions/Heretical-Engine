@@ -29,6 +29,8 @@ namespace HereticalSolutions.ResourceManagement
             bool free = true,
             IProgress<float> progress = null);
 
+        IReadOnlyResourceData ParentResource { set; }
+
         Task AddNestedResource(
             IReadOnlyResourceData nestedResource,
             IProgress<float> progress = null);

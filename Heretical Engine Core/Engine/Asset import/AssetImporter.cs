@@ -1,6 +1,7 @@
 using HereticalSolutions.ResourceManagement;
+using HereticalSolutions.ResourceManagement.Factories;
 
-namespace HereticalSolutions.HereticalEngine.Assimp
+namespace HereticalSolutions.HereticalEngine.AssetImport
 {
 	public abstract class AssetImporter
 	{
@@ -11,6 +12,104 @@ namespace HereticalSolutions.HereticalEngine.Assimp
 			this.resourceManager = resourceManager;
 		}
 
-		public abstract object Import();
+		public virtual async Task<IResourceVariantData> Import(
+			IProgress<float> progress = null)
+		{
+			throw new NotImplementedException();
+		}
+
+		protected virtual IResourceData GetOrCreateResourceData(
+			string fullResourceID)
+		{
+			string[] resourceIDs = fullResourceID.SplitAddressBySeparator();
+
+			IReadOnlyResourceData currentData = null;
+
+			if (resourceManager.HasRootResource(resourceIDs[0]))
+			{
+				currentData = resourceManager.GetRootResource(resourceIDs[0]);
+			}
+			else
+			{
+				currentData = RuntimeResourceManagerFactory.BuildResourceData(
+					new ResourceDescriptor()
+					{
+						ID = resourceIDs[0],
+						IDHash = resourceIDs[0].AddressToHash()
+					});
+
+				resourceManager.AddRootResource(
+					currentData);
+			}
+
+			for (int i = 1; i < resourceIDs.Length; i++)
+			{
+				if (currentData.HasNestedResource(resourceIDs[i]))
+				{
+					currentData = currentData.GetNestedResource(resourceIDs[i]);
+				}
+				else
+				{
+					var newCurrentData = RuntimeResourceManagerFactory.BuildResourceData(
+						new ResourceDescriptor()
+						{
+							ID = resourceIDs[i],
+
+							IDHash = resourceIDs[i].AddressToHash()
+						});
+
+					((IResourceData)currentData).AddNestedResource(
+						newCurrentData);
+
+					currentData = newCurrentData;
+				}
+			}
+
+			return (IResourceData)currentData;
+		}
+
+		protected virtual IResourceData CreateNestedResourceData(
+			string fullResourceID,
+			string nestedResourceID)
+		{
+			var parent = GetOrCreateResourceData(
+				fullResourceID);
+
+			var child = RuntimeResourceManagerFactory.BuildResourceData(
+				new ResourceDescriptor()
+				{
+					ID = nestedResourceID,
+
+					IDHash = nestedResourceID.AddressToHash()
+				});
+
+			parent.AddNestedResource(
+				child);
+
+			return child;
+		}
+
+		protected virtual async Task<IResourceVariantData> AddAssetAsResourceVariant(
+			IResourceData resourceData,
+			ResourceVariantDescriptor variantDescriptor,
+			IResourceStorageHandle resourceStorageHandle,
+			bool allocate = true,
+			IProgress<float> progress = null)
+		{
+			progress?.Report(0f);
+
+			var variantData = RuntimeResourceManagerFactory.BuildResourceVariantData(
+				variantDescriptor,
+				resourceStorageHandle);
+
+			await resourceData.AddVariant(
+				variantData,
+				allocate,
+				progress);
+
+			progress?.Report(1f);
+
+			return variantData;
+		}
 	}
 }

@@ -14,6 +14,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
         public static RuntimeResourceManager BuildRuntimeResourceManager()
         {
             return new RuntimeResourceManager(
+                RepositoriesFactory.BuildDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildDictionaryRepository<int, IReadOnlyResourceData>());
         }
 
@@ -47,9 +48,9 @@ namespace HereticalSolutions.ResourceManagement.Factories
                 storageHandle);
         }
 
-        public static RuntimeResourceStorageHandle BuildRuntimeResourceStorageHandle(object resource)
+        public static PreallocatedRuntimeResourceStorageHandle BuildPreallocatedRuntimeResourceStorageHandle(object resource)
         {
-            return new RuntimeResourceStorageHandle(resource);
+            return new PreallocatedRuntimeResourceStorageHandle(resource);
         }
     }
 }

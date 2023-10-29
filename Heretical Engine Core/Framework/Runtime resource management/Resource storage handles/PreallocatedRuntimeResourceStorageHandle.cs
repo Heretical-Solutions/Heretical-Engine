@@ -3,14 +3,14 @@ using System.Threading.Tasks;
 
 namespace HereticalSolutions.ResourceManagement
 {
-    public class RuntimeResourceStorageHandle
+    public class PreallocatedRuntimeResourceStorageHandle
         : IResourceStorageHandle
     {
         private bool allocated = false;
 
         private object rawResource;
 
-        public RuntimeResourceStorageHandle(
+        public PreallocatedRuntimeResourceStorageHandle(
             object rawResource)
         {
             this.rawResource = rawResource;
@@ -28,11 +28,6 @@ namespace HereticalSolutions.ResourceManagement
             get => allocated;
         }
 
-        /// <summary>
-        /// Allocates the resource asynchronously.
-        /// </summary>
-        /// <param name="progress">An optional progress reporter for tracking the allocation progress.</param>
-        /// <returns>A task representing the asynchronous allocation operation.</returns>
         public virtual async Task Allocate(
             IProgress<float> progress = null)
         {
@@ -41,9 +36,6 @@ namespace HereticalSolutions.ResourceManagement
             progress?.Report(1f);
         }
 
-        /// <summary>
-        /// Gets the resource object.
-        /// </summary>
         public object RawResource
         {
             get => rawResource;

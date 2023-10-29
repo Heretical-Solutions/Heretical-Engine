@@ -8,119 +8,284 @@ namespace HereticalSolutions.ResourceManagement
     public class RuntimeResourceManager
         : IRuntimeResourceManager
     {
-        private readonly IRepository<int, IReadOnlyResourceData> resourceRepository;
+        private readonly IRepository<int, string> rootResourceIDHashToID;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RuntimeResourceManager"/> class.
-        /// </summary>
-        /// <param name="resourceRepository">The repository for storing the resources.</param>
-        public RuntimeResourceManager(IRepository<int, IReadOnlyResourceData> resourceRepository)
+        private readonly IRepository<int, IReadOnlyResourceData> rootResourcesRepository;
+
+        public RuntimeResourceManager(
+            IRepository<int, string> rootResourceIDHashToID,
+            IRepository<int, IReadOnlyResourceData> rootResourcesRepository)
         {
-            this.resourceRepository = resourceRepository;
+            this.rootResourceIDHashToID = rootResourceIDHashToID;
+
+            this.rootResourcesRepository = rootResourcesRepository;
         }
 
         #region IRuntimeResourceManager
 
         #region IReadOnlyRuntimeResourceManager
 
-        /// <summary>
-        /// Checks if a resource with the specified resource ID hash exists in the manager.
-        /// </summary>
-        /// <param name="resourceIDHash">The hash value of the resource ID.</param>
-        /// <returns>True if the resource exists, false otherwise.</returns>
-        public bool HasResource(int resourceIDHash)
+        public bool HasRootResource(int resourceIDHash)
         {
-            return resourceRepository.Has(resourceIDHash);
+            return rootResourcesRepository.Has(resourceIDHash);
         }
 
-        /// <summary>
-        /// Checks if a resource with the specified resource ID exists in the manager.
-        /// </summary>
-        /// <param name="resourceID">The ID of the resource.</param>
-        /// <returns>True if the resource exists, false otherwise.</returns>
-        public bool HasResource(string resourceID)
+        public bool HasRootResource(string resourceID)
         {
-            return HasResource(resourceID.AddressToHash());
+            return HasRootResource(resourceID.AddressToHash());
         }
 
-        /// <summary>
-        /// Gets the resource with the specified resource ID hash.
-        /// </summary>
-        /// <param name="resourceIDHash">The hash value of the resource ID.</param>
-        /// <returns>The read-only resource data associated with the resource ID hash, or null if not found.</returns>
-        public IReadOnlyResourceData GetResource(int resourceIDHash)
+        public bool HasResource(int[] resourceIDHashes)
         {
-            if (!resourceRepository.TryGet(resourceIDHash, out var resource))
+            if (!HasRootResource(resourceIDHashes[0]))
+                return false;
+            
+            IReadOnlyResourceData currentData = GetRootResource(resourceIDHashes[0]);
+
+            for (int i = 1; i < resourceIDHashes.Length; i++)
+            {
+                if (!currentData.HasNestedResource(resourceIDHashes[i]))
+                    return false;
+
+                currentData = currentData.GetNestedResource(resourceIDHashes[i]);
+            }
+
+            return true;
+        }
+
+        public bool HasResource(string[] resourceIDs)
+        {
+            if (!HasRootResource(resourceIDs[0]))
+                return false;
+
+            IReadOnlyResourceData currentData = GetRootResource(resourceIDs[0]);
+
+            for (int i = 1; i < resourceIDs.Length; i++)
+            {
+                if (!currentData.HasNestedResource(resourceIDs[i]))
+                    return false;
+
+                currentData = currentData.GetNestedResource(resourceIDs[i]);
+            }
+
+            return true;
+        }
+
+        public IReadOnlyResourceData GetRootResource(int resourceIDHash)
+        {
+            if (!rootResourcesRepository.TryGet(
+                resourceIDHash,
+                out var resource))
                 return null;
 
             return resource;
         }
 
-        /// <summary>
-        /// Gets the resource with the specified resource ID.
-        /// </summary>
-        /// <param name="resourceID">The ID of the resource.</param>
-        /// <returns>The read-only resource data associated with the resource ID, or null if not found.</returns>
-        public IReadOnlyResourceData GetResource(string resourceID)
+        public IReadOnlyResourceData GetRootResource(string resourceID)
         {
-            return GetResource(resourceID.AddressToHash());
+            return GetRootResource(resourceID.AddressToHash());
         }
 
-        /// <summary>
-        /// Gets the default resource storage handle for the resource with the specified resource ID hash.
-        /// </summary>
-        /// <param name="resourceIDHash">The hash value of the resource ID.</param>
-        /// <returns>The default resource storage handle associated with the resource ID hash.</returns>
-        public IResourceStorageHandle GetDefaultResource(int resourceIDHash)
+        public IReadOnlyResourceData GetResource(int[] resourceIDHashes)
         {
-            if (!resourceRepository.TryGet(resourceIDHash, out var resource))
+            if (!rootResourcesRepository.TryGet(
+                resourceIDHashes[0],
+                out var currentResource))
                 return null;
 
-            var defaultVariant = resource.DefaultVariant;
+            for (int i = 1; i < resourceIDHashes.Length; i++)
+            {
+                currentResource = currentResource.GetNestedResource(resourceIDHashes[i]);
 
-            if (defaultVariant == null)
+                if (currentResource == null)
+                    return null;
+            }
+
+            return currentResource;
+        }
+
+        public IReadOnlyResourceData GetResource(string[] resourceIDs)
+        {
+            if (!rootResourcesRepository.TryGet(
+                resourceIDs[0].AddressToHash(),
+                out var currentResource))
                 return null;
 
-            return defaultVariant.StorageHandle;
+            for (int i = 1; i < resourceIDs.Length; i++)
+            {
+                currentResource = currentResource.GetNestedResource(resourceIDs[i]);
+
+                if (currentResource == null)
+                    return null;
+            }
+
+            return currentResource;
         }
 
-        /// <summary>
-        /// Gets the default resource storage handle for the resource with the specified resource ID.
-        /// </summary>
-        /// <param name="resourceID">The ID of the resource.</param>
-        /// <returns>The default resource storage handle associated with the resource ID.</returns>
-        public IResourceStorageHandle GetDefaultResource(string resourceID)
+        public IResourceVariantData GetDefaultRootResource(int resourceIDHash)
         {
-            return GetDefaultResource(resourceID.AddressToHash());
+            if (!rootResourcesRepository.TryGet(resourceIDHash, out var resource))
+                return null;
+
+            return resource.DefaultVariant;
         }
+
+        public IResourceVariantData GetDefaultRootResource(string resourceID)
+        {
+            return GetDefaultRootResource(resourceID.AddressToHash());
+        }
+
+        public IResourceVariantData GetDefaultResource(int[] resourceIDHashes)
+        {
+            if (!rootResourcesRepository.TryGet(
+                resourceIDHashes[0],
+                out var currentResource))
+                return null;
+
+            for (int i = 1; i < resourceIDHashes.Length; i++)
+            {
+                currentResource = currentResource.GetNestedResource(resourceIDHashes[i]);
+
+                if (currentResource == null)
+                    return null;
+            }
+
+            return currentResource.DefaultVariant;
+        }
+
+        public IResourceVariantData GetDefaultResource(string[] resourceIDs)
+        {
+            if (!rootResourcesRepository.TryGet(
+                resourceIDs[0].AddressToHash(),
+                out var currentResource))
+                return null;
+
+            for (int i = 1; i < resourceIDs.Length; i++)
+            {
+                currentResource = currentResource.GetNestedResource(resourceIDs[i]);
+
+                if (currentResource == null)
+                    return null;
+            }
+
+            return currentResource.DefaultVariant;
+        }
+
+        public IEnumerable<int> RootResourceIDHashes { get => rootResourcesRepository.Keys; }
+
+        public IEnumerable<string> RootResourceIDs { get => rootResourceIDHashToID.Values; }
+
+        public IEnumerable<IReadOnlyResourceData> AllRootResources { get => rootResourcesRepository.Values; }
 
         #endregion
 
-        /// <summary>
-        /// Adds a resource to the runtime resource manager.
-        /// </summary>
-        /// <param name="resource">The read-only resource data to add.</param>
-        public void AddResource(IReadOnlyResourceData resource)
+        public async Task AddRootResource(
+            IReadOnlyResourceData resource,
+            IProgress<float> progress = null)
         {
-            resourceRepository.TryAdd(resource.Descriptor.IDHash, resource);
+            progress?.Report(0f);
+
+            if (!rootResourcesRepository.TryAdd(
+                resource.Descriptor.IDHash,
+                resource))
+            {
+                progress?.Report(1f);
+
+                return;
+            }
+
+            ((IResourceData)resource).ParentResource = null;
+
+            rootResourceIDHashToID.TryAdd(
+                resource.Descriptor.IDHash,
+                resource.Descriptor.ID);
+
+            progress?.Report(1f);
         }
 
-        /// <summary>
-        /// Removes a resource from the runtime resource manager.
-        /// </summary>
-        /// <param name="idHash">The hash value of the resource ID to remove. If not specified, all resources will be removed.</param>
-        public void RemoveResource(int idHash = -1)
+        public async Task RemoveRootResource(
+            int idHash = -1,
+            bool free = true,
+            IProgress<float> progress = null)
         {
-            resourceRepository.TryRemove(idHash);
+            progress?.Report(0f);
+
+            if (!rootResourcesRepository.TryGet(
+                idHash,
+                out var resource))
+            {
+                progress?.Report(1f);
+
+                return;
+            }
+
+            rootResourcesRepository.TryRemove(idHash);
+
+            if (free)
+                await ((IResourceData)resource).Clear(
+                    free,
+                    progress);
+
+            progress?.Report(1f);
         }
-        
-        /// <summary>
-        /// Removes a resource from the runtime resource manager.
-        /// </summary>
-        /// <param name="resourceID">The ID of the resource to remove.</param>
-        public void RemoveResource(string resourceID)
+
+        public async Task RemoveRootResource(
+            string resourceID,
+            bool free = true,
+            IProgress<float> progress = null)
         {
-            RemoveResource(resourceID.AddressToHash());
+            await RemoveRootResource(
+                resourceID.AddressToHash(),
+                free,
+                progress);
+        }
+
+        public async Task ClearAllRootResources(
+            bool free = true,
+            IProgress<float> progress = null)
+        {
+            progress?.Report(0f);
+
+            int totalRootResourcesCount = rootResourcesRepository.Count;
+
+            int counter = 0;
+
+            foreach (var key in rootResourcesRepository.Keys)
+            {
+                if (!rootResourcesRepository.TryGet(
+                    key,
+                    out var rootResource))
+                {
+                    IProgress<float> localProgress = null;
+
+                    if (progress != null)
+                    {
+                        var localProgressInstance = new Progress<float>();
+
+                        localProgressInstance.ProgressChanged += (sender, value) =>
+                        {
+                            progress.Report((float)counter / (float)totalRootResourcesCount + value / (float)totalRootResourcesCount);
+                        };
+
+                        localProgress = localProgressInstance;
+                    }
+
+                    await ((IResourceData)rootResource).Clear(
+                        free,
+                        localProgress);
+                }
+
+                counter++;
+
+                progress?.Report((float)counter / (float)totalRootResourcesCount);
+
+            }
+
+            rootResourceIDHashToID.Clear();
+
+            rootResourcesRepository.Clear();
+
+            progress?.Report(1f);
         }
 
         #endregion
