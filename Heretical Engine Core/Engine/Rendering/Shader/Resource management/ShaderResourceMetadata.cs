@@ -1,9 +1,9 @@
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class ShaderResourceMetadata
+	public struct ShaderResourceMetadata
 	{
-		public bool Compiled = false;
+		public bool Compiled;
 
-		public string CompilationLog = string.Empty;
+		public string CompilationLog;
 	}
 }

@@ -31,7 +31,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			}
 			else
 			{
-				currentData = RuntimeResourceManagerFactory.BuildResourceData(
+				currentData = ResourceManagementFactory.BuildResourceData(
 					new ResourceDescriptor()
 					{
 						ID = resourceIDs[0],
@@ -50,7 +50,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				}
 				else
 				{
-					var newCurrentData = RuntimeResourceManagerFactory.BuildResourceData(
+					var newCurrentData = ResourceManagementFactory.BuildResourceData(
 						new ResourceDescriptor()
 						{
 							ID = resourceIDs[i],
@@ -75,7 +75,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			var parent = GetOrCreateResourceData(
 				fullResourceID);
 
-			var child = RuntimeResourceManagerFactory.BuildResourceData(
+			var child = ResourceManagementFactory.BuildResourceData(
 				new ResourceDescriptor()
 				{
 					ID = nestedResourceID,
@@ -92,13 +92,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		protected virtual async Task<IResourceVariantData> AddAssetAsResourceVariant(
 			IResourceData resourceData,
 			ResourceVariantDescriptor variantDescriptor,
-			IResourceStorageHandle resourceStorageHandle,
+			IReadOnlyResourceStorageHandle resourceStorageHandle,
 			bool allocate = true,
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			var variantData = RuntimeResourceManagerFactory.BuildResourceVariantData(
+			var variantData = ResourceManagementFactory.BuildResourceVariantData(
 				variantDescriptor,
 				resourceStorageHandle);
 

@@ -1,32 +1,24 @@
 using System;
 using System.Threading.Tasks;
 
-using HereticalSolutions.ResourceManagement;
-
-using HereticalSolutions.Persistence.IO;
-
-namespace HereticalSolutions.HereticalEngine.Rendering
+namespace HereticalSolutions.ResourceManagement
 {
-	public class TextureRAMStorageHandle
-		: IReadOnlyResourceStorageHandle
+	public class ReadWriteResourceStorageHandle
+		: IResourceStorageHandle
 	{
-		private readonly FileSystemSettings fsSettings;
-
-
 		private bool allocated = false;
 
-		private Image<Rgba32> texture = null;
+		private object rawResource;
 
-		public TextureRAMStorageHandle(
-			FileSystemSettings fsSettings)
+		public ReadWriteResourceStorageHandle(
+			object rawResource)
 		{
-			this.fsSettings = fsSettings;
+			this.rawResource = rawResource;
 
-
-			texture = null;
-
-			allocated = false;
+			allocated = true;
 		}
+
+		#region IResourceStorageHandle
 
 		#region IReadOnlyResourceStorageHandle
 
@@ -49,8 +41,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			texture = await Image.LoadAsync<Rgba32>(fsSettings.FullPath);
-
 			allocated = true;
 
 			progress?.Report(1f);
@@ -68,11 +58,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			texture.Dispose();
-
-			texture = null;
-
-
 			allocated = false;
 
 			progress?.Report(1f);
@@ -87,7 +72,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				if (!allocated)
 					throw new InvalidOperationException("Resource is not allocated.");
 
-				return texture;
+				return rawResource;
 			}
 		}
 
@@ -96,7 +81,33 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			if (!allocated)
 				throw new InvalidOperationException("Resource is not allocated.");
 
-			return (TValue)(object)texture; //DO NOT REPEAT
+			return (TValue)rawResource;
+		}
+
+		#endregion
+
+		public bool SetRawResource(object rawResource)
+		{
+			if (!allocated)
+			{
+				return false;
+			}
+
+			this.rawResource = rawResource;
+
+			return true;
+		}
+
+		public bool SetResource<TValue>(TValue resource)
+		{
+			if (!allocated)
+			{
+				return false;
+			}
+
+			rawResource = resource;
+
+			return true;
 		}
 
 		#endregion

@@ -3,27 +3,34 @@ using System.Threading.Tasks;
 
 using HereticalSolutions.ResourceManagement;
 
-using HereticalSolutions.Persistence.IO;
+using Silk.NET.OpenGL;
+
+using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class TextureRAMStorageHandle
+	public class MeshOpenGLStorageHandle
 		: IReadOnlyResourceStorageHandle
 	{
-		private readonly FileSystemSettings fsSettings;
+		private readonly IReadOnlyResourceStorageHandle meshRAMStorageHandle = null;
+
+		private readonly GL cachedGL = default;
 
 
 		private bool allocated = false;
 
-		private Image<Rgba32> texture = null;
+		private MeshOpenGL mesh = null;
 
-		public TextureRAMStorageHandle(
-			FileSystemSettings fsSettings)
+		public MeshOpenGLStorageHandle(
+			IReadOnlyResourceStorageHandle meshRAMStorageHandle,
+			GL gl)
 		{
-			this.fsSettings = fsSettings;
+			this.meshRAMStorageHandle = meshRAMStorageHandle;
+
+			cachedGL = gl;
 
 
-			texture = null;
+			mesh = null;
 
 			allocated = false;
 		}
@@ -49,7 +56,30 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			texture = await Image.LoadAsync<Rgba32>(fsSettings.FullPath);
+			if (!meshRAMStorageHandle.Allocated)
+			{
+				IProgress<float> localProgress = null;
+
+				if (progress != null)
+				{
+					var localProgressInstance = new Progress<float>();
+
+					localProgressInstance.ProgressChanged += (sender, value) =>
+					{
+						progress.Report(value);
+					};
+
+					localProgress = localProgressInstance;
+				}
+
+				await meshRAMStorageHandle.Allocate(
+					localProgress);
+			}
+
+			mesh = MeshFactory.BuildMeshOpenGL(
+				cachedGL,
+				meshRAMStorageHandle.GetResource<Mesh>());
+
 
 			allocated = true;
 
@@ -68,9 +98,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			texture.Dispose();
+			mesh.Dispose(cachedGL);
 
-			texture = null;
+			mesh = null;
 
 
 			allocated = false;
@@ -87,7 +117,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				if (!allocated)
 					throw new InvalidOperationException("Resource is not allocated.");
 
-				return texture;
+				return mesh;
 			}
 		}
 
@@ -96,7 +126,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			if (!allocated)
 				throw new InvalidOperationException("Resource is not allocated.");
 
-			return (TValue)(object)texture; //DO NOT REPEAT
+			return (TValue)(object)mesh; //DO NOT REPEAT
 		}
 
 		#endregion

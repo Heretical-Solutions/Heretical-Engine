@@ -3,10 +3,8 @@
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public struct Mesh
+	public struct Model
 	{
-		public float[] Vertices;
-
-		public uint[] Indices;
+		
 	}
 }

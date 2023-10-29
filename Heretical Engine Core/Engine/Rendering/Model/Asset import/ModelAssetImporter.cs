@@ -88,54 +88,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			return null;
 		}
 
-		//TODO: this is a third class (after AssetImporterFromFile and ShaderAssimp) that has this method and the methods below. Extract?
-		private IResourceData GetResourceData(
-			string resourceID)
-		{
-			IResourceData resourceData = null;
-
-			if (resourceManager.HasRootResource(resourceID))
-			{
-				resourceData = (IResourceData)resourceManager.GetRootResource(resourceID);
-			}
-			else
-			{
-				resourceData = RuntimeResourceManagerFactory.BuildResourceData(
-					new ResourceDescriptor()
-					{
-						ID = resourceID,
-						IDHash = resourceID.AddressToHash()
-					});
-
-				resourceManager.AddRootResource((IReadOnlyResourceData)resourceData);
-			}
-
-			return resourceData;
-		}
-
-		private void AddResourceAsVariant<TValue>(
-			string variantID,
-			TValue asset,
-			IResourceData resourceData,
-			IProgress<float> progress = null)
-		{
-			var variantData = RuntimeResourceManagerFactory.BuildResourceVariantData(
-				new ResourceVariantDescriptor()
-				{
-					VariantID = variantID,
-					VariantIDHash = variantID.AddressToHash(),
-					Priority = 0,
-					Source = EResourceSources.LOCAL_STORAGE,
-					ResourceType = typeof(TValue)
-				},
-				RuntimeResourceManagerFactory.BuildPreallocatedRuntimeResourceStorageHandle(
-					asset));
-
-			resourceData.AddVariant(
-				variantData,
-				progress);
-		}
-
 		private unsafe void ProcessNode(
 			Node* node,
 			Scene* scene,
@@ -143,6 +95,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			for (var i = 0; i < node->MNumMeshes; i++)
 			{
+				node->
+
 				var mesh = scene->MMeshes[node->MMeshes[i]];
 
 				meshes.Add(

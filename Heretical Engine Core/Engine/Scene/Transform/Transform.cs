@@ -29,7 +29,7 @@ namespace HereticalSolutions.HereticalEngine.Scenes
 
 		public Matrix4X4<float> TRSMatrix;
 
-		public bool Dirty;
+		//public bool Dirty;
 
 		#endregion
 
@@ -37,7 +37,16 @@ namespace HereticalSolutions.HereticalEngine.Scenes
 		{
 			TRSMatrix = Matrix4X4<float>.Identity * RotationMatrix * ScaleMatrix * TranslationMatrix;
 
-			Dirty = false;
+			//Dirty = false;
+		}
+
+		public void DecomposeTRSMatrix()
+		{
+			Matrix4X4.Decompose<float>(
+				TRSMatrix,
+				out Scale,
+				out Rotation,
+				out Position);
 		}
 
 		/*

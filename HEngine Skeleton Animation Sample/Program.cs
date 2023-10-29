@@ -41,7 +41,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			IInputContext inputContext = null;
 
-			IRuntimeResourceManager runtimeResourceManager = RuntimeResourceManagerFactory.BuildRuntimeResourceManager();
+			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildRuntimeResourceManager();
 
 			// Our loading function
 			window.Load += () =>

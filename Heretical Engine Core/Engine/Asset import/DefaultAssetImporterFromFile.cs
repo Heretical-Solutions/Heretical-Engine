@@ -74,8 +74,8 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(TAsset)
 				},
-				RuntimeResourceManagerFactory
-					.BuildPreallocatedRuntimeResourceStorageHandle(asset),
+				ResourceManagementFactory
+					.BuildPreallocatedResourceStorageHandle(asset),
 				allocate,
 				progress);
 

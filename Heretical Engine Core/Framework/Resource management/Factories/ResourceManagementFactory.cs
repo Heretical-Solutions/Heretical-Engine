@@ -5,7 +5,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
     /// <summary>
     /// Factory class for creating instances related to the runtime resource manager.
     /// </summary>
-    public static class RuntimeResourceManagerFactory
+    public static class ResourceManagementFactory
     {
         /// <summary>
         /// Builds a new instance of the <see cref="RuntimeResourceManager"/> class.
@@ -41,16 +41,21 @@ namespace HereticalSolutions.ResourceManagement.Factories
         /// <returns>A new instance of the <see cref="ResourceVariantData"/> class.</returns>
         public static ResourceVariantData BuildResourceVariantData(
             ResourceVariantDescriptor descriptor,
-            IResourceStorageHandle storageHandle)
+            IReadOnlyResourceStorageHandle storageHandle)
         {
             return new ResourceVariantData(
                 descriptor,
                 storageHandle);
         }
 
-        public static PreallocatedRuntimeResourceStorageHandle BuildPreallocatedRuntimeResourceStorageHandle(object resource)
+        public static PreallocatedResourceStorageHandle BuildPreallocatedResourceStorageHandle(object resource)
         {
-            return new PreallocatedRuntimeResourceStorageHandle(resource);
+            return new PreallocatedResourceStorageHandle(resource);
+        }
+
+        public static ReadWriteResourceStorageHandle BuildReadWriteResourceStorageHandle(object resource)
+        {
+            return new ReadWriteResourceStorageHandle(resource);
         }
     }
 }

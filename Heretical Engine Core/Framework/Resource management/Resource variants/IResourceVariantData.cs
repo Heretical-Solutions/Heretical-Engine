@@ -11,10 +11,6 @@ namespace HereticalSolutions.ResourceManagement
         /// <value>The descriptor of the resource variant.</value>
         ResourceVariantDescriptor Descriptor { get; }
 
-        /// <summary>
-        /// Gets the storage handle for the resource variant.
-        /// </summary>
-        /// <value>The storage handle for the resource variant.</value>
-        IResourceStorageHandle StorageHandle { get; }
+        IReadOnlyResourceStorageHandle StorageHandle { get; }
     }
 }

@@ -2,31 +2,22 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class VertexArrayObject<TVertex, TIndex> : IDisposable
+	public class VertexArrayOpenGL<TVertex, TIndex>
 		where TVertex : unmanaged
 		where TIndex : unmanaged
 	{
 		private uint handle;
 
-		private GL gl;
+		public uint Handle => handle;
 
-		public VertexArrayObject(
-			GL gl,
-			GLBuffer<TVertex> vbo,
-			GLBuffer<TIndex> ebo)
+		public VertexArrayOpenGL(
+			uint handle)
 		{
-			this.gl = gl;
-
-            handle = this.gl.GenVertexArray();
-
-			Bind();
-
-			vbo.Bind();
-
-			ebo.Bind();
+            this.handle = handle;
 		}
 
 		public unsafe void VertexAttributePointer(
+			GL gl,
 			uint index,
 			int count,
 			VertexAttribPointerType type,
@@ -44,12 +35,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			gl.EnableVertexAttribArray(index);
 		}
 
-		public void Bind()
+		public void Bind(
+			GL gl)
 		{
 			gl.BindVertexArray(handle);
 		}
 
-		public void Dispose()
+		public void Dispose(
+			GL gl)
 		{
 			gl.DeleteVertexArray(handle);
 		}

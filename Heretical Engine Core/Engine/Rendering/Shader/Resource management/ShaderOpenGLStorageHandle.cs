@@ -2,6 +2,8 @@ using System;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
+using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
 using HereticalSolutions.ResourceManagement;
 
 using Silk.NET.OpenGL;
@@ -9,7 +11,7 @@ using Silk.NET.OpenGL;
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ShaderOpenGLStorageHandle
-		: IResourceStorageHandle
+		: IReadOnlyResourceStorageHandle
 	{
 		private readonly string vertexShaderSource = string.Empty;
 
@@ -23,11 +25,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private ShaderOpenGL shader = null;
 
 
-		public ShaderResourceMetadata VertexShaderMetadata { get; private set; }
+		public ShaderResourceMetadata VertexShaderMetadata;
 
-		public ShaderResourceMetadata FragmentShaderMetadata { get; private set; }
+		public ShaderResourceMetadata FragmentShaderMetadata;
 
-		public ShaderResourceMetadata ShaderProgramMetadata { get; private set; }
+		public ShaderResourceMetadata ShaderProgramMetadata;
 
 		public ShaderOpenGLStorageHandle(
 			string vertexShaderSource,
@@ -68,7 +70,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			};
 		}
 
-		#region IResourceStorageHandle
+		#region IReadOnlyResourceStorageHandle
+
+		#region IAllocatable
 
 		public bool Allocated
 		{
@@ -87,11 +91,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			if (!LoadShader(
+			if (!ShaderFactory.BuildShaderProgram(
 				vertexShaderSource,
 				fragmentShaderSource,
 				cachedGL,
-				out uint handle))
+				out uint handle,
+				out VertexShaderMetadata,
+				out FragmentShaderMetadata,
+				out ShaderProgramMetadata))
 			{
 				progress?.Report(1f);
 
@@ -104,124 +111,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			allocated = true;
 
 			progress?.Report(1f);
-		}
-
-		private bool LoadShader(
-			string vertexShaderSource,
-			string fragmentShaderSource,
-			GL gl,
-			out uint handle)
-		{
-			handle = 0;
-
-			uint vertex = CompileShader(
-				gl,
-				vertexShaderSource,
-				ShaderType.VertexShader,
-				VertexShaderMetadata);
-
-			if (!VertexShaderMetadata.Compiled)
-			{
-				return false;
-			}
-
-			uint fragment = CompileShader(
-				gl,
-				fragmentShaderSource,
-				ShaderType.FragmentShader,
-				FragmentShaderMetadata);
-
-			if (!FragmentShaderMetadata.Compiled)
-			{
-				return false;
-			}
-
-			handle = gl.CreateProgram();
-
-			gl.AttachShader(
-				handle,
-				vertex);
-
-			gl.AttachShader(
-				handle,
-				fragment);
-
-			gl.LinkProgram(handle);
-
-			gl.GetProgram(
-				handle,
-				GLEnum.LinkStatus,
-				out var status);
-
-			ShaderProgramMetadata.Compiled = status != 0;
-
-			ShaderProgramMetadata.CompilationLog = gl.GetProgramInfoLog(handle);
-
-			if (!ShaderProgramMetadata.Compiled)
-			{
-				return false;
-			}
-
-			/*
-			if (status == 0)
-			{
-				throw new Exception($"Program failed to link with error: {gl.GetProgramInfoLog(handle)}");
-			}
-			*/
-
-			gl.DetachShader(
-				handle,
-				vertex);
-
-			gl.DetachShader(
-				handle,
-				fragment);
-
-			gl.DeleteShader(vertex);
-
-			gl.DeleteShader(fragment);
-
-			return true;
-		}
-
-		private uint CompileShader(
-			GL gl,
-			string source,
-			ShaderType type,
-			ShaderResourceMetadata metadata)
-		{
-			uint handle = gl.CreateShader(type);
-
-			gl.ShaderSource(
-				handle,
-				source);
-
-			gl.CompileShader(handle);
-
-			string infoLog = gl.GetShaderInfoLog(handle);
-
-			metadata.Compiled = string.IsNullOrWhiteSpace(infoLog);
-
-			metadata.CompilationLog = infoLog;
-
-			/*
-			if (!string.IsNullOrWhiteSpace(infoLog))
-			{
-				throw new Exception($"Error compiling shader of type {type}, failed with error {infoLog}");
-			}
-			*/
-
-			return handle;
-		}
-
-		public object RawResource
-		{
-			get => shader;
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			return (TValue)(object)shader;
 		}
 
 		public virtual async Task Free(
@@ -259,6 +148,27 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			allocated = false;
 
 			progress?.Report(1f);
+		}
+
+		#endregion
+
+		public object RawResource
+		{
+			get
+			{
+				if (!allocated)
+					throw new InvalidOperationException("Resource is not allocated.");
+
+				return shader;
+			}
+		}
+
+		public TValue GetResource<TValue>()
+		{
+			if (!allocated)
+				throw new InvalidOperationException("Resource is not allocated.");
+
+			return (TValue)(object)shader; //DO NOT REPEAT
 		}
 
 		#endregion
