@@ -8,8 +8,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		public string Name;
 
-		public string Shader;
+		public string ShaderResourceID;
 
-		public string[] Textures;
+		public string[] TextureResourceIDs;
 	}
 }

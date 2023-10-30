@@ -10,7 +10,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	public class TextureRAMStorageHandle
 		: IReadOnlyResourceStorageHandle
 	{
-		private readonly FileSystemSettings fsSettings;
+		private readonly FilePathSettings filePathSettings;
 
 
 		private bool allocated = false;
@@ -18,9 +18,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private Image<Rgba32> texture = null;
 
 		public TextureRAMStorageHandle(
-			FileSystemSettings fsSettings)
+			FilePathSettings filePathSettings)
 		{
-			this.fsSettings = fsSettings;
+			this.filePathSettings = filePathSettings;
 
 
 			texture = null;
@@ -49,7 +49,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			texture = await Image.LoadAsync<Rgba32>(fsSettings.FullPath);
+			texture = await Image.LoadAsync<Rgba32>(filePathSettings.FullPath);
 
 			allocated = true;
 

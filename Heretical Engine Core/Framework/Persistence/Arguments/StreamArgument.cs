@@ -10,6 +10,6 @@ namespace HereticalSolutions.Persistence.Arguments
         /// <summary>
         /// Gets or sets the file system settings.
         /// </summary>
-        public FileSystemSettings Settings { get; set; }
+        public FilePathSettings Settings { get; set; }
     }
 }

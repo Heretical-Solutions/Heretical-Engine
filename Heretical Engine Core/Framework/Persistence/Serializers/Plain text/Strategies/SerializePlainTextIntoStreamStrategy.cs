@@ -7,9 +7,9 @@ namespace HereticalSolutions.Persistence.Serializers
 	{
 		public bool Serialize(ISerializationArgument argument, string text)
 		{
-			FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+			FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
-			if (!StreamIO.OpenWriteStream(fileSystemSettings, out StreamWriter streamWriter))
+			if (!StreamIO.OpenWriteStream(filePathSettings, out StreamWriter streamWriter))
 				return false;
 
 			streamWriter.Write(text);
@@ -21,11 +21,11 @@ namespace HereticalSolutions.Persistence.Serializers
 
 		public bool Deserialize(ISerializationArgument argument, out string text)
 		{
-			FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+			FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
 			text = string.Empty;
 
-			if (!StreamIO.OpenReadStream(fileSystemSettings, out StreamReader streamReader))
+			if (!StreamIO.OpenReadStream(filePathSettings, out StreamReader streamReader))
 				return false;
 
 			text = streamReader.ReadToEnd();
@@ -37,9 +37,9 @@ namespace HereticalSolutions.Persistence.Serializers
 
 		public void Erase(ISerializationArgument argument)
 		{
-			FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+			FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
-			StreamIO.Erase(fileSystemSettings);
+			StreamIO.Erase(filePathSettings);
 		}
 	}
 }

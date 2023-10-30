@@ -140,7 +140,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			var vertexShaderArgument = new TextFileArgument();
 
-			vertexShaderArgument.Settings = new FileSystemSettings
+			vertexShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = PATH_TO_SHADERS + ".vert",
 				ApplicationDataFolder = pathToAssets
@@ -148,7 +148,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			var fragmentShaderArgument = new TextFileArgument();
 
-			fragmentShaderArgument.Settings = new FileSystemSettings
+			fragmentShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = PATH_TO_SHADERS + ".frag",
 				ApplicationDataFolder = pathToAssets
@@ -171,7 +171,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			var modelAssimp = new ModelRAMAssetImporter(
 				runtimeResourceManager,
 				"Suit",
-				new FileSystemSettings
+				new FilePathSettings
 				{
 					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets

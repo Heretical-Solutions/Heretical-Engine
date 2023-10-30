@@ -9,13 +9,13 @@ namespace HereticalSolutions.Persistence.IO
     public static class TextFileIO
     {
         /// <summary>
-        /// Writes the specified contents to the file specified by the given <see cref="FileSystemSettings"/>.
+        /// Writes the specified contents to the file specified by the given <see cref="FilePathSettings"/>.
         /// </summary>
         /// <param name="settings">The file system settings.</param>
         /// <param name="contents">The contents to write.</param>
         /// <returns>true if the write operation is successful; otherwise, false.</returns>
         public static bool Write(
-            FileSystemSettings settings,
+            FilePathSettings settings,
             string contents)
         {
             string savePath = settings.FullPath;
@@ -28,13 +28,13 @@ namespace HereticalSolutions.Persistence.IO
         }
         
         /// <summary>
-        /// Writes the specified byte array to the file specified by the given <see cref="FileSystemSettings"/>.
+        /// Writes the specified byte array to the file specified by the given <see cref="FilePathSettings"/>.
         /// </summary>
         /// <param name="settings">The file system settings.</param>
         /// <param name="contents">The byte array to write.</param>
         /// <returns>true if the write operation is successful; otherwise, false.</returns>
         public static bool Write(
-            FileSystemSettings settings,
+            FilePathSettings settings,
             byte[] contents)
         {
             string savePath = settings.FullPath;
@@ -47,13 +47,13 @@ namespace HereticalSolutions.Persistence.IO
         }
 
         /// <summary>
-        /// Reads the contents of the file specified by the given <see cref="FileSystemSettings"/> into a string.
+        /// Reads the contents of the file specified by the given <see cref="FilePathSettings"/> into a string.
         /// </summary>
         /// <param name="settings">The file system settings.</param>
         /// <param name="contents">When this method returns, contains the contents of the file, or an empty string if the file does not exist.</param>
         /// <returns>true if the read operation is successful; otherwise, false.</returns>
         public static bool Read(
-            FileSystemSettings settings,
+            FilePathSettings settings,
             out string contents)
         {
             string savePath = settings.FullPath;
@@ -69,13 +69,13 @@ namespace HereticalSolutions.Persistence.IO
         }
         
         /// <summary>
-        /// Reads the contents of the file specified by the given <see cref="FileSystemSettings"/> into a byte array.
+        /// Reads the contents of the file specified by the given <see cref="FilePathSettings"/> into a byte array.
         /// </summary>
         /// <param name="settings">The file system settings.</param>
         /// <param name="contents">When this method returns, contains the contents of the file, or null if the file does not exist.</param>
         /// <returns>true if the read operation is successful; otherwise, false.</returns>
         public static bool Read(
-            FileSystemSettings settings,
+            FilePathSettings settings,
             out byte[] contents)
         {
             string savePath = settings.FullPath;
@@ -91,10 +91,10 @@ namespace HereticalSolutions.Persistence.IO
         }
 
         /// <summary>
-        /// Deletes the file specified by the given <see cref="FileSystemSettings"/>, if it exists.
+        /// Deletes the file specified by the given <see cref="FilePathSettings"/>, if it exists.
         /// </summary>
         /// <param name="settings">The file system settings.</param>
-        public static void Erase(FileSystemSettings settings)
+        public static void Erase(FilePathSettings settings)
         {
             string savePath = settings.FullPath;
 

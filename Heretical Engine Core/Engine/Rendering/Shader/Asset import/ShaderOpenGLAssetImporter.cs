@@ -12,9 +12,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ShaderOpenGLAssetImporter : AssetImporter
 	{
-		private const string SHADER_OPENGL_VARIANT_ID = "OpenGL shader";
+		public const string SHADER_OPENGL_VARIANT_ID = "OpenGL shader";
 
-		private const int SHADER_OPENGL_PRIORITY = 0;
+		public const int SHADER_OPENGL_PRIORITY = 0;
 
 		private readonly string fullResourceID;
 

@@ -15,14 +15,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public Transform Transform { get; private set; }
 
-		public MeshWithMaterialOpenGL[] MeshesWithMaterials { get; private set; }
+		public MeshOpenGL[] Meshes { get; private set; }
 
 		public ModelNodeOpenGL(
 			string name,
 			ModelNodeOpenGL parent,
 			ModelNodeOpenGL[] children,
 			Transform transform,
-			MeshWithMaterialOpenGL[] meshesWithMaterials)
+			MeshOpenGL[] meshes)
 		{
 			Name = name;
 
@@ -32,7 +32,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			Transform = transform;
 
-			MeshesWithMaterials = meshesWithMaterials;
+			Meshes = meshes;
 		}
 	}
 }

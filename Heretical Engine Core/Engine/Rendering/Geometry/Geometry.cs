@@ -3,7 +3,7 @@
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public struct Mesh
+	public struct Geometry
 	{
 		public float[] Vertices;
 

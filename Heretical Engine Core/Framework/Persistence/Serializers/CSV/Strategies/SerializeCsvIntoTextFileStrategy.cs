@@ -24,7 +24,7 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns>true if the serialization was successful, otherwise false.</returns>
         public bool Serialize(ISerializationArgument argument, Type valueType, object value)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
             string csv;
             
@@ -49,7 +49,7 @@ namespace HereticalSolutions.Persistence.Serializers
                 csv = stringWriter.ToString();
             }
             
-            return TextFileIO.Write(fileSystemSettings, csv);
+            return TextFileIO.Write(filePathSettings, csv);
         }
 
         /// <summary>
@@ -61,9 +61,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns>true if the deserialization was successful, otherwise false.</returns>
         public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
-            bool result = TextFileIO.Read(fileSystemSettings, out string csv);
+            bool result = TextFileIO.Read(filePathSettings, out string csv);
 
             if (!result)
             {
@@ -110,9 +110,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <param name="argument">The serialization argument.</param>
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
             
-            TextFileIO.Erase(fileSystemSettings);
+            TextFileIO.Erase(filePathSettings);
         }
     }
 }

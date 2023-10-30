@@ -20,7 +20,7 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns>True if the serialization succeeded; otherwise, false.</returns>
         public bool Serialize(ISerializationArgument argument, XmlSerializer serializer, object value)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
             string xml;
             
@@ -31,7 +31,7 @@ namespace HereticalSolutions.Persistence.Serializers
                 xml = stringWriter.ToString();
             }
             
-            return TextFileIO.Write(fileSystemSettings, xml);
+            return TextFileIO.Write(filePathSettings, xml);
         }
 
         /// <summary>
@@ -43,9 +43,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns>True if the deserialization succeeded; otherwise, false.</returns>
         public bool Deserialize(ISerializationArgument argument, XmlSerializer serializer, out object value)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
-            bool result = TextFileIO.Read(fileSystemSettings, out string xml);
+            bool result = TextFileIO.Read(filePathSettings, out string xml);
 
             if (!result)
             {
@@ -68,9 +68,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <param name="argument">The serialization argument.</param>
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
             
-            TextFileIO.Erase(fileSystemSettings);
+            TextFileIO.Erase(filePathSettings);
         }
     }
 }

@@ -4,10 +4,10 @@
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	[Serializable]
-	public struct MeshWithMaterialDTO
+	public struct MeshDTO
 	{
-		public string Mesh;
+		public string GeometryResourceID;
 
-		public string Material;
+		public string MaterialResourceID;
 	}
 }

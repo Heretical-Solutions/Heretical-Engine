@@ -7,23 +7,23 @@ namespace HereticalSolutions.Persistence.Serializers
 	{
 		public bool Serialize(ISerializationArgument argument, string text)
 		{
-			FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+			FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
-			return TextFileIO.Write(fileSystemSettings, text);
+			return TextFileIO.Write(filePathSettings, text);
 		}
 
 		public bool Deserialize(ISerializationArgument argument, out string text)
 		{
-			FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+			FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
-			return TextFileIO.Read(fileSystemSettings, out text);
+			return TextFileIO.Read(filePathSettings, out text);
 		}
 
 		public void Erase(ISerializationArgument argument)
 		{
-			FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+			FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
-			TextFileIO.Erase(fileSystemSettings);
+			TextFileIO.Erase(filePathSettings);
 		}
 	}
 }

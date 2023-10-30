@@ -8,11 +8,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		public string Name;
 
-		public string[] Meshes;
+		public string[] MeshResourceIDs;
 
-		public string[] Textures;
+		public string[] TextureResourceIDs;
 
-		public string[] Materials;
+		public string[] MaterialResourceIDs;
 
 		public ModelNodeDTO RootNode;
 	}

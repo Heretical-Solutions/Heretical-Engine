@@ -264,7 +264,7 @@ namespace HereticalSolutions.ResourceManagement
 
                         localProgressInstance.ProgressChanged += (sender, value) =>
                         {
-                            progress.Report((float)counter / (float)totalRootResourcesCount + value / (float)totalRootResourcesCount);
+                            progress.Report((value + (float)counter) / (float)totalRootResourcesCount);
                         };
 
                         localProgress = localProgressInstance;

@@ -24,9 +24,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns><c>true</c> if serialization was successful; otherwise, <c>false</c>.</returns>
         public bool Serialize(ISerializationArgument argument, BinaryFormatter formatter, object value)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(fileSystemSettings, out FileStream fileStream))
+            if (!StreamIO.OpenWriteStream(filePathSettings, out FileStream fileStream))
                 return false;
             
             formatter.Serialize(fileStream, value);
@@ -45,9 +45,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns><c>true</c> if deserialization was successful; otherwise, <c>false</c>.</returns>
         public bool Deserialize(ISerializationArgument argument, BinaryFormatter formatter, out object value)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenReadStream(fileSystemSettings, out FileStream fileStream))
+            if (!StreamIO.OpenReadStream(filePathSettings, out FileStream fileStream))
             {
                 value = default(object);
                 
@@ -67,9 +67,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <param name="argument">The serialization argument representing the stream.</param>
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            StreamIO.Erase(fileSystemSettings);
+            StreamIO.Erase(filePathSettings);
         }
     }
 }

@@ -1,37 +1,30 @@
 using HereticalSolutions.ResourceManagement;
-using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
-using HereticalSolutions.Persistence.IO;
-
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
-
-using Silk.NET.OpenGL;
-
-using Silk.NET.Assimp;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class TextureRAMAssetImporter : AssetImporter
+	public class MaterialOpenGLAssetImporter : AssetImporter
 	{
-		public const string TEXTURE_RAM_VARIANT_ID = "RAM texture";
+		public const string MATERIAL_OPENGL_VARIANT_ID = "OpenGL material";
 
-		public const int TEXTURE_RAM_PRIORITY = 0;
+		public const int MATERIAL_OPENGL_PRIORITY = 1;
 
 		private readonly string resourceID;
 
-		private readonly FilePathSettings filePathSettings;
+		private readonly IReadOnlyResourceStorageHandle materialRAMStorageHandle;
 
-		public TextureRAMAssetImporter(
+		public MaterialOpenGLAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			FilePathSettings filePathSettings)
+			IReadOnlyResourceStorageHandle materialRAMStorageHandle)
 			: base(resourceManager)
 		{
 			this.resourceID = resourceID;
 
-			this.filePathSettings = filePathSettings;
+			this.materialRAMStorageHandle = materialRAMStorageHandle;
 		}
 
 		public override async Task<IResourceVariantData> Import(
@@ -44,15 +37,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					resourceID),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = TEXTURE_RAM_VARIANT_ID,
-					VariantIDHash = TEXTURE_RAM_VARIANT_ID.AddressToHash(),
-					Priority = TEXTURE_RAM_PRIORITY,
-					Source = EResourceSources.LOCAL_STORAGE,
+					VariantID = MATERIAL_OPENGL_VARIANT_ID,
+					VariantIDHash = MATERIAL_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = MATERIAL_OPENGL_PRIORITY,
+					Source = EResourceSources.RUNTIME_GENERATED,
 					Storage = EResourceStorages.RAM,
-					ResourceType = typeof(Image<Rgba32>),
+					ResourceType = typeof(MaterialOpenGL),
 				},
-				TextureFactory.BuildTextureRAMStorageHandle(
-					filePathSettings),
+				MaterialFactory.BuildMaterialOpenGLStorageHandle(
+					resourceManager,
+					materialRAMStorageHandle),
 				true,
 				progress);
 

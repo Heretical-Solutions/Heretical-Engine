@@ -1,46 +1,36 @@
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
-
-using HereticalSolutions.Persistence.IO;
-
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 using Silk.NET.OpenGL;
 
-using Silk.NET.Assimp;
-
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class TextureOpenGLAssetImporter : AssetImporter
+	public class GeometryOpenGLAssetImporter : AssetImporter
 	{
-		public const string TEXTURE_OPENGL_VARIANT_ID = "OpenGL texture";
+		public const string GEOMETRY_OPENGL_VARIANT_ID = "OpenGL geometry";
 
-		public const int TEXTURE_OPENGL_PRIORITY = 1;
+		public const int GEOMETRY_OPENGL_PRIORITY = 1;
 
 		private readonly string resourceID;
 
-		private readonly TextureRAMStorageHandle textureRAMStorageHandle;
-
-		private readonly TextureType textureType;
+		private readonly IReadOnlyResourceStorageHandle geometryRAMStorageHandle;
 
 		private readonly GL cachedGL;
 
-		public TextureOpenGLAssetImporter(
+		public GeometryOpenGLAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			TextureRAMStorageHandle textureRAMStorageHandle,
-			GL gl,
-			TextureType textureType = TextureType.None)
+			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
+			GL gl)
 			: base(resourceManager)
 		{
 			this.resourceID = resourceID;
 
-			this.textureRAMStorageHandle = textureRAMStorageHandle;
+			this.geometryRAMStorageHandle = geometryRAMStorageHandle;
 
 			cachedGL = gl;
-
-			this.textureType = textureType;
 		}
 
 		public override async Task<IResourceVariantData> Import(
@@ -53,16 +43,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					resourceID),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = TEXTURE_OPENGL_VARIANT_ID,
-					VariantIDHash = TEXTURE_OPENGL_VARIANT_ID.AddressToHash(),
-					Priority = TEXTURE_OPENGL_PRIORITY,
+					VariantID = GEOMETRY_OPENGL_VARIANT_ID,
+					VariantIDHash = GEOMETRY_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = GEOMETRY_OPENGL_PRIORITY,
 					Source = EResourceSources.RUNTIME_GENERATED,
 					Storage = EResourceStorages.GPU,
-					ResourceType = typeof(TextureOpenGL),
+					ResourceType = typeof(GeometryOpenGL),
 				},
-				TextureFactory.BuildTextureOpenGLStorageHandle(
-					textureRAMStorageHandle,
-					textureType,
+				GeometryFactory.BuildGeometryOpenGLStorageHandle(
+					geometryRAMStorageHandle,
 					cachedGL),
 				true,
 				progress);

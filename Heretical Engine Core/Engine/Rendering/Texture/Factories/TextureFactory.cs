@@ -55,10 +55,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		}
 
 		public static TextureRAMStorageHandle BuildTextureRAMStorageHandle(
-			FileSystemSettings fsSettings)
+			FilePathSettings filePathSettings)
 		{
 			return new TextureRAMStorageHandle(
-				fsSettings);
+				filePathSettings);
 		}
 
 		public static TextureOpenGLStorageHandle BuildTextureOpenGLStorageHandle(

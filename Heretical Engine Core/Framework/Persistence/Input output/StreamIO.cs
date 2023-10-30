@@ -16,7 +16,7 @@ namespace HereticalSolutions.Persistence.IO
         /// <param name="dataStream">The opened file stream.</param>
         /// <returns>True if the stream was successfully opened, otherwise false.</returns>
         public static bool OpenReadStream(
-            FileSystemSettings settings,
+            FilePathSettings settings,
             out FileStream dataStream)
         {
             string savePath = settings.FullPath;
@@ -38,7 +38,7 @@ namespace HereticalSolutions.Persistence.IO
         /// <param name="streamReader">The opened stream reader.</param>
         /// <returns>True if the stream was successfully opened, otherwise false.</returns>
         public static bool OpenReadStream(
-            FileSystemSettings settings,
+            FilePathSettings settings,
             out StreamReader streamReader)
         {
             string savePath = settings.FullPath;
@@ -60,7 +60,7 @@ namespace HereticalSolutions.Persistence.IO
         /// <param name="dataStream">The opened file stream.</param>
         /// <returns>True if the stream was successfully opened, otherwise false.</returns>
         public static bool OpenWriteStream(
-            FileSystemSettings settings,
+            FilePathSettings settings,
             out FileStream dataStream)
         {
             string savePath = settings.FullPath;
@@ -79,7 +79,7 @@ namespace HereticalSolutions.Persistence.IO
         /// <param name="streamWriter">The opened stream writer.</param>
         /// <returns>True if the stream was successfully opened, otherwise false.</returns>
         public static bool OpenWriteStream(
-            FileSystemSettings settings,
+            FilePathSettings settings,
             out StreamWriter streamWriter)
         {
             string savePath = settings.FullPath;
@@ -122,7 +122,7 @@ namespace HereticalSolutions.Persistence.IO
         /// Deletes a file.
         /// </summary>
         /// <param name="settings">The file system settings.</param>
-        public static void Erase(FileSystemSettings settings)
+        public static void Erase(FilePathSettings settings)
         {
             string savePath = settings.FullPath;
 

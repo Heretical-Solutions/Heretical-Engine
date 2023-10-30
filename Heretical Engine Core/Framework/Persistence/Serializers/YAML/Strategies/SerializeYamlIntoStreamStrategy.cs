@@ -18,9 +18,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns>True if the serialization is successful, otherwise false.</returns>
         public bool Serialize(ISerializationArgument argument, string yaml)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(fileSystemSettings, out StreamWriter streamWriter))
+            if (!StreamIO.OpenWriteStream(filePathSettings, out StreamWriter streamWriter))
                 return false;
             
             streamWriter.Write(yaml);
@@ -38,11 +38,11 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns>True if the deserialization is successful, otherwise false.</returns>
         public bool Deserialize(ISerializationArgument argument, out string yaml)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
             yaml = string.Empty;
             
-            if (!StreamIO.OpenReadStream(fileSystemSettings, out StreamReader streamReader))
+            if (!StreamIO.OpenReadStream(filePathSettings, out StreamReader streamReader))
                 return false;
             
             yaml = streamReader.ReadToEnd();
@@ -58,9 +58,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <param name="argument">The argument containing the data to erase.</param>
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            StreamIO.Erase(fileSystemSettings);
+            StreamIO.Erase(filePathSettings);
         }
     }
 }

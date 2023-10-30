@@ -13,9 +13,9 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         public bool Serialize(ISerializationArgument argument, Type valueType, object value)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(fileSystemSettings, out FileStream fileStream))
+            if (!StreamIO.OpenWriteStream(filePathSettings, out FileStream fileStream))
                 return false;
             
             ProtobufInternalSerializer.Serialize(fileStream, value);
@@ -31,9 +31,9 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
-            if (!StreamIO.OpenReadStream(fileSystemSettings, out FileStream fileStream))
+            if (!StreamIO.OpenReadStream(filePathSettings, out FileStream fileStream))
             {
                 value = default(object);
                 
@@ -52,9 +52,9 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            StreamIO.Erase(fileSystemSettings);
+            StreamIO.Erase(filePathSettings);
         }
     }
 }

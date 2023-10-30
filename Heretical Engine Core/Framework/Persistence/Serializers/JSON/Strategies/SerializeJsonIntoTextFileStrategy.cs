@@ -16,9 +16,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns>true if the serialization was successful, false otherwise.</returns>
         public bool Serialize(ISerializationArgument argument, string json)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
             
-            return TextFileIO.Write(fileSystemSettings, json);
+            return TextFileIO.Write(filePathSettings, json);
         }
 
         /// <summary>
@@ -29,9 +29,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <returns>true if the deserialization was successful, false otherwise.</returns>
         public bool Deserialize(ISerializationArgument argument, out string json)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
             
-            return TextFileIO.Read(fileSystemSettings, out json);
+            return TextFileIO.Read(filePathSettings, out json);
         }
         
         /// <summary>
@@ -40,9 +40,9 @@ namespace HereticalSolutions.Persistence.Serializers
         /// <param name="argument">The serialization argument.</param>
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
             
-            TextFileIO.Erase(fileSystemSettings);
+            TextFileIO.Erase(filePathSettings);
         }
     }
 }
