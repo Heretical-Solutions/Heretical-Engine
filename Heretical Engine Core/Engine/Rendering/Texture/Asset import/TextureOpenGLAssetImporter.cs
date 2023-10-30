@@ -14,11 +14,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureOpenGLAssetImporter : AssetImporter
 	{
-		private const string TEXTURE_OPENGL_RESOURCE_ID = "OpenGL texture";
+		private const string TEXTURE_OPENGL_VARIANT_ID = "OpenGL texture";
+
+		private const int TEXTURE_OPENGL_PRIORITY = 1;
 
 		private readonly string resourceID;
-
-		private readonly string variantID;
 
 		private readonly TextureRAMStorageHandle textureRAMStorageHandle;
 
@@ -29,15 +29,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public TextureOpenGLAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			string variantID,
 			TextureRAMStorageHandle textureRAMStorageHandle,
 			GL gl,
 			TextureType textureType = TextureType.None)
 			: base(resourceManager)
 		{
 			this.resourceID = resourceID;
-
-			this.variantID = variantID;
 
 			this.textureRAMStorageHandle = textureRAMStorageHandle;
 
@@ -52,14 +49,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
-				CreateNestedResourceData(
-					resourceID,
-					TEXTURE_OPENGL_RESOURCE_ID),
+				GetOrCreateResourceData(
+					resourceID),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = variantID,
-					VariantIDHash = variantID.AddressToHash(),
-					Priority = 0,
+					VariantID = TEXTURE_OPENGL_VARIANT_ID,
+					VariantIDHash = TEXTURE_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = TEXTURE_OPENGL_PRIORITY,
 					Source = EResourceSources.RUNTIME_GENERATED,
 					Storage = EResourceStorages.GPU,
 					ResourceType = typeof(TextureOpenGL),

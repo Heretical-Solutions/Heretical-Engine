@@ -15,11 +15,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureRAMAssetImporter : AssetImporter
 	{
-		private const string TEXTURE_RAM_RESOURCE_ID = "RAM texture";
+		private const string TEXTURE_RAM_VARIANT_ID = "RAM texture";
+
+		private const int TEXTURE_RAM_PRIORITY = 0;
 
 		private readonly string resourceID;
-
-		private readonly string variantID;
 
 		//Due to the fact that Silk.NET uses Image.Load<T>(path) instead of loading from byte array or some kind of DTO we are limited to using
 		//one type of serialization. That's why I've put FileSystemSettings here directly instead of using ISerializationArgument
@@ -28,13 +28,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public TextureRAMAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			string variantID,
 			FileSystemSettings fsSettings)
 			: base(resourceManager)
 		{
 			this.resourceID = resourceID;
-
-			this.variantID = variantID;
 
 			this.fsSettings = fsSettings;
 		}
@@ -45,14 +42,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
-				CreateNestedResourceData(
-					resourceID,
-					TEXTURE_RAM_RESOURCE_ID),
+				GetOrCreateResourceData(
+					resourceID),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = variantID,
-					VariantIDHash = variantID.AddressToHash(),
-					Priority = 0,
+					VariantID = TEXTURE_RAM_VARIANT_ID,
+					VariantIDHash = TEXTURE_RAM_VARIANT_ID.AddressToHash(),
+					Priority = TEXTURE_RAM_PRIORITY,
 					Source = EResourceSources.LOCAL_STORAGE,
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(Image<Rgba32>),

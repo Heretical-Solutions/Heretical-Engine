@@ -168,7 +168,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			#region Model import
 
-			var modelAssimp = new ModelAssetImporter(
+			var modelAssimp = new ModelRAMAssetImporter(
 				runtimeResourceManager,
 				"Suit",
 				new FileSystemSettings

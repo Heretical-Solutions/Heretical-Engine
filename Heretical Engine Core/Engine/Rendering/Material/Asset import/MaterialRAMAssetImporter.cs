@@ -5,25 +5,25 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class MeshRAMAssetImporter : AssetImporter
+	public class MaterialRAMAssetImporter : AssetImporter
 	{
-		private const string MESH_RAM_VARIANT_ID = "RAM mesh";
+		private const string MATERIAL_RAM_VARIANT_ID = "Material DTO";
 
-		private const int MESH_RAM_PRIORITY = 0;
+		private const int MATERIAL_RAM_PRIORITY = 0;
 
 		private readonly string resourceID;
 
-		private readonly Mesh mesh;
+		private readonly MaterialDTO material;
 
-		public MeshRAMAssetImporter(
+		public MaterialRAMAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			Mesh mesh)
+			MaterialDTO material)
 			: base(resourceManager)
 		{
 			this.resourceID = resourceID;
 
-			this.mesh = mesh;
+			this.material = material;
 		}
 
 		public override async Task<IResourceVariantData> Import(
@@ -36,15 +36,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					resourceID),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = MESH_RAM_VARIANT_ID,
-					VariantIDHash = MESH_RAM_VARIANT_ID.AddressToHash(),
-					Priority = MESH_RAM_PRIORITY,
+					VariantID = MATERIAL_RAM_VARIANT_ID,
+					VariantIDHash = MATERIAL_RAM_VARIANT_ID.AddressToHash(),
+					Priority = MATERIAL_RAM_PRIORITY,
 					Source = EResourceSources.LOCAL_STORAGE,
 					Storage = EResourceStorages.RAM,
-					ResourceType = typeof(Mesh),
+					ResourceType = typeof(MaterialDTO),
 				},
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
-					mesh),
+					material),
 				true,
 				progress);
 

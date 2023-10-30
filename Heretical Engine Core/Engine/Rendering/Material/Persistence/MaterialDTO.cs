@@ -3,8 +3,13 @@
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public struct Model
+	[Serializable]
+	public struct MaterialDTO
 	{
-		
+		public string Name;
+
+		public string Shader;
+
+		public string[] Textures;
 	}
 }

@@ -12,6 +12,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ShaderOpenGLAssetImporter : AssetImporter
 	{
+		private const string SHADER_OPENGL_VARIANT_ID = "OpenGL shader";
+
+		private const int SHADER_OPENGL_PRIORITY = 0;
+
 		private readonly string fullResourceID;
 
 		private readonly ISerializer serializer;
@@ -39,7 +43,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			this.fragmentShaderSerializationArgument = fragmentShaderSerializationArgument;
 
-			this.cachedGL = gl;
+			cachedGL = gl;
 		}
 
 		public override async Task<IResourceVariantData> Import(
@@ -59,9 +63,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				GetOrCreateResourceData(fullResourceID),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = string.Empty,
-					VariantIDHash = string.Empty.AddressToHash(),
-					Priority = 0,
+					VariantID = SHADER_OPENGL_VARIANT_ID,
+					VariantIDHash = SHADER_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = SHADER_OPENGL_PRIORITY,
 					Source = EResourceSources.LOCAL_STORAGE,
 					Storage = EResourceStorages.GPU,
 					ResourceType = typeof(ShaderOpenGL)

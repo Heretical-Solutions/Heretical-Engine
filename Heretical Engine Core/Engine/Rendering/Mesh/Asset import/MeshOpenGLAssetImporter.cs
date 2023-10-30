@@ -9,7 +9,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MeshOpenGLAssetImporter : AssetImporter
 	{
-		private const string MESH_OPENGL_RESOURCE_ID = "OpenGL mesh";
+		private const string MESH_OPENGL_VARIANT_ID = "OpenGL mesh";
+
+		private const int MESH_OPENGL_PRIORITY = 1;
 
 		private readonly string resourceID;
 
@@ -42,14 +44,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
-				CreateNestedResourceData(
-					resourceID,
-					MESH_OPENGL_RESOURCE_ID),
+				GetOrCreateResourceData(
+					resourceID),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = variantID,
-					VariantIDHash = variantID.AddressToHash(),
-					Priority = 0,
+					VariantID = MESH_OPENGL_VARIANT_ID,
+					VariantIDHash = MESH_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = MESH_OPENGL_PRIORITY,
 					Source = EResourceSources.RUNTIME_GENERATED,
 					Storage = EResourceStorages.GPU,
 					ResourceType = typeof(MeshOpenGL),

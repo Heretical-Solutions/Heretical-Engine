@@ -1,3 +1,5 @@
+using System.Numerics;
+
 using Silk.NET.Maths;
 
 namespace HereticalSolutions.HereticalEngine.Math
@@ -5,6 +7,24 @@ namespace HereticalSolutions.HereticalEngine.Math
 	//Courtesy of OpenTK https://github.com/opentk/opentk/blob/master/src/OpenTK.Mathematics/Data/Quaternion.cs
 	public static class QuaternionExtensions
 	{
+		public static Quaternion<float> ToSilkNetQuaternion(this Quaternion quaternion)
+		{
+			return new Quaternion<float>(
+				quaternion.X,
+				quaternion.Y,
+				quaternion.Z,
+				quaternion.W);
+		}
+
+		public static Quaternion ToNumericsQuaternion(this Quaternion<float> quaternion)
+		{
+			return new Quaternion(
+				quaternion.X,
+				quaternion.Y,
+				quaternion.Z,
+				quaternion.W);
+		}
+
 		public static Quaternion<float> CreateQuaternionFromEulerAngles(
 			Vector3D<float> eulerAngles)
 		{

@@ -68,7 +68,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			return (IResourceData)currentData;
 		}
 
-		protected virtual IResourceData CreateNestedResourceData(
+		protected virtual IResourceData GetOrCreateNestedResourceData(
 			string fullResourceID,
 			string nestedResourceID)
 		{
