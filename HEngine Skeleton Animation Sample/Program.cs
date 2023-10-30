@@ -135,7 +135,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				0,
 				pathToExe.IndexOf("/bin/"))
 				+ "/Assets/";
-
+			
 			#region Shader import
 
 			var vertexShaderArgument = new TextFileArgument();
@@ -154,29 +154,28 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var shaderAssimp = new ShaderAssetImporter(
+			var shaderAssimp = new ShaderOpenGLAssetImporter(
 				runtimeResourceManager,
 				"Default shader",
 				PersistenceFactory.BuildSimplePlainTextSerializer(),
 				vertexShaderArgument,
 				fragmentShaderArgument,
-				new ShaderVisitor(gl));
+				gl);
 
 			shaderAssimp.Import();
 
 			#endregion
-
+			
 			#region Model import
 
 			var modelAssimp = new ModelRAMAssetImporter(
 				runtimeResourceManager,
-				"Suit",
+				"Knight",
 				new FilePathSettings
 				{
 					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
-				},
-				gl);
+				});
 
 				modelAssimp.Import();
 

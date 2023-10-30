@@ -49,7 +49,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
-				GetOrCreateResourceData(
+				await GetOrCreateResourceData(
 					resourceID),
 				new ResourceVariantDescriptor()
 				{

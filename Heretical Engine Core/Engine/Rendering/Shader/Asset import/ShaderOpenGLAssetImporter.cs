@@ -60,7 +60,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				out var fragmentShaderSourceDTO);
 
 			var result = await AddAssetAsResourceVariant(
-				GetOrCreateResourceData(fullResourceID),
+				await GetOrCreateResourceData(fullResourceID),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = SHADER_OPENGL_VARIANT_ID,

@@ -49,7 +49,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			texture = await Image.LoadAsync<Rgba32>(filePathSettings.FullPath);
+			//For some reason async version silently throws an exception
+			texture = Image.Load<Rgba32>(filePathSettings.FullPath); //await Image.LoadAsync<Rgba32>(filePathSettings.FullPath);
 
 			allocated = true;
 

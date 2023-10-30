@@ -18,7 +18,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			throw new NotImplementedException();
 		}
 
-		protected virtual IResourceData GetOrCreateResourceData(
+		protected virtual async Task<IResourceData> GetOrCreateResourceData(
 			string fullResourceID)
 		{
 			string[] resourceIDs = fullResourceID.SplitAddressBySeparator();
@@ -38,7 +38,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 						IDHash = resourceIDs[0].AddressToHash()
 					});
 
-				resourceManager.AddRootResource(
+				await resourceManager.AddRootResource(
 					currentData);
 			}
 
@@ -58,7 +58,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 							IDHash = resourceIDs[i].AddressToHash()
 						});
 
-					((IResourceData)currentData).AddNestedResource(
+					await ((IResourceData)currentData).AddNestedResource(
 						newCurrentData);
 
 					currentData = newCurrentData;
@@ -68,11 +68,11 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			return (IResourceData)currentData;
 		}
 
-		protected virtual IResourceData GetOrCreateNestedResourceData(
+		protected virtual async Task<IResourceData> GetOrCreateNestedResourceData(
 			string fullResourceID,
 			string nestedResourceID)
 		{
-			var parent = GetOrCreateResourceData(
+			var parent = await GetOrCreateResourceData(
 				fullResourceID);
 
 			var child = ResourceManagementFactory.BuildResourceData(
@@ -83,7 +83,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					IDHash = nestedResourceID.AddressToHash()
 				});
 
-			parent.AddNestedResource(
+			await parent.AddNestedResource(
 				child);
 
 			return child;

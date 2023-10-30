@@ -129,7 +129,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			}
 
 			var result = await AddAssetAsResourceVariant(
-				GetOrCreateResourceData(
+				await GetOrCreateResourceData(
 					resourceID),
 				new ResourceVariantDescriptor()
 				{
@@ -169,7 +169,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				throw new Exception(error);
 			}
 
-			result.Name = scene->MName.AsString;
+			//DO NOT USE MName in scene. It's not documented in Assimp and I have no idea why it's even present
+			//It does load some kind of bytes but both AsString and ToString throw exceptions so just don't use it
+			//result.Name = scene->MName.AsString;
+
+			result.Name = Path.GetFileNameWithoutExtension(filePathSettings.FullPath);
 
 			result.RootNode = default;
 

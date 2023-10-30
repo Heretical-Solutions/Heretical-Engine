@@ -64,7 +64,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
-				GetOrCreateResourceData(fullResourceID),
+				await GetOrCreateResourceData(fullResourceID),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = string.Empty,
