@@ -8,25 +8,35 @@ namespace HereticalSolutions
 {
 	public static class TaskExtensions
 	{
+		//For some reason the previous version I used (that utilized ContinueWith(..., TaskContinuationOptions.OnlyOnFaulted) method chain) would throw a TaskCanceledException in random places in the code
+		//As stated over here, it was because TaskContinuationOptions.OnlyOnFaulted is not valid for multi-task continuations
+		//https://stackoverflow.com/questions/28633871/taskcanceledexception-with-continuewith
+		//So I've changed it to the option provided here:
+		//https://stackoverflow.com/a/58469206
+
 		#region Task
 
 		public static ConfiguredTaskAwaitable LogExceptions(this Task task)
 		{
 			return task
 				.ContinueWith(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
 						}
 
-						Console.WriteLine($"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+						Console.WriteLine($"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -34,19 +44,23 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
 						}
 
-						throw new Exception($"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+						throw new Exception($"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -56,20 +70,24 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
 						}
 
 						logger.LogError<TSource>(
-							$"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -79,20 +97,24 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
 						}
 
 						logger.ThrowException<TSource>(
-							$"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -103,11 +125,16 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
@@ -115,9 +142,8 @@ namespace HereticalSolutions
 
 						logger.LogError(
 							logSource,
-							$"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -128,11 +154,16 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
@@ -140,9 +171,8 @@ namespace HereticalSolutions
 
 						logger.ThrowException(
 							logSource,
-							$"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -154,21 +184,25 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith<T>(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return targetTask.Result;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
 						}
 
-						Console.WriteLine($"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+						Console.WriteLine($"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 
 						return default;
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -176,19 +210,23 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith<T>(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return targetTask.Result;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
 						}
 
-						throw new Exception($"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+						throw new Exception($"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -198,22 +236,26 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith<T>(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return targetTask.Result;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
 						}
 
 						logger.LogError<TSource>(
-							$"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 
 						return default;
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -223,22 +265,26 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith<T>(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return targetTask.Result;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
 						}
 
 						logger.ThrowException<TSource>(
-							$"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 
 						return default;
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -249,11 +295,16 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith<T>(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return targetTask.Result;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
@@ -261,11 +312,10 @@ namespace HereticalSolutions
 
 						logger.LogError(
 							logSource,
-							$"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 
 						return default;
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+					})
 				.ConfigureAwait(false);
 		}
 
@@ -276,11 +326,16 @@ namespace HereticalSolutions
 		{
 			return task
 				.ContinueWith<T>(
-					failedTask =>
+					targetTask =>
 					{
+						if (!targetTask.IsFaulted)
+						{
+							return targetTask.Result;
+						}
+
 						StringBuilder stringBuilder = new StringBuilder();
 
-						foreach (var innerException in failedTask.Exception.InnerExceptions)
+						foreach (var innerException in targetTask.Exception.InnerExceptions)
 						{
 							stringBuilder.Append(innerException.ToString());
 							stringBuilder.Append('\n');
@@ -288,11 +343,10 @@ namespace HereticalSolutions
 
 						logger.ThrowException(
 							logSource,
-							$"{failedTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 
 						return default;
-					},
-					TaskContinuationOptions.OnlyOnFaulted)
+					})
 				.ConfigureAwait(false);
 		}
 

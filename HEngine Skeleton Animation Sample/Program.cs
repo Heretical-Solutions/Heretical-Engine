@@ -129,7 +129,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			);
 		}
 
-		public static void LoadAssets(
+		public static async Task LoadAssets(
 			IRuntimeResourceManager runtimeResourceManager,
 			GL gl,
 			IFormatLogger logger)
@@ -142,6 +142,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				pathToExe.IndexOf("/bin/"))
 				+ "/Assets/";
 			
+			/*
+
 			#region Shader import
 
 			var vertexShaderArgument = new TextFileArgument();
@@ -169,10 +171,12 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				gl,
 				logger);
 
-			shaderAssimp.Import();
+			await shaderAssimp.Import();
 
 			#endregion
-			
+
+			*/
+
 			#region Model import
 
 			var modelAssimp = new ModelRAMAssetImporter(
@@ -185,7 +189,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				},
 				logger);
 
-				modelAssimp.Import();
+			await modelAssimp.Import();
 
 			#endregion
 
