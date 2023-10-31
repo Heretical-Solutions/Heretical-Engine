@@ -1,3 +1,5 @@
+using HereticalSolutions.Collections.Managed;
+
 using HereticalSolutions.Persistence;
 
 using HereticalSolutions.ResourceManagement;
@@ -5,6 +7,8 @@ using HereticalSolutions.ResourceManagement;
 using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -28,6 +32,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly GL cachedGL;
 
+		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+
 		public ShaderOpenGLAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string fullResourceID,
@@ -35,6 +41,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			ISerializationArgument vertexShaderSerializationArgument,
 			ISerializationArgument fragmentShaderSerializationArgument,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 			: base(
 				resourceManager,
@@ -49,6 +56,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.fragmentShaderSerializationArgument = fragmentShaderSerializationArgument;
 
 			cachedGL = gl;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 		}
 
 		public override async Task<IResourceVariantData> Import(
@@ -80,6 +89,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					vertexShaderSourceDTO.Text,
 					fragmentShaderSourceDTO.Text,
 					cachedGL,
+					mainThreadCommandBuffer,
 					logger),
 				true,
 				progress)

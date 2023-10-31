@@ -56,6 +56,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
+			logger.Log<TextureRAMStorageHandle>($"ALLOCATING. CURRENT THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
+
 			//For some reason async version silently throws a task cancelled exception
 			/*
 			await Image
@@ -63,7 +65,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					filePathSettings.FullPath)
 				.ThrowExceptions<Image<Rgba32>, TextureRAMStorageHandle>(logger);
 			*/
-			
+
 			texture = Image.Load<Rgba32>(filePathSettings.FullPath);
 
 			allocated = true;

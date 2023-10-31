@@ -2,7 +2,11 @@ using System;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
+using HereticalSolutions.HereticalEngine.Messaging;
+
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.ResourceManagement;
 
@@ -20,6 +24,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private readonly string fragmentShaderSource = string.Empty;
 
 		private readonly GL cachedGL = default;
+
+		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
 
 		private readonly IFormatLogger logger;
 
@@ -39,6 +45,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			string vertexShaderSource,
 			string fragmentShaderSource,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			this.vertexShaderSource = vertexShaderSource;
@@ -46,6 +53,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.fragmentShaderSource = fragmentShaderSource;
 
 			cachedGL = gl;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 
 			this.logger = logger;
 
@@ -98,22 +107,62 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			if (!ShaderFactory.BuildShaderProgram(
-				vertexShaderSource,
-				fragmentShaderSource,
-				cachedGL,
-				out uint handle,
-				out VertexShaderMetadata,
-				out FragmentShaderMetadata,
-				out ShaderProgramMetadata))
-			{
-				progress?.Report(1f);
+			logger.Log<ShaderOpenGLStorageHandle>(
+				$"ALLOCATING. CURRENT THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
 
-				return;
+			//According to this: https://old.reddit.com/r/opengl/comments/14zul38/how_to_transfer_gl_context_to_different_thread_in/js1pl1v/
+			//OpenGL is not thread safe and should be executed on the main thread only
+			//That's why I particularly had a 'Silk.NET.Core.Loader.SymbolLoadingException: Native symbol not found (Symbol: glCreateShader)' exception while running the following code (included into the delegate)
+			//The async would start the method in a different thread and the OpenGL would not be able to find the symbols
+			//Running the entire thing in the Program.cs itself where the window is created worked smoothly, all the metadata
+			//showed Compiled == true and all the handles were greater than 0
+			//While I hope I won't have such problems with Vulkan storage handle I decided to simply delegate the task of
+			//building the shader to the main thread with the help of a simple thread safe circular buffer
+			Action buildShaderDelegate = () =>
+			{
+				logger.Log<ShaderOpenGLStorageHandle>(
+					$"EXECUTING ALLOCATION. CURRENT THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
+
+				if (!ShaderFactory.BuildShaderProgram(
+					vertexShaderSource,
+					fragmentShaderSource,
+					cachedGL,
+					out uint handle,
+					out VertexShaderMetadata,
+					out FragmentShaderMetadata,
+					out ShaderProgramMetadata))
+				{
+					//progress?.Report(1f);
+
+					logger.LogError<ShaderOpenGLStorageHandle>(
+						$"EXECUTION FAILED");
+
+					return;
+				}
+
+				shader = new ShaderOpenGL(
+					handle);
+
+				logger.Log<ShaderOpenGLStorageHandle>(
+					$"EXECUTION COMPLETED");
+			};
+
+			var command = new MainThreadCommand(
+				buildShaderDelegate);
+
+			while (!mainThreadCommandBuffer.TryProduce(
+				command))
+			{
+				await Task.Yield();
 			}
 
-			shader = new ShaderOpenGL(
-				handle);
+			while (!(command.Status != ECommandStatus.DONE))
+			{
+				await Task.Yield();
+			}
+
+			logger.Log<ShaderOpenGLStorageHandle>(
+				$"ALLOCATED");
 
 			allocated = true;
 

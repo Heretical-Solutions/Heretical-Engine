@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
 
+using HereticalSolutions.Collections.Managed;
+
 using HereticalSolutions.ResourceManagement.Factories;
 using HereticalSolutions.ResourceManagement;
 
@@ -10,6 +12,8 @@ using HereticalSolutions.Persistence.IO;
 using HereticalSolutions.Persistence.Factories;
 
 using HereticalSolutions.HereticalEngine.Math;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -35,6 +39,11 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			IFormatLogger logger = new ConsoleLogger();
 
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer =
+				new ConcurrentGenericCircularBuffer<MainThreadCommand>(
+					new MainThreadCommand[1024],
+					new int[1024]);
+
 			// Create a Silk.NET window as usual
 			using var window = Window.Create(WindowOptions.Default);
 
@@ -52,9 +61,12 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			{
 				gl = InitGL(window);
 
+				logger.Log<Program>($"CURRENT THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
+
 				LoadAssets(
 					runtimeResourceManager,
 					gl,
+					mainThreadCommandBuffer,
 					logger);
 
 				inputContext = InitInputContext(window);
@@ -64,7 +76,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					gl,
 					inputContext);
 				
-				PerformInitAsserts(logger);
+				//PerformInitAsserts(logger);
 			};
 
 			// Handle resizes
@@ -77,6 +89,11 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			// The render function
 			window.Render += delta =>
 			{
+				while (mainThreadCommandBuffer.TryConsume(out var command))
+				{
+					command.Execute();
+				}
+
 				Update(
 					controller,
 					(float)delta);
@@ -132,6 +149,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		public static async Task LoadAssets(
 			IRuntimeResourceManager runtimeResourceManager,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			var pathToExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -141,8 +159,6 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				0,
 				pathToExe.IndexOf("/bin/"))
 				+ "/Assets/";
-			
-			/*
 
 			#region Shader import
 
@@ -169,13 +185,12 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				vertexShaderArgument,
 				fragmentShaderArgument,
 				gl,
+				mainThreadCommandBuffer,
 				logger);
 
 			await shaderAssimp.Import();
 
 			#endregion
-
-			*/
 
 			#region Model import
 
