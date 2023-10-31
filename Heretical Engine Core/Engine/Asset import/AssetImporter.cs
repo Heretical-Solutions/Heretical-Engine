@@ -1,15 +1,23 @@
 using HereticalSolutions.ResourceManagement;
 using HereticalSolutions.ResourceManagement.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
 	public abstract class AssetImporter
 	{
 		protected readonly IRuntimeResourceManager resourceManager;
 
-		public AssetImporter(IRuntimeResourceManager resourceManager)
+		protected readonly IFormatLogger logger;
+
+		public AssetImporter(
+			IRuntimeResourceManager resourceManager,
+			IFormatLogger logger)
 		{
 			this.resourceManager = resourceManager;
+
+			this.logger = logger;
 		}
 
 		public virtual async Task<IResourceVariantData> Import(
@@ -39,7 +47,10 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					});
 
 				await resourceManager.AddRootResource(
-					currentData);
+					currentData)
+					.ThrowExceptions(
+						GetType(),
+						logger);
 			}
 
 			for (int i = 1; i < resourceIDs.Length; i++)
@@ -58,8 +69,12 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 							IDHash = resourceIDs[i].AddressToHash()
 						});
 
-					await ((IResourceData)currentData).AddNestedResource(
-						newCurrentData);
+					await ((IResourceData)currentData)
+						.AddNestedResource(
+							newCurrentData)
+						.ThrowExceptions(
+							GetType(),
+							logger);
 
 					currentData = newCurrentData;
 				}
@@ -73,7 +88,10 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			string nestedResourceID)
 		{
 			var parent = await GetOrCreateResourceData(
-				fullResourceID);
+				fullResourceID)
+				.ThrowExceptions(
+					GetType(),
+					logger);
 
 			var child = ResourceManagementFactory.BuildResourceData(
 				new ResourceDescriptor()
@@ -83,8 +101,12 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					IDHash = nestedResourceID.AddressToHash()
 				});
 
-			await parent.AddNestedResource(
-				child);
+			await parent
+				.AddNestedResource(
+					child)
+				.ThrowExceptions(
+					GetType(),
+					logger);
 
 			return child;
 		}
@@ -102,10 +124,14 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				variantDescriptor,
 				resourceStorageHandle);
 
-			await resourceData.AddVariant(
-				variantData,
-				allocate,
-				progress);
+			await resourceData
+				.AddVariant(
+					variantData,
+					allocate,
+					progress)
+				.ThrowExceptions(
+					GetType(),
+					logger);
 
 			progress?.Report(1f);
 

@@ -29,7 +29,7 @@ namespace HereticalSolutions.Messaging.Factories
         /// </summary>
         /// <param name="logger">The logger to be used.</param>
         public MessageBusBuilder(
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             messagePoolRepository = RepositoriesFactory.BuildDictionaryObjectRepository();
             broadcasterBuilder = new BroadcasterWithRepositoryBuilder(logger);

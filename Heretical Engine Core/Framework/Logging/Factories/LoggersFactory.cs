@@ -9,9 +9,9 @@ namespace HereticalSolutions.Logging.Factories
         /// Builds a default logger instance.
         /// </summary>
         /// <returns>A new instance of the DefaultLogger class.</returns>
-        public static DefaultLogger BuildDefaultLogger()
+        public static ConsoleLogger BuildDefaultLogger()
         {
-            return new DefaultLogger();
+            return new ConsoleLogger();
         }
     }
 }

@@ -46,7 +46,7 @@ namespace HereticalSolutions.Delegates.Factories
         /// <returns>The built broadcaster with a repository.</returns>
         public static BroadcasterWithRepository BuildBroadcasterWithRepository(
             IRepository<Type, object> broadcastersRepository,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             return BuildBroadcasterWithRepository(
                 RepositoriesFactory.BuildDictionaryObjectRepository(
@@ -62,7 +62,7 @@ namespace HereticalSolutions.Delegates.Factories
         /// <returns>The built broadcaster with a repository.</returns>
         public static BroadcasterWithRepository BuildBroadcasterWithRepository(
             IReadOnlyObjectRepository repository,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             return new BroadcasterWithRepository(
                 repository,
@@ -164,7 +164,7 @@ namespace HereticalSolutions.Delegates.Factories
         /// <returns>The built non-allocating broadcaster with a repository.</returns>
         public static NonAllocBroadcasterWithRepository BuildNonAllocBroadcasterWithRepository(
             IRepository<Type, object> broadcastersRepository,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             return BuildNonAllocBroadcasterWithRepository(
                 RepositoriesFactory.BuildDictionaryObjectRepository(
@@ -180,7 +180,7 @@ namespace HereticalSolutions.Delegates.Factories
         /// <returns>The built non-allocating broadcaster with a repository.</returns>
         public static NonAllocBroadcasterWithRepository BuildNonAllocBroadcasterWithRepository(
             IReadOnlyObjectRepository repository,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             return new NonAllocBroadcasterWithRepository(
                 repository,

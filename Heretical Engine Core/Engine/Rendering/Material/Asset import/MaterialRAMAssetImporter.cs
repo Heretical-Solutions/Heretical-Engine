@@ -3,6 +3,8 @@ using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MaterialRAMAssetImporter : AssetImporter
@@ -18,8 +20,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public MaterialRAMAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			MaterialDTO material)
-			: base(resourceManager)
+			MaterialDTO material,
+			IFormatLogger logger)
+			: base(
+				resourceManager,
+				logger)
 		{
 			this.resourceID = resourceID;
 
@@ -33,7 +38,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID),
+					resourceID)
+					.ThrowExceptions<IResourceData, MaterialRAMAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = MATERIAL_RAM_VARIANT_ID,
@@ -46,7 +52,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
 					material),
 				true,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData, MaterialRAMAssetImporter>(logger);
 
 			progress?.Report(1f);
 

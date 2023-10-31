@@ -1,5 +1,4 @@
 using HereticalSolutions.ResourceManagement;
-using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
@@ -7,9 +6,7 @@ using HereticalSolutions.Persistence.IO;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using Silk.NET.OpenGL;
-
-using Silk.NET.Assimp;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -26,8 +23,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public TextureRAMAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			FilePathSettings filePathSettings)
-			: base(resourceManager)
+			FilePathSettings filePathSettings,
+			IFormatLogger logger)
+			: base(
+				resourceManager,
+				logger)
 		{
 			this.resourceID = resourceID;
 
@@ -41,7 +41,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID),
+					resourceID)
+					.ThrowExceptions<IResourceData, TextureRAMAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = TEXTURE_RAM_VARIANT_ID,
@@ -54,7 +55,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				TextureFactory.BuildTextureRAMStorageHandle(
 					filePathSettings),
 				true,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData, TextureRAMAssetImporter>(logger);
 
 			progress?.Report(1f);
 

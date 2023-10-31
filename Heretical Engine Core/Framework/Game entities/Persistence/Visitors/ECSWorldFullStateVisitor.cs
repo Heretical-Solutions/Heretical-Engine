@@ -30,7 +30,7 @@ namespace HereticalSolutions.GameEntities
         
         private readonly List<ECSComponentDTO> componentDeltasCache;
 
-        private readonly ISmartLogger logger;
+        private readonly IFormatLogger logger;
 
         private World cachedWorld;
 
@@ -50,7 +50,7 @@ namespace HereticalSolutions.GameEntities
             IReadOnlyRepository<Type, int> typeToHash,
             VisitorReadComponentDelegate[] componentReaders,
             IReadOnlyRepository<Type, VisitorWriteComponentDelegate> componentWriters,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             this.entityManager = entityManager;
             
@@ -166,8 +166,7 @@ namespace HereticalSolutions.GameEntities
             out object DTO)
         {
             if (!(typeof(World).IsAssignableFrom(typeof(TValue))))
-                logger.Exception(
-                    GetType(),
+                logger.ThrowException<ECSWorldFullStateVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(World).ToString()}\" RECEIVED: \"{typeof(TValue).ToString()}\"");
 
             //DIRTY HACKS DO NOT REPEAT
@@ -197,8 +196,7 @@ namespace HereticalSolutions.GameEntities
             out TDTO DTO)
         {
             if (!(typeof(World).IsAssignableFrom(typeof(TValue))))
-                logger.Exception(
-                    GetType(),
+                logger.ThrowException<ECSWorldFullStateVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(World).ToString()}\" RECEIVED: \"{typeof(TValue).ToString()}\"");
 
             //DIRTY HACKS DO NOT REPEAT

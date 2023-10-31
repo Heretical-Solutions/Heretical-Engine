@@ -3,6 +3,8 @@ using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MeshRAMAssetImporter : AssetImporter
@@ -18,8 +20,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public MeshRAMAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			MeshDTO mesh)
-			: base(resourceManager)
+			MeshDTO mesh,
+			IFormatLogger logger)
+			: base(
+				resourceManager,
+				logger)
 		{
 			this.resourceID = resourceID;
 
@@ -33,7 +38,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID),
+					resourceID)
+					.ThrowExceptions<IResourceData, MeshRAMAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = MESH_RAM_VARIANT_ID,
@@ -46,7 +52,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
 					mesh),
 				true,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData, MeshRAMAssetImporter>(logger);
 
 			progress?.Report(1f);
 

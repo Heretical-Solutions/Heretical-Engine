@@ -7,23 +7,28 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		public MeshOpenGL[] Meshes { get; private set; }
 
-		public TextureOpenGL[] Textures { get; private set; }
+		public GeometryOpenGL[] Geometries { get; private set; }
 
 		public MaterialOpenGL[] Materials { get; private set; }
+
+		public TextureOpenGL[] Textures { get; private set; }
 
 		public ModelNodeOpenGL RootNode { get; private set; }
 
 		public ModelOpenGL(
 			MeshOpenGL[] meshes,
-			TextureOpenGL[] textures,
+			GeometryOpenGL[] geometries,
 			MaterialOpenGL[] materials,
+			TextureOpenGL[] textures,
 			ModelNodeOpenGL rootNode)
 		{
 			Meshes = meshes;
 
-			Textures = textures;
+			Geometries = geometries;
 
 			Materials = materials;
+
+			Textures = textures;
 			
 			RootNode = rootNode;
 		}

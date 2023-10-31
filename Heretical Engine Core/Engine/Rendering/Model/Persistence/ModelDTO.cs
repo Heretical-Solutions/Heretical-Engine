@@ -10,9 +10,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public string[] MeshResourceIDs;
 
-		public string[] TextureResourceIDs;
+		public string[] GeometryResourceIDs;
 
 		public string[] MaterialResourceIDs;
+
+		public string[] TextureResourceIDs;
 
 		public ModelNodeDTO RootNode;
 	}

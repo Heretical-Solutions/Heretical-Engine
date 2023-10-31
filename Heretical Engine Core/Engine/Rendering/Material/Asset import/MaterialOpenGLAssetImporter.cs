@@ -4,6 +4,8 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MaterialOpenGLAssetImporter : AssetImporter
@@ -19,8 +21,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public MaterialOpenGLAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			IReadOnlyResourceStorageHandle materialRAMStorageHandle)
-			: base(resourceManager)
+			IReadOnlyResourceStorageHandle materialRAMStorageHandle,
+			IFormatLogger logger)
+			: base(
+				resourceManager,
+				logger)
 		{
 			this.resourceID = resourceID;
 
@@ -34,7 +39,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID),
+					resourceID)
+					.ThrowExceptions<IResourceData, MaterialOpenGLAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = MATERIAL_OPENGL_VARIANT_ID,
@@ -48,7 +54,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					resourceManager,
 					materialRAMStorageHandle),
 				true,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData, MaterialOpenGLAssetImporter>(logger);
 
 			progress?.Report(1f);
 

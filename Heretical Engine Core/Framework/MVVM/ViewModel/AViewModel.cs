@@ -10,13 +10,13 @@ namespace HereticalSolutions.MVVM.ViewModel
     /// </summary>
     public abstract class AViewModel : IViewModel
     {
-        protected ISmartLogger logger;
+        protected IFormatLogger logger;
 
         /// <summary>
         /// Constructor for AViewModel class
         /// </summary>
         /// <param name="logger">Logger for logging</param>
-        public AViewModel(ISmartLogger logger)
+        public AViewModel(IFormatLogger logger)
         {
             this.logger = logger;
         }
@@ -54,7 +54,7 @@ namespace HereticalSolutions.MVVM.ViewModel
         public virtual void SetUp()
         {
             if (IsSetUp)
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     "ALREADY SET UP");
             
@@ -68,14 +68,14 @@ namespace HereticalSolutions.MVVM.ViewModel
         {
             if (!IsSetUp)
             {
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     "VIEWMODEL SHOULD BE SET UP BEFORE BEING INITIALIZED");
             }
 
             if (IsInitialized)
             {
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"INITIALIZING VIEWMODEL THAT IS ALREADY INITIALIZED");
             }
@@ -141,7 +141,7 @@ namespace HereticalSolutions.MVVM.ViewModel
         {
             if (observables.ContainsKey(key))
             {
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"EXPOSED OBSERVABLES LIST ALREADY HAS A KEY \"{key}\"");
             }
@@ -224,7 +224,7 @@ namespace HereticalSolutions.MVVM.ViewModel
         {
             if (commands.ContainsKey(key))
             {
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"EXPOSED COMMANDS LIST ALREADY HAS A KEY \"{key}\"");
             }
@@ -243,7 +243,7 @@ namespace HereticalSolutions.MVVM.ViewModel
         {
             if (commandsWithArguments.ContainsKey(key))
             {
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"EXPOSED COMMANDS WITH ARGUMENTS LIST ALREADY HAS A KEY \"{key}\"");
             }
@@ -262,7 +262,7 @@ namespace HereticalSolutions.MVVM.ViewModel
 
             if (!commands.TryGetValue(key, out result))
             {
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"EXPOSED COMMANDS LIST DOES NOT HAVE A KEY \"{key}\"");
             }
@@ -281,8 +281,8 @@ namespace HereticalSolutions.MVVM.ViewModel
 
             if (!commandsWithArguments.TryGetValue(key, out result))
             {
-                logger.Exception(
-                GetType(),
+                logger.ThrowException(
+                    GetType(),
                     $"EXPOSED COMMANDS WITH ARGUMENTS LIST DOES NOT HAVE A KEY \"{key}\"");
             }
 

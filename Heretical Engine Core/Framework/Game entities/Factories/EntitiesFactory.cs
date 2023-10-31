@@ -36,7 +36,7 @@ namespace HereticalSolutions.GameEntities.Factories
         /// <param name="logger">The logger to use.</param>
         /// <returns>The built entity manager.</returns>
         public static EntityManager BuildEntityManager(
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             var entityRepository = RepositoriesFactory.BuildDictionaryRepository<Guid, Entity>();
         
@@ -175,7 +175,7 @@ namespace HereticalSolutions.GameEntities.Factories
         /// <returns>The built ECSWorldFullStateVisitor.</returns>
         public static ECSWorldFullStateVisitor BuildECSWorldFullStateVisitor(
             IEntityManager entityManager,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             BuildComponentTypesListWithAttribute<NetworkComponentAttribute>(
                 out var componentTypes,
@@ -207,7 +207,7 @@ namespace HereticalSolutions.GameEntities.Factories
         
         public static ECSWorldMementoVisitor BuildECSWorldMementoVisitor(
             IEntityManager entityManager,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             BuildComponentTypesListWithAttribute<NetworkComponentAttribute>(
                 out var componentTypes,
@@ -248,7 +248,7 @@ namespace HereticalSolutions.GameEntities.Factories
         public static ECSEventWorldVisitor BuildECSEventWorldVisitor(
             IEntityManager entityManager,
             bool host,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             BuildComponentTypesListWithAttribute<NetworkEventComponentAttribute>(
                 out var componentTypes,

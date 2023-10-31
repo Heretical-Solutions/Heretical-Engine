@@ -22,7 +22,7 @@ namespace HereticalSolutions.GameEntities
         
         private readonly IRepository<EWorld, IWorldController> worldControllersRepository;
 
-        private readonly ISmartLogger logger;
+        private readonly IFormatLogger logger;
 
         public EntityManager(
             IRepository<Guid, Entity> entityRepository,
@@ -31,7 +31,7 @@ namespace HereticalSolutions.GameEntities
             IRepository<EWorld, IWorldController> worldControllersRepository,
             IEventEntityBuilder eventEntityBuilder,
             IMultiWorldSetter multiWorldSetter,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             this.entityRepository = entityRepository;
 
@@ -78,8 +78,7 @@ namespace HereticalSolutions.GameEntities
         {
             if (!worldsRepository.TryGet(worldID, out var targetWorld))
             {
-                logger.LogError(
-                    GetType(),
+                logger.LogError<EntityManager>(
                     $"NO WORLD REGISTERED BY ID {worldID.ToString()}");
                 
                 return null;
@@ -92,8 +91,7 @@ namespace HereticalSolutions.GameEntities
         {
             if (!worldControllersRepository.TryGet(worldID, out var targetWorld))
             {
-                logger.LogError(
-                    GetType(),
+                logger.LogError<EntityManager>(
                     $"NO WORLD CONTROLLER REGISTERED BY ID {worldID.ToString()}");
                 
                 return null;
@@ -115,8 +113,7 @@ namespace HereticalSolutions.GameEntities
         {
             if (!prototypesRepository.TryGet(prototypeID, out var prototypeEntity))
             {
-                logger.LogError(
-                    GetType(),
+                logger.LogError<EntityManager>(
                     $"NO PROTOTYPE REGISTERED BY ID {prototypeID}");
 
                 return default(Entity);

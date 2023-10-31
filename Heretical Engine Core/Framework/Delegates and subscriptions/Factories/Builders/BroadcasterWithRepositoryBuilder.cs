@@ -15,14 +15,14 @@ namespace HereticalSolutions.Delegates.Factories
     {
         private readonly IRepository<Type, object> broadcastersRepository;
 
-        private readonly ISmartLogger logger;
+        private readonly IFormatLogger logger;
 
         /// <summary>
         /// Initializes a new instance of the BroadcasterWithRepositoryBuilder class.
         /// </summary>
         /// <param name="logger">The logger to be used.</param>
         public BroadcasterWithRepositoryBuilder(
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             this.logger = logger;
             

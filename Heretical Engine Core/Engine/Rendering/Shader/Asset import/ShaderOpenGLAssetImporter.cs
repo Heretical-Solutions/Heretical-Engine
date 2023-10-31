@@ -6,6 +6,8 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
+using HereticalSolutions.Logging;
+
 using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
@@ -32,8 +34,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			ISerializer serializer,
 			ISerializationArgument vertexShaderSerializationArgument,
 			ISerializationArgument fragmentShaderSerializationArgument,
-			GL gl)
-			: base(resourceManager)
+			GL gl,
+			IFormatLogger logger)
+			: base(
+				resourceManager,
+				logger)
 		{
 			this.fullResourceID = fullResourceID;
 
@@ -60,8 +65,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				out var fragmentShaderSourceDTO);
 
 			var result = await AddAssetAsResourceVariant(
-				await GetOrCreateResourceData(fullResourceID),
-				new ResourceVariantDescriptor()
+				await GetOrCreateResourceData(fullResourceID)
+					.ThrowExceptions<IResourceData, ShaderOpenGLAssetImporter>(logger),
+				new ResourceVariantDescriptor
 				{
 					VariantID = SHADER_OPENGL_VARIANT_ID,
 					VariantIDHash = SHADER_OPENGL_VARIANT_ID.AddressToHash(),
@@ -75,7 +81,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					fragmentShaderSourceDTO.Text,
 					cachedGL),
 				true,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData, ShaderOpenGLAssetImporter>(logger);
 
 			progress?.Report(1f);
 

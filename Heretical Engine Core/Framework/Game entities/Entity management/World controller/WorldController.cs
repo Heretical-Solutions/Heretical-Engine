@@ -21,7 +21,7 @@ namespace HereticalSolutions.GameEntities
         
         private readonly Func<object, TResolveComponent> createResolveComponentDelegate;
         
-        private readonly ISmartLogger logger;
+        private readonly IFormatLogger logger;
         
 
         private IEntityManagerInternal entityManagerInternal;
@@ -39,7 +39,7 @@ namespace HereticalSolutions.GameEntities
             Func<TEntityIdentityComponent, Entity> getEntityFromIdentityComponentDelegate,
             Func<TEntityIdentityComponent, Entity, TEntityIdentityComponent> setEntityToIdentityComponentDelegate,
             Func<object, TResolveComponent> createResolveComponentDelegate,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             World = world;
 

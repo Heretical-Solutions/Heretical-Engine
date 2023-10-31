@@ -28,7 +28,7 @@ namespace HereticalSolutions.StateMachines.Factories
             ITransitionController<TBaseState> transitionController,
             EAsyncTransitionRules asyncTransitionRules,
             TBaseState currentState,
-            ISmartLogger logger)
+            IFormatLogger logger)
             where TBaseState : IState
         {
             return new BaseAsyncStateMachine<TBaseState>(
@@ -54,7 +54,7 @@ namespace HereticalSolutions.StateMachines.Factories
             IReadOnlyRepository<Type, TBaseState> states,
             IReadOnlyRepository<Type, ITransitionEvent<TBaseState>> events,
             TBaseState currentState,
-            ISmartLogger logger)
+            IFormatLogger logger)
             where TBaseState : IState
         {
             return new BaseStateMachine<TBaseState>(

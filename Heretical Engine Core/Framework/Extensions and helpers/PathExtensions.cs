@@ -1,6 +1,6 @@
 namespace HereticalSolutions
 {
-	public static class PathHelpers
+	public static class PathExtensions
 	{
 		public static string SanitizePath(this string path)
 		{

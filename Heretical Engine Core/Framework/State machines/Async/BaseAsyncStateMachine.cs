@@ -19,7 +19,7 @@ namespace HereticalSolutions.StateMachines
         private readonly Queue<TransitionRequest<TBaseState>> transitionRequestsQueue;
         private readonly ITransitionController<TBaseState> transitionController;
         private readonly EAsyncTransitionRules defaultAsyncTransitionRules;
-        private readonly ISmartLogger logger;
+        private readonly IFormatLogger logger;
         private Task processTransitionQueueTask;
         private readonly object lockObject;
         private CancellationTokenSource processTransitionQueueCancellationTokenSource;
@@ -43,7 +43,7 @@ namespace HereticalSolutions.StateMachines
             ITransitionController<TBaseState> transitionController,
             EAsyncTransitionRules defaultAsyncTransitionRules,
             TBaseState currentState,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             this.states = states;
             this.events = events;
@@ -94,7 +94,7 @@ namespace HereticalSolutions.StateMachines
         public TBaseState GetState<TConcreteState>()
         {
             if (!states.TryGet(typeof(TConcreteState), out var result))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"STATE {typeof(TConcreteState).Name} NOT FOUND");
 
@@ -109,7 +109,7 @@ namespace HereticalSolutions.StateMachines
         public TBaseState GetState(Type stateType)
         {
             if (!states.TryGet(stateType, out var result))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"STATE {stateType.Name} NOT FOUND");
 
@@ -141,7 +141,7 @@ namespace HereticalSolutions.StateMachines
             ITransitionEvent<TBaseState> @event;
 
             if (!events.TryGet(typeof(TEvent), out @event))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"EVENT {typeof(TEvent).Name} NOT FOUND");
 
@@ -191,7 +191,7 @@ namespace HereticalSolutions.StateMachines
             ITransitionEvent<TBaseState> @event;
 
             if (!events.TryGet(eventType, out @event))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"EVENT {eventType.Name} NOT FOUND");
 
@@ -242,7 +242,7 @@ namespace HereticalSolutions.StateMachines
             ITransitionEvent<TBaseState> @event;
 
             if (!events.TryGet(typeof(TEvent), out @event))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"EVENT {typeof(TEvent).Name} NOT FOUND");
 
@@ -296,7 +296,7 @@ namespace HereticalSolutions.StateMachines
             ITransitionEvent<TBaseState> @event;
 
             if (!events.TryGet(eventType, out @event))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"EVENT {eventType.Name} NOT FOUND");
 
@@ -354,7 +354,7 @@ namespace HereticalSolutions.StateMachines
             TransitionProtocol protocol = null)
         {
             if (!states.Has(typeof(TState)))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"STATE {typeof(TState).Name} NOT FOUND");
 
@@ -401,7 +401,7 @@ namespace HereticalSolutions.StateMachines
             TransitionProtocol protocol = null)
         {
             if (!states.Has(stateType))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"STATE {stateType.Name} NOT FOUND");
 
@@ -449,7 +449,7 @@ namespace HereticalSolutions.StateMachines
             TransitionProtocol protocol = null)
         {
             if (!states.Has(typeof(TState)))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"STATE {typeof(TState).Name} NOT FOUND");
 
@@ -498,7 +498,7 @@ namespace HereticalSolutions.StateMachines
             TransitionProtocol protocol = null)
         {
             if (!states.Has(stateType))
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"STATE {stateType.Name} NOT FOUND");
 
@@ -628,7 +628,7 @@ namespace HereticalSolutions.StateMachines
 
                 string fromStateString = @event.From.GetType().Name;
 
-                logger.Exception(
+                logger.ThrowException(
                     GetType(),
                     $"CURRENT STATE {currentStateString} IS NOT EQUAL TO TRANSITION FROM STATE {fromStateString}");
             }

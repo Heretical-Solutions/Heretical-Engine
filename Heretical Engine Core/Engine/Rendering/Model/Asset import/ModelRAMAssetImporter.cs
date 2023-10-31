@@ -20,6 +20,8 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Scenes;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ModelRAMAssetImporter
@@ -46,8 +48,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public ModelRAMAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			FilePathSettings filePathSettings)
-			: base(resourceManager)
+			FilePathSettings filePathSettings,
+			IFormatLogger logger)
+			: base(
+				resourceManager,
+				logger)
 		{
 			this.resourceID = resourceID;
 
@@ -63,7 +68,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await ImportModel(
 				filePathSettings,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
 
 			progress?.Report(1f);
 
@@ -106,8 +112,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					localProgress = localProgressInstance;
 				}
 
-				await assetImporter.Import(
-					localProgress);
+				await assetImporter
+					.Import(
+						localProgress)
+					.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
 
 				current++;
 			}
@@ -130,7 +138,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID),
+					resourceID)
+					.ThrowExceptions<IResourceData, ModelRAMAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = MODEL_RAM_VARIANT_ID,
@@ -143,7 +152,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
 					modelDTO),
 				true,
-				localProgress);
+				localProgress)
+				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
 
 			progress?.Report(1f);
 
@@ -232,10 +242,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					textureResourcesInAsset,
 					materialResourcesInAsset,
 					assetImporters,
-					//out string materialResourceName,
 					out string materialResourceID);
 
-				//materialImporter.Import();
 				assetImporters.Add(materialImporter);
 
 				modelDTO.MaterialResourceIDs[i] = materialResourceID;
@@ -258,7 +266,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Dictionary<string, string> textureResourcesInAsset,
 			Dictionary<uint, string> materialResourcesInAsset,
 			List<AssetImporter> assetImporters,
-			//out string materialResourceName,
 			out string materialResourceID)
 		{
 			MaterialDTO materialDTO = default;
@@ -338,7 +345,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			return new MaterialRAMAssetImporter(
 				resourceManager,
 				materialResourceID,
-				materialDTO);
+				materialDTO,
+				logger);
 		}
 
 		private unsafe void GenerateMaterialResourceName(
@@ -397,8 +405,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					null,
 					null);
 
-				Console.WriteLine(path.AsString);
-
 				if (textureResourcesInAsset.ContainsKey(path))
 				{
 					var textureResourceName = textureResourcesInAsset[path];
@@ -440,8 +446,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				textureRelativePathFromSource,
 				out string textureFileNameWithoutExtension);
 
-			Console.WriteLine($"Texture full path: {textureFilePathSettings.FullPath}");
-
 			GenerateTextureResourceName(
 				textureFileNameWithoutExtension,
 				textureResourcesInAsset,
@@ -456,7 +460,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var textureImporter = new TextureRAMAssetImporter(
 				resourceManager,
 				textureResourceID,
-				textureFilePathSettings);
+				textureFilePathSettings,
+				logger);
 
 			return textureImporter;
 		}
@@ -478,7 +483,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				.Combine(
 					assetDirectoryName,
 					textureRelativePathFromSource)
-					.SanitizePath();
+				.SanitizePath();
 
 			var textureFileName = Path.GetFileName(expectedTextureFullPath);
 
@@ -492,29 +497,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					textureFileName)
 				.SanitizePath();
 
-			Console.WriteLine($"Expected texture full path if placed by guidelines: {expectedTextureFullPathIfPlacedByGuidelines}");
-
 			if (Path.Exists(expectedTextureFullPathIfPlacedByGuidelines))
 			{
 				result.FullPath = expectedTextureFullPathIfPlacedByGuidelines;
-
-				/*
-				var textureRelativePath = expectedTextureFullPathIfPlacedByGuidelines.Substring(filePathSettings.ApplicationDataFolder.Length);
-
-				textureFilePathSettings.RelativePath = textureRelativePath;
-				*/
 			}
 			else
 			{
-				Console.WriteLine($"Expected texture full path if placed relative to asset file: {expectedTextureFullPath}");
-
 				result.FullPath = expectedTextureFullPath;
-
-				/*
-				var textureRelativePath = expectedTextureFullPath.Substring(filePathSettings.ApplicationDataFolder.Length);
-
-				textureFilePathSettings.RelativePath = textureRelativePath;
-				*/
 			};
 
 			return result;
@@ -551,6 +540,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			modelDTO.MeshResourceIDs = new string[scene->MNumMeshes];
 
+			modelDTO.GeometryResourceIDs = new string[scene->MNumMeshes];
+
 			for (int i = 0; i < scene->MNumMeshes; i++)
 			{
 				Mesh* mesh = scene->MMeshes[i];
@@ -561,12 +552,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					meshResourcesInAsset,
 					materialResourcesInAsset,
 					assetImporters,
-					out string meshResourceID);
+					out string meshResourceID,
+					out string geometryResourceID);
 
-				//materialImporter.Import();
 				assetImporters.Add(meshImporter);
 
 				modelDTO.MeshResourceIDs[i] = meshResourceID;
+
+				modelDTO.GeometryResourceIDs[i] = geometryResourceID;
 			}
 		}
 
@@ -578,8 +571,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			List<string> meshResourcesInAsset,
 			Dictionary<uint, string> materialResourcesInAsset,
 			List<AssetImporter> assetImporters,
-			//out string meshResourceName,
-			out string meshResourceID)
+			out string meshResourceID,
+			out string geometryResourceID)
 		{
 			GenerateMeshResourceName(
 				mesh,
@@ -592,7 +585,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				resourceID,
 				meshResourceName,
 				mesh,
-				out var geometryResourceID);
+				out geometryResourceID);
 
 			assetImporters.Add(geometryImporter);
 
@@ -608,7 +601,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					GeometryResourceID = geometryResourceID,
 
 					MaterialResourceID = materialResourceID
-				});
+				},
+				logger);
 		}
 
 		private unsafe void GenerateMeshResourceName(
@@ -657,7 +651,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				{
 					Vertices = BuildVertices(vertices),
 					Indices = BuildIndices(indices)
-				});
+				},
+				logger);
 		}
 
 		private unsafe void ParseVertices(

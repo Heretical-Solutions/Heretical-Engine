@@ -13,13 +13,13 @@ namespace HereticalSolutions.Delegates.Factories
     public class NonAllocBroadcasterWithRepositoryBuilder
     {
         private readonly IRepository<Type, object> broadcastersRepository;
-        private readonly ISmartLogger logger;
+        private readonly IFormatLogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NonAllocBroadcasterWithRepositoryBuilder"/> class.
         /// </summary>
         /// <param name="logger">The logger implementation to be used.</param>
-        public NonAllocBroadcasterWithRepositoryBuilder(ISmartLogger logger)
+        public NonAllocBroadcasterWithRepositoryBuilder(IFormatLogger logger)
         {
             this.logger = logger;
 

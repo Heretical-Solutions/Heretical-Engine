@@ -14,7 +14,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
           ISubscribableSingleArg
     {
         private readonly IReadOnlyObjectRepository broadcasterRepository;
-        private readonly ISmartLogger logger;
+        private readonly IFormatLogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BroadcasterWithRepository"/> class.
@@ -23,7 +23,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
         /// <param name="logger">The logger to use for exception logging.</param>
         public BroadcasterWithRepository(
             IReadOnlyObjectRepository broadcasterRepository,
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             this.broadcasterRepository = broadcasterRepository;
             this.logger = logger;
@@ -43,8 +43,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     messageType,
                     out object broadcasterObject))
-                logger.Exception(
-                    GetType(),
+                logger.ThrowException<BroadcasterWithRepository>(
                     $"INVALID MESSAGE TYPE: \"{messageType.Name}\"");
 
             var broadcaster = (IPublisherSingleArgGeneric<TValue>)broadcasterObject;
@@ -64,8 +63,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     messageType,
                     out object broadcasterObject))
-                logger.Exception(
-                    GetType(),
+                logger.ThrowException<BroadcasterWithRepository>(
                     $"INVALID MESSAGE TYPE: \"{messageType.Name}\"");
 
             var broadcaster = (IPublisherSingleArg)broadcasterObject;
@@ -89,8 +87,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     messageType,
                     out object broadcasterObject))
-                logger.Exception(
-                    GetType(),
+                logger.ThrowException<BroadcasterWithRepository>(
                     $"INVALID MESSAGE TYPE: \"{messageType.Name}\"");
 
             var broadcaster = (ISubscribableSingleArgGeneric<TValue>)broadcasterObject;
@@ -110,8 +107,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     messageType,
                     out object broadcasterObject))
-                logger.Exception(
-                    GetType(),
+                logger.ThrowException<BroadcasterWithRepository>(
                     $"INVALID MESSAGE TYPE: \"{messageType.Name}\"");
 
             var broadcaster = (ISubscribableSingleArg)broadcasterObject;
@@ -131,8 +127,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     messageType,
                     out object broadcasterObject))
-                logger.Exception(
-                    GetType(),
+                logger.ThrowException<BroadcasterWithRepository>(
                     $"INVALID MESSAGE TYPE: \"{messageType.Name}\"");
 
             var broadcaster = (ISubscribableSingleArgGeneric<TValue>)broadcasterObject;
@@ -152,8 +147,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     messageType,
                     out object broadcasterObject))
-                logger.Exception(
-                    GetType(),
+                logger.ThrowException<BroadcasterWithRepository>(
                     $"INVALID MESSAGE TYPE: \"{messageType.Name}\"");
 
             var broadcaster = (ISubscribableSingleArg)broadcasterObject;

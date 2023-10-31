@@ -31,7 +31,7 @@ namespace HereticalSolutions.Messaging.Factories
         /// </summary>
         /// <param name="logger">The logger instance to use for logging.</param>
         public NonAllocMessageBusBuilder(
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             messagePoolRepository = RepositoriesFactory.BuildDictionaryObjectRepository();
 

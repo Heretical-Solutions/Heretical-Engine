@@ -1,7 +1,10 @@
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
+
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.Logging;
 
 using Silk.NET.OpenGL;
 
@@ -23,8 +26,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
-			GL gl)
-			: base(resourceManager)
+			GL gl,
+			IFormatLogger logger)
+			: base(
+				resourceManager,
+				logger)
 		{
 			this.resourceID = resourceID;
 
@@ -40,7 +46,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID),
+					resourceID)
+					.ThrowExceptions<IResourceData, GeometryOpenGLAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = GEOMETRY_OPENGL_VARIANT_ID,
@@ -54,7 +61,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					geometryRAMStorageHandle,
 					cachedGL),
 				true,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData, GeometryOpenGLAssetImporter>(logger);
 
 			progress?.Report(1f);
 

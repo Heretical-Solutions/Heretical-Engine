@@ -1,3 +1,5 @@
+using HereticalSolutions.Logging;
+
 using HereticalSolutions.Persistence;
 
 using HereticalSolutions.ResourceManagement;
@@ -21,8 +23,11 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			string fullResourceID,
 			ISerializer serializer,
 			ISerializationArgument serializationArgument,
-			ILoadVisitorGeneric<TAsset, TDTO> visitor)
-			: base(resourceManager)
+			ILoadVisitorGeneric<TAsset, TDTO> visitor,
+			IFormatLogger logger)
+			: base(
+				resourceManager,
+				logger)
 		{
 			this.fullResourceID = fullResourceID;
 
@@ -49,7 +54,10 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			var result = await AddAssetAsResourceToManager(
 				asset,
 				true,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData>(
+					GetType(),
+					logger);
 
 			progress?.Report(1f);
 
@@ -64,7 +72,10 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
-				await GetOrCreateResourceData(fullResourceID),
+				await GetOrCreateResourceData(fullResourceID)
+					.ThrowExceptions<IResourceData>(
+						GetType(),
+						logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = string.Empty,
@@ -77,7 +88,10 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				ResourceManagementFactory
 					.BuildPreallocatedResourceStorageHandle(asset),
 				allocate,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData>(
+					GetType(),
+					logger);
 
 			progress?.Report(1f);
 

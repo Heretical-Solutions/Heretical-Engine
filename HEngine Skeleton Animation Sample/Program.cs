@@ -1,5 +1,18 @@
 ﻿using System.Drawing;
 
+using HereticalSolutions.ResourceManagement.Factories;
+using HereticalSolutions.ResourceManagement;
+
+using HereticalSolutions.HereticalEngine.Rendering;
+
+using HereticalSolutions.Persistence.Arguments;
+using HereticalSolutions.Persistence.IO;
+using HereticalSolutions.Persistence.Factories;
+
+using HereticalSolutions.HereticalEngine.Math;
+
+using HereticalSolutions.Logging;
+
 using Silk.NET.Maths;
 
 using Silk.NET.Windowing;
@@ -8,17 +21,6 @@ using Silk.NET.Input;
 
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
-
-using HereticalSolutions.ResourceManagement.Factories;
-using HereticalSolutions.ResourceManagement;
-
-using HereticalSolutions.HereticalEngine.Rendering;
-
-using HereticalSolutions.Persistence.Arguments;
-using HereticalSolutions.Persistence.IO;
-
-using HereticalSolutions.HereticalEngine.Math;
-using HereticalSolutions.Persistence.Factories;
 
 namespace HereticalSolutions.HereticalEngine.Samples
 {
@@ -30,6 +32,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		static void Main(string[] args)
 		{
 			//var program = new Program();
+
+			IFormatLogger logger = new ConsoleLogger();
 
 			// Create a Silk.NET window as usual
 			using var window = Window.Create(WindowOptions.Default);
@@ -50,7 +54,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 				LoadAssets(
 					runtimeResourceManager,
-					gl);
+					gl,
+					logger);
 
 				inputContext = InitInputContext(window);
 
@@ -59,7 +64,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					gl,
 					inputContext);
 				
-				PerformInitAsserts();
+				PerformInitAsserts(logger);
 			};
 
 			// Handle resizes
@@ -126,7 +131,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 		public static void LoadAssets(
 			IRuntimeResourceManager runtimeResourceManager,
-			GL gl)
+			GL gl,
+			IFormatLogger logger)
 		{
 			var pathToExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
@@ -160,7 +166,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				PersistenceFactory.BuildSimplePlainTextSerializer(),
 				vertexShaderArgument,
 				fragmentShaderArgument,
-				gl);
+				gl,
+				logger);
 
 			shaderAssimp.Import();
 
@@ -175,60 +182,62 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				{
 					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
-				});
+				},
+				logger);
 
 				modelAssimp.Import();
 
 			#endregion
 
-			Console.WriteLine("Import finished");
+			logger.Log<Program>("IMPORT FINISHED");
 		}
 
 		#endregion
 
 		#region Asserts
 
-		static void PerformInitAsserts()
+		static void PerformInitAsserts(
+			IFormatLogger logger)
 		{
 			AssertVectors();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertMatrices();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertNoTransformation();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertTranslate();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertScale();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertRotate();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertReflect();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertOrtho();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertPerspective();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertCombinedTransformations();
 
-			Console.WriteLine("--------------");
+			logger.Log<Program>("--------------");
 
 			AssertQuaternions();
 		}

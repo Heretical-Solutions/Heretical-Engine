@@ -36,7 +36,7 @@ namespace HereticalSolutions.GameEntities
         private readonly List<ECSComponentDTO> componentDTOCache;
 
         
-        private readonly ISmartLogger logger;
+        private readonly IFormatLogger logger;
 
         
         private World cachedWorld;
@@ -57,7 +57,7 @@ namespace HereticalSolutions.GameEntities
             HashSet<Guid> entitiesAlive,
             List<ECSComponentDTO> componentDTOCache,
             
-            ISmartLogger logger)
+            IFormatLogger logger)
         {
             this.entityManager = entityManager;
             

@@ -2,9 +2,9 @@ using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
-using HereticalSolutions.Persistence.IO;
-
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.Logging;
 
 using Silk.NET.OpenGL;
 
@@ -31,8 +31,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			string resourceID,
 			TextureRAMStorageHandle textureRAMStorageHandle,
 			GL gl,
+			IFormatLogger logger,
 			TextureType textureType = TextureType.None)
-			: base(resourceManager)
+			: base(
+				resourceManager,
+				logger)
 		{
 			this.resourceID = resourceID;
 
@@ -50,7 +53,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID),
+					resourceID)
+					.ThrowExceptions<IResourceData, TextureOpenGLAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = TEXTURE_OPENGL_VARIANT_ID,
@@ -65,7 +69,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					textureType,
 					cachedGL),
 				true,
-				progress);
+				progress)
+				.ThrowExceptions<IResourceVariantData, TextureOpenGLAssetImporter>(logger);
 
 			progress?.Report(1f);
 

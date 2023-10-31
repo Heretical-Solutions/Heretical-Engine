@@ -19,7 +19,7 @@
 
 			private readonly Queue<ITransitionEvent<TBaseState>> transitionQueue;
 
-			private readonly ISmartLogger logger;
+			private readonly IFormatLogger logger;
 
 			/// <summary>
 			/// Initializes a new instance of the <see cref="BaseStateMachine{TBaseState}"/> class.
@@ -34,7 +34,7 @@
 				IReadOnlyRepository<Type, ITransitionEvent<TBaseState>> events,
 				Queue<ITransitionEvent<TBaseState>> transitionQueue,
 				TBaseState currentState,
-				ISmartLogger logger)
+				IFormatLogger logger)
 			{
 				this.states = states;
 				this.events = events;
@@ -91,7 +91,7 @@
 			public TBaseState GetState<TConcreteState>()
 			{
 				if (!states.TryGet(typeof(TConcreteState), out var result))
-					logger.Exception(
+					logger.ThrowException(
 						GetType(),
 						$"STATE {typeof(TConcreteState).Name} NOT FOUND");
 
@@ -106,7 +106,7 @@
 			public TBaseState GetState(Type stateType)
 			{
 				if (!states.TryGet(stateType, out var result))
-					logger.Exception(
+					logger.ThrowException(
 						GetType(),
 						$"STATE {stateType.Name} NOT FOUND");
 
@@ -126,7 +126,7 @@
 				ITransitionEvent<TBaseState> @event;
 
 				if (!events.TryGet(typeof(TEvent), out @event))
-					logger.Exception(
+					logger.ThrowException(
 						GetType(),
 						$"EVENT {typeof(TEvent).Name} NOT FOUND");
 
@@ -145,7 +145,7 @@
 				ITransitionEvent<TBaseState> @event;
 
 				if (!events.TryGet(eventType, out @event))
-					logger.Exception(
+					logger.ThrowException(
 						GetType(),
 						$"EVENT {eventType.Name} NOT FOUND");
 
@@ -171,7 +171,7 @@
 			public void TransitToImmediately<TState>()
 			{
 				if (!states.Has(typeof(TState)))
-					logger.Exception(
+					logger.ThrowException(
 						GetType(),
 						$"STATE {typeof(TState).Name} NOT FOUND");
 
@@ -190,7 +190,7 @@
 			public void TransitToImmediately(Type stateType)
 			{
 				if (!states.Has(stateType))
-					logger.Exception(
+					logger.ThrowException(
 						GetType(),
 						$"STATE {stateType.Name} NOT FOUND");
 
@@ -213,7 +213,7 @@
 					string currentStateString = CurrentState.GetType().Name;
 					string fromStateString = @event.From.GetType().Name;
 
-					logger.Exception(
+					logger.ThrowException(
 						GetType(),
 						$"CURRENT STATE {currentStateString} IS NOT EQUAL TO TRANSITION FROM STATE {fromStateString}");
 				}
