@@ -1,3 +1,5 @@
+using HereticalSolutions.Collections.Managed;
+
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
@@ -5,6 +7,8 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 using HereticalSolutions.Persistence.IO;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -20,10 +24,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly FilePathSettings filePathSettings;
 
+		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+
 		public TextureRAMAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			FilePathSettings filePathSettings,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 			: base(
 				resourceManager,
@@ -32,6 +39,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.resourceID = resourceID;
 
 			this.filePathSettings = filePathSettings;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 		}
 
 		public override async Task<IResourceVariantData> Import(
@@ -54,6 +63,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				},
 				TextureFactory.BuildTextureRAMStorageHandle(
 					filePathSettings,
+					mainThreadCommandBuffer,
 					logger),
 				true,
 				progress)

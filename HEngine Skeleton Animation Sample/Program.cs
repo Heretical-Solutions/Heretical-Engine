@@ -91,7 +91,14 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			{
 				while (mainThreadCommandBuffer.TryConsume(out var command))
 				{
-					command.Execute();
+					if (command.Async)
+					{
+						var task = command.ExecuteAsync();
+
+						task.Wait();
+					}
+					else
+						command.Execute();
 				}
 
 				Update(
@@ -202,6 +209,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
 				},
+				mainThreadCommandBuffer,
 				logger);
 
 			await modelAssimp.Import();

@@ -1,9 +1,15 @@
+#define LOAD_IMAGES_ASYNC
+
 using System;
 using System.Threading.Tasks;
+
+using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.Persistence.IO;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -14,6 +20,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		private readonly FilePathSettings filePathSettings;
 
+		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+
 		private readonly IFormatLogger logger;
 
 
@@ -23,9 +31,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public TextureRAMStorageHandle(
 			FilePathSettings filePathSettings,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			this.filePathSettings = filePathSettings;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 
 			this.logger = logger;
 
@@ -56,17 +67,39 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<TextureRAMStorageHandle>($"ALLOCATING. CURRENT THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
+#if LOAD_IMAGES_ASYNC
+			//The LoadAsync method is not thread safe somehow and throws exceptions if called not from the main thread.
+			//Whatever, we have main thread commands now
+			Func<Task> loadTextureDelegate = async () =>
+			{
+				logger.Log<TextureRAMStorageHandle>(
+					$"INITIATING ASYNC TEXTURE LOADING. THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
 
-			//For some reason async version silently throws a task cancelled exception
-			/*
-			await Image
-				.LoadAsync<Rgba32>(
-					filePathSettings.FullPath)
-				.ThrowExceptions<Image<Rgba32>, TextureRAMStorageHandle>(logger);
-			*/
+				texture = await Image
+					.LoadAsync<Rgba32>(
+						filePathSettings.FullPath)
+					.ThrowExceptions<Image<Rgba32>, TextureRAMStorageHandle>(logger);
 
+				logger.Log<TextureRAMStorageHandle>(
+					$"DONE. TEXTURE IS LOADED: {(texture != default).ToString()}");
+			};
+
+			var command = new MainThreadCommand(
+				loadTextureDelegate);
+
+			while (!mainThreadCommandBuffer.TryProduce(
+				command))
+			{
+				await Task.Yield();
+			}
+
+			while (command.Status != ECommandStatus.DONE)
+			{
+				await Task.Yield();
+			}
+#else
 			texture = Image.Load<Rgba32>(filePathSettings.FullPath);
+#endif
 
 			allocated = true;
 

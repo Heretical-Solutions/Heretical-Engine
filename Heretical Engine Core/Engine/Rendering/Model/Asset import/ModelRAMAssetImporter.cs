@@ -1,13 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Silk.NET.Assimp;
-
-using System.Numerics;
-
-using AssimpMesh = Silk.NET.Assimp.Mesh;
-
-using AssimpAPI = Silk.NET.Assimp.Assimp;
+using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.Persistence.IO;
 
@@ -20,7 +14,17 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Scenes;
 
+using HereticalSolutions.HereticalEngine.Messaging;
+
 using HereticalSolutions.Logging;
+
+using Silk.NET.Assimp;
+
+using System.Numerics;
+
+using AssimpMesh = Silk.NET.Assimp.Mesh;
+
+using AssimpAPI = Silk.NET.Assimp.Assimp;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -43,12 +47,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly FilePathSettings filePathSettings;
 
+		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+
 		private readonly AssimpAPI assimp;
 
 		public ModelRAMAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			FilePathSettings filePathSettings,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 			: base(
 				resourceManager,
@@ -57,6 +64,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.resourceID = resourceID;
 
 			this.filePathSettings = filePathSettings;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 
 			assimp = AssimpAPI.GetApi();
 		}
@@ -461,6 +470,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				resourceManager,
 				textureResourceID,
 				textureFilePathSettings,
+				mainThreadCommandBuffer,
 				logger);
 
 			return textureImporter;

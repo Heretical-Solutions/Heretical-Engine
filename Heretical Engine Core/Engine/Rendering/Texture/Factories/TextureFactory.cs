@@ -1,4 +1,8 @@
+using HereticalSolutions.Collections.Managed;
+
 using HereticalSolutions.Persistence.IO;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -58,10 +62,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		public static TextureRAMStorageHandle BuildTextureRAMStorageHandle(
 			FilePathSettings filePathSettings,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			return new TextureRAMStorageHandle(
 				filePathSettings,
+				mainThreadCommandBuffer,
 				logger);
 		}
 

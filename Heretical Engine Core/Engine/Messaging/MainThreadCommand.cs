@@ -19,9 +19,15 @@ namespace HereticalSolutions.HereticalEngine.Messaging
 
 		public Action DelegateToPerform { get; private set; }
 
-		private ECommandStatus status = ECommandStatus.QUEUED;
+		public Func<Task> AsyncDelegateToPerform { get; private set; }
+
+		public bool Async { get; private set; }
+
+
+		private ECommandStatus status;
 
 		private object lockObject = new object();
+
 
 		public MainThreadCommand(
 			Action delegateToPerform)
@@ -29,6 +35,22 @@ namespace HereticalSolutions.HereticalEngine.Messaging
 			status = ECommandStatus.QUEUED;
 
 			DelegateToPerform = delegateToPerform;
+
+			AsyncDelegateToPerform = null;
+
+			Async = false;
+		}
+
+		public MainThreadCommand(
+			Func<Task> asyncDelegateToPerform)
+		{
+			status = ECommandStatus.QUEUED;
+
+			AsyncDelegateToPerform = asyncDelegateToPerform;
+
+			DelegateToPerform = null;
+
+			Async = true;
 		}
 
 		public void Execute()
@@ -39,6 +61,21 @@ namespace HereticalSolutions.HereticalEngine.Messaging
 			}
 
 			DelegateToPerform?.Invoke();
+
+			lock (lockObject)
+			{
+				status = ECommandStatus.DONE;
+			}
+		}
+
+		public async Task ExecuteAsync()
+		{
+			lock (lockObject)
+			{
+				status = ECommandStatus.IN_PROGRESS;
+			}
+
+			await AsyncDelegateToPerform?.Invoke();
 
 			lock (lockObject)
 			{
