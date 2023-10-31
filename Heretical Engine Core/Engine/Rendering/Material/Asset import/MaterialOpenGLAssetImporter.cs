@@ -52,7 +52,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				},
 				MaterialFactory.BuildMaterialOpenGLStorageHandle(
 					resourceManager,
-					materialRAMStorageHandle),
+					materialRAMStorageHandle,
+					logger),
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, MaterialOpenGLAssetImporter>(logger);

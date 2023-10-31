@@ -3,9 +3,11 @@ using System.Threading.Tasks;
 
 using HereticalSolutions.ResourceManagement;
 
-using Silk.NET.OpenGL;
-
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.Logging;
+
+using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -16,6 +18,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly GL cachedGL = default;
 
+		private readonly IFormatLogger logger;
+
 
 		private bool allocated = false;
 
@@ -23,11 +27,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public GeometryOpenGLStorageHandle(
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
-			GL gl)
+			GL gl,
+			IFormatLogger logger)
 		{
 			this.geometryRAMStorageHandle = geometryRAMStorageHandle;
 
 			cachedGL = gl;
+
+			this.logger = logger;
 
 
 			geometry = null;
@@ -72,8 +79,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					localProgress = localProgressInstance;
 				}
 
-				await geometryRAMStorageHandle.Allocate(
-					localProgress);
+				await geometryRAMStorageHandle
+					.Allocate(
+						localProgress)
+					.ThrowExceptions<GeometryOpenGLStorageHandle>(logger);
 			}
 
 			geometry = GeometryFactory.BuildGeometryOpenGL(

@@ -5,6 +5,8 @@ using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureRAMStorageHandle
@@ -12,15 +14,20 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		private readonly FilePathSettings filePathSettings;
 
+		private readonly IFormatLogger logger;
+
 
 		private bool allocated = false;
 
 		private Image<Rgba32> texture = null;
 
 		public TextureRAMStorageHandle(
-			FilePathSettings filePathSettings)
+			FilePathSettings filePathSettings,
+			IFormatLogger logger)
 		{
 			this.filePathSettings = filePathSettings;
+
+			this.logger = logger;
 
 
 			texture = null;
@@ -49,8 +56,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			//For some reason async version silently throws an exception
-			texture = Image.Load<Rgba32>(filePathSettings.FullPath); //await Image.LoadAsync<Rgba32>(filePathSettings.FullPath);
+			//For some reason async version silently throws a task cancelled exception
+			/*
+			await Image
+				.LoadAsync<Rgba32>(
+					filePathSettings.FullPath)
+				.ThrowExceptions<Image<Rgba32>, TextureRAMStorageHandle>(logger);
+			*/
+			
+			texture = Image.Load<Rgba32>(filePathSettings.FullPath);
 
 			allocated = true;
 

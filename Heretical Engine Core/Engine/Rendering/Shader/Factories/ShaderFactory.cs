@@ -1,3 +1,5 @@
+using HereticalSolutions.Logging;
+
 using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
@@ -141,12 +143,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public static ShaderOpenGLStorageHandle BuildShaderOpenGLStorageHandle(
 			string vertexShaderSource,
 			string fragmentShaderSource,
-			GL gl)
+			GL gl,
+			IFormatLogger logger)
 		{
 			return new ShaderOpenGLStorageHandle(
 				vertexShaderSource,
 				fragmentShaderSource,
-				gl);
+				gl,
+				logger);
 		}
 	}
 }

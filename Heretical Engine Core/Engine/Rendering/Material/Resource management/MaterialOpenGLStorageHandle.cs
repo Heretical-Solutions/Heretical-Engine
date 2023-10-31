@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 using HereticalSolutions.ResourceManagement;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MaterialOpenGLStorageHandle
@@ -12,6 +14,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly IReadOnlyResourceStorageHandle materialRAMStorageHandle = null;
 
+		private readonly IFormatLogger logger;
+
 
 		private bool allocated = false;
 
@@ -19,11 +23,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public MaterialOpenGLStorageHandle(
 			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle materialRAMStorageHandle)
+			IReadOnlyResourceStorageHandle materialRAMStorageHandle,
+			IFormatLogger logger)
 		{
 			this.resourceManager = resourceManager;
 
 			this.materialRAMStorageHandle = materialRAMStorageHandle;
+
+			this.logger = logger;
 
 
 			material = null;
@@ -55,7 +62,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			bool result = await LoadMaterial(
 				resourceManager,
 				materialRAMStorageHandle,
-				progress);
+				progress)
+				.ThrowExceptions<bool, MaterialOpenGLStorageHandle>(logger);
 
 			if (!result)
 			{
@@ -92,8 +100,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					localProgress = localProgressInstance;
 				}
 
-				await materialRAMStorageHandle.Allocate(
-					localProgress);
+				await materialRAMStorageHandle
+					.Allocate(
+						localProgress)
+					.ThrowExceptions<MaterialOpenGLStorageHandle>(logger);
 			}
 
 			var materialDTO = materialRAMStorageHandle.GetResource<MaterialDTO>();
@@ -123,8 +133,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					localProgress = localProgressInstance;
 				}
 
-				await shaderStorageHandle.Allocate(
-					localProgress);
+				await shaderStorageHandle
+					.Allocate(
+						localProgress)
+					.ThrowExceptions<MaterialOpenGLStorageHandle>(logger);
 			}
 
 			var shader = shaderStorageHandle.GetResource<ShaderOpenGL>();
@@ -158,8 +170,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						localProgress = localProgressInstance;
 					}
 
-					await textureOpenGLStorageHandle.Allocate(
-						localProgress);
+					await textureOpenGLStorageHandle
+						.Allocate(
+							localProgress)
+						.ThrowExceptions<MaterialOpenGLStorageHandle>(logger);
 				}
 
 				textures[i] = textureOpenGLStorageHandle.GetResource<TextureOpenGL>();

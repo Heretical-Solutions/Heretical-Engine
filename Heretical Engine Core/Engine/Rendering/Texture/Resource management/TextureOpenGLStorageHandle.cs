@@ -3,11 +3,13 @@ using System.Threading.Tasks;
 
 using HereticalSolutions.ResourceManagement;
 
+using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.Logging;
+
 using Silk.NET.OpenGL;
 
 using Silk.NET.Assimp;
-
-using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -20,6 +22,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly GL cachedGL = default;
 
+		private readonly IFormatLogger logger;
+
 
 		private bool allocated = false;
 
@@ -28,13 +32,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public TextureOpenGLStorageHandle(
 			TextureRAMStorageHandle textureRAMStorageHandle,
 			TextureType textureType,
-			GL gl)
+			GL gl,
+			IFormatLogger logger)
 		{
 			this.textureRAMStorageHandle = textureRAMStorageHandle;
 
 			this.textureType = textureType;
 
 			cachedGL = gl;
+
+			this.logger = logger;
 
 
 			texture = null;
@@ -68,7 +75,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				textureType,
 				cachedGL,
 				true,
-				progress);
+				progress)
+				.ThrowExceptions<bool, TextureOpenGLStorageHandle>(logger);
 
 			if (!result)
 			{
@@ -107,8 +115,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					localProgress = localProgressInstance;
 				}
 
-				await textureRAMStorageHandle.Allocate(
-					localProgress);
+				await textureRAMStorageHandle
+					.Allocate(
+						localProgress)
+					.ThrowExceptions<TextureOpenGLStorageHandle>(logger);
 			}
 
 			var ramTexture = textureRAMStorageHandle.GetResource<Image<Rgba32>>();
@@ -136,8 +146,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					localProgress = localProgressInstance;
 				}
 
-				await textureRAMStorageHandle.Free(
-					localProgress);
+				await textureRAMStorageHandle
+					.Free(
+						localProgress)
+					.ThrowExceptions<TextureOpenGLStorageHandle>(logger);
 			}
 
 			progress?.Report(1f);

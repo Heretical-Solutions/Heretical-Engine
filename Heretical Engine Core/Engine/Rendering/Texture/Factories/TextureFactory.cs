@@ -1,5 +1,7 @@
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
 using Silk.NET.OpenGL;
 
 using Silk.NET.Assimp;
@@ -55,21 +57,25 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		}
 
 		public static TextureRAMStorageHandle BuildTextureRAMStorageHandle(
-			FilePathSettings filePathSettings)
+			FilePathSettings filePathSettings,
+			IFormatLogger logger)
 		{
 			return new TextureRAMStorageHandle(
-				filePathSettings);
+				filePathSettings,
+				logger);
 		}
 
 		public static TextureOpenGLStorageHandle BuildTextureOpenGLStorageHandle(
 			TextureRAMStorageHandle textureRAMStorageHandle,
 			TextureType textureType,
-			GL gl)
+			GL gl,
+			IFormatLogger logger)
 		{
 			return new TextureOpenGLStorageHandle(
 				textureRAMStorageHandle,
 				textureType,
-				gl);
+				gl,
+				logger);
 		}
 	}
 }

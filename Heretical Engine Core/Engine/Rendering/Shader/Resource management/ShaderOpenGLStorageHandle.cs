@@ -6,6 +6,8 @@ using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 using HereticalSolutions.ResourceManagement;
 
+using HereticalSolutions.Logging;
+
 using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
@@ -18,6 +20,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private readonly string fragmentShaderSource = string.Empty;
 
 		private readonly GL cachedGL = default;
+
+		private readonly IFormatLogger logger;
 
 
 		private bool allocated = false;
@@ -34,13 +38,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public ShaderOpenGLStorageHandle(
 			string vertexShaderSource,
 			string fragmentShaderSource,
-			GL gl)
+			GL gl,
+			IFormatLogger logger)
 		{
 			this.vertexShaderSource = vertexShaderSource;
 
 			this.fragmentShaderSource = fragmentShaderSource;
 
 			cachedGL = gl;
+
+			this.logger = logger;
 
 
 			shader = null;

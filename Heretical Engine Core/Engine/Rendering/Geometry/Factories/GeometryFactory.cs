@@ -1,4 +1,7 @@
 using HereticalSolutions.ResourceManagement;
+
+using HereticalSolutions.Logging;
+
 using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
@@ -47,11 +50,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		public static GeometryOpenGLStorageHandle BuildGeometryOpenGLStorageHandle(
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
-			GL gl)
+			GL gl,
+			IFormatLogger logger)
 		{
 			return new GeometryOpenGLStorageHandle(
 				geometryRAMStorageHandle,
-				gl);
+				gl,
+				logger);
 		}
 	}
 }

@@ -67,7 +67,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				TextureFactory.BuildTextureOpenGLStorageHandle(
 					textureRAMStorageHandle,
 					textureType,
-					cachedGL),
+					cachedGL,
+					logger),
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, TextureOpenGLAssetImporter>(logger);

@@ -79,7 +79,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ShaderFactory.BuildShaderOpenGLStorageHandle(
 					vertexShaderSourceDTO.Text,
 					fragmentShaderSourceDTO.Text,
-					cachedGL),
+					cachedGL,
+					logger),
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, ShaderOpenGLAssetImporter>(logger);

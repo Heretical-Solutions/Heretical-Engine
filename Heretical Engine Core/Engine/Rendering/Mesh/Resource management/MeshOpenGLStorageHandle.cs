@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 using HereticalSolutions.ResourceManagement;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MeshOpenGLStorageHandle
@@ -12,6 +14,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly IReadOnlyResourceStorageHandle meshRAMStorageHandle = null;
 
+		private readonly IFormatLogger logger;
+
 
 		private bool allocated = false;
 
@@ -19,11 +23,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public MeshOpenGLStorageHandle(
 			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle meshRAMStorageHandle)
+			IReadOnlyResourceStorageHandle meshRAMStorageHandle,
+			IFormatLogger logger)
 		{
 			this.resourceManager = resourceManager;
 
 			this.meshRAMStorageHandle = meshRAMStorageHandle;
+
+			this.logger = logger;
 
 
 			mesh = null;
@@ -55,7 +62,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			bool result = await LoadMesh(
 				resourceManager,
 				meshRAMStorageHandle,
-				progress);
+				progress)
+				.ThrowExceptions<bool, MeshOpenGLStorageHandle>(logger);
 
 			if (!result)
 			{
@@ -92,8 +100,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					localProgress = localProgressInstance;
 				}
 
-				await meshRAMStorageHandle.Allocate(
-					localProgress);
+				await meshRAMStorageHandle
+					.Allocate(
+						localProgress)
+					.ThrowExceptions<MeshOpenGLStorageHandle>(logger);
 			}
 
 			var meshDTO = meshRAMStorageHandle.GetResource<MeshDTO>();
@@ -123,8 +133,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					localProgress = localProgressInstance;
 				}
 
-				await geometryStorageHandle.Allocate(
-					localProgress);
+				await geometryStorageHandle
+					.Allocate(
+						localProgress)
+					.ThrowExceptions<MeshOpenGLStorageHandle>(logger);
 			}
 
 			var geometry = geometryStorageHandle.GetResource<GeometryOpenGL>();
@@ -155,8 +167,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					localProgress = localProgressInstance;
 				}
 
-				await materialOpenGLStorageHandle.Allocate(
-					localProgress);
+				await materialOpenGLStorageHandle
+					.Allocate(
+						localProgress)
+					.ThrowExceptions<MeshOpenGLStorageHandle>(logger);
 			}
 
 			var material = materialOpenGLStorageHandle.GetResource<MaterialOpenGL>();

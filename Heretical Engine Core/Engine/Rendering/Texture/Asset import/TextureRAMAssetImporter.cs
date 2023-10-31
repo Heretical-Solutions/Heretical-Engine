@@ -53,7 +53,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					ResourceType = typeof(Image<Rgba32>),
 				},
 				TextureFactory.BuildTextureRAMStorageHandle(
-					filePathSettings),
+					filePathSettings,
+					logger),
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, TextureRAMAssetImporter>(logger);

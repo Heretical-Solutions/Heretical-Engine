@@ -52,7 +52,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				},
 				MeshFactory.BuildMeshOpenGLStorageHandle(
 					resourceManager,
-					meshRAMStorageHandle),
+					meshRAMStorageHandle,
+					logger),
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, MeshOpenGLAssetImporter>(logger);

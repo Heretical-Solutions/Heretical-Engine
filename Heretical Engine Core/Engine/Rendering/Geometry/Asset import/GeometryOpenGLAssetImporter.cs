@@ -59,7 +59,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				},
 				GeometryFactory.BuildGeometryOpenGLStorageHandle(
 					geometryRAMStorageHandle,
-					cachedGL),
+					cachedGL,
+					logger),
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, GeometryOpenGLAssetImporter>(logger);
