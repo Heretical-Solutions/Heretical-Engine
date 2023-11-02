@@ -32,10 +32,10 @@ namespace HereticalSolutions.ResourceManagement.Factories
         {
             return new ConcurrentResourceData(
                 descriptor,
-                RepositoriesFactory.BuildDictionaryRepository<int, string>(),
-                RepositoriesFactory.BuildDictionaryRepository<int, IResourceVariantData>(),
-                RepositoriesFactory.BuildDictionaryRepository<int, string>(),
-                RepositoriesFactory.BuildDictionaryRepository<int, IReadOnlyResourceData>(),
+                RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
+                RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IResourceVariantData>(),
+                RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
+                RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IReadOnlyResourceData>(),
                 new ReaderWriterLockSlim());
         }
 

@@ -1,3 +1,5 @@
+#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
 using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.ResourceManagement;
@@ -61,10 +63,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(Image<Rgba32>),
 				},
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+				TextureFactory.BuildConcurrentTextureRAMStorageHandle(
+					filePathSettings,
+					mainThreadCommandBuffer,
+					logger),
+#else
 				TextureFactory.BuildTextureRAMStorageHandle(
 					filePathSettings,
 					mainThreadCommandBuffer,
 					logger),
+#endif					
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, TextureRAMAssetImporter>(logger);

@@ -1,3 +1,5 @@
+#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
@@ -50,10 +52,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(MaterialOpenGL),
 				},
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+				MaterialFactory.BuildConcurrentMaterialOpenGLStorageHandle(
+					resourceManager,
+					materialRAMStorageHandle,
+					logger),
+#else
 				MaterialFactory.BuildMaterialOpenGLStorageHandle(
 					resourceManager,
 					materialRAMStorageHandle,
 					logger),
+#endif
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, MaterialOpenGLAssetImporter>(logger);

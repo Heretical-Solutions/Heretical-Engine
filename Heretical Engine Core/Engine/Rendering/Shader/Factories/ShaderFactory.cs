@@ -158,5 +158,21 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				mainThreadCommandBuffer,
 				logger);
 		}
+
+		public static ConcurrentShaderOpenGLStorageHandle BuildConcurrentShaderOpenGLStorageHandle(
+			string vertexShaderSource,
+			string fragmentShaderSource,
+			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
+			IFormatLogger logger)
+		{
+			return new ConcurrentShaderOpenGLStorageHandle(
+				vertexShaderSource,
+				fragmentShaderSource,
+				gl,
+				mainThreadCommandBuffer,
+				new ReaderWriterLockSlim(),
+				logger);
+		}
 	}
 }

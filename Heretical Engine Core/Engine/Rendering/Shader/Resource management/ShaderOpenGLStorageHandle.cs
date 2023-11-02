@@ -1,5 +1,4 @@
 using System;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 using HereticalSolutions.HereticalEngine.Messaging;
@@ -35,11 +34,19 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private ShaderOpenGL shader = null;
 
 
-		public ShaderResourceMetadata VertexShaderMetadata;
+		private ShaderResourceMetadata vertexShaderMetadata;
 
-		public ShaderResourceMetadata FragmentShaderMetadata;
+		public ShaderResourceMetadata VertexShaderMetadata { get => vertexShaderMetadata; }
 
-		public ShaderResourceMetadata ShaderProgramMetadata;
+
+		private ShaderResourceMetadata fragmentShaderMetadata;
+
+		public ShaderResourceMetadata FragmentShaderMetadata { get => fragmentShaderMetadata; }
+
+
+		private ShaderResourceMetadata shaderProgramMetadata;
+
+		public ShaderResourceMetadata ShaderProgramMetadata { get => shaderProgramMetadata; }
 
 		public ShaderOpenGLStorageHandle(
 			string vertexShaderSource,
@@ -64,21 +71,21 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			allocated = false;
 
 
-			VertexShaderMetadata = new ShaderResourceMetadata
+			vertexShaderMetadata = new ShaderResourceMetadata
 			{
 				Compiled = false,
 
 				CompilationLog = string.Empty
 			};
 
-			FragmentShaderMetadata = new ShaderResourceMetadata
+			fragmentShaderMetadata = new ShaderResourceMetadata
 			{
 				Compiled = false,
 
 				CompilationLog = string.Empty
 			};
 
-			ShaderProgramMetadata = new ShaderResourceMetadata
+			shaderProgramMetadata = new ShaderResourceMetadata
 			{
 				Compiled = false,
 
@@ -122,9 +129,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					fragmentShaderSource,
 					cachedGL,
 					out uint handle,
-					out VertexShaderMetadata,
-					out FragmentShaderMetadata,
-					out ShaderProgramMetadata))
+					out vertexShaderMetadata,
+					out fragmentShaderMetadata,
+					out shaderProgramMetadata))
 				{
 					//progress?.Report(1f);
 
@@ -174,19 +181,19 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			shader = null;
 
 
-			VertexShaderMetadata.Compiled = false;
+			vertexShaderMetadata.Compiled = false;
 
-			VertexShaderMetadata.CompilationLog = string.Empty;
-
-
-			FragmentShaderMetadata.Compiled = false;
-
-			FragmentShaderMetadata.CompilationLog = string.Empty;
+			vertexShaderMetadata.CompilationLog = string.Empty;
 
 
-			ShaderProgramMetadata.Compiled = false;
+			fragmentShaderMetadata.Compiled = false;
 
-			ShaderProgramMetadata.CompilationLog = string.Empty;
+			fragmentShaderMetadata.CompilationLog = string.Empty;
+
+
+			shaderProgramMetadata.Compiled = false;
+
+			shaderProgramMetadata.CompilationLog = string.Empty;
 
 
 			allocated = false;

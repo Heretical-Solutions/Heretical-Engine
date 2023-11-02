@@ -1,3 +1,5 @@
+#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
@@ -50,10 +52,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(MeshOpenGL),
 				},
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+				MeshFactory.BuildConcurrentMeshOpenGLStorageHandle(
+					resourceManager,
+					meshRAMStorageHandle,
+					logger),
+#else
 				MeshFactory.BuildMeshOpenGLStorageHandle(
 					resourceManager,
 					meshRAMStorageHandle,
 					logger),
+#endif
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, MeshOpenGLAssetImporter>(logger);

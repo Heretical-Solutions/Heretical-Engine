@@ -1,3 +1,5 @@
+#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
@@ -64,11 +66,19 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					Storage = EResourceStorages.GPU,
 					ResourceType = typeof(TextureOpenGL),
 				},
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+				TextureFactory.BuildConcurrentTextureOpenGLStorageHandle(
+					textureRAMStorageHandle,
+					textureType,
+					cachedGL,
+					logger),
+#else
 				TextureFactory.BuildTextureOpenGLStorageHandle(
 					textureRAMStorageHandle,
 					textureType,
 					cachedGL,
 					logger),
+#endif					
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, TextureOpenGLAssetImporter>(logger);

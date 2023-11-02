@@ -58,5 +58,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				gl,
 				logger);
 		}
+
+		public static ConcurrentGeometryOpenGLStorageHandle BuildConcurrentGeometryOpenGLStorageHandle(
+			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
+			GL gl,
+			IFormatLogger logger)
+		{
+			return new ConcurrentGeometryOpenGLStorageHandle(
+				geometryRAMStorageHandle,
+				new ReaderWriterLockSlim(),
+				gl,
+				logger);
+		}
 	}
 }

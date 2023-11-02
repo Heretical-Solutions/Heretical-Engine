@@ -16,5 +16,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				meshRAMStorageHandle,
 				logger);
 		}
+
+		public static ConcurrentMeshOpenGLStorageHandle BuildConcurrentMeshOpenGLStorageHandle(
+			IRuntimeResourceManager resourceManager,
+			IReadOnlyResourceStorageHandle meshRAMStorageHandle,
+			IFormatLogger logger)
+		{
+			return new ConcurrentMeshOpenGLStorageHandle(
+				resourceManager,
+				meshRAMStorageHandle,
+				new ReaderWriterLockSlim(),
+				logger);
+		}
 	}
 }

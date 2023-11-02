@@ -71,6 +71,18 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				logger);
 		}
 
+		public static ConcurrentTextureRAMStorageHandle BuildConcurrentTextureRAMStorageHandle(
+			FilePathSettings filePathSettings,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
+			IFormatLogger logger)
+		{
+			return new ConcurrentTextureRAMStorageHandle(
+				filePathSettings,
+				mainThreadCommandBuffer,
+				new ReaderWriterLockSlim(),
+				logger);
+		}
+
 		public static TextureOpenGLStorageHandle BuildTextureOpenGLStorageHandle(
 			TextureRAMStorageHandle textureRAMStorageHandle,
 			TextureType textureType,
@@ -81,6 +93,20 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				textureRAMStorageHandle,
 				textureType,
 				gl,
+				logger);
+		}
+
+		public static ConcurrentTextureOpenGLStorageHandle BuildConcurrentTextureOpenGLStorageHandle(
+			TextureRAMStorageHandle textureRAMStorageHandle,
+			TextureType textureType,
+			GL gl,
+			IFormatLogger logger)
+		{
+			return new ConcurrentTextureOpenGLStorageHandle(
+				textureRAMStorageHandle,
+				textureType,
+				gl,
+				new ReaderWriterLockSlim(),
 				logger);
 		}
 	}

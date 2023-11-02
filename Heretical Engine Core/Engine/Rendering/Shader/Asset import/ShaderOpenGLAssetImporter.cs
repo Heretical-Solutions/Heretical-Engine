@@ -1,3 +1,5 @@
+#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
 using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.Persistence;
@@ -85,12 +87,21 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					Storage = EResourceStorages.GPU,
 					ResourceType = typeof(ShaderOpenGL)
 				},
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+				ShaderFactory.BuildConcurrentShaderOpenGLStorageHandle(
+					vertexShaderSourceDTO.Text,
+					fragmentShaderSourceDTO.Text,
+					cachedGL,
+					mainThreadCommandBuffer,
+					logger),
+#else
 				ShaderFactory.BuildShaderOpenGLStorageHandle(
 					vertexShaderSourceDTO.Text,
 					fragmentShaderSourceDTO.Text,
 					cachedGL,
 					mainThreadCommandBuffer,
 					logger),
+#endif
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, ShaderOpenGLAssetImporter>(logger);
