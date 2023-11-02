@@ -93,12 +93,7 @@ namespace HereticalSolutions.Repositories
         /// <returns><c>true</c> if the key-value pair was added successfully; otherwise, <c>false</c>.</returns>
         public bool TryAdd(TKey key, TValue value)
         {
-            if (Has(key))
-                return false;
-
-            Add(key, value);
-
-            return true;
+            return database.TryAdd(key, value);
         }
 
         /// <summary>

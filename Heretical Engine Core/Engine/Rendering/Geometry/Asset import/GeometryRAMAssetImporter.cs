@@ -1,3 +1,5 @@
+#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
 using HereticalSolutions.ResourceManagement;
 using HereticalSolutions.ResourceManagement.Factories;
 
@@ -49,8 +51,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(Geometry),
 				},
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle(
+					geometry),
+#else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
 					geometry),
+#endif
 				true,
 				progress)
 				.ThrowExceptions<IResourceVariantData, GeometryRAMAssetImporter>(logger);

@@ -14,7 +14,15 @@ namespace HereticalSolutions.ResourceManagement
 
 		IReadOnlyResourceData GetNestedResource(int nestedResourceIDHash);
 
-		IReadOnlyResourceData GetNestedResource(string nestedResourceIDHash);
+		IReadOnlyResourceData GetNestedResource(string nestedResourceID);
+
+		bool TryGetNestedResource(
+			int nestedResourceIDHash,
+			out IReadOnlyResourceData nestedResource);
+
+		bool TryGetNestedResource(
+			string nestedResourceID,
+			out IReadOnlyResourceData nestedResource);
 
 		IEnumerable<int> NestedResourceIDHashes { get; }
 

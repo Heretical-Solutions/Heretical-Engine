@@ -20,11 +20,8 @@ namespace HereticalSolutions.ResourceManagement
 
         #region IReadOnlyResourceStorageHandle
 
-        #region IAlloatable
+        #region IAllocatable
 
-        /// <summary>
-        /// Gets a value indicating whether the resource is allocated.
-        /// </summary>
         public bool Allocated
         {
             get => allocated;

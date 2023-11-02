@@ -1,3 +1,5 @@
+#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
 using HereticalSolutions.Logging;
 
 using HereticalSolutions.Persistence;
@@ -85,8 +87,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(TAsset)
 				},
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+				ResourceManagementFactory
+					.BuildConcurrentPreallocatedResourceStorageHandle(asset),
+#else
 				ResourceManagementFactory
 					.BuildPreallocatedResourceStorageHandle(asset),
+#endif
 				allocate,
 				progress)
 				.ThrowExceptions<IResourceVariantData>(

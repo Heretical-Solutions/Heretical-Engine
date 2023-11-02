@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
 using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.Persistence.IO;
@@ -158,8 +160,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(ModelDTO),
 				},
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle(
+					modelDTO),
+#else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
 					modelDTO),
+#endif
 				true,
 				localProgress)
 				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);

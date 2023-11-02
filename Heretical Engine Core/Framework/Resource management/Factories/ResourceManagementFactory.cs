@@ -18,11 +18,6 @@ namespace HereticalSolutions.ResourceManagement.Factories
                 RepositoriesFactory.BuildDictionaryRepository<int, IReadOnlyResourceData>());
         }
 
-        /// <summary>
-        /// Builds a new instance of the <see cref="ResourceData"/> class.
-        /// </summary>
-        /// <param name="descriptor">The descriptor of the resource data.</param>
-        /// <returns>A new instance of the <see cref="ResourceData"/> class.</returns>
         public static ResourceData BuildResourceData(ResourceDescriptor descriptor)
         {
             return new ResourceData(
@@ -32,7 +27,18 @@ namespace HereticalSolutions.ResourceManagement.Factories
                 RepositoriesFactory.BuildDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildDictionaryRepository<int, IReadOnlyResourceData>());
         }
-        
+
+        public static ConcurrentResourceData BuildConcurrentResourceData(ResourceDescriptor descriptor)
+        {
+            return new ConcurrentResourceData(
+                descriptor,
+                RepositoriesFactory.BuildDictionaryRepository<int, string>(),
+                RepositoriesFactory.BuildDictionaryRepository<int, IResourceVariantData>(),
+                RepositoriesFactory.BuildDictionaryRepository<int, string>(),
+                RepositoriesFactory.BuildDictionaryRepository<int, IReadOnlyResourceData>(),
+                new ReaderWriterLockSlim());
+        }
+
         /// <summary>
         /// Builds a new instance of the <see cref="ResourceVariantData"/> class.
         /// </summary>
@@ -53,9 +59,23 @@ namespace HereticalSolutions.ResourceManagement.Factories
             return new PreallocatedResourceStorageHandle(resource);
         }
 
+        public static ConcurrentPreallocatedResourceStorageHandle BuildConcurrentPreallocatedResourceStorageHandle(object resource)
+        {
+            return new ConcurrentPreallocatedResourceStorageHandle(
+                resource,
+                new ReaderWriterLockSlim());
+        }
+
         public static ReadWriteResourceStorageHandle BuildReadWriteResourceStorageHandle(object resource)
         {
             return new ReadWriteResourceStorageHandle(resource);
+        }
+
+        public static ConcurrentReadWriteResourceStorageHandle BuildConcurrentReadWriteResourceStorageHandle(object resource)
+        {
+            return new ConcurrentReadWriteResourceStorageHandle(
+                resource,
+                new ReaderWriterLockSlim());
         }
     }
 }

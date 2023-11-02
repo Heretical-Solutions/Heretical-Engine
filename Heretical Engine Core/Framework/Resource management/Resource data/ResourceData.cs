@@ -98,6 +98,24 @@ namespace HereticalSolutions.ResourceManagement
 			return GetVariant(variantID.AddressToHash());
 		}
 
+		public bool TryGetVariant(
+			int variantIDHash,
+			out IResourceVariantData variant)
+		{
+			return variantsRepository.TryGet(
+				variantIDHash,
+				out variant);
+		}
+
+		public bool TryGetVariant(
+			string variantID,
+			out IResourceVariantData variant)
+		{
+			return TryGetVariant(
+				variantID.AddressToHash(),
+				out variant);
+		}
+
 		/// <summary>
 		/// Gets the variant hashes available for the resource.
 		/// </summary>
@@ -138,6 +156,24 @@ namespace HereticalSolutions.ResourceManagement
 		public IReadOnlyResourceData GetNestedResource(string nestedResourceID)
 		{
 			return GetNestedResource(nestedResourceID.AddressToHash());
+		}
+
+		public bool TryGetNestedResource(
+			int nestedResourceIDHash,
+			out IReadOnlyResourceData nestedResource)
+		{
+			return nestedResourcesRepository.TryGet(
+				nestedResourceIDHash,
+				out nestedResource);
+		}
+
+		public bool TryGetNestedResource(
+			string nestedResourceID,
+			out IReadOnlyResourceData nestedResource)
+		{
+			return TryGetNestedResource(
+				nestedResourceID.AddressToHash(),
+				out nestedResource);
 		}
 
 		public IEnumerable<int> NestedResourceIDHashes => nestedResourcesRepository.Keys;

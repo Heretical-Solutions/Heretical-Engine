@@ -1,3 +1,5 @@
+#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
 using HereticalSolutions.ResourceManagement;
 using HereticalSolutions.ResourceManagement.Factories;
 
@@ -39,12 +41,18 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			}
 			else
 			{
-				currentData = ResourceManagementFactory.BuildResourceData(
-					new ResourceDescriptor()
-					{
-						ID = resourceIDs[0],
-						IDHash = resourceIDs[0].AddressToHash()
-					});
+				var descriptor = new ResourceDescriptor()
+				{
+					ID = resourceIDs[0],
+					IDHash = resourceIDs[0].AddressToHash()
+				};
+
+				currentData =
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+					ResourceManagementFactory.BuildConcurrentResourceData(descriptor);
+#else
+					ResourceManagementFactory.BuildResourceData(descriptor);
+#endif
 
 				await resourceManager.AddRootResource(
 					currentData)
@@ -61,13 +69,19 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				}
 				else
 				{
-					var newCurrentData = ResourceManagementFactory.BuildResourceData(
-						new ResourceDescriptor()
-						{
-							ID = resourceIDs[i],
+					var descriptor = new ResourceDescriptor()
+					{
+						ID = resourceIDs[i],
 
-							IDHash = resourceIDs[i].AddressToHash()
-						});
+						IDHash = resourceIDs[i].AddressToHash()
+					};
+
+					IReadOnlyResourceData newCurrentData =
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+						ResourceManagementFactory.BuildConcurrentResourceData(descriptor);
+#else						
+						ResourceManagementFactory.BuildResourceData(descriptor);
+#endif
 
 					await ((IResourceData)currentData)
 						.AddNestedResource(
@@ -93,13 +107,19 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					GetType(),
 					logger);
 
-			var child = ResourceManagementFactory.BuildResourceData(
-				new ResourceDescriptor()
-				{
-					ID = nestedResourceID,
+			var descriptor = new ResourceDescriptor()
+			{
+				ID = nestedResourceID,
 
-					IDHash = nestedResourceID.AddressToHash()
-				});
+				IDHash = nestedResourceID.AddressToHash()
+			};
+
+			IReadOnlyResourceData child =
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+				ResourceManagementFactory.BuildConcurrentResourceData(descriptor);
+#else				
+				ResourceManagementFactory.BuildResourceData(descriptor);
+#endif
 
 			await parent
 				.AddNestedResource(
@@ -108,7 +128,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					GetType(),
 					logger);
 
-			return child;
+			return (IResourceData)child;
 		}
 
 		protected virtual async Task<IResourceVariantData> AddAssetAsResourceVariant(

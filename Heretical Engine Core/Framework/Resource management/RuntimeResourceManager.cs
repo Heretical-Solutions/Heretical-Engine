@@ -25,6 +25,8 @@ namespace HereticalSolutions.ResourceManagement
 
         #region IReadOnlyRuntimeResourceManager
 
+        #region Has
+
         public bool HasRootResource(int resourceIDHash)
         {
             return rootResourcesRepository.Has(resourceIDHash);
@@ -70,6 +72,10 @@ namespace HereticalSolutions.ResourceManagement
 
             return true;
         }
+
+        #endregion
+
+        #region Get
 
         public IReadOnlyResourceData GetRootResource(int resourceIDHash)
         {
@@ -122,6 +128,10 @@ namespace HereticalSolutions.ResourceManagement
             return currentResource;
         }
 
+        #endregion
+
+        #region Get default
+
         public IResourceVariantData GetDefaultRootResource(int resourceIDHash)
         {
             if (!rootResourcesRepository.TryGet(resourceIDHash, out var resource))
@@ -171,11 +181,17 @@ namespace HereticalSolutions.ResourceManagement
             return currentResource.DefaultVariant;
         }
 
+        #endregion
+
+        #region All's
+
         public IEnumerable<int> RootResourceIDHashes { get => rootResourcesRepository.Keys; }
 
         public IEnumerable<string> RootResourceIDs { get => rootResourceIDHashToID.Values; }
 
         public IEnumerable<IReadOnlyResourceData> AllRootResources { get => rootResourcesRepository.Values; }
+
+        #endregion
 
         #endregion
 
