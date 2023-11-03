@@ -34,6 +34,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			this.materialRAMStorageHandle = materialRAMStorageHandle;
 
+			this.semaphore = semaphore;
+
 			this.logger = logger;
 
 			
@@ -110,19 +112,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			if (!materialRAMStorageHandle.Allocated)
 			{
-				IProgress<float> localProgress = null;
-
-				if (progress != null)
-				{
-					var localProgressInstance = new Progress<float>();
-
-					localProgressInstance.ProgressChanged += (sender, value) =>
-					{
-						progress.Report(value * 0.333f);
-					};
-
-					localProgress = localProgressInstance;
-				}
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0f,
+					0.333f);
 
 				await materialRAMStorageHandle
 					.Allocate(
@@ -143,19 +135,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			if (!shaderStorageHandle.Allocated)
 			{
-				IProgress<float> localProgress = null;
-
-				if (progress != null)
-				{
-					var localProgressInstance = new Progress<float>();
-
-					localProgressInstance.ProgressChanged += (sender, value) =>
-					{
-						progress.Report(value * 0.333f + 0.333f);
-					};
-
-					localProgress = localProgressInstance;
-				}
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.333f,
+					0.666f);
 
 				await shaderStorageHandle
 					.Allocate(
@@ -180,19 +162,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				if (!textureOpenGLStorageHandle.Allocated)
 				{
-					IProgress<float> localProgress = null;
-
-					if (progress != null)
-					{
-						var localProgressInstance = new Progress<float>();
-
-						localProgressInstance.ProgressChanged += (sender, value) =>
-						{
-							progress.Report(0.333f * ((value + (float)i) / (float)textures.Length) + 0.666f);
-						};
-
-						localProgress = localProgressInstance;
-					}
+					IProgress<float> localProgress = progress.CreateLocalProgress(
+						0.666f,
+						1f,
+						i,
+						textures.Length);
 
 					await textureOpenGLStorageHandle
 						.Allocate(
@@ -211,126 +185,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			return true;
 		}
-
-		/*
-		private async Task<bool> LoadMaterial(
-			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle materialRAMStorageHandle,
-			IProgress<float> progress = null)
-		{
-			progress?.Report(0f);
-
-			await semaphore.WaitAsync(); // Acquire the semaphore
-
-			try
-			{
-				if (!materialRAMStorageHandle.Allocated)
-				{
-					IProgress<float> localProgress = null;
-
-					if (progress != null)
-					{
-						var localProgressInstance = new Progress<float>();
-
-						localProgressInstance.ProgressChanged += (sender, value) =>
-						{
-							progress.Report(value * 0.333f);
-						};
-
-						localProgress = localProgressInstance;
-					}
-
-					await materialRAMStorageHandle
-						.Allocate(
-							localProgress)
-						.ThrowExceptions<ConcurrentMaterialOpenGLStorageHandle>(logger);
-				}
-
-				var materialDTO = materialRAMStorageHandle.GetResource<MaterialDTO>();
-
-				progress?.Report(0.333f);
-
-				var shaderStorageHandle = resourceManager
-					.GetResource(
-						materialDTO.ShaderResourceID.SplitAddressBySeparator())
-					.GetVariant(
-						ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID)
-					.StorageHandle;
-
-				if (!shaderStorageHandle.Allocated)
-				{
-					IProgress<float> localProgress = null;
-
-					if (progress != null)
-					{
-						var localProgressInstance = new Progress<float>();
-
-						localProgressInstance.ProgressChanged += (sender, value) =>
-						{
-							progress.Report(value * 0.333f + 0.333f);
-						};
-
-						localProgress = localProgressInstance;
-					}
-
-					await shaderStorageHandle
-						.Allocate(
-							localProgress)
-						.ThrowExceptions<ConcurrentMaterialOpenGLStorageHandle>(logger);
-				}
-
-				var shader = shaderStorageHandle.GetResource<ShaderOpenGL>();
-
-				progress?.Report(0.666f);
-
-				var textures = new TextureOpenGL[materialDTO.TextureResourceIDs.Length];
-
-				for (int i = 0; i < textures.Length; i++)
-				{
-					var textureOpenGLStorageHandle = resourceManager
-						.GetResource(
-							materialDTO.TextureResourceIDs[i].SplitAddressBySeparator())
-						.GetVariant(
-							TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID)
-						.StorageHandle;
-
-					if (!textureOpenGLStorageHandle.Allocated)
-					{
-						IProgress<float> localProgress = null;
-
-						if (progress != null)
-						{
-							var localProgressInstance = new Progress<float>();
-
-							localProgressInstance.ProgressChanged += (sender, value) =>
-							{
-								progress.Report(0.333f * ((value + (float)i) / (float)textures.Length) + 0.666f);
-							};
-
-							localProgress = localProgressInstance;
-						}
-
-						await textureOpenGLStorageHandle
-							.Allocate(
-								localProgress)
-							.ThrowExceptions<ConcurrentMaterialOpenGLStorageHandle>(logger);
-					}
-
-					textures[i] = textureOpenGLStorageHandle.GetResource<TextureOpenGL>();
-				}
-
-				material = new MaterialOpenGL(shader, textures);
-
-				progress?.Report(1f);
-
-				return true;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-			}
-		}
-		*/
 
 		public async Task Free(IProgress<float> progress = null)
 		{

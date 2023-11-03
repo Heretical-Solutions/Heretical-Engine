@@ -377,7 +377,10 @@ namespace HereticalSolutions.StateMachines
                         transitToImmediatelyCancellationTokenSource.Token,
                         stateExitProgress,
                         stateEnterProgress,
-                        protocol);
+                        protocol)
+                        .ThrowExceptions(
+                            GetType(),
+                            logger);
                 }
                 catch (Exception e)
                 {
@@ -424,7 +427,10 @@ namespace HereticalSolutions.StateMachines
                         transitToImmediatelyCancellationTokenSource.Token,
                         stateExitProgress,
                         stateEnterProgress,
-                        protocol);
+                        protocol)
+                        .ThrowExceptions(
+                            GetType(),
+                            logger);
                 }
                 catch (Exception e)
                 {
@@ -472,7 +478,10 @@ namespace HereticalSolutions.StateMachines
                         transitToImmediatelyCancellationTokenSource.Token,
                         stateExitProgress,
                         stateEnterProgress,
-                        protocol);
+                        protocol)
+                        .ThrowExceptions(
+                            GetType(),
+                            logger);
                 }
                 catch (Exception e)
                 {
@@ -521,7 +530,10 @@ namespace HereticalSolutions.StateMachines
                         transitToImmediatelyCancellationTokenSource.Token,
                         stateExitProgress,
                         stateEnterProgress,
-                        protocol);
+                        protocol)
+                        .ThrowExceptions(
+                            GetType(),
+                            logger);
                 }
                 catch (Exception e)
                 {
@@ -564,7 +576,10 @@ namespace HereticalSolutions.StateMachines
                             nextRequest.CancellationTokenSource.Token,
                             nextRequest.StateExitProgress,
                             nextRequest.StateEnterProgress,
-                            nextRequest.TransitionProtocol);
+                            nextRequest.TransitionProtocol)
+                            .ThrowExceptions(
+                                GetType(),
+                                logger);
                     }
                     catch (Exception e)
                     {
@@ -651,7 +666,10 @@ namespace HereticalSolutions.StateMachines
                 cancellationToken,
                 stateExitProgress,
                 stateEnterProgress,
-                protocol);
+                protocol)
+                .ThrowExceptions(
+                    GetType(),
+                    logger);
         }
 
         private async Task PerformTransition(
@@ -677,7 +695,10 @@ namespace HereticalSolutions.StateMachines
                             previousState,
                             cancellationToken,
                             stateExitProgress,
-                            protocol);
+                            protocol)
+                            .ThrowExceptions(
+                                GetType(),
+                                logger);
 
                         if (cancellationToken.IsCancellationRequested)
                         {
@@ -690,7 +711,10 @@ namespace HereticalSolutions.StateMachines
                             newState,
                             cancellationToken,
                             stateEnterProgress,
-                            protocol);
+                            protocol)
+                            .ThrowExceptions(
+                                GetType(),
+                                logger);
 
                         if (cancellationToken.IsCancellationRequested)
                         {
@@ -711,7 +735,10 @@ namespace HereticalSolutions.StateMachines
                             newState,
                             cancellationToken,
                             stateEnterProgress,
-                            protocol);
+                            protocol)
+                            .ThrowExceptions(
+                                GetType(),
+                                logger);
 
                         if (cancellationToken.IsCancellationRequested)
                         {
@@ -724,7 +751,10 @@ namespace HereticalSolutions.StateMachines
                             previousState,
                             cancellationToken,
                             stateExitProgress,
-                            protocol);
+                            protocol)
+                            .ThrowExceptions(
+                                GetType(),
+                                logger);
 
                         if (cancellationToken.IsCancellationRequested)
                         {
@@ -739,17 +769,21 @@ namespace HereticalSolutions.StateMachines
 
                         OnCurrentStateChangeStarted?.Invoke(previousState, newState);
 
-                        await Task.WhenAll(
-                            EnterState(
-                                newState,
-                                cancellationToken,
-                                stateEnterProgress,
-                                protocol),
-                            ExitState(
-                                previousState,
-                                cancellationToken,
-                                stateExitProgress,
-                                protocol));
+                        await Task
+                            .WhenAll(
+                                EnterState(
+                                    newState,
+                                    cancellationToken,
+                                    stateEnterProgress,
+                                    protocol),
+                                ExitState(
+                                    previousState,
+                                    cancellationToken,
+                                    stateExitProgress,
+                                    protocol))
+                            .ThrowExceptions(
+                                GetType(),
+                                logger);
 
                         if (cancellationToken.IsCancellationRequested)
                         {
@@ -791,7 +825,10 @@ namespace HereticalSolutions.StateMachines
             await transitionController.ExitState(
                 previousState,
                 cancellationToken,
-                stateExitProgress);
+                stateExitProgress)
+                .ThrowExceptions(
+                    GetType(),
+                    logger);
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -838,7 +875,10 @@ namespace HereticalSolutions.StateMachines
             await transitionController.EnterState(
                 newState,
                 cancellationToken,
-                stateEnterProgress);
+                stateEnterProgress)
+                .ThrowExceptions(
+                    GetType(),
+                    logger);
 
             if (cancellationToken.IsCancellationRequested)
             {

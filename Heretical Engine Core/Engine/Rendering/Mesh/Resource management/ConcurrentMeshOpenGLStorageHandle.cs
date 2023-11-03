@@ -113,19 +113,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			if (!meshRAMStorageHandle.Allocated)
 			{
-				IProgress<float> localProgress = null;
-
-				if (progress != null)
-				{
-					var localProgressInstance = new Progress<float>();
-
-					localProgressInstance.ProgressChanged += (sender, value) =>
-					{
-						progress.Report(value * 0.333f);
-					};
-
-					localProgress = localProgressInstance;
-				}
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0f,
+					0.333f);
 
 				await meshRAMStorageHandle
 					.Allocate(
@@ -146,19 +136,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			if (!geometryStorageHandle.Allocated)
 			{
-				IProgress<float> localProgress = null;
-
-				if (progress != null)
-				{
-					var localProgressInstance = new Progress<float>();
-
-					localProgressInstance.ProgressChanged += (sender, value) =>
-					{
-						progress.Report(value * 0.333f + 0.333f);
-					};
-
-					localProgress = localProgressInstance;
-				}
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.333f,
+					0.666f);
 
 				await geometryStorageHandle
 					.Allocate(
@@ -179,19 +159,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			if (!materialOpenGLStorageHandle.Allocated)
 			{
-				IProgress<float> localProgress = null;
-
-				if (progress != null)
-				{
-					var localProgressInstance = new Progress<float>();
-
-					localProgressInstance.ProgressChanged += (sender, value) =>
-					{
-						progress.Report(value * 0.333f + 0.666f);
-					};
-
-					localProgress = localProgressInstance;
-				}
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.666f,
+					1f);
 
 				await materialOpenGLStorageHandle
 					.Allocate(

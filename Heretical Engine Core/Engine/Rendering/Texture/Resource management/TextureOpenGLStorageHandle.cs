@@ -101,19 +101,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			if (!textureRAMStorageHandle.Allocated)
 			{
-				IProgress<float> localProgress = null;
-
-				if (progress != null)
-				{
-					var localProgressInstance = new Progress<float>();
-
-					localProgressInstance.ProgressChanged += (sender, value) =>
-					{
-						progress.Report(value * 0.5f);
-					};
-
-					localProgress = localProgressInstance;
-				}
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0f,
+					0.5f);
 
 				await textureRAMStorageHandle
 					.Allocate(
@@ -132,19 +122,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			if (freeRamAfterAllocation)
 			{
-				IProgress<float> localProgress = null;
-
-				if (progress != null)
-				{
-					var localProgressInstance = new Progress<float>();
-
-					localProgressInstance.ProgressChanged += (sender, value) =>
-					{
-						progress.Report(value * 0.5f + 0.5f);
-					};
-
-					localProgress = localProgressInstance;
-				}
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.5f,
+					1f);
 
 				await textureRAMStorageHandle
 					.Free(

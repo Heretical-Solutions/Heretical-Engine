@@ -11,7 +11,7 @@ namespace HereticalSolutions.ResourceManagement
 
 		private object rawResource;
 
-		private SemaphoreSlim semaphore;
+		private readonly SemaphoreSlim semaphore;
 
 		public ConcurrentPreallocatedResourceStorageHandle(
 			object rawResource,

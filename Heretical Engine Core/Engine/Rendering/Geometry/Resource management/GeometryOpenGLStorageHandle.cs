@@ -65,19 +65,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			if (!geometryRAMStorageHandle.Allocated)
 			{
-				IProgress<float> localProgress = null;
-
-				if (progress != null)
-				{
-					var localProgressInstance = new Progress<float>();
-
-					localProgressInstance.ProgressChanged += (sender, value) =>
-					{
-						progress.Report(value);
-					};
-
-					localProgress = localProgressInstance;
-				}
+				IProgress<float> localProgress = progress.CreateLocalProgress();
 
 				await geometryRAMStorageHandle
 					.Allocate(

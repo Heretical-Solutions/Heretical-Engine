@@ -1,5 +1,7 @@
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.ResourceManagement
 {
     /// <summary>
@@ -12,13 +14,18 @@ namespace HereticalSolutions.ResourceManagement
 
         private readonly IRepository<int, IReadOnlyResourceData> rootResourcesRepository;
 
+        private readonly IFormatLogger logger;
+
         public RuntimeResourceManager(
             IRepository<int, string> rootResourceIDHashToID,
-            IRepository<int, IReadOnlyResourceData> rootResourcesRepository)
+            IRepository<int, IReadOnlyResourceData> rootResourcesRepository,
+            IFormatLogger logger)
         {
             this.rootResourceIDHashToID = rootResourceIDHashToID;
 
             this.rootResourcesRepository = rootResourcesRepository;
+
+            this.logger = logger;
         }
 
         #region IRuntimeResourceManager
@@ -353,9 +360,11 @@ namespace HereticalSolutions.ResourceManagement
             rootResourceIDHashToID.TryRemove(idHash);
 
             if (free)
-                await ((IResourceData)resource).Clear(
-                    free,
-                    progress);
+                await ((IResourceData)resource)
+                    .Clear(
+                        free,
+                        progress)
+                    .ThrowExceptions<RuntimeResourceManager>(logger);
 
             progress?.Report(1f);
         }
@@ -368,7 +377,8 @@ namespace HereticalSolutions.ResourceManagement
             await RemoveRootResource(
                 resourceID.AddressToHash(),
                 free,
-                progress);
+                progress)
+                .ThrowExceptions<RuntimeResourceManager>(logger);
         }
 
         public async Task ClearAllRootResources(
@@ -387,23 +397,17 @@ namespace HereticalSolutions.ResourceManagement
                     key,
                     out var rootResource))
                 {
-                    IProgress<float> localProgress = null;
+                    IProgress<float> localProgress = progress.CreateLocalProgress(
+                        0f,
+                        1f,
+                        counter,
+                        totalRootResourcesCount);
 
-                    if (progress != null)
-                    {
-                        var localProgressInstance = new Progress<float>();
-
-                        localProgressInstance.ProgressChanged += (sender, value) =>
-                        {
-                            progress.Report((value + (float)counter) / (float)totalRootResourcesCount);
-                        };
-
-                        localProgress = localProgressInstance;
-                    }
-
-                    await ((IResourceData)rootResource).Clear(
-                        free,
-                        localProgress);
+                    await ((IResourceData)rootResource)
+                        .Clear(
+                            free,
+                            localProgress)
+                        .ThrowExceptions<RuntimeResourceManager>(logger);
                 }
 
                 counter++;

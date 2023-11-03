@@ -173,6 +173,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				pathToExe.IndexOf("/bin/"))
 				+ "/Assets/";
 
+			var tasks = new List<Task>();
+
 			#region Shader import
 
 			var vertexShaderArgument = new TextFileArgument();
@@ -191,7 +193,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var shaderAssimp = new ShaderOpenGLAssetImporter(
+			var shaderAssetImporter = new ShaderOpenGLAssetImporter(
 				runtimeResourceManager,
 				"Default shader",
 				PersistenceFactory.BuildSimplePlainTextSerializer(),
@@ -201,13 +203,16 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				mainThreadCommandBuffer,
 				logger);
 
-			await shaderAssimp.Import();
-
+			//await shaderAssetImporter.Import();
+			tasks.Add(
+				Task.Run(
+					() => shaderAssetImporter.Import()));
+			
 			#endregion
 
 			#region Model import
 
-			var modelAssimp = new ModelRAMAssetImporter(
+			var modelAssetImporter = new ModelRAMAssetImporter(
 				runtimeResourceManager,
 				"Knight",
 				new FilePathSettings
@@ -218,9 +223,16 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				mainThreadCommandBuffer,
 				logger);
 
-			await modelAssimp.Import();
+			//await modelAssetImporter.Import();
+			tasks.Add(
+				Task.Run(
+					() => modelAssetImporter.Import()));
 
 			#endregion
+
+			await Task
+				.WhenAll(tasks)
+				.ThrowExceptions<Program>(logger);
 
 			logger.Log<Program>("IMPORT FINISHED");
 		}

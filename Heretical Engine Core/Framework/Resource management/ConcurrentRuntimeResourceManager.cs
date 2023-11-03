@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.ResourceManagement
 {
 	public class ConcurrentRuntimeResourceManager : IRuntimeResourceManager
@@ -14,16 +16,21 @@ namespace HereticalSolutions.ResourceManagement
 
 		private readonly SemaphoreSlim semaphore;
 
+		private readonly IFormatLogger logger;
+
 		public ConcurrentRuntimeResourceManager(
 			IRepository<int, string> rootResourceIDHashToID,
 			IRepository<int, IReadOnlyResourceData> rootResourcesRepository,
-			SemaphoreSlim semaphore)
+			SemaphoreSlim semaphore,
+			IFormatLogger logger)
 		{
 			this.rootResourceIDHashToID = rootResourceIDHashToID;
 
 			this.rootResourcesRepository = rootResourcesRepository;
 
 			this.semaphore = semaphore;
+
+			this.logger = logger;
 		}
 
 		#region IRuntimeResourceManager
@@ -577,9 +584,11 @@ namespace HereticalSolutions.ResourceManagement
 				rootResourceIDHashToID.TryRemove(idHash);
 
 				if (free)
-					await ((IResourceData)resource).Clear(
-						free,
-						progress);
+					await ((IResourceData)resource)
+						.Clear(
+							free,
+							progress)
+						.ThrowExceptions<ConcurrentRuntimeResourceManager>(logger);
 			}
 			finally
 			{
@@ -597,7 +606,8 @@ namespace HereticalSolutions.ResourceManagement
 			await RemoveRootResource(
 				resourceID.AddressToHash(),
 				free,
-				progress);
+				progress)
+				.ThrowExceptions<ConcurrentRuntimeResourceManager>(logger);
 		}
 
 		public async Task ClearAllRootResources(
@@ -618,23 +628,17 @@ namespace HereticalSolutions.ResourceManagement
 				{
 					if (rootResourcesRepository.TryGet(key, out var rootResource))
 					{
-						IProgress<float> localProgress = null;
+						IProgress<float> localProgress = progress.CreateLocalProgress(
+							0f,
+							1f,
+							counter,
+							totalRootResourcesCount);
 
-						if (progress != null)
-						{
-							var localProgressInstance = new Progress<float>();
-
-							localProgressInstance.ProgressChanged += (sender, value) =>
-							{
-								progress.Report((value + (float)counter) / (float)totalRootResourcesCount);
-							};
-
-							localProgress = localProgressInstance;
-						}
-
-						await ((IResourceData)rootResource).Clear(
-							free,
-							localProgress);
+						await ((IResourceData)rootResource)
+							.Clear(
+								free,
+								localProgress)
+							.ThrowExceptions<ConcurrentRuntimeResourceManager>(logger);
 					}
 
 					counter++;

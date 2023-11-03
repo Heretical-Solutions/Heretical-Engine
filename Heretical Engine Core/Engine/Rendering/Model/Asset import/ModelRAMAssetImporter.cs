@@ -3,6 +3,14 @@
 
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
+//DO NOT DO THIS FOR NOW. SOME ASSET IMPORTERS ARE BLINDLY LOOKING FOR
+//RESOURCES BY GIVEN ID EXPECTING THEM TO BE PRESENT IN THE RESOURCE MANAGER. PARALLELIZING THE LOAD PROCESS MAY CAUSE RACE
+//CONDITIONS
+//TODO: UPDATE CERTAIN RESOURCE IMPORTERS AND STORAGE HANDLES TO WAIT UNTIL RESOURCE BECOMES AVAILABLE
+//#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
+
+using System;
+
 using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.Persistence.IO;
@@ -101,51 +109,59 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			progress?.Report(0.333f);
 
+#if PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
+			int totalAssetImporters = assetImporters.Count;
+
+			List<Task> assetImportersTasks = new List<Task>();
+
+			List<float> assetImportProgresses = new List<float>();
+
+			foreach (var assetImporter in assetImporters)
+			{
+				IProgress<float> localImportProgress = progress.CreateLocalProgress(
+					0.333f,
+					0.666f,
+					assetImportProgresses,
+					totalAssetImporters);
+
+				assetImportersTasks.Add(
+					Task.Run(
+						() => assetImporter
+							.Import(
+								localImportProgress)
+							.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger)));
+			}
+
+			await Task
+				.WhenAll(assetImportersTasks)
+				.ThrowExceptions<ModelRAMAssetImporter>(logger);
+#else
 			int totalAssetImporters = assetImporters.Count;
 
 			int current = 0;
 
-			IProgress<float> localProgress = null;
-
 			foreach (var assetImporter in assetImporters)
 			{
-				localProgress = null;
-
-				if (progress != null)
-				{
-					var localProgressInstance = new Progress<float>();
-
-					localProgressInstance.ProgressChanged += (sender, value) =>
-					{
-						progress.Report(0.333f * ((value + (float)current) / (float)totalAssetImporters) + 0.333f);
-					};
-
-					localProgress = localProgressInstance;
-				}
+				IProgress<float> localImportProgress = progress.CreateLocalProgress(
+					0.333f,
+					0.666f,
+					current,
+					totalAssetImporters);
 
 				await assetImporter
 					.Import(
-						localProgress)
+						localImportProgress)
 					.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
 
 				current++;
 			}
+#endif
 
 			progress?.Report(0.666f);
 
-			localProgress = null;
-
-			if (progress != null)
-			{
-				var localProgressInstance = new Progress<float>();
-
-				localProgressInstance.ProgressChanged += (sender, value) =>
-				{
-					progress.Report(value * 0.333f + 0.666f);
-				};
-
-				localProgress = localProgressInstance;
-			}
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0.666f,
+				1f);
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(

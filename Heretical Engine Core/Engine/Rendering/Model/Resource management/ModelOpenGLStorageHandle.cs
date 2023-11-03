@@ -7,33 +7,33 @@ using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class MaterialOpenGLStorageHandle
+	public class ModelOpenGLStorageHandle
 		: IReadOnlyResourceStorageHandle
 	{
 		private readonly IRuntimeResourceManager resourceManager = null;
 
-		private readonly IReadOnlyResourceStorageHandle materialRAMStorageHandle = null;
+		private readonly IReadOnlyResourceStorageHandle modelRAMStorageHandle = null;
 
 		private readonly IFormatLogger logger;
 
 
 		private bool allocated = false;
 
-		private MaterialOpenGL material = null;
+		private ModelOpenGL model = null;
 
-		public MaterialOpenGLStorageHandle(
+		public ModelOpenGLStorageHandle(
 			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle materialRAMStorageHandle,
+			IReadOnlyResourceStorageHandle modelRAMStorageHandle,
 			IFormatLogger logger)
 		{
 			this.resourceManager = resourceManager;
 
-			this.materialRAMStorageHandle = materialRAMStorageHandle;
+			this.modelRAMStorageHandle = modelRAMStorageHandle;
 
 			this.logger = logger;
 
 
-			material = null;
+			model = null;
 
 			allocated = false;
 		}
@@ -59,11 +59,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			bool result = await LoadMaterial(
+			bool result = await LoadModel(
 				resourceManager,
-				materialRAMStorageHandle,
+				modelRAMStorageHandle,
 				progress)
-				.ThrowExceptions<bool, MaterialOpenGLStorageHandle>(logger);
+				.ThrowExceptions<bool, ModelOpenGLStorageHandle>(logger);
 
 			if (!result)
 			{
@@ -77,84 +77,80 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(1f);
 		}
 
-		private async Task<bool> LoadMaterial(
+		private async Task<bool> LoadModel(
 			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle materialRAMStorageHandle,
+			IReadOnlyResourceStorageHandle modelRAMStorageHandle,
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			if (!materialRAMStorageHandle.Allocated)
+			if (!modelRAMStorageHandle.Allocated)
 			{
 				IProgress<float> localProgress = progress.CreateLocalProgress(
 					0f,
 					0.333f);
 
-				await materialRAMStorageHandle
+				await modelRAMStorageHandle
 					.Allocate(
 						localProgress)
-					.ThrowExceptions<MaterialOpenGLStorageHandle>(logger);
+					.ThrowExceptions<ModelOpenGLStorageHandle>(logger);
 			}
 
-			var materialDTO = materialRAMStorageHandle.GetResource<MaterialDTO>();
+			var modelDTO = modelRAMStorageHandle.GetResource<ModelDTO>();
 
 			progress?.Report(0.333f);
-
-			var shaderStorageHandle = resourceManager
+			
+			/*
+			var geometryStorageHandle = resourceManager
 				.GetResource(
-					materialDTO.ShaderResourceID.SplitAddressBySeparator())
+					modelDTO.GeometryResourceID.SplitAddressBySeparator())
 				.GetVariant(
-					ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID)
+					GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID)
 				.StorageHandle;
 
-			if (!shaderStorageHandle.Allocated)
+			if (!geometryStorageHandle.Allocated)
 			{
 				IProgress<float> localProgress = progress.CreateLocalProgress(
 					0.333f,
 					0.666f);
 
-				await shaderStorageHandle
+				await geometryStorageHandle
 					.Allocate(
 						localProgress)
-					.ThrowExceptions<MaterialOpenGLStorageHandle>(logger);
+					.ThrowExceptions<MeshOpenGLStorageHandle>(logger);
 			}
 
-			var shader = shaderStorageHandle.GetResource<ShaderOpenGL>();
+			var geometry = geometryStorageHandle.GetResource<GeometryOpenGL>();
 
 			progress?.Report(0.666f);
 
-			var textures = new TextureOpenGL[materialDTO.TextureResourceIDs.Length];
 
-			for (int i = 0; i < textures.Length; i++)
+			var materialOpenGLStorageHandle = resourceManager
+				.GetResource(
+					modelDTO.MaterialResourceID.SplitAddressBySeparator())
+				.GetVariant(
+					MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID)
+				.StorageHandle;
+
+			if (!materialOpenGLStorageHandle.Allocated)
 			{
-				var textureOpenGLStorageHandle = resourceManager
-					.GetResource(
-						materialDTO.TextureResourceIDs[i].SplitAddressBySeparator())
-					.GetVariant(
-						TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID)
-					.StorageHandle;
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.666f,
+					1f);
 
-				if (!textureOpenGLStorageHandle.Allocated)
-				{
-					IProgress<float> localProgress = progress.CreateLocalProgress(
-						0.666f,
-						1f,
-						i,
-						textures.Length);
-
-					await textureOpenGLStorageHandle
-						.Allocate(
-							localProgress)
-						.ThrowExceptions<MaterialOpenGLStorageHandle>(logger);
-				}
-
-				textures[i] = textureOpenGLStorageHandle.GetResource<TextureOpenGL>();
+				await materialOpenGLStorageHandle
+					.Allocate(
+						localProgress)
+					.ThrowExceptions<MeshOpenGLStorageHandle>(logger);
 			}
 
-			material = new MaterialOpenGL(
-				shader,
-				textures);
+			var material = materialOpenGLStorageHandle.GetResource<MaterialOpenGL>();
 
+			model = new MeshOpenGL(
+				geometry,
+				material);
+			*/
+			
 			progress?.Report(1f);
 
 			return true;
@@ -172,7 +168,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			material = null;
+			model = null;
 
 
 			allocated = false;
@@ -189,7 +185,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				if (!allocated)
 					throw new InvalidOperationException("Resource is not allocated.");
 
-				return material;
+				return model;
 			}
 		}
 
@@ -198,7 +194,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			if (!allocated)
 				throw new InvalidOperationException("Resource is not allocated.");
 
-			return (TValue)(object)material; //DO NOT REPEAT
+			return (TValue)(object)model; //DO NOT REPEAT
 		}
 
 		#endregion

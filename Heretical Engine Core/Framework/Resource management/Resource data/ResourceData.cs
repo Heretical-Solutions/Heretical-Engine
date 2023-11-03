@@ -1,8 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using HereticalSolutions.Repositories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
@@ -24,12 +26,16 @@ namespace HereticalSolutions.ResourceManagement
 		private readonly IRepository<int, IReadOnlyResourceData> nestedResourcesRepository;
 
 
+		private readonly IFormatLogger logger;
+
+
 		public ResourceData(
 			ResourceDescriptor descriptor,
 			IRepository<int, string> variantIDHashToID,
 			IRepository<int, IResourceVariantData> variantsRepository,
 			IRepository<int, string> nestedResourceIDHashToID,
-			IRepository<int, IReadOnlyResourceData> nestedResourcesRepository)
+			IRepository<int, IReadOnlyResourceData> nestedResourcesRepository,
+			IFormatLogger logger)
 		{
 			Descriptor = descriptor;
 			
@@ -40,6 +46,8 @@ namespace HereticalSolutions.ResourceManagement
 			this.nestedResourceIDHashToID = nestedResourceIDHashToID;
 
 			this.nestedResourcesRepository = nestedResourcesRepository;
+
+			this.logger = logger;
 
 
 			defaultVariant = null;
@@ -216,7 +224,10 @@ namespace HereticalSolutions.ResourceManagement
 			UpdateDefaultVariant();
 
 			if (allocate)
-				await variant.StorageHandle.Allocate(progress);
+				await variant
+					.StorageHandle
+					.Allocate(progress)
+					.ThrowExceptions<ResourceData>(logger);
 
 			progress?.Report(1f);
 		}
@@ -244,7 +255,10 @@ namespace HereticalSolutions.ResourceManagement
 			UpdateDefaultVariant();
 
 			if (free)
-				await variant.StorageHandle.Free(progress);
+				await variant
+					.StorageHandle
+					.Free(progress)
+					.ThrowExceptions<ResourceData>(logger);
 
 			progress?.Report(1f);
 		}
@@ -257,7 +271,8 @@ namespace HereticalSolutions.ResourceManagement
 			await RemoveVariant(
 				variantID.AddressToHash(),
 				free,
-				progress);
+				progress)
+				.ThrowExceptions<ResourceData>(logger);
 		}
 
 		private void UpdateDefaultVariant()
@@ -299,21 +314,16 @@ namespace HereticalSolutions.ResourceManagement
 				{
 					if (free)
 					{
-						IProgress<float> localProgress = null;
-
-						if (progress != null)
-						{
-							var localProgressInstance = new Progress<float>();
-
-							localProgressInstance.ProgressChanged += (sender, value) =>
-							{
-								progress.Report((value + (float)counter) / (float)totalVariantsCount);
-							};
-
-							localProgress = localProgressInstance;
-						}
+						IProgress<float> localProgress = progress.CreateLocalProgress(
+							0f,
+							1f,
+							counter,
+							totalVariantsCount);
 					
-						await variant.StorageHandle.Free(localProgress);
+						await variant
+							.StorageHandle
+							.Free(localProgress)
+							.ThrowExceptions<ResourceData>(logger);
 					}
 				}
 
@@ -378,9 +388,11 @@ namespace HereticalSolutions.ResourceManagement
 			nestedResourcesRepository.TryRemove(nestedResourceHash);
 
 			if (free)
-				await ((IResourceData)nestedResource).Clear(
-					free,
-					progress);
+				await ((IResourceData)nestedResource)
+					.Clear(
+						free,
+						progress)
+					.ThrowExceptions<ResourceData>(logger);
 
 			progress?.Report(1f);
 		}
@@ -393,7 +405,8 @@ namespace HereticalSolutions.ResourceManagement
 			await RemoveNestedResource(
 				nestedResourceID.AddressToHash(),
 				free,
-				progress);
+				progress)
+				.ThrowExceptions<ResourceData>(logger);
 		}
 
 		public async Task ClearAllNestedResources(
@@ -414,23 +427,17 @@ namespace HereticalSolutions.ResourceManagement
 				{
 					((IResourceData)nestedResource).ParentResource = null;
 
-					IProgress<float> localProgress = null;
+					IProgress<float> localProgress = progress.CreateLocalProgress(
+						0f,
+						1f,
+						counter,
+						totalNestedResourcesCount);
 
-					if (progress != null)
-					{
-						var localProgressInstance = new Progress<float>();
-
-						localProgressInstance.ProgressChanged += (sender, value) =>
-						{
-							progress.Report((value + (float)counter) / (float)totalNestedResourcesCount);
-						};
-
-						localProgress = localProgressInstance;
-					}
-
-					await ((IResourceData)nestedResource).Clear(
-						free,
-						localProgress);
+					await ((IResourceData)nestedResource)
+						.Clear(
+							free,
+							localProgress)
+						.ThrowExceptions<ResourceData>(logger);
 				}
 
 				counter++;
@@ -451,43 +458,25 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
-			IProgress<float> localProgress = null;
-
-			if (progress != null)
-			{
-				var localProgressInstance = new Progress<float>();
-
-				localProgressInstance.ProgressChanged += (sender, value) =>
-				{
-					progress.Report(value * 0.5f);
-				};
-
-				localProgress = localProgressInstance;
-			}
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.5f);
 
 			await ClearAllVariants(
 				free,
-				localProgress);
+				localProgress)
+				.ThrowExceptions<ResourceData>(logger);
 
 			progress?.Report(0.5f);
 
-			localProgress = null;
-
-			if (progress != null)
-			{
-				var localProgressInstance = new Progress<float>();
-
-				localProgressInstance.ProgressChanged += (sender, value) =>
-				{
-					progress.Report(value * 0.5f + 0.5f);
-				};
-
-				localProgress = localProgressInstance;
-			}
+			localProgress = progress.CreateLocalProgress(
+				0.5f,
+				1f);
 
 			await ClearAllNestedResources(
 				free,
-				localProgress);
+				localProgress)
+				.ThrowExceptions<ResourceData>(logger);
 
 			defaultVariant = null;
 
