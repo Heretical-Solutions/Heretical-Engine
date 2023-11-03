@@ -12,18 +12,18 @@ namespace HereticalSolutions.ResourceManagement
 
 		private readonly IRepository<int, IReadOnlyResourceData> rootResourcesRepository;
 
-		private readonly ReaderWriterLockSlim rwLock;
+		private readonly SemaphoreSlim semaphore;
 
 		public ConcurrentRuntimeResourceManager(
 			IRepository<int, string> rootResourceIDHashToID,
 			IRepository<int, IReadOnlyResourceData> rootResourcesRepository,
-			ReaderWriterLockSlim rwLock)
+			SemaphoreSlim semaphore)
 		{
 			this.rootResourceIDHashToID = rootResourceIDHashToID;
 
 			this.rootResourcesRepository = rootResourcesRepository;
 
-			this.rwLock = rwLock;
+			this.semaphore = semaphore;
 		}
 
 		#region IRuntimeResourceManager
@@ -34,7 +34,7 @@ namespace HereticalSolutions.ResourceManagement
 
 		public bool HasRootResource(int resourceIDHash)
 		{
-			rwLock.EnterReadLock();
+			semaphore.Wait(); // Acquire the semaphore
 			
 			try
 			{
@@ -42,7 +42,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				rwLock.ExitReadLock();
+				semaphore.Release(); // Release the semaphore
 			}
 		}
 
@@ -53,47 +53,47 @@ namespace HereticalSolutions.ResourceManagement
 
 		public bool HasResource(int[] resourceIDHashes)
 		{
-			IReadOnlyResourceData currentData;
+			IReadOnlyResourceData resource;
 
-			rwLock.EnterReadLock();
+			semaphore.Wait(); // Acquire the semaphore
 
 			try
 			{
 				if (!rootResourcesRepository.TryGet(
 					resourceIDHashes[0],
-					out currentData))
+					out resource))
 					return false;
 			}
 			finally
 			{
-				rwLock.ExitReadLock();
+				semaphore.Release(); // Release the semaphore
 			}
 
 			return GetNestedResourceRecursive(
-				ref currentData,
+				ref resource,
 				resourceIDHashes);
 		}
 
 		public bool HasResource(string[] resourceIDs)
 		{
-			IReadOnlyResourceData currentData;
+			IReadOnlyResourceData resource;
 
-			rwLock.EnterReadLock();
+			semaphore.Wait(); // Acquire the semaphore
 
 			try
 			{
 				if (!rootResourcesRepository.TryGet(
 					resourceIDs[0].AddressToHash(),
-					out currentData))
+					out resource))
 					return false;
 			}
 			finally
 			{
-				rwLock.ExitReadLock();
+				semaphore.Release(); // Release the semaphore
 			}
 
 			return GetNestedResourceRecursive(
-				ref currentData,
+				ref resource,
 				resourceIDs);
 		}
 
@@ -103,21 +103,25 @@ namespace HereticalSolutions.ResourceManagement
 
 		public IReadOnlyResourceData GetRootResource(int resourceIDHash)
 		{
-			rwLock.EnterReadLock();
+			IReadOnlyResourceData resource;
+
+			semaphore.Wait(); // Acquire the semaphore
+
 			try
 			{
 				if (!rootResourcesRepository.TryGet(
 					resourceIDHash,
-					out var resource))
+					out resource))
 				{
 					return null;
 				}
-				return resource;
 			}
 			finally
 			{
-				rwLock.ExitReadLock();
+				semaphore.Release(); // Release the semaphore
 			}
+
+			return resource;
 		}
 
 		public IReadOnlyResourceData GetRootResource(string resourceID)
@@ -127,26 +131,54 @@ namespace HereticalSolutions.ResourceManagement
 
 		public IReadOnlyResourceData GetResource(int[] resourceIDHashes)
 		{
-			if (!rootResourcesRepository.TryGet(
-				resourceIDHashes[0],
-				out var currentResource))
+			IReadOnlyResourceData resource;
+
+			semaphore.Wait(); // Acquire the semaphore
+
+			try
+			{
+				if (!rootResourcesRepository.TryGet(
+					resourceIDHashes[0],
+					out resource))
+					return null;
+			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
+			}
+
+			if (!GetNestedResourceRecursive(
+				ref resource,
+				resourceIDHashes))
 				return null;
 
-			return GetNestedResourceRecursive(
-				ref currentResource,
-				resourceIDHashes);
+			return resource;
 		}
 
 		public IReadOnlyResourceData GetResource(string[] resourceIDs)
 		{
-			if (!rootResourcesRepository.TryGet(
-				resourceIDs[0].AddressToHash(),
-				out var currentResource))
+			IReadOnlyResourceData resource;
+
+			semaphore.Wait(); // Acquire the semaphore
+
+			try
+			{
+				if (!rootResourcesRepository.TryGet(
+					resourceIDs[0].AddressToHash(),
+					out resource))
+					return null;
+			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
+			}
+
+			if (!GetNestedResourceRecursive(
+				ref resource,
+				resourceIDs))
 				return null;
 
-			return GetNestedResourceRecursive(
-				ref currentResource,
-				resourceIDs);
+			return resource;
 		}
 
 		#endregion
@@ -157,7 +189,8 @@ namespace HereticalSolutions.ResourceManagement
 			int resourceIDHash,
 			out IReadOnlyResourceData resource)
 		{
-			rwLock.EnterReadLock();
+			semaphore.Wait(); // Acquire the semaphore
+
 			try
 			{
 				return rootResourcesRepository.TryGet(
@@ -166,7 +199,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				rwLock.ExitReadLock();
+				semaphore.Release(); // Release the semaphore
 			}
 		}
 
@@ -183,10 +216,19 @@ namespace HereticalSolutions.ResourceManagement
 			int[] resourceIDHashes,
 			out IReadOnlyResourceData resource)
 		{
-			if (!rootResourcesRepository.TryGet(
-				resourceIDHashes[0],
-				out resource))
-				return false;
+			semaphore.Wait(); // Acquire the semaphore
+
+			try
+			{
+				if (!rootResourcesRepository.TryGet(
+					resourceIDHashes[0],
+					out resource))
+					return false;
+			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
+			}
 
 			return GetNestedResourceRecursive(
 				ref resource,
@@ -197,10 +239,19 @@ namespace HereticalSolutions.ResourceManagement
 			string[] resourceIDs,
 			out IReadOnlyResourceData resource)
 		{
-			if (!rootResourcesRepository.TryGet(
-				resourceIDs[0].AddressToHash(),
-				out resource))
-				return false;
+			semaphore.Wait(); // Acquire the semaphore
+
+			try
+			{
+				if (!rootResourcesRepository.TryGet(
+					resourceIDs[0].AddressToHash(),
+					out resource))
+					return false;
+			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
+			}
 
 			return GetNestedResourceRecursive(
 				ref resource,
@@ -213,21 +264,25 @@ namespace HereticalSolutions.ResourceManagement
 
 		public IResourceVariantData GetDefaultRootResource(int resourceIDHash)
 		{
-			rwLock.EnterReadLock();
+			IReadOnlyResourceData resource;
+
+			semaphore.Wait(); // Acquire the semaphore
+
 			try
 			{
 				if (!rootResourcesRepository.TryGet(
 					resourceIDHash,
-					out var resource))
+					out resource))
 				{
 					return null;
 				}
-				return resource.DefaultVariant;
 			}
 			finally
 			{
-				rwLock.ExitReadLock();
+				semaphore.Release(); // Release the semaphore
 			}
+
+			return resource.DefaultVariant;
 		}
 
 		public IResourceVariantData GetDefaultRootResource(string resourceID)
@@ -237,26 +292,54 @@ namespace HereticalSolutions.ResourceManagement
 
 		public IResourceVariantData GetDefaultResource(int[] resourceIDHashes)
 		{
-			if (!rootResourcesRepository.TryGet(
-				resourceIDHashes[0],
-				out var currentResource))
+			IReadOnlyResourceData resource;
+
+			semaphore.Wait(); // Acquire the semaphore
+
+			try
+			{
+				if (!rootResourcesRepository.TryGet(
+					resourceIDHashes[0],
+					out resource))
+					return null;
+			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
+			}
+
+			if (!GetNestedResourceRecursive(
+				ref resource,
+				resourceIDHashes))
 				return null;
 
-			return GetNestedResourceRecursive(
-				ref currentResource,
-				resourceIDHashes);
+			return resource.DefaultVariant;
 		}
 
 		public IResourceVariantData GetDefaultResource(string[] resourceIDs)
 		{
-			if (!rootResourcesRepository.TryGet(
-				resourceIDs[0].AddressToHash(),
-				out var currentResource))
+			IReadOnlyResourceData resource;
+
+			semaphore.Wait(); // Acquire the semaphore
+
+			try
+			{
+				if (!rootResourcesRepository.TryGet(
+					resourceIDs[0].AddressToHash(),
+					out resource))
+					return null;
+			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
+			}
+
+			if (!GetNestedResourceRecursive(
+				ref resource,
+				resourceIDs))
 				return null;
 
-			return GetNestedResourceRecursive(
-				ref currentResource,
-				resourceIDs);
+			return resource.DefaultVariant;
 		}
 
 		#endregion
@@ -267,23 +350,29 @@ namespace HereticalSolutions.ResourceManagement
 			int resourceIDHash,
 			out IResourceVariantData resource)
 		{
-			rwLock.EnterReadLock();
+			IReadOnlyResourceData rootResource;
+
+			semaphore.Wait(); // Acquire the semaphore
+
 			try
 			{
 				if (!rootResourcesRepository.TryGet(
 					resourceIDHash,
-					out var rootResource))
+					out rootResource))
 				{
 					resource = null;
+
 					return false;
 				}
-				resource = rootResource.DefaultVariant;
-				return true;
 			}
 			finally
 			{
-				rwLock.ExitReadLock();
+				semaphore.Release(); // Release the semaphore
 			}
+
+			resource = rootResource.DefaultVariant;
+
+			return true;
 		}
 
 		public bool TryGetDefaultRootResource(
@@ -299,34 +388,76 @@ namespace HereticalSolutions.ResourceManagement
 			int[] resourceIDHashes,
 			out IResourceVariantData resource)
 		{
-			if (!rootResourcesRepository.TryGet(
-				resourceIDHashes[0],
-				out var currentResource))
+			IReadOnlyResourceData rootResource;
+
+			semaphore.Wait(); // Acquire the semaphore
+
+			try
+			{
+				if (!rootResourcesRepository.TryGet(
+					resourceIDHashes[0],
+					out rootResource))
+				{
+					resource = null;
+
+					return false;
+				}
+			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
+			}
+
+			if (!GetNestedResourceRecursive(
+				ref rootResource,
+				resourceIDHashes))
 			{
 				resource = null;
+
 				return false;
 			}
 
-			return GetNestedResourceRecursive(
-				ref currentResource,
-				resourceIDHashes);
+			resource = rootResource.DefaultVariant;
+
+			return true;
 		}
 
 		public bool TryGetDefaultResource(
 			string[] resourceIDs,
 			out IResourceVariantData resource)
 		{
-			if (!rootResourcesRepository.TryGet(
-				resourceIDs[0].AddressToHash(),
-				out var currentResource))
+			IReadOnlyResourceData rootResource;
+
+			semaphore.Wait(); // Acquire the semaphore
+
+			try
+			{
+				if (!rootResourcesRepository.TryGet(
+					resourceIDs[0].AddressToHash(),
+					out rootResource))
+				{
+					resource = null;
+
+					return false;
+				}
+			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
+			}
+
+			if (!GetNestedResourceRecursive(
+				ref rootResource,
+				resourceIDs))
 			{
 				resource = null;
+
 				return false;
 			}
 
-			return GetNestedResourceRecursive(
-				ref currentResource,
-				resourceIDs);
+			resource = rootResource.DefaultVariant;
+
+			return true;
 		}
 
 		#endregion
@@ -337,14 +468,15 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				rwLock.EnterReadLock();
+				semaphore.Wait(); // Acquire the semaphore
+
 				try
 				{
 					return rootResourcesRepository.Keys;
 				}
 				finally
 				{
-					rwLock.ExitReadLock();
+					semaphore.Release(); // Release the semaphore
 				}
 			}
 		}
@@ -353,14 +485,15 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				rwLock.EnterReadLock();
+				semaphore.Wait(); // Acquire the semaphore
+
 				try
 				{
 					return rootResourceIDHashToID.Values;
 				}
 				finally
 				{
-					rwLock.ExitReadLock();
+					semaphore.Release(); // Release the semaphore
 				}
 			}
 		}
@@ -369,14 +502,15 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				rwLock.EnterReadLock();
+				semaphore.Wait(); // Acquire the semaphore
+
 				try
 				{
 					return rootResourcesRepository.Values;
 				}
 				finally
 				{
-					rwLock.ExitReadLock();
+					semaphore.Release(); // Release the semaphore
 				}
 			}
 		}
@@ -389,16 +523,18 @@ namespace HereticalSolutions.ResourceManagement
 			IReadOnlyResourceData resource,
 			IProgress<float> progress = null)
 		{
-			rwLock.EnterWriteLock();
+			progress?.Report(0f);
+
+			await semaphore.WaitAsync(); // Acquire the semaphore
+
 			try
 			{
-				progress?.Report(0f);
-
 				if (!rootResourcesRepository.TryAdd(
 					resource.Descriptor.IDHash,
 					resource))
 				{
 					progress?.Report(1f);
+
 					return;
 				}
 
@@ -407,12 +543,12 @@ namespace HereticalSolutions.ResourceManagement
 				rootResourceIDHashToID.AddOrUpdate(
 					resource.Descriptor.IDHash,
 					resource.Descriptor.ID);
-
-				progress?.Report(1f);
 			}
 			finally
 			{
-				rwLock.ExitWriteLock();
+				semaphore.Release(); // Release the semaphore
+
+				progress?.Report(1f);
 			}
 		}
 
@@ -421,30 +557,35 @@ namespace HereticalSolutions.ResourceManagement
 			bool free = true,
 			IProgress<float> progress = null)
 		{
-			rwLock.EnterWriteLock();
+			progress?.Report(0f);
+
+			await semaphore.WaitAsync(); // Acquire the semaphore
+
 			try
 			{
-				progress?.Report(0f);
-
-				if (!rootResourcesRepository.TryGet(idHash, out var resource))
+				if (!rootResourcesRepository.TryGet(
+					idHash,
+					out var resource))
 				{
 					progress?.Report(1f);
+
 					return;
 				}
 
 				rootResourcesRepository.TryRemove(idHash);
+
 				rootResourceIDHashToID.TryRemove(idHash);
 
 				if (free)
 					await ((IResourceData)resource).Clear(
 						free,
 						progress);
-
-				progress?.Report(1f);
 			}
 			finally
 			{
-				rwLock.ExitWriteLock();
+				semaphore.Release(); // Release the semaphore
+
+				progress?.Report(1f);
 			}
 		}
 
@@ -463,11 +604,14 @@ namespace HereticalSolutions.ResourceManagement
 			bool free = true,
 			IProgress<float> progress = null)
 		{
-			rwLock.EnterWriteLock();
+			progress?.Report(0f);
+
+			await semaphore.WaitAsync(); // Acquire the semaphore
+
 			try
 			{
-				progress?.Report(0f);
 				int totalRootResourcesCount = rootResourcesRepository.Count;
+
 				int counter = 0;
 
 				foreach (var key in rootResourcesRepository.Keys)
@@ -479,10 +623,12 @@ namespace HereticalSolutions.ResourceManagement
 						if (progress != null)
 						{
 							var localProgressInstance = new Progress<float>();
+
 							localProgressInstance.ProgressChanged += (sender, value) =>
 							{
 								progress.Report((value + (float)counter) / (float)totalRootResourcesCount);
 							};
+
 							localProgress = localProgressInstance;
 						}
 
@@ -492,16 +638,19 @@ namespace HereticalSolutions.ResourceManagement
 					}
 
 					counter++;
+
 					progress?.Report((float)counter / (float)totalRootResourcesCount);
 				}
 
 				rootResourceIDHashToID.Clear();
+
 				rootResourcesRepository.Clear();
-				progress?.Report(1f);
 			}
 			finally
 			{
-				rwLock.ExitWriteLock();
+				semaphore.Release(); // Release the semaphore
+
+				progress?.Report(1f);
 			}
 		}
 

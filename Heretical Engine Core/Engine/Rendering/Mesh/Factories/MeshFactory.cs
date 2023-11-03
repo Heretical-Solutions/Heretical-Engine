@@ -25,7 +25,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			return new ConcurrentMeshOpenGLStorageHandle(
 				resourceManager,
 				meshRAMStorageHandle,
-				new ReaderWriterLockSlim(),
+				new SemaphoreSlim(1, 1),
 				logger);
 		}
 	}

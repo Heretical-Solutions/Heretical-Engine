@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+
+using System.Drawing;
 
 using HereticalSolutions.Collections.Managed;
 
@@ -54,7 +56,11 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			IInputContext inputContext = null;
 
+#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildConcurrentRuntimeResourceManager();
+#else
 			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildRuntimeResourceManager();
+#endif
 
 			// Our loading function
 			window.Load += () =>

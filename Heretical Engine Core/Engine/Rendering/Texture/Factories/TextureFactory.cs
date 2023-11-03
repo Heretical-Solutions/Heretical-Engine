@@ -79,7 +79,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			return new ConcurrentTextureRAMStorageHandle(
 				filePathSettings,
 				mainThreadCommandBuffer,
-				new ReaderWriterLockSlim(),
+				new SemaphoreSlim(1, 1),
 				logger);
 		}
 
@@ -106,7 +106,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				textureRAMStorageHandle,
 				textureType,
 				gl,
-				new ReaderWriterLockSlim(),
+				new SemaphoreSlim(1, 1),
 				logger);
 		}
 	}

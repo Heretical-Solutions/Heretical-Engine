@@ -18,6 +18,14 @@ namespace HereticalSolutions.ResourceManagement.Factories
                 RepositoriesFactory.BuildDictionaryRepository<int, IReadOnlyResourceData>());
         }
 
+        public static ConcurrentRuntimeResourceManager BuildConcurrentRuntimeResourceManager()
+        {
+            return new ConcurrentRuntimeResourceManager(
+                RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
+                RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IReadOnlyResourceData>(),
+                new SemaphoreSlim(1, 1));
+        }
+
         public static ResourceData BuildResourceData(ResourceDescriptor descriptor)
         {
             return new ResourceData(
@@ -36,7 +44,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IResourceVariantData>(),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IReadOnlyResourceData>(),
-                new ReaderWriterLockSlim());
+                new SemaphoreSlim(1, 1));
         }
 
         /// <summary>
@@ -63,7 +71,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
         {
             return new ConcurrentPreallocatedResourceStorageHandle(
                 resource,
-                new ReaderWriterLockSlim());
+                new SemaphoreSlim(1, 1));
         }
 
         public static ReadWriteResourceStorageHandle BuildReadWriteResourceStorageHandle(object resource)
@@ -75,7 +83,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
         {
             return new ConcurrentReadWriteResourceStorageHandle(
                 resource,
-                new ReaderWriterLockSlim());
+                new SemaphoreSlim(1, 1));
         }
     }
 }

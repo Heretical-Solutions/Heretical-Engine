@@ -171,7 +171,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				fragmentShaderSource,
 				gl,
 				mainThreadCommandBuffer,
-				new ReaderWriterLockSlim(),
+				new SemaphoreSlim(1, 1),
 				logger);
 		}
 	}

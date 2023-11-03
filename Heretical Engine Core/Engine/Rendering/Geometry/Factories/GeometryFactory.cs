@@ -66,7 +66,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		{
 			return new ConcurrentGeometryOpenGLStorageHandle(
 				geometryRAMStorageHandle,
-				new ReaderWriterLockSlim(),
+				new SemaphoreSlim(1, 1),
 				gl,
 				logger);
 		}

@@ -15,7 +15,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly IReadOnlyResourceStorageHandle materialRAMStorageHandle = null;
 
-		private readonly ReaderWriterLockSlim readWriteLock;
+		private readonly SemaphoreSlim semaphore;
 
 		private readonly IFormatLogger logger;
 
@@ -27,7 +27,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public ConcurrentMaterialOpenGLStorageHandle(
 			IRuntimeResourceManager resourceManager,
 			IReadOnlyResourceStorageHandle materialRAMStorageHandle,
-			ReaderWriterLockSlim readWriteLock,
+			SemaphoreSlim semaphore,
 			IFormatLogger logger)
 		{
 			this.resourceManager = resourceManager;
@@ -50,7 +50,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			get
 			{
-				readWriteLock.EnterReadLock();
+				semaphore.Wait(); // Acquire the semaphore
 
 				try
 				{
@@ -58,7 +58,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				}
 				finally
 				{
-					readWriteLock.ExitReadLock();
+					semaphore.Release(); // Release the semaphore
 				}
 			}
 		}
@@ -67,7 +67,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			progress?.Report(0f);
 
-			readWriteLock.EnterWriteLock();
+			await semaphore.WaitAsync(); // Acquire the semaphore
 
 			try
 			{
@@ -95,7 +95,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			}
 			finally
 			{
-				readWriteLock.ExitWriteLock();
+				semaphore.Release(); // Release the semaphore
 
 				progress?.Report(1f);
 			}
@@ -220,7 +220,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			progress?.Report(0f);
 
-			readWriteLock.EnterWriteLock();
+			await semaphore.WaitAsync(); // Acquire the semaphore
 
 			try
 			{
@@ -327,7 +327,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			}
 			finally
 			{
-				readWriteLock.ExitWriteLock();
+				semaphore.Release(); // Release the semaphore
 			}
 		}
 		*/
@@ -336,7 +336,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			progress?.Report(0f);
 
-			readWriteLock.EnterWriteLock();
+			await semaphore.WaitAsync(); // Acquire the semaphore
 			
 			try
 			{
@@ -353,7 +353,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			}
 			finally
 			{
-				readWriteLock.ExitWriteLock();
+				semaphore.Release(); // Release the semaphore
 
 				progress?.Report(1f);
 			}
@@ -365,7 +365,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			get
 			{
-				readWriteLock.EnterReadLock();
+				semaphore.Wait(); // Acquire the semaphore
 
 				try
 				{
@@ -376,14 +376,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				}
 				finally
 				{
-					readWriteLock.ExitReadLock();
+					semaphore.Release(); // Release the semaphore
 				}
 			}
 		}
 
 		public TValue GetResource<TValue>()
 		{
-			readWriteLock.EnterReadLock();
+			semaphore.Wait(); // Acquire the semaphore
+
 			try
 			{
 				if (!allocated)
@@ -393,7 +394,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			}
 			finally
 			{
-				readWriteLock.ExitReadLock();
+				semaphore.Release(); // Release the semaphore
 			}
 		}
 
