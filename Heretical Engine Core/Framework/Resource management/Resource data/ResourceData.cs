@@ -217,7 +217,7 @@ namespace HereticalSolutions.ResourceManagement
 				return;
 			}
 
-			variantIDHashToID.TryAdd(
+			variantIDHashToID.AddOrUpdate(
 				variant.Descriptor.VariantIDHash,
 				variant.Descriptor.VariantID);
 
@@ -358,7 +358,7 @@ namespace HereticalSolutions.ResourceManagement
 
 			((IResourceData)nestedResource).ParentResource = this;
 
-			nestedResourceIDHashToID.TryAdd(
+			nestedResourceIDHashToID.AddOrUpdate(
 				nestedResource.Descriptor.IDHash,
 				nestedResource.Descriptor.ID);
 

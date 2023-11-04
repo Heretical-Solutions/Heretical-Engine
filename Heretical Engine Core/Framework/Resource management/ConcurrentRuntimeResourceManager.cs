@@ -564,6 +564,8 @@ namespace HereticalSolutions.ResourceManagement
 			bool free = true,
 			IProgress<float> progress = null)
 		{
+			IReadOnlyResourceData resource;
+
 			progress?.Report(0f);
 
 			await semaphore.WaitAsync(); // Acquire the semaphore
@@ -572,7 +574,7 @@ namespace HereticalSolutions.ResourceManagement
 			{
 				if (!rootResourcesRepository.TryGet(
 					idHash,
-					out var resource))
+					out resource))
 				{
 					progress?.Report(1f);
 
@@ -582,20 +584,20 @@ namespace HereticalSolutions.ResourceManagement
 				rootResourcesRepository.TryRemove(idHash);
 
 				rootResourceIDHashToID.TryRemove(idHash);
-
-				if (free)
-					await ((IResourceData)resource)
-						.Clear(
-							free,
-							progress)
-						.ThrowExceptions<ConcurrentRuntimeResourceManager>(logger);
 			}
 			finally
 			{
 				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
 			}
+
+			if (free)
+				await ((IResourceData)resource)
+					.Clear(
+						free,
+						progress)
+					.ThrowExceptions<ConcurrentRuntimeResourceManager>(logger);
+
+			progress?.Report(1f);
 		}
 
 		public async Task RemoveRootResource(
