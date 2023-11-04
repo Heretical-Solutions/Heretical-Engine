@@ -9,6 +9,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public uint Handle => handle;
 
+		private int length;
+
+		public int Length => length;
+
 		private BufferTargetARB bufferType;
 
 		public BufferTargetARB BufferType => bufferType;
@@ -20,6 +24,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.handle = handle;
 
 			this.bufferType = bufferType;
+
+			length = 0;
 		}
 
 		public void Bind(
@@ -41,6 +47,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					0,
 					(nuint)(data.Length * sizeof(TValue)),
 					dataPointer);
+
+				length = data.Length;
 			}
 		}
 

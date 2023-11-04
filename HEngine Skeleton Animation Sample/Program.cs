@@ -1,5 +1,7 @@
 ﻿#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
+using System.Numerics;
+
 using System.Drawing;
 
 using HereticalSolutions.Collections.Managed;
@@ -32,7 +34,94 @@ namespace HereticalSolutions.HereticalEngine.Samples
 {
 	public class Program
 	{
+		private static readonly float[] Vertices =
+		{
+            //X    Y      Z       Normals
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+			 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+			 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+			 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+			-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+			-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+			 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+			 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+			 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+			-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+			-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+
+			-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+			-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+			-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+			-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+			-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+			-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+			 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+			 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+			 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+			 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+			 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+			 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+			-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+			 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+			 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+			 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+			-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+			-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+			 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+			 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+			 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+			-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+			-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+		};
+
+		private static readonly uint[] Indices =
+		{
+			0, 1, 3,
+			1, 2, 3
+		};
+
+		private static BufferOpenGL<float> Vbo;
+		private static BufferOpenGL<uint> Ebo;
+		private static VertexArrayOpenGL<float, uint> VaoCube;
+		private static Shader CubeShader;
+
 		private const string PATH_TO_SHADERS = "Shaders/default";
+
+		private static IWindow window;
+
+		//Setup the camera's location, directions, and movement speed
+		private static Vector3D<float> CameraPosition = new Vector3D<float>(
+			0.0f,
+			0.0f,
+			3.0f);
+
+		private static Vector3D<float> CameraFront = new Vector3D<float>(
+			0.0f,
+			0.0f,
+			-1.0f);
+
+		private static Vector3D<float> CameraUp = Vector3D<float>.UnitY;
+
+		private static Vector3D<float> CameraDirection = Vector3D<float>.Zero;
+
+		private static float CameraYaw = -90f;
+
+		private static float CameraPitch = 0f;
+		
+		private static float CameraZoom = 45f;
+
+		private static IKeyboard primaryKeyboard;
+
+		//Used to track change in mouse movement to allow for moving of the Camera
+		private static Vector2D<float> LastMousePosition;
+
+		private static ModelOpenGL modelOpenGL;
 
 		//TODO: https://github.com/dotnet/Silk.NET/discussions/534
 		static void Main(string[] args)
@@ -47,7 +136,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					new int[1024]);
 
 			// Create a Silk.NET window as usual
-			using var window = Window.Create(WindowOptions.Default);
+			window = Window.Create(WindowOptions.Default);
 
 			// Declare some variables
 			ImGuiController controller = null;
@@ -69,6 +158,16 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 				logger.Log<Program>($"CURRENT THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
 
+				Ebo = new BufferOpenGL<uint>(Gl, Indices, BufferTargetARB.ElementArrayBuffer);
+				Vbo = new BufferOpenGL<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
+				VaoCube = new VertexArrayObject<float, uint>(Gl, Vbo, Ebo);
+
+				VaoCube.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 6, 0);
+				VaoCube.VertexAttributePointer(1, 3, VertexAttribPointerType.Float, 6, 3);
+
+				//The lighting shader will give our main cube it's colour multiplied by the light's intensity
+				LightingShader = new Shader(Gl, "shader.vert", "lighting.frag");
+
 				LoadAssets(
 					runtimeResourceManager,
 					gl,
@@ -76,6 +175,19 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					logger);
 
 				inputContext = InitInputContext(window);
+
+				primaryKeyboard = inputContext.Keyboards.FirstOrDefault();
+
+				if (primaryKeyboard != null)
+				{
+					primaryKeyboard.KeyDown += KeyDown;
+				}
+				for (int i = 0; i < inputContext.Mice.Count; i++)
+				{
+					inputContext.Mice[i].Cursor.CursorMode = CursorMode.Raw;
+					inputContext.Mice[i].MouseMove += OnMouseMove;
+					inputContext.Mice[i].Scroll += OnMouseWheel;
+				}
 
 				controller = InitIMGUI(
 					window,
@@ -92,8 +204,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				gl.Viewport(s);
 			};
 
-			// The render function
-			window.Render += delta =>
+			window.Update += delta =>
 			{
 				while (mainThreadCommandBuffer.TryConsume(out var command))
 				{
@@ -110,7 +221,11 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				Update(
 					controller,
 					(float)delta);
+			};
 
+			// The render function
+			window.Render += delta =>
+			{
 				Render(
 					gl,
 					controller);
@@ -297,10 +412,14 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					($"MODEL OPENGL IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			await modelOpenGLAssetImporter
+			var modelOpenGLData = await modelOpenGLAssetImporter
 				.Import(
 					modelOpenGLImportProgress)
 				.ThrowExceptions<IResourceVariantData, Program>(logger);
+
+			modelOpenGL = modelOpenGLData
+				.StorageHandle
+				.GetResource<ModelOpenGL>();
 
 			#endregion
 
@@ -626,6 +745,29 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			UpdateIMGUI(
 				controller,
 				delta);
+
+			var moveSpeed = 2.5f * (float)delta;
+
+			if (primaryKeyboard.IsKeyPressed(Key.W))
+			{
+				//Move forwards
+				CameraPosition += moveSpeed * CameraFront;
+			}
+			if (primaryKeyboard.IsKeyPressed(Key.S))
+			{
+				//Move backwards
+				CameraPosition -= moveSpeed * CameraFront;
+			}
+			if (primaryKeyboard.IsKeyPressed(Key.A))
+			{
+				//Move left
+				CameraPosition -= Vector3D.Normalize(Vector3D.Cross(CameraFront, CameraUp)) * moveSpeed;
+			}
+			if (primaryKeyboard.IsKeyPressed(Key.D))
+			{
+				//Move right
+				CameraPosition += Vector3D.Normalize(Vector3D.Cross(CameraFront, CameraUp)) * moveSpeed;
+			}
 		}
 
 		static void UpdateIMGUI(
@@ -634,6 +776,74 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		{
 			// Make sure ImGui is up-to-date
 			controller.Update((float)delta);
+		}
+
+		private static void OnMouseMove(
+			IMouse mouse,
+			Vector2 positionInput)
+		{
+			Vector2D<float> position = positionInput.ToSilkNetVector2D();
+
+			var lookSensitivity = 0.1f;
+
+			if (LastMousePosition == default)
+			{
+				LastMousePosition = position;
+			}
+			else
+			{
+				var xOffset = (position.X - LastMousePosition.X) * lookSensitivity;
+
+				var yOffset = (position.Y - LastMousePosition.Y) * lookSensitivity;
+
+
+				LastMousePosition = position;
+
+
+				CameraYaw += xOffset;
+
+				CameraPitch -= yOffset;
+
+				//We don't want to be able to look behind us by going over our head or under our feet so make sure it stays within these bounds
+				CameraPitch = float.Clamp(
+					CameraPitch,
+					-89.0f,
+					89.0f);
+
+				CameraDirection.X = 
+					MathF.Cos(MathHelpers.DegreesToRadians(CameraYaw))
+					* MathF.Cos(MathHelpers.DegreesToRadians(CameraPitch));
+
+				CameraDirection.Y = MathF.Sin(MathHelpers.DegreesToRadians(CameraPitch));
+
+				CameraDirection.Z = 
+					MathF.Sin(MathHelpers.DegreesToRadians(CameraYaw))
+					* MathF.Cos(MathHelpers.DegreesToRadians(CameraPitch));
+
+				CameraFront = Vector3D.Normalize(CameraDirection);
+			}
+		}
+
+		private static void OnMouseWheel(
+			IMouse mouse,
+			ScrollWheel scrollWheel)
+		{
+			//We don't want to be able to zoom in too close or too far away so clamp to these values
+			CameraZoom = float.Clamp(
+				CameraZoom - scrollWheel.Y,
+				1.0f,
+				45f);
+		}
+
+		private static void KeyDown(
+			IKeyboard keyboard,
+			Key key,
+			int arg3)
+		{
+			if (key == Key.Escape)
+			{
+				window.Close();
+			}
 		}
 
 		#endregion
@@ -646,6 +856,11 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		{
 			Clear(gl);
 
+			if (modelOpenGL != null)
+				RenderModel(
+					gl,
+					modelOpenGL);
+
 			RenderIMGUI(controller);
 		}
 
@@ -655,6 +870,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			// This is where you'll do any rendering beneath the ImGui context
 			// Here, we just have a blank screen.
 			gl.ClearColor(Color.FromArgb(255, (int)(.45f * 255), (int)(.55f * 255), (int)(.60f * 255)));
+
 			gl.Clear((uint)ClearBufferMask.ColorBufferBit);
 		}
 
@@ -666,6 +882,129 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			// Make sure ImGui renders too!
 			controller.Render();
+		}
+
+		static void RenderModel(
+			GL gl,
+			ModelOpenGL modelOpenGL)
+		{
+			//var modelMatrix = Matrix4X4<float>.Identity;
+
+			var difference = (float)(window.Time * 100);
+
+			var modelMatrix =
+				Matrix4X4.CreateRotationY(
+					MathHelpers.DegreesToRadians(difference))
+				* Matrix4X4.CreateRotationX(
+					MathHelpers.DegreesToRadians(difference));
+
+			var viewMatrix = Matrix4X4.CreateLookAt(
+				CameraPosition,
+				CameraPosition + CameraFront,
+				CameraUp);
+			
+			//It's super important for the width / height calculation to regard each value as a float, otherwise
+			//it creates rounding errors that result in viewport distortion
+			var projectionMatrix = Matrix4X4.CreatePerspectiveFieldOfView(
+				MathHelpers.DegreesToRadians(CameraZoom),
+				(float)window.Size.X / (float)window.Size.Y,
+				0.1f,
+				1000.0f);
+
+			RenderNode(
+				gl,
+				modelOpenGL.RootNode,
+				modelMatrix,
+				viewMatrix,
+				projectionMatrix);
+		}
+
+		static void RenderNode(
+			GL gl,
+			ModelNodeOpenGL node,
+			Matrix4X4<float> modelMatrix,
+			Matrix4X4<float> viewMatrix,
+			Matrix4X4<float> projectionMatrix)
+		{
+			var nodeTransform = node.Transform;
+
+			var nodeModelMatrix = modelMatrix; // * nodeTransform.TRSMatrix;
+
+			foreach (var mesh in node.Meshes)
+			{
+				RenderMesh(
+					gl,
+					mesh,
+					nodeModelMatrix,
+					viewMatrix,
+					projectionMatrix);
+			}
+
+			foreach (var childNode in node.Children)
+			{
+				RenderNode(
+					gl,
+					childNode,
+					nodeModelMatrix,
+					viewMatrix,
+					projectionMatrix);
+			}
+		}
+
+		static void RenderMesh(
+			GL gl,
+			MeshOpenGL meshOpenGL,
+			Matrix4X4<float> modelMatrix,
+			Matrix4X4<float> viewMatrix,
+			Matrix4X4<float> projectionMatrix)
+		{
+			var geometry = meshOpenGL.GeometryOpenGL;
+
+			var material = meshOpenGL.MaterialOpenGL;
+
+			var shader = material.Shader;
+
+			geometry.Bind(gl);
+
+			shader.Use(gl);
+
+			foreach (var texture in material.Textures)
+			{
+				texture.Bind(gl);
+
+				//FOR TEST PURPOSES
+				break; 
+			}
+
+			shader.SetUniform(
+				gl,
+				"uTexture0",
+				0);
+
+			shader.SetUniform(
+				gl,
+				"uModel",
+				modelMatrix);
+
+			shader.SetUniform(
+				gl,
+				"uView",
+				viewMatrix);
+
+			shader.SetUniform(
+				gl,
+				"uProjection",
+				projectionMatrix);
+
+			//FOR TEST PURPOSES
+			gl.PolygonMode(
+				GLEnum.FrontAndBack,
+				PolygonMode.Line);
+
+			gl.DrawArrays(
+				PrimitiveType.Triangles,
+				0,
+				(uint)geometry.VerticesBuffer.Length);
 		}
 
 		#endregion

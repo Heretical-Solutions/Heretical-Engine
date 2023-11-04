@@ -2,6 +2,9 @@ using System.Numerics;
 
 using Silk.NET.OpenGL;
 
+using Silk.NET.Maths;
+using HereticalSolutions.HereticalEngine.Math;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ShaderOpenGL
@@ -61,6 +64,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				1,
 				false,
 				(float*)&value);
+		}
+
+		public unsafe void SetUniform(
+			GL gl,
+			string name,
+			Matrix4X4<float> value)
+		{
+			SetUniform(
+				gl,
+				name,
+				value.ToNumericsMatrix4x4());
 		}
 
 		public void SetUniform(
