@@ -57,9 +57,9 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			IInputContext inputContext = null;
 
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildConcurrentRuntimeResourceManager();
+			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildConcurrentRuntimeResourceManager(logger);
 #else
-			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildRuntimeResourceManager();
+			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildRuntimeResourceManager(logger);
 #endif
 
 			// Our loading function
@@ -173,6 +173,14 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				pathToExe.IndexOf("/bin/"))
 				+ "/Assets/";
 
+			var progress = new Progress<float>();
+
+			progress.ProgressChanged += (sender, value) =>
+			{
+				logger.Log<Program>
+					($"PROGRESS: {(int)(value * 100f)} %");
+			};
+
 			var tasks = new List<Task>();
 
 			#region Shader import
@@ -203,7 +211,13 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				mainThreadCommandBuffer,
 				logger);
 
-			//await shaderAssetImporter.Import();
+			/*
+			await shaderAssetImporter
+				.Import(
+					progress)
+				.ThrowExceptions<IResourceVariantData, Program>(logger);
+			*/
+
 			tasks.Add(
 				Task.Run(
 					() => shaderAssetImporter.Import()));
@@ -223,16 +237,45 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				mainThreadCommandBuffer,
 				logger);
 
-			//await modelAssetImporter.Import();
+			IResourceVariantData modelRAMData = null;
+
+			/*
+			modelRAMData = await modelAssetImporter
+				.Import(
+					progress)
+				.ThrowExceptions<IResourceVariantData, Program>(logger);
+
+			var modelRAMStorageHandle = modelRAMData.StorageHandle;
+			*/
+
 			tasks.Add(
 				Task.Run(
-					() => modelAssetImporter.Import()));
+					async delegate { modelRAMData = await modelAssetImporter.Import(); }));
 
 			#endregion
 
 			await Task
 				.WhenAll(tasks)
 				.ThrowExceptions<Program>(logger);
+
+			var modelRAMStorageHandle = modelRAMData.StorageHandle;
+
+			#region Model OpenGL import
+
+			var modelOpenGLAssetImporter = new ModelOpenGLAssetImporter(
+				runtimeResourceManager,
+				"Knight",
+				modelRAMStorageHandle,
+				gl,
+				mainThreadCommandBuffer,
+				logger);
+
+			await modelOpenGLAssetImporter
+				.Import(
+					progress)
+				.ThrowExceptions<IResourceVariantData, Program>(logger);
+
+			#endregion
 
 			logger.Log<Program>("IMPORT FINISHED");
 		}

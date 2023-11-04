@@ -1,4 +1,8 @@
+using HereticalSolutions.Collections.Managed;
+
 using HereticalSolutions.ResourceManagement;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -51,23 +55,27 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public static GeometryOpenGLStorageHandle BuildGeometryOpenGLStorageHandle(
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			return new GeometryOpenGLStorageHandle(
 				geometryRAMStorageHandle,
 				gl,
+				mainThreadCommandBuffer,
 				logger);
 		}
 
 		public static ConcurrentGeometryOpenGLStorageHandle BuildConcurrentGeometryOpenGLStorageHandle(
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			return new ConcurrentGeometryOpenGLStorageHandle(
 				geometryRAMStorageHandle,
 				new SemaphoreSlim(1, 1),
 				gl,
+				mainThreadCommandBuffer,
 				logger);
 		}
 	}

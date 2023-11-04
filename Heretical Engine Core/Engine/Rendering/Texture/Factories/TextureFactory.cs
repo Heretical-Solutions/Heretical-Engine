@@ -9,6 +9,7 @@ using HereticalSolutions.Logging;
 using Silk.NET.OpenGL;
 
 using Silk.NET.Assimp;
+using HereticalSolutions.ResourceManagement;
 
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
@@ -84,28 +85,32 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		}
 
 		public static TextureOpenGLStorageHandle BuildTextureOpenGLStorageHandle(
-			TextureRAMStorageHandle textureRAMStorageHandle,
+			IReadOnlyResourceStorageHandle textureRAMStorageHandle,
 			TextureType textureType,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			return new TextureOpenGLStorageHandle(
 				textureRAMStorageHandle,
 				textureType,
 				gl,
+				mainThreadCommandBuffer,
 				logger);
 		}
 
 		public static ConcurrentTextureOpenGLStorageHandle BuildConcurrentTextureOpenGLStorageHandle(
-			TextureRAMStorageHandle textureRAMStorageHandle,
+			IReadOnlyResourceStorageHandle textureRAMStorageHandle,
 			TextureType textureType,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			return new ConcurrentTextureOpenGLStorageHandle(
 				textureRAMStorageHandle,
 				textureType,
 				gl,
+				mainThreadCommandBuffer,
 				new SemaphoreSlim(1, 1),
 				logger);
 		}

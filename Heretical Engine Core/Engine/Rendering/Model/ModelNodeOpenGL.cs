@@ -19,20 +19,23 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public ModelNodeOpenGL(
 			string name,
-			ModelNodeOpenGL parent,
 			ModelNodeOpenGL[] children,
 			Transform transform,
 			MeshOpenGL[] meshes)
 		{
 			Name = name;
 
-			Parent = parent;
-
 			Children = children;
 
 			Transform = transform;
 
 			Meshes = meshes;
+		}
+
+		public void SetParent(
+			ModelNodeOpenGL parent)
+		{
+			Parent = parent;
 		}
 	}
 }

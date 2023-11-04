@@ -1,9 +1,13 @@
 using System;
 using System.Threading.Tasks;
 
+using HereticalSolutions.Collections.Managed;
+
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -18,6 +22,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly GL cachedGL = default;
 
+		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+
 		private readonly IFormatLogger logger;
 
 
@@ -28,11 +34,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public GeometryOpenGLStorageHandle(
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			this.geometryRAMStorageHandle = geometryRAMStorageHandle;
 
 			cachedGL = gl;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 
 			this.logger = logger;
 
@@ -63,6 +72,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
+			logger.Log<GeometryOpenGLStorageHandle>(
+				$"ALLOCATING");
+
 			if (!geometryRAMStorageHandle.Allocated)
 			{
 				IProgress<float> localProgress = progress.CreateLocalProgress();
@@ -73,12 +85,37 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					.ThrowExceptions<GeometryOpenGLStorageHandle>(logger);
 			}
 
+			/*
 			geometry = GeometryFactory.BuildGeometryOpenGL(
 				cachedGL,
 				geometryRAMStorageHandle.GetResource<Geometry>());
+			*/
 
+			Action buildShaderDelegate = () =>
+			{
+				geometry = GeometryFactory.BuildGeometryOpenGL(
+					cachedGL,
+					geometryRAMStorageHandle.GetResource<Geometry>());
+			};
+
+			var command = new MainThreadCommand(
+				buildShaderDelegate);
+
+			while (!mainThreadCommandBuffer.TryProduce(
+				command))
+			{
+				await Task.Yield();
+			}
+
+			while (command.Status != ECommandStatus.DONE)
+			{
+				await Task.Yield();
+			}
 
 			allocated = true;
+
+			logger.Log<GeometryOpenGLStorageHandle>(
+				$"ALLOCATED");
 
 			progress?.Report(1f);
 		}
@@ -95,12 +132,37 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			geometry.Dispose(cachedGL);
+			logger.Log<GeometryOpenGLStorageHandle>(
+				$"FREEING");
+
+			//geometry.Dispose(cachedGL);
+
+			Action deleteShaderDelegate = () =>
+			{
+				geometry.Dispose(cachedGL);
+			};
+
+			var command = new MainThreadCommand(
+				deleteShaderDelegate);
+
+			while (!mainThreadCommandBuffer.TryProduce(
+				command))
+			{
+				await Task.Yield();
+			}
+
+			while (command.Status != ECommandStatus.DONE)
+			{
+				await Task.Yield();
+			}
 
 			geometry = null;
 
 
 			allocated = false;
+
+			logger.Log<GeometryOpenGLStorageHandle>(
+				$"FREE");
 
 			progress?.Report(1f);
 		}

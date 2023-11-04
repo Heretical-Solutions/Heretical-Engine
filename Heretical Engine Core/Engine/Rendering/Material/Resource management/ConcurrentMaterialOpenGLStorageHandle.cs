@@ -80,6 +80,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
+				logger.Log<ConcurrentMaterialOpenGLStorageHandle>(
+					$"ALLOCATING");
+
 				bool result = await LoadMaterial(
 					resourceManager,
 					materialRAMStorageHandle,
@@ -94,6 +97,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				}
 
 				allocated = true;
+
+				logger.Log<ConcurrentMaterialOpenGLStorageHandle>(
+					$"ALLOCATED");
 			}
 			finally
 			{
@@ -201,9 +207,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
+				logger.Log<ConcurrentMaterialOpenGLStorageHandle>(
+					$"FREEING");
+
 				material = null;
 
 				allocated = false;
+
+				logger.Log<ConcurrentMaterialOpenGLStorageHandle>(
+					$"FREE");
 			}
 			finally
 			{

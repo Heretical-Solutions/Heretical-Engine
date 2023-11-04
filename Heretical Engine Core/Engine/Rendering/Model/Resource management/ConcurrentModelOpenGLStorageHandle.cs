@@ -3,18 +3,21 @@ using System.Threading.Tasks;
 
 using HereticalSolutions.ResourceManagement;
 
-using HereticalSolutions.Logging;
 using HereticalSolutions.HereticalEngine.Scenes;
 using HereticalSolutions.HereticalEngine.Math;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class ModelOpenGLStorageHandle
+	public class ConcurrentModelOpenGLStorageHandle
 		: IReadOnlyResourceStorageHandle
 	{
 		private readonly IRuntimeResourceManager resourceManager = null;
 
 		private readonly IReadOnlyResourceStorageHandle modelRAMStorageHandle = null;
+
+		private readonly SemaphoreSlim semaphore;
 
 		private readonly IFormatLogger logger;
 
@@ -23,14 +26,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private ModelOpenGL model = null;
 
-		public ModelOpenGLStorageHandle(
+		public ConcurrentModelOpenGLStorageHandle(
 			IRuntimeResourceManager resourceManager,
 			IReadOnlyResourceStorageHandle modelRAMStorageHandle,
+			SemaphoreSlim semaphore,
 			IFormatLogger logger)
 		{
 			this.resourceManager = resourceManager;
 
 			this.modelRAMStorageHandle = modelRAMStorageHandle;
+
+			this.semaphore = semaphore;
 
 			this.logger = logger;
 
@@ -46,7 +52,19 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public bool Allocated
 		{
-			get => allocated;
+			get
+			{
+				semaphore.Wait(); // Acquire the semaphore
+
+				try
+				{
+					return allocated;
+				}
+				finally
+				{
+					semaphore.Release(); // Release the semaphore
+				}
+			}
 		}
 
 		public virtual async Task Allocate(
@@ -54,35 +72,44 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			progress?.Report(0f);
 
-			if (allocated)
+			await semaphore.WaitAsync(); // Acquire the semaphore
+
+			try
 			{
-				progress?.Report(1f);
+				if (allocated)
+				{
+					progress?.Report(1f);
 
-				return;
+					return;
+				}
+
+				logger.Log<ConcurrentModelOpenGLStorageHandle>(
+					$"ALLOCATING");
+
+				bool result = await LoadModel(
+					resourceManager,
+					modelRAMStorageHandle,
+					progress)
+					.ThrowExceptions<bool, ModelOpenGLStorageHandle>(logger);
+
+				if (!result)
+				{
+					progress?.Report(1f);
+
+					return;
+				}
+
+				allocated = true;
+
+				logger.Log<ConcurrentModelOpenGLStorageHandle>(
+					$"ALLOCATED");
 			}
-
-			logger.Log<ModelOpenGLStorageHandle>(
-				$"ALLOCATING");
-
-			bool result = await LoadModel(
-				resourceManager,
-				modelRAMStorageHandle,
-				progress)
-				.ThrowExceptions<bool, ModelOpenGLStorageHandle>(logger);
-
-			if (!result)
+			finally
 			{
+				semaphore.Release(); // Release the semaphore
+
 				progress?.Report(1f);
-
-				return;
 			}
-
-			allocated = true;
-
-			logger.Log<ModelOpenGLStorageHandle>(
-				$"ALLOCATED");
-
-			progress?.Report(1f);
 		}
 
 		private async Task<bool> LoadModel(
@@ -261,25 +288,34 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			progress?.Report(0f);
 
-			if (!allocated)
+			await semaphore.WaitAsync(); // Acquire the semaphore
+
+			try
 			{
-				progress?.Report(1f);
+				if (!allocated)
+				{
+					progress?.Report(1f);
 
-				return;
+					return;
+				}
+
+				logger.Log<ConcurrentModelOpenGLStorageHandle>(
+					$"FREEING");
+
+				model = null;
+
+
+				allocated = false;
+
+				logger.Log<ConcurrentModelOpenGLStorageHandle>(
+					$"FREE");
 			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
 
-			logger.Log<ModelOpenGLStorageHandle>(
-				$"FREEING");
-
-			model = null;
-
-
-			allocated = false;
-
-			logger.Log<ModelOpenGLStorageHandle>(
-				$"FREE");
-
-			progress?.Report(1f);
+				progress?.Report(1f);
+			}
 		}
 
 		#endregion
@@ -288,19 +324,37 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			get
 			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
+				semaphore.Wait(); // Acquire the semaphore
 
-				return model;
+				try
+				{
+					if (!allocated)
+						throw new InvalidOperationException("Resource is not allocated");
+
+					return model;
+				}
+				finally
+				{
+					semaphore.Release(); // Release the semaphore
+				}
 			}
 		}
 
 		public TValue GetResource<TValue>()
 		{
-			if (!allocated)
-				throw new InvalidOperationException("Resource is not allocated.");
+			semaphore.Wait(); // Acquire the semaphore
 
-			return (TValue)(object)model; //DO NOT REPEAT
+			try
+			{
+				if (!allocated)
+					throw new InvalidOperationException("Resource is not allocated");
+
+				return (TValue)(object)model;
+			}
+			finally
+			{
+				semaphore.Release(); // Release the semaphore
+			}
 		}
 
 		#endregion

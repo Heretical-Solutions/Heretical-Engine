@@ -1,10 +1,14 @@
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
+using HereticalSolutions.Collections.Managed;
+
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -22,17 +26,20 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly string resourceID;
 
-		private readonly TextureRAMStorageHandle textureRAMStorageHandle;
+		private readonly IReadOnlyResourceStorageHandle textureRAMStorageHandle;
 
 		private readonly TextureType textureType;
 
 		private readonly GL cachedGL;
 
+		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+
 		public TextureOpenGLAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			TextureRAMStorageHandle textureRAMStorageHandle,
+			IReadOnlyResourceStorageHandle textureRAMStorageHandle,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger,
 			TextureType textureType = TextureType.None)
 			: base(
@@ -45,12 +52,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			cachedGL = gl;
 
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
+
 			this.textureType = textureType;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
+			logger.Log<TextureOpenGLAssetImporter>(
+				$"IMPORTING {resourceID} INITIATED");
+
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
@@ -71,12 +83,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					textureRAMStorageHandle,
 					textureType,
 					cachedGL,
+					mainThreadCommandBuffer,
 					logger),
 #else
 				TextureFactory.BuildTextureOpenGLStorageHandle(
 					textureRAMStorageHandle,
 					textureType,
 					cachedGL,
+					mainThreadCommandBuffer,
 					logger),
 #endif					
 				true,
@@ -84,6 +98,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				.ThrowExceptions<IResourceVariantData, TextureOpenGLAssetImporter>(logger);
 
 			progress?.Report(1f);
+
+			logger.Log<TextureOpenGLAssetImporter>(
+				$"IMPORTING {resourceID} FINISHED");
 
 			return result;
 		}

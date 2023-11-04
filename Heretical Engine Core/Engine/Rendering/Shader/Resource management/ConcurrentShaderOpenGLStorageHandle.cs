@@ -175,6 +175,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
+				logger.Log<ConcurrentShaderOpenGLStorageHandle>(
+					$"ALLOCATING");
+
 				// Delegate the shader building task to the main thread
 				Action buildShaderDelegate = () =>
 				{
@@ -209,6 +212,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				}
 
 				allocated = true;
+
+				logger.Log<ConcurrentShaderOpenGLStorageHandle>(
+					$"ALLOCATED");
 			}
 			finally
 			{
@@ -230,10 +236,33 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				if (!allocated)
 				{
 					progress?.Report(1f);
+
 					return;
 				}
 
-				cachedGL.DeleteProgram(shader.Handle);
+				logger.Log<ConcurrentShaderOpenGLStorageHandle>(
+					$"FREEING");
+
+				//cachedGL.DeleteProgram(shader.Handle);
+
+				Action deleteShaderDelegate = () =>
+				{
+					cachedGL.DeleteProgram(shader.Handle);
+				};
+
+				var command = new MainThreadCommand(
+					deleteShaderDelegate);
+
+				while (!mainThreadCommandBuffer.TryProduce(
+					command))
+				{
+					await Task.Yield();
+				}
+
+				while (command.Status != ECommandStatus.DONE)
+				{
+					await Task.Yield();
+				}
 
 				shader = null;
 
@@ -247,6 +276,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				shaderProgramMetadata.CompilationLog = string.Empty;
 
 				allocated = false;
+
+				logger.Log<ConcurrentShaderOpenGLStorageHandle>(
+					$"FREE");
 			}
 			finally
 			{

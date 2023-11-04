@@ -67,6 +67,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
+			logger.Log<TextureRAMStorageHandle>(
+				$"ALLOCATING");
+
 #if LOAD_IMAGES_ASYNC
 			//The LoadAsync method is not thread safe somehow and throws exceptions if called not from the main thread.
 			//Whatever, we have main thread commands now
@@ -103,6 +106,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = true;
 
+			logger.Log<TextureRAMStorageHandle>(
+				$"ALLOCATED");
+
 			progress?.Report(1f);
 		}
 
@@ -118,12 +124,18 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
+			logger.Log<TextureRAMStorageHandle>(
+				$"FREEING");
+
 			texture.Dispose();
 
 			texture = null;
 
 
 			allocated = false;
+
+			logger.Log<TextureRAMStorageHandle>(
+				$"FREE");
 
 			progress?.Report(1f);
 		}

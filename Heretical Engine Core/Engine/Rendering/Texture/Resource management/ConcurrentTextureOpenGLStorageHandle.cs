@@ -2,9 +2,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+using HereticalSolutions.Collections.Managed;
+
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -17,11 +21,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	public class ConcurrentTextureOpenGLStorageHandle
 		: IReadOnlyResourceStorageHandle
 	{
-		private readonly TextureRAMStorageHandle textureRAMStorageHandle = null;
+		private readonly IReadOnlyResourceStorageHandle textureRAMStorageHandle = null;
 
 		private readonly TextureType textureType;
 
 		private readonly GL cachedGL = default;
+
+		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
 
 		private readonly SemaphoreSlim semaphore;
 
@@ -33,9 +39,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private TextureOpenGL texture = null;
 
 		public ConcurrentTextureOpenGLStorageHandle(
-			TextureRAMStorageHandle textureRAMStorageHandle,
+			IReadOnlyResourceStorageHandle textureRAMStorageHandle,
 			TextureType textureType,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			SemaphoreSlim semaphore,
 			IFormatLogger logger)
 		{
@@ -44,6 +51,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.textureType = textureType;
 
 			cachedGL = gl;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 
 			this.semaphore = semaphore;
 
@@ -92,22 +101,43 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
-				bool result = await LoadTexture(
-					textureRAMStorageHandle,
-					textureType,
-					cachedGL,
-					true,
-					progress)
-					.ThrowExceptions<bool, ConcurrentTextureOpenGLStorageHandle>(logger);
+				logger.Log<ConcurrentTextureOpenGLStorageHandle>(
+					$"ALLOCATING");
 
-				if (!result)
+				Func<Task> loadTextureDelegate = async () =>
 				{
-					progress?.Report(1f);
+					bool result = await LoadTexture(
+						textureRAMStorageHandle,
+						textureType,
+						cachedGL,
+						true,
+						progress)
+						.ThrowExceptions<bool, TextureOpenGLStorageHandle>(logger);
 
-					return;
+					if (!result)
+					{
+						progress?.Report(1f);
+
+						return;
+					}
+				};
+
+				var command = new MainThreadCommand(loadTextureDelegate);
+
+				while (!mainThreadCommandBuffer.TryProduce(command))
+				{
+					await Task.Yield();
+				}
+
+				while (command.Status != ECommandStatus.DONE)
+				{
+					await Task.Yield();
 				}
 
 				allocated = true;
+
+				logger.Log<ConcurrentTextureOpenGLStorageHandle>(
+					$"ALLOCATED");
 			}
 			finally
 			{
@@ -118,7 +148,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		}
 
 		private async Task<bool> LoadTexture(
-			TextureRAMStorageHandle textureRAMStorageHandle,
+			IReadOnlyResourceStorageHandle textureRAMStorageHandle,
 			TextureType textureType,
 			GL gl,
 			bool freeRamAfterAllocation = true,
@@ -180,11 +210,36 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
-				cachedGL.DeleteTexture(texture.Handle);
+				logger.Log<ConcurrentTextureOpenGLStorageHandle>(
+					$"FREEING");
+
+				//cachedGL.DeleteTexture(texture.Handle);
+
+				Action deleteShaderDelegate = () =>
+				{
+					cachedGL.DeleteTexture(texture.Handle);
+				};
+
+				var command = new MainThreadCommand(
+					deleteShaderDelegate);
+
+				while (!mainThreadCommandBuffer.TryProduce(
+					command))
+				{
+					await Task.Yield();
+				}
+
+				while (command.Status != ECommandStatus.DONE)
+				{
+					await Task.Yield();
+				}
 
 				texture = null;
 
 				allocated = false;
+
+				logger.Log<ConcurrentTextureOpenGLStorageHandle>(
+					$"FREE");
 			}
 			finally
 			{

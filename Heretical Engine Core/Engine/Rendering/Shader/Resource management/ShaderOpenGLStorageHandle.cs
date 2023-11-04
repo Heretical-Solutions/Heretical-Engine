@@ -114,6 +114,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
+			logger.Log<ShaderOpenGLStorageHandle>(
+				$"ALLOCATING");
+
 			//According to this: https://old.reddit.com/r/opengl/comments/14zul38/how_to_transfer_gl_context_to_different_thread_in/js1pl1v/
 			//OpenGL is not thread safe and should be executed on the main thread only
 			//That's why I particularly had a 'Silk.NET.Core.Loader.SymbolLoadingException: Native symbol not found (Symbol: glCreateShader)' exception while running the following code (included into the delegate)
@@ -161,6 +164,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = true;
 
+			logger.Log<ShaderOpenGLStorageHandle>(
+				$"ALLOCATED");
+
 			progress?.Report(1f);
 		}
 
@@ -176,7 +182,29 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			cachedGL.DeleteProgram(shader.Handle);
+			logger.Log<ShaderOpenGLStorageHandle>(
+				$"FREEING");
+
+			//cachedGL.DeleteProgram(shader.Handle);
+
+			Action deleteShaderDelegate = () =>
+			{
+				cachedGL.DeleteProgram(shader.Handle);
+			};
+
+			var command = new MainThreadCommand(
+				deleteShaderDelegate);
+
+			while (!mainThreadCommandBuffer.TryProduce(
+				command))
+			{
+				await Task.Yield();
+			}
+
+			while (command.Status != ECommandStatus.DONE)
+			{
+				await Task.Yield();
+			}
 
 			shader = null;
 
@@ -197,6 +225,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 
 			allocated = false;
+
+			logger.Log<ShaderOpenGLStorageHandle>(
+				$"FREE");
 
 			progress?.Report(1f);
 		}

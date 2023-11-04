@@ -49,9 +49,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 				currentData =
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-					ResourceManagementFactory.BuildConcurrentResourceData(descriptor);
+					ResourceManagementFactory.BuildConcurrentResourceData(
+						descriptor,
+						logger);
 #else
-					ResourceManagementFactory.BuildResourceData(descriptor);
+					ResourceManagementFactory.BuildResourceData(
+						descriptor,
+						logger);
 #endif
 
 				await resourceManager.AddRootResource(
@@ -78,9 +82,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 					IReadOnlyResourceData newCurrentData =
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-						ResourceManagementFactory.BuildConcurrentResourceData(descriptor);
+						ResourceManagementFactory.BuildConcurrentResourceData(
+							descriptor,
+							logger);
 #else						
-						ResourceManagementFactory.BuildResourceData(descriptor);
+						ResourceManagementFactory.BuildResourceData(
+							descriptor,
+							logger);
 #endif
 
 					await ((IResourceData)currentData)
@@ -116,9 +124,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 			IReadOnlyResourceData child =
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-				ResourceManagementFactory.BuildConcurrentResourceData(descriptor);
+				ResourceManagementFactory.BuildConcurrentResourceData(
+					descriptor,
+					logger);
 #else				
-				ResourceManagementFactory.BuildResourceData(descriptor);
+				ResourceManagementFactory.BuildResourceData(
+					descriptor,
+					logger);
 #endif
 
 			await parent

@@ -37,6 +37,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
+			logger.Log<MaterialOpenGLAssetImporter>(
+				$"IMPORTING {resourceID} INITIATED");
+
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
@@ -68,6 +71,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				.ThrowExceptions<IResourceVariantData, MaterialOpenGLAssetImporter>(logger);
 
 			progress?.Report(1f);
+
+			logger.Log<MaterialOpenGLAssetImporter>(
+				$"IMPORTING {resourceID} FINISHED");
 
 			return result;
 		}

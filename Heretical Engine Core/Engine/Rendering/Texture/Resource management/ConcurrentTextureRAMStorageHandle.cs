@@ -16,7 +16,8 @@ using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class ConcurrentTextureRAMStorageHandle : IReadOnlyResourceStorageHandle
+	public class ConcurrentTextureRAMStorageHandle
+		: IReadOnlyResourceStorageHandle
 	{
 		private readonly FilePathSettings filePathSettings;
 
@@ -88,6 +89,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
+				logger.Log<ConcurrentTextureRAMStorageHandle>(
+					$"ALLOCATING");
+
 #if LOAD_IMAGES_ASYNC
 				//The LoadAsync method is not thread safe somehow and throws exceptions if called not from the main thread.
 				//Whatever, we have main thread commands now
@@ -123,6 +127,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 #endif
 
 				allocated = true;
+
+				logger.Log<ConcurrentTextureRAMStorageHandle>(
+					$"ALLOCATED");
 			}
 			finally
 			{
@@ -147,12 +154,18 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 					return;
 				}
-				
+
+				logger.Log<ConcurrentTextureRAMStorageHandle>(
+					$"FREEING");
+
 				texture.Dispose();
 				
 				texture = null;
 
 				allocated = false;
+
+				logger.Log<ConcurrentTextureRAMStorageHandle>(
+					$"FREE");
 			}
 			finally
 			{

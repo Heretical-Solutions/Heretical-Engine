@@ -1,10 +1,14 @@
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
+using HereticalSolutions.Collections.Managed;
+
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -24,11 +28,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly GL cachedGL;
 
+		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+
 		public GeometryOpenGLAssetImporter(
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
 			GL gl,
+			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 			: base(
 				resourceManager,
@@ -39,11 +46,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.geometryRAMStorageHandle = geometryRAMStorageHandle;
 
 			cachedGL = gl;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
+			logger.Log<GeometryOpenGLAssetImporter>(
+				$"IMPORTING {resourceID} INITIATED");
+
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
@@ -63,11 +75,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				GeometryFactory.BuildConcurrentGeometryOpenGLStorageHandle(
 					geometryRAMStorageHandle,
 					cachedGL,
+					mainThreadCommandBuffer,
 					logger),
 #else
 				GeometryFactory.BuildGeometryOpenGLStorageHandle(
 					geometryRAMStorageHandle,
 					cachedGL,
+					mainThreadCommandBuffer,
 					logger),
 #endif					
 				true,
@@ -75,6 +89,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				.ThrowExceptions<IResourceVariantData, GeometryOpenGLAssetImporter>(logger);
 
 			progress?.Report(1f);
+
+			logger.Log<GeometryOpenGLAssetImporter>(
+				$"IMPORTING {resourceID} FINISHED");
 
 			return result;
 		}
