@@ -13,6 +13,8 @@ namespace HereticalSolutions
 
 				localProgressInstance.ProgressChanged += (sender, value) =>
 				{
+					//Console.WriteLine($"PROGRESS: {String.Format("{0:0.00}", value)} REPORTING: {String.Format("{0:0.00}", value)}");
+
 					progress.Report(value);
 				};
 
@@ -52,6 +54,10 @@ namespace HereticalSolutions
 
 				localProgressInstance.ProgressChanged += (sender, value) =>
 				{
+					/*
+					Console.WriteLine($"PROGRESS: {String.Format("{0:0.00}", value)} REPORTING: {String.Format("{0:0.00}", totalProgressCalculationDelegate.Invoke(value))}");
+					*/
+
 					progress.Report(totalProgressCalculationDelegate.Invoke(value));
 				};
 
@@ -76,6 +82,10 @@ namespace HereticalSolutions
 
 				localProgressInstance.ProgressChanged += (sender, value) =>
 				{
+					/*
+					Console.WriteLine($"PROGRESS: {String.Format("{0:0.00}", value)} totalProgressStart: {String.Format("{0:0.00}", totalProgressStart)} totalProgressFinish: {String.Format("{0:0.00}", totalProgressFinish)} scale: {String.Format("{0:0.00}", scale)} REPORTING: {String.Format("{0:0.00}", (scale * value + totalProgressStart))}");
+					*/
+
 					progress.Report(scale * value + totalProgressStart);
 				};
 
@@ -101,6 +111,10 @@ namespace HereticalSolutions
 
 				localProgressInstance.ProgressChanged += (sender, value) =>
 				{
+					/*
+					Console.WriteLine($"PROGRESS: {String.Format("{0:0.00}", value)} totalProgressStart: {String.Format("{0:0.00}", totalProgressStart)} totalProgressFinish: {String.Format("{0:0.00}", totalProgressFinish)} scale: {String.Format("{0:0.00}", scale)} REPORTING: {String.Format("{0:0.00}", (scale * localProgressCalculationDelegate.Invoke(value) + totalProgressStart))}");
+					*/
+
 					progress.Report(scale * localProgressCalculationDelegate.Invoke(value) + totalProgressStart);
 				};
 
@@ -127,6 +141,10 @@ namespace HereticalSolutions
 
 				localProgressInstance.ProgressChanged += (sender, value) =>
 				{
+					/*
+					Console.WriteLine($"PROGRESS: {String.Format("{0:0.00}", value)} totalProgressStart: {String.Format("{0:0.00}", totalProgressStart)} totalProgressFinish: {String.Format("{0:0.00}", totalProgressFinish)} index: {String.Format("{0:0.00}", index)} count: {String.Format("{0:0.00}", count)} scale: {String.Format("{0:0.00}", scale)} REPORTING: {String.Format("{0:0.00}", (scale * ((value + (float)index) / count) + totalProgressStart))}");
+					*/
+
 					progress.Report(scale * ((value + (float)index) / count) + totalProgressStart);
 				};
 
@@ -168,6 +186,10 @@ namespace HereticalSolutions
 					{
 						totalProgress += assetImportProgress;
 					}
+
+					/*
+					Console.WriteLine($"PROGRESS: {String.Format("{0:0.00}", value)} totalProgressStart: {String.Format("{0:0.00}", totalProgressStart)} totalProgressFinish: {String.Format("{0:0.00}", totalProgressFinish)} currentProgressIndex: {String.Format("{0:0.00}", currentProgressIndex)} totalProgress: {String.Format("{0:0.00}", totalProgress)} count: {String.Format("{0:0.00}", count)} scale: {String.Format("{0:0.00}", scale)} REPORTING: {String.Format("{0:0.00}", (scale * (totalProgress / (float)count) + totalProgressStart))}");
+					*/
 
 					progress.Report(scale * (totalProgress / (float)count) + totalProgressStart);
 				};

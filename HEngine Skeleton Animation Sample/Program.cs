@@ -173,6 +173,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				pathToExe.IndexOf("/bin/"))
 				+ "/Assets/";
 
+			/*
 			var progress = new Progress<float>();
 
 			progress.ProgressChanged += (sender, value) =>
@@ -180,6 +181,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				logger.Log<Program>
 					($"PROGRESS: {(int)(value * 100f)} %");
 			};
+			*/
 
 			var tasks = new List<Task>();
 
@@ -211,16 +213,25 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				mainThreadCommandBuffer,
 				logger);
 
+			var shaderImportProgress = new Progress<float>();
+
+			shaderImportProgress.ProgressChanged += (sender, value) =>
+			{
+				logger.Log<Program>
+					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
+			};
+
 			/*
 			await shaderAssetImporter
 				.Import(
-					progress)
+					shaderImportProgress)
 				.ThrowExceptions<IResourceVariantData, Program>(logger);
 			*/
 
 			tasks.Add(
 				Task.Run(
-					() => shaderAssetImporter.Import()));
+					() => shaderAssetImporter.Import(
+						shaderImportProgress)));
 			
 			#endregion
 
@@ -239,10 +250,18 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			IResourceVariantData modelRAMData = null;
 
+			var modelImportProgress = new Progress<float>();
+
+			modelImportProgress.ProgressChanged += (sender, value) =>
+			{
+				logger.Log<Program>
+					($"MODEL IMPORT PROGRESS: {(int)(value * 100f)} %");
+			};
+
 			/*
 			modelRAMData = await modelAssetImporter
 				.Import(
-					progress)
+					modelImportProgress)
 				.ThrowExceptions<IResourceVariantData, Program>(logger);
 
 			var modelRAMStorageHandle = modelRAMData.StorageHandle;
@@ -250,7 +269,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			tasks.Add(
 				Task.Run(
-					async delegate { modelRAMData = await modelAssetImporter.Import(); }));
+					async delegate { modelRAMData = await modelAssetImporter.Import(modelImportProgress); }));
 
 			#endregion
 
@@ -270,9 +289,17 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				mainThreadCommandBuffer,
 				logger);
 
+			var modelOpenGLImportProgress = new Progress<float>();
+
+			modelOpenGLImportProgress.ProgressChanged += (sender, value) =>
+			{
+				logger.Log<Program>
+					($"MODEL OPENGL IMPORT PROGRESS: {(int)(value * 100f)} %");
+			};
+
 			await modelOpenGLAssetImporter
 				.Import(
-					progress)
+					modelOpenGLImportProgress)
 				.ThrowExceptions<IResourceVariantData, Program>(logger);
 
 			#endregion

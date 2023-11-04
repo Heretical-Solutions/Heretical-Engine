@@ -35,15 +35,14 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 			IReadOnlyResourceData currentData = null;
 
-			if (resourceManager.HasRootResource(resourceIDs[0]))
-			{
-				currentData = resourceManager.GetRootResource(resourceIDs[0]);
-			}
-			else
+			if (!resourceManager.TryGetRootResource(
+				resourceIDs[0],
+				out currentData))
 			{
 				var descriptor = new ResourceDescriptor()
 				{
 					ID = resourceIDs[0],
+
 					IDHash = resourceIDs[0].AddressToHash()
 				};
 
@@ -67,9 +66,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 			for (int i = 1; i < resourceIDs.Length; i++)
 			{
-				if (currentData.HasNestedResource(resourceIDs[i]))
+				IReadOnlyResourceData newCurrentData;
+
+				if (currentData.TryGetNestedResource(
+					resourceIDs[i],
+					out newCurrentData))
 				{
-					currentData = currentData.GetNestedResource(resourceIDs[i]);
+					currentData = newCurrentData;
 				}
 				else
 				{
@@ -80,7 +83,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 						IDHash = resourceIDs[i].AddressToHash()
 					};
 
-					IReadOnlyResourceData newCurrentData =
+					newCurrentData =
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 						ResourceManagementFactory.BuildConcurrentResourceData(
 							descriptor,

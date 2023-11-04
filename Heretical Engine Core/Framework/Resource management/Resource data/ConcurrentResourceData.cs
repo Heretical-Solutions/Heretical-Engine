@@ -71,7 +71,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -79,14 +79,14 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 		}
 
 		public bool HasVariant(int variantIDHash)
 		{
-			semaphore.Wait(); // Acquire the semaphore
+			semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 			try
 			{
@@ -94,7 +94,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 			}
 		}
 
@@ -105,7 +105,7 @@ namespace HereticalSolutions.ResourceManagement
 
 		public IResourceVariantData GetVariant(int variantIDHash)
 		{
-			semaphore.Wait(); // Acquire the semaphore
+			semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 			try
 			{
@@ -118,7 +118,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 			}
 		}
 
@@ -131,7 +131,7 @@ namespace HereticalSolutions.ResourceManagement
 			int variantIDHash,
 			out IResourceVariantData variant)
 		{
-			semaphore.Wait(); // Acquire the semaphore
+			semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 			try
 			{
@@ -139,7 +139,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 			}
 		}
 
@@ -154,7 +154,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -162,7 +162,7 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 		}
@@ -171,7 +171,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -179,7 +179,7 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 		}
@@ -188,7 +188,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -196,7 +196,7 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 		}
@@ -209,7 +209,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -217,12 +217,12 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 			set
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -230,7 +230,7 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 		}
@@ -239,7 +239,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -247,14 +247,14 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 		}
 
 		public bool HasNestedResource(int nestedResourceIDHash)
 		{
-			semaphore.Wait(); // Acquire the semaphore
+			semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 			try
 			{
@@ -262,7 +262,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 			}
 		}
 
@@ -273,7 +273,7 @@ namespace HereticalSolutions.ResourceManagement
 
 		public IReadOnlyResourceData GetNestedResource(int nestedResourceIDHash)
 		{
-			semaphore.Wait(); // Acquire the semaphore
+			semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 			try
 			{
@@ -286,7 +286,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 			}
 		}
 
@@ -299,7 +299,7 @@ namespace HereticalSolutions.ResourceManagement
 			int nestedResourceIDHash,
 			out IReadOnlyResourceData nestedResource)
 		{
-			semaphore.Wait(); // Acquire the semaphore
+			semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 			try
 			{
@@ -309,7 +309,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 			}
 		}
 
@@ -326,7 +326,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -334,7 +334,7 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 		}
@@ -343,7 +343,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -351,7 +351,7 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 		}
@@ -360,7 +360,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			get
 			{
-				semaphore.Wait(); // Acquire the semaphore
+				semaphore.Wait(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED"); // Acquire the semaphore
 
 				try
 				{
@@ -368,7 +368,7 @@ namespace HereticalSolutions.ResourceManagement
 				}
 				finally
 				{
-					semaphore.Release(); // Release the semaphore
+					semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 				}
 			}
 		}
@@ -385,7 +385,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			await semaphore.WaitAsync(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC"); // Acquire the semaphore
 
 			try
 			{
@@ -412,7 +412,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 
 				progress?.Report(1f);
 			}
@@ -423,15 +423,17 @@ namespace HereticalSolutions.ResourceManagement
 			bool free = true,
 			IProgress<float> progress = null)
 		{
+			IResourceVariantData variant = null;
+
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			await semaphore.WaitAsync(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC"); // Acquire the semaphore
 
 			try
 			{
 				if (!variantsRepository.TryGet(
 					variantHash,
-					out var variant))
+					out variant))
 				{
 					progress?.Report(1f);
 
@@ -443,19 +445,19 @@ namespace HereticalSolutions.ResourceManagement
 				variantsRepository.TryRemove(variantHash);
 
 				UpdateDefaultVariant();
-
-				if (free)
-					await variant
-						.StorageHandle
-						.Free(progress)
-						.ThrowExceptions<ConcurrentResourceData>(logger);
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 			}
+
+			if (free)
+				await variant
+					.StorageHandle
+					.Free(progress)
+					.ThrowExceptions<ConcurrentResourceData>(logger);
+
+			progress?.Report(1f);
 		}
 
 		public async Task RemoveVariant(
@@ -497,7 +499,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			await semaphore.WaitAsync(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC"); // Acquire the semaphore
 
 			try
 			{
@@ -539,7 +541,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 
 				progress?.Report(1f);
 			}
@@ -551,7 +553,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			await semaphore.WaitAsync(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC"); // Acquire the semaphore
 
 			try
 			{
@@ -572,7 +574,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 
 				progress?.Report(1f);
 			}
@@ -585,7 +587,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			await semaphore.WaitAsync(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC"); // Acquire the semaphore
 
 			try
 			{
@@ -613,7 +615,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 
 				progress?.Report(1f);
 			}
@@ -637,7 +639,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			await semaphore.WaitAsync(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC"); // Acquire the semaphore
 
 			try
 			{
@@ -677,7 +679,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 
 				progress?.Report(1f);
 			}
@@ -689,7 +691,7 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			await semaphore.WaitAsync(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC"); // Acquire the semaphore
 
 			try
 			{
@@ -719,7 +721,7 @@ namespace HereticalSolutions.ResourceManagement
 			}
 			finally
 			{
-				semaphore.Release(); // Release the semaphore
+				semaphore.Release(); logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED"); // Release the semaphore
 
 				progress?.Report(1f);
 			}
