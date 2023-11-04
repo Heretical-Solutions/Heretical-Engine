@@ -35,6 +35,8 @@ namespace HereticalSolutions.HereticalEngine.Scenes
 
 		public void RecalculateTRSMatrix()
 		{
+			//TRSMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
+
 			TRSMatrix = Matrix4X4<float>.Identity * RotationMatrix * ScaleMatrix * TranslationMatrix;
 
 			//Dirty = false;

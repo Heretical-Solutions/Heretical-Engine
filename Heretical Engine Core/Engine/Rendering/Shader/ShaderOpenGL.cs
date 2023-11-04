@@ -44,6 +44,48 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				value);
 		}
 
+		public void SetUniform(
+			GL gl,
+			string name,
+			Vector3D<float> value)
+		{
+			int location = gl.GetUniformLocation(
+				handle,
+				name);
+
+			if (location == -1)
+			{
+				throw new Exception($"{name} uniform not found on shader.");
+			}
+
+			gl.Uniform3(
+				location,
+				value.X,
+				value.Y,
+				value.Z);
+		}
+
+		public void SetUniform(
+			GL gl,
+			string name,
+			Vector3 value)
+		{
+			int location = gl.GetUniformLocation(
+				handle,
+				name);
+
+			if (location == -1)
+			{
+				throw new Exception($"{name} uniform not found on shader.");
+			}
+
+			gl.Uniform3(
+				location,
+				value.X,
+				value.Y,
+				value.Z);
+		}
+
 		public unsafe void SetUniform(
 			GL gl,
 			string name,
@@ -71,10 +113,27 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			string name,
 			Matrix4X4<float> value)
 		{
+			/*
 			SetUniform(
 				gl,
 				name,
 				value.ToNumericsMatrix4x4());
+			*/
+
+			int location = gl.GetUniformLocation(
+				handle,
+				name);
+
+			if (location == -1)
+			{
+				throw new Exception($"{name} uniform not found on shader.");
+			}
+
+			gl.UniformMatrix4(
+				location,
+				1,
+				false,
+				(float*)&value);
 		}
 
 		public void SetUniform(

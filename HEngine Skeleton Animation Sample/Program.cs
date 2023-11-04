@@ -30,11 +30,14 @@ using Silk.NET.Input;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 
+using HereticalSolutions.HereticalEngine.Rendering.Factories;
+
 namespace HereticalSolutions.HereticalEngine.Samples
 {
 	public class Program
 	{
-		private static readonly float[] Vertices =
+		/*
+		private static readonly float[] CubeVertices =
 		{
             //X    Y      Z       Normals
             -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -80,16 +83,50 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 		};
 
-		private static readonly uint[] Indices =
+		private static readonly uint[] CubeIndices =
 		{
 			0, 1, 3,
 			1, 2, 3
 		};
 
-		private static BufferOpenGL<float> Vbo;
-		private static BufferOpenGL<uint> Ebo;
-		private static VertexArrayOpenGL<float, uint> VaoCube;
-		private static Shader CubeShader;
+		private static readonly string CubeFragShader = @"
+		#version 330 core
+		in vec2 fUv;
+
+				uniform sampler2D uTexture0;
+
+		out vec4 FragColor;
+
+		void main()
+		{
+			FragColor = texture(uTexture0, fUv);
+		}";
+
+		private static readonly string CubeVertShader = @"
+		#version 330 core
+		layout (location = 0) in vec3 vPos;
+		layout (location = 1) in vec2 vUv;
+
+		uniform mat4 uModel;
+		uniform mat4 uView;
+		uniform mat4 uProjection;
+
+		out vec2 fUv;
+
+		void main()
+		{
+			//Multiplying our uniform with the vertex position, the multiplication order here does matter.
+			gl_Position = uProjection * uView * uModel * vec4(vPos, 1.0);
+			fUv = vUv;
+		}";
+
+		private static BufferOpenGL<float> CubeVBO;
+		private static BufferOpenGL<uint> CubeEBO;
+		private static VertexArrayOpenGL<float, uint> CubeVAO;
+		private static ShaderOpenGL CubeShader;
+
+		private static TestCubeCamera CubeCamera;
+		*/
 
 		private const string PATH_TO_SHADERS = "Shaders/default";
 
@@ -124,7 +161,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		private static ModelOpenGL modelOpenGL;
 
 		//TODO: https://github.com/dotnet/Silk.NET/discussions/534
-		static void Main(string[] args)
+		unsafe static void Main(string[] args)
 		{
 			//var program = new Program();
 
@@ -158,15 +195,68 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 				logger.Log<Program>($"CURRENT THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
 
-				Ebo = new BufferOpenGL<uint>(Gl, Indices, BufferTargetARB.ElementArrayBuffer);
-				Vbo = new BufferOpenGL<float>(Gl, Vertices, BufferTargetARB.ArrayBuffer);
-				VaoCube = new VertexArrayObject<float, uint>(Gl, Vbo, Ebo);
+				/*
 
-				VaoCube.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 6, 0);
-				VaoCube.VertexAttributePointer(1, 3, VertexAttribPointerType.Float, 6, 3);
+				#region Test cube initialization
+
+				CubeEBO = BufferFactory.BuildBufferOpenGL<uint>(
+					gl,
+					CubeIndices,
+					BufferTargetARB.ElementArrayBuffer);
+
+
+				CubeVBO = BufferFactory.BuildBufferOpenGL<float>(
+					gl,
+					CubeVertices,
+					BufferTargetARB.ArrayBuffer);
+
+
+				CubeVAO = VertexFactory.BuildVertexArrayOpenGL<float, uint>(
+					gl);
+
+
+				CubeVBO.Bind(gl);
+
+				CubeEBO.Bind(gl);
+
+				CubeVAO.VertexAttributePointer(
+					gl,
+					0,
+					3,
+					VertexAttribPointerType.Float,
+					6,
+					0);
+
+				CubeVAO.VertexAttributePointer(
+					gl,
+					1,
+					3,
+					VertexAttribPointerType.Float,
+					6,
+					3);
 
 				//The lighting shader will give our main cube it's colour multiplied by the light's intensity
-				LightingShader = new Shader(Gl, "shader.vert", "lighting.frag");
+				ShaderFactory.BuildShaderProgram(
+					CubeVertShader,
+					CubeFragShader,
+					gl,
+					out uint cubeShaderHandle,
+					out var _1,
+					out var _2,
+					out var _3);
+
+				CubeShader = new ShaderOpenGL(cubeShaderHandle);
+
+
+				CubeCamera = new TestCubeCamera(
+					Vector3.UnitZ * 6,
+					Vector3.UnitZ * -1,
+					Vector3.UnitY,
+					window.Size.X / window.Size.Y);
+
+				#endregion
+
+				*/
 
 				LoadAssets(
 					runtimeResourceManager,
@@ -354,10 +444,10 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			var modelAssetImporter = new ModelRAMAssetImporter(
 				runtimeResourceManager,
-				"Knight",
+				"Suzanne", //"Knight",
 				new FilePathSettings
 				{
-					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx",
+					RelativePath = "3D/Characters/Suzanne/Models/suzanne.fbx", //"3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
 				},
 				mainThreadCommandBuffer,
@@ -398,7 +488,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			var modelOpenGLAssetImporter = new ModelOpenGLAssetImporter(
 				runtimeResourceManager,
-				"Knight",
+				"Suzanne", //"Knight",
 				modelRAMStorageHandle,
 				gl,
 				mainThreadCommandBuffer,
@@ -856,6 +946,66 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		{
 			Clear(gl);
 
+			/*
+
+			#region Test cube render
+
+			CubeVAO.Bind(gl);
+			CubeShader.Use(gl);
+
+			//Slightly rotate the cube to give it an angled face to look at
+			CubeShader.SetUniform(gl, "uModel", Matrix4X4.CreateRotationY(MathHelpers.DegreesToRadians(25f)));
+			CubeShader.SetUniform(gl, "uView", CubeCamera.GetViewMatrix());
+			CubeShader.SetUniform(gl, "uProjection", CubeCamera.GetProjectionMatrix());
+			//CubeShader.SetUniform(gl, "viewPos", CubeCamera.Position);
+
+			//Track the difference in time so we can manipulate variables as time changes
+			//var difference = (float)(window.Time * 100);
+			//var lightColor = Vector3.Zero;
+			//lightColor.X = MathF.Sin(difference * 2.0f);
+			//lightColor.Y = MathF.Sin(difference * 0.7f);
+			//lightColor.Z = MathF.Sin(difference * 1.3f);
+
+			//var diffuseColor = lightColor * new Vector3(0.5f);
+			//var ambientColor = diffuseColor * new Vector3(0.2f);
+
+			//LightingShader.SetUniform("light.ambient", ambientColor);
+			//LightingShader.SetUniform("light.diffuse", diffuseColor); // darkened
+			//LightingShader.SetUniform("light.specular", new Vector3(1.0f, 1.0f, 1.0f));
+			//LightingShader.SetUniform("light.position", LampPosition);
+
+			//FOR TEST PURPOSES
+			gl.PolygonMode(
+				GLEnum.FrontAndBack,
+				PolygonMode.Line);
+
+			//We're drawing with just vertices and no indicies, and it takes 36 verticies to have a six-sided textured cube
+			gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+			CubeShader.Use(gl);
+
+			var difference = (float)(window.Time * 100);
+
+			//The Lamp cube is going to be a scaled down version of the normal cubes verticies moved to a different screen location
+			var lampMatrix = Matrix4x4.Identity;
+			lampMatrix *= Matrix4x4.CreateScale(0.2f);
+			lampMatrix *= Matrix4x4.CreateRotationX(MathHelpers.DegreesToRadians(difference));
+
+			CubeShader.SetUniform(gl, "uModel", lampMatrix);
+			CubeShader.SetUniform(gl, "uView", CubeCamera.GetViewMatrix());
+			CubeShader.SetUniform(gl, "uProjection", CubeCamera.GetProjectionMatrix());
+
+			//FOR TEST PURPOSES
+			gl.PolygonMode(
+				GLEnum.FrontAndBack,
+				PolygonMode.Line);
+
+			gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
+
+			#endregion
+
+			*/
+
 			if (modelOpenGL != null)
 				RenderModel(
 					gl,
@@ -888,8 +1038,11 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			GL gl,
 			ModelOpenGL modelOpenGL)
 		{
-			//var modelMatrix = Matrix4X4<float>.Identity;
+			var modelMatrix = Matrix4X4<float>.Identity;
 
+			//modelMatrix *= Matrix4X4.CreateScale(0.02f);
+
+			/*
 			var difference = (float)(window.Time * 100);
 
 			var modelMatrix =
@@ -897,6 +1050,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					MathHelpers.DegreesToRadians(difference))
 				* Matrix4X4.CreateRotationX(
 					MathHelpers.DegreesToRadians(difference));
+			*/
 
 			var viewMatrix = Matrix4X4.CreateLookAt(
 				CameraPosition,
@@ -928,7 +1082,9 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		{
 			var nodeTransform = node.Transform;
 
-			var nodeModelMatrix = modelMatrix; // * nodeTransform.TRSMatrix;
+			var nodeModelMatrix = modelMatrix;
+
+			//var nodeModelMatrix = modelMatrix * nodeTransform.TRSMatrix;
 
 			foreach (var mesh in node.Meshes)
 			{
@@ -1009,4 +1165,127 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 		#endregion
 	}
+
+	/*
+	public class TestCubeCamera
+	{
+		public Vector3D<float> Position { get; set; }
+		public Vector3D<float> Front { get; set; }
+
+		public Vector3D<float> Up { get; private set; }
+		public float AspectRatio { get; set; }
+
+		public float Yaw { get; set; } = -90f;
+		public float Pitch { get; set; }
+
+		private float Zoom = 45f;
+
+		public TestCubeCamera(
+			Vector3D<float> position,
+			Vector3D<float> front,
+			Vector3D<float> up,
+			float aspectRatio)
+		{
+			Position = position;
+			AspectRatio = aspectRatio;
+			Front = front;
+			Up = up;
+		}
+
+		public void ModifyZoom(float zoomAmount)
+		{
+			//We don't want to be able to zoom in too close or too far away so clamp to these values
+			Zoom = float.Clamp(Zoom - zoomAmount, 1.0f, 45f);
+		}
+
+		public void ModifyDirection(float xOffset, float yOffset)
+		{
+			Yaw += xOffset;
+			Pitch -= yOffset;
+
+			//We don't want to be able to look behind us by going over our head or under our feet so make sure it stays within these bounds
+			Pitch = float.Clamp(Pitch, -89f, 89f);
+
+			var cameraDirection = Vector3D<float>.Zero;
+			cameraDirection.X = MathF.Cos(MathHelpers.DegreesToRadians(Yaw)) * MathF.Cos(MathHelpers.DegreesToRadians(Pitch));
+			cameraDirection.Y = MathF.Sin(MathHelpers.DegreesToRadians(Pitch));
+			cameraDirection.Z = MathF.Sin(MathHelpers.DegreesToRadians(Yaw)) * MathF.Cos(MathHelpers.DegreesToRadians(Pitch));
+
+			Front = Vector3D.Normalize(cameraDirection);
+		}
+
+		public Matrix4X4<float> GetViewMatrix()
+		{
+			return Matrix4X4.CreateLookAt(
+				Position,
+				Position + Front,
+				Up);
+		}
+
+		public Matrix4X4<float> GetProjectionMatrix()
+		{
+			return Matrix4X4.CreatePerspectiveFieldOfView(
+				MathHelpers.DegreesToRadians(Zoom),
+				AspectRatio,
+				0.1f,
+				100.0f);
+		}
+	}
+	*/
+
+	/*
+	public class TestCubeCamera
+	{
+		public Vector3 Position { get; set; }
+		public Vector3 Front { get; set; }
+
+		public Vector3 Up { get; private set; }
+		public float AspectRatio { get; set; }
+
+		public float Yaw { get; set; } = -90f;
+		public float Pitch { get; set; }
+
+		private float Zoom = 45f;
+
+		public TestCubeCamera(Vector3 position, Vector3 front, Vector3 up, float aspectRatio)
+		{
+			Position = position;
+			AspectRatio = aspectRatio;
+			Front = front;
+			Up = up;
+		}
+
+		public void ModifyZoom(float zoomAmount)
+		{
+			//We don't want to be able to zoom in too close or too far away so clamp to these values
+			Zoom = float.Clamp(Zoom - zoomAmount, 1.0f, 45f);
+		}
+
+		public void ModifyDirection(float xOffset, float yOffset)
+		{
+			Yaw += xOffset;
+			Pitch -= yOffset;
+
+			//We don't want to be able to look behind us by going over our head or under our feet so make sure it stays within these bounds
+			Pitch = float.Clamp(Pitch, -89f, 89f);
+
+			var cameraDirection = Vector3.Zero;
+			cameraDirection.X = MathF.Cos(MathHelpers.DegreesToRadians(Yaw)) * MathF.Cos(MathHelpers.DegreesToRadians(Pitch));
+			cameraDirection.Y = MathF.Sin(MathHelpers.DegreesToRadians(Pitch));
+			cameraDirection.Z = MathF.Sin(MathHelpers.DegreesToRadians(Yaw)) * MathF.Cos(MathHelpers.DegreesToRadians(Pitch));
+
+			Front = Vector3.Normalize(cameraDirection);
+		}
+
+		public Matrix4x4 GetViewMatrix()
+		{
+			return Matrix4x4.CreateLookAt(Position, Position + Front, Up);
+		}
+
+		public Matrix4x4 GetProjectionMatrix()
+		{
+			return Matrix4x4.CreatePerspectiveFieldOfView(MathHelpers.DegreesToRadians(Zoom), AspectRatio, 0.1f, 100.0f);
+		}
+	}
+	*/
 }

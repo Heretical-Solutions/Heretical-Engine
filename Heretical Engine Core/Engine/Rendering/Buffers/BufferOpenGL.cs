@@ -42,11 +42,19 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			fixed (void* dataPointer = data)
 			{
+				/*
 				gl.BufferSubData(
 					bufferType,
 					0,
 					(nuint)(data.Length * sizeof(TValue)),
 					dataPointer);
+				*/
+
+				gl.BufferData(
+					bufferType,
+					(nuint)(data.Length * sizeof(TValue)),
+					dataPointer,
+					BufferUsageARB.StaticDraw);
 
 				length = data.Length;
 			}

@@ -16,9 +16,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			GL gl,
 			Geometry geometry)
 		{
-			var vertexArray = VertexFactory.BuildVertexArrayOpenGL<float, uint>(
-				gl);
-
 			var verticesBuffer = BufferFactory.BuildBufferOpenGL<float>(
 				gl,
 				geometry.Vertices,
@@ -28,6 +25,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				gl,
 				geometry.Indices,
 				BufferTargetARB.ElementArrayBuffer);
+
+			var vertexArray = VertexFactory.BuildVertexArrayOpenGL<float, uint>(
+				gl);
+
+			verticesBuffer.Bind(gl);
+
+			indicesBuffer.Bind(gl);
 
 			vertexArray.VertexAttributePointer(
 				gl,
