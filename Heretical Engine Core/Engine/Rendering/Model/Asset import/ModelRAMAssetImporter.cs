@@ -204,9 +204,41 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			ModelDTO result = default;
 
+			//FBX:
+			//	0 - BAD
+			//	JoinIdenticalVertices - BAD
+			//	Triangulate - BAD
+			//	Basically, everything is BAD
+			//OBJ:
+			//	0 - good
+			//	JoinIdenticalVertices - BAD
+			//	Triangulate - good
+			//	ValidateDataStructure - good
+			//	FindDegenerates - good
+			//	FindInvalidData - good
+			//STL:
+			//	0 - good
+			//	CalculateTangentSpace - good
+			//	GenerateNormals - good
+			//	JoinIdenticalVertices - BAD
+			//	Triangulate - good
+			//	GenerateUVCoords - good
+			//	ValidateDataStructure - good
+			//	FindDegenerates - good
+			//	FindInvalidData - good
 			var scene = assimp.ImportFile(
 				filePathSettings.FullPath,
-				(uint)PostProcessSteps.Triangulate);
+				0);
+				//(uint)PostProcessSteps.CalculateTangentSpace);
+				//(uint)PostProcessSteps.GenerateNormals);
+				//(uint)PostProcessSteps.JoinIdenticalVertices);
+				//(uint)PostProcessSteps.Triangulate);
+				//(uint)PostProcessSteps.GenerateUVCoords);
+				//(uint)PostProcessPreset.TargetRealTimeFast);
+				//(uint)PostProcessSteps.ValidateDataStructure);
+				//(uint)PostProcessSteps.FindDegenerates);
+				//(uint)PostProcessSteps.FindInvalidData);
+				//(uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.ValidateDataStructure);
 
 			if (scene == null
 				|| scene->MFlags == AssimpAPI.SceneFlagsIncomplete
@@ -255,6 +287,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				meshResourcesInAsset,
 				materialResourcesInAsset,
 				assetImporters);
+
+			assimp.ReleaseImport(scene);
 
 			return result;
 		}
@@ -606,7 +640,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private unsafe MeshRAMAssetImporter BuildMeshAssetImporter(
 			string resourceID,
-			AssimpMesh* mesh,
+			Mesh* mesh, //AssimpMesh* mesh,
 			List<string> meshResourcesInAsset,
 			Dictionary<uint, string> materialResourcesInAsset,
 			List<AssetImporter> assetImporters,
@@ -666,20 +700,29 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private unsafe GeometryRAMAssetImporter BuildGeometryAssetImporter(
 			string resourceID,
 			string meshResourceName,
-			AssimpMesh* mesh,
+			Mesh* mesh, //AssimpMesh* mesh,
 			out string geometryResourceID)
 		{
-			List<Vertex> vertices = new List<Vertex>();
+			Vertex[] vertices;
 
-			List<uint> indices = new List<uint>();
+			uint[] indices;
 
 			ParseVertices(
 				mesh,
-				vertices);
+				out vertices);
 
 			ParseFaces(
 				mesh,
-				indices);
+				out indices);
+
+			///*
+			logger.Log<ModelRAMAssetImporter>($"VERTICES COUNT: {vertices.Length}");
+
+			logger.Log<ModelRAMAssetImporter>($"INDICES COUNT: {indices.Length}");
+
+			logger.Log<ModelRAMAssetImporter>($"TRIANGLES COUNT: {indices.Length / 3}");
+			//*/
+			
 
 			geometryResourceID = $"{resourceID}/{MODEL_GEOMETRIES_NESTED_RESOURCE_ID}/{meshResourceName}";
 
@@ -688,33 +731,117 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				geometryResourceID,
 				new Geometry
 				{
-					Vertices = BuildVertices(vertices),
-					Indices = BuildIndices(indices)
+					VertexAttributes = BuildVertexAttributes(vertices),
+
+					Indices = indices //BuildIndices(indices)
 				},
 				logger);
 		}
 
 		private unsafe void ParseVertices(
 			Mesh* mesh,
-			List<Vertex> vertices)
+			out Vertex[] vertices)
 		{
+			vertices = new Vertex[mesh->MNumVertices];
+
 			// walk through each of the mesh's vertices
 			for (uint i = 0; i < mesh->MNumVertices; i++)
 			{
+				//https://www.gamedev.net/forums/topic/560433-how-to-use-vertex-color-using-assimp/
+				/*
+				//if the scene contains meshes...
+				//...for every mesh in the scene...
+				//print if the scene has meshes
+				printf("aiSceneP->HasMeshes(): %i\n", aiSceneP->HasMeshes());
+
+				if (aiSceneP->HasMeshes())
+				{
+					//print the number of meshes
+					printf("aiScene->mNumMeshes: %i\n", aiSceneP->mNumMeshes);
+
+					//for all the meshes...
+					for (int i(0); i < aiSceneP->mNumMeshes; i++)
+					{
+						//print which mesh we are referring to
+						printf("aiScene->mMeshes[%i]: \n", i);
+
+						//for the vertex colors:
+						//...for 0 to AI_MAX_NUMBER_OF_COLOR_SETS (for every colour set)...
+						for (int j(0); j < AI_MAX_NUMBER_OF_COLOR_SETS; j++)
+						{
+							//print if the scene has vertex colours for that colour set
+							printf("aiScene->mMeshes[%i]->HasVertexColors[%i]: %i\n", i, j, aiSceneP->mMeshes->HasVertexColors(j));
+
+							//if mesh has vertex colours for specifc colour set...
+							if (aiSceneP->mMeshes->HasVertexColors(j))
+							{
+								//...for all the colours in that set
+								for (int k(0); k < aiSceneP->mMeshes->mNumVertices; k++)
+								{
+									printf("aiScene->mMeshes[%i]->mColors[%i][%i]: [%f, %f, %f, %f]\n",
+										i,
+										j,
+										k,
+										aiSceneP->mMeshes->mColors[j][k].r,
+										aiSceneP->mMeshes->mColors[j][k].g,
+										aiSceneP->mMeshes->mColors[j][k].b,
+										aiSceneP->mMeshes->mColors[j][k].a);
+								}
+							}
+							else
+							{
+								//...else print out that there is not colours in that set
+								printf("aiScene->mMeshes[%i]->mColors[%i]: None\n", i, j);
+							}
+						}
+
+						//for the faces:
+						//print if the mesh has faces
+						printf("aiScene->mMeshes[%i]->HasFaces(): %i\n", i, aiSceneP->mMeshes->HasFaces());
+
+						//if the mesh has faces...
+						if (aiSceneP->mMeshes->HasFaces())
+						{
+							//print number of faces
+							printf("aiScene->mMeshes[%i]->mNumFaces: %i\n", i, aiSceneP->mMeshes->mNumFaces);
+
+							//for every face...
+							for (int j(0); j < aiSceneP->mMeshes->mNumFaces; j++)
+							{
+								//print the face index info
+								printf("aiSceneP->mMeshes[%i]->mFaces[%i].mNumIndices: %i\n", i, j, aiSceneP->mMeshes->mFaces[j].mNumIndices);
+
+								//for every face index...
+								for (int k(0); k < aiSceneP->mMeshes->mFaces[j].mNumIndices; k++)
+								{
+									//print the indices of the face
+									printf("aiScene->mMeshes[%i]->mFaces[%i].mIndices[%i]: %i\n",
+										i,
+										j,
+										k,
+										aiSceneP->mMeshes->mFaces[j].mIndices[k]);
+								}
+							}
+						}
+					}
+				}*/
+
 				Vertex vertex = new Vertex();
 
-				vertex.BoneIds = new int[Vertex.MAX_BONE_INFLUENCE];
+				//vertex.BoneIds = new int[Vertex.MAX_BONE_INFLUENCE];
 
-				vertex.Weights = new float[Vertex.MAX_BONE_INFLUENCE];
+				//vertex.Weights = new float[Vertex.MAX_BONE_INFLUENCE];
 
 				vertex.Position = mesh->MVertices[i].ToSilkNetVector3D();
 
 				// normals
 				if (mesh->MNormals != null)
 					vertex.Normal = mesh->MNormals[i].ToSilkNetVector3D();
+
 				// tangent
 				if (mesh->MTangents != null)
 					vertex.Tangent = mesh->MTangents[i].ToSilkNetVector3D();
+
 				// bitangent
 				if (mesh->MBitangents != null)
 					vertex.Bitangent = mesh->MBitangents[i].ToSilkNetVector3D();
@@ -726,52 +853,257 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					// use models where a vertex can have multiple texture coordinates so we always take the first set (0).
 					Vector3 texcoord3 = mesh->MTextureCoords[0][i];
 
-					vertex.TexCoords = new Vector2(texcoord3.X, texcoord3.Y).ToSilkNetVector2D();
+					vertex.UV0 = new Vector2(texcoord3.X, texcoord3.Y).ToSilkNetVector2D();
 				}
 
-				vertices.Add(vertex);
+				if (mesh->MTextureCoords[1] != null)
+				{
+					Vector3 texcoord3 = mesh->MTextureCoords[1][i];
+
+					vertex.UV1 = new Vector2(texcoord3.X, texcoord3.Y).ToSilkNetVector2D();
+				}
+
+				if (mesh->MTextureCoords[2] != null)
+				{
+					Vector3 texcoord3 = mesh->MTextureCoords[2][i];
+
+					vertex.UV2 = new Vector2(texcoord3.X, texcoord3.Y).ToSilkNetVector2D();
+				}
+
+				if (mesh->MTextureCoords[3] != null)
+				{
+					Vector3 texcoord3 = mesh->MTextureCoords[3][i];
+
+					vertex.UV3 = new Vector2(texcoord3.X, texcoord3.Y).ToSilkNetVector2D();
+				}
+
+				if (mesh->MColors[0] != null)
+					vertex.Color = mesh->MColors[0][i].ToSilkNetVector4D();
+
+				vertices[i] = vertex;
 			}
 		}
 
 		private unsafe void ParseFaces(
 			Mesh* mesh,
-			List<uint> indices)
+			out uint[] indices)
 		{
+			var random = new Random();
+
+			List<uint> indicesList = new List<uint>(); //it's not MNumFaces * 3 because face.MNumIndices variable exists
+
 			// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 			for (uint i = 0; i < mesh->MNumFaces; i++)
 			{
 				Face face = mesh->MFaces[i];
 
-				// retrieve all indices of the face and store them in the indices vector
-				for (uint j = 0; j < face.MNumIndices; j++)
-					indices.Add(face.MIndices[j]);
+				if (face.MNumIndices != 3)
+				{
+					if (face.MNumIndices == 4)
+					{
+						/*
+						indicesList.Add(face.MIndices[0]);
+
+						indicesList.Add(face.MIndices[0]);
+
+						indicesList.Add(face.MIndices[0]);
+
+
+						indicesList.Add(face.MIndices[1]);
+
+						indicesList.Add(face.MIndices[1]);
+
+						indicesList.Add(face.MIndices[1]);
+
+
+						indicesList.Add(face.MIndices[2]);
+
+						indicesList.Add(face.MIndices[2]);
+
+						indicesList.Add(face.MIndices[2]);
+
+
+						indicesList.Add(face.MIndices[3]);
+
+						indicesList.Add(face.MIndices[3]);
+
+						indicesList.Add(face.MIndices[3]);
+						*/
+
+						//continue;
+
+						/*
+						indicesList.Add(face.MIndices[0]);
+
+						indicesList.Add(face.MIndices[1]);
+
+						indicesList.Add(face.MIndices[2]);
+
+						indicesList.Add(face.MIndices[3]);
+
+						//if (i < 10)
+						{
+							logger.Log<ModelRAMAssetImporter>($"QUAD INDICES [{i}]: {face.MIndices[0]} {face.MIndices[1]} {face.MIndices[2]} {face.MIndices[3]}");
+						}
+
+						continue;
+						*/
+
+						/*
+						logger.LogWarning<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. TRIANGULATING QUAD");
+
+						var A = mesh->MVertices[face.MIndices[0]].ToSilkNetVector3D();
+
+						var B = mesh->MVertices[face.MIndices[1]].ToSilkNetVector3D();
+
+						var C = mesh->MVertices[face.MIndices[2]].ToSilkNetVector3D();
+
+						var D = mesh->MVertices[face.MIndices[3]].ToSilkNetVector3D();
+
+						var diagonal1Squared = (C - A).LengthSquared;
+
+						var diagonal2Squared = (B - D).LengthSquared;
+
+						if (diagonal1Squared < diagonal2Squared)
+						{
+							indicesList.Add(face.MIndices[0]);
+
+							indicesList.Add(face.MIndices[1]);
+
+							indicesList.Add(face.MIndices[2]);
+
+
+							indicesList.Add(face.MIndices[0]);
+
+							indicesList.Add(face.MIndices[2]);
+
+							indicesList.Add(face.MIndices[3]);
+
+							//if (i < 10)
+							{
+								logger.Log<ModelRAMAssetImporter>($"QUAD INDICES [{i}]: {face.MIndices[0]} {face.MIndices[1]} {face.MIndices[2]} | {face.MIndices[0]} {face.MIndices[2]} {face.MIndices[3]}");
+							}
+						}
+						else
+						{
+							indicesList.Add(face.MIndices[0]);
+
+							indicesList.Add(face.MIndices[1]);
+
+							indicesList.Add(face.MIndices[3]);
+
+
+							indicesList.Add(face.MIndices[3]);
+
+							indicesList.Add(face.MIndices[1]);
+
+							indicesList.Add(face.MIndices[2]);
+
+							//if (i < 10)
+							{
+								logger.Log<ModelRAMAssetImporter>($"QUAD INDICES [{i}]: {face.MIndices[0]} {face.MIndices[1]} {face.MIndices[3]} | {face.MIndices[3]} {face.MIndices[1]} {face.MIndices[2]}");
+							}
+						}
+						*/
+					}
+					else
+						logger.LogError<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices}");
+				}
+				else
+				{
+					//if (i < 10)
+					{
+						logger.Log<ModelRAMAssetImporter>($"TRI INDICES [{i}]: {face.MIndices[0]} {face.MIndices[1]} {face.MIndices[2]}");
+					}
+
+					// retrieve all indices of the face and store them in the indices vector
+					for (uint j = 0; j < face.MNumIndices; j++)
+						//indicesList.Add(10);
+						indicesList.Add(face.MIndices[j]);
+						//indicesList.Add((uint)random.Next(0, (int)mesh->MNumFaces * 3));
+				}
 			}
-		}
 
-		private float[] BuildVertices(List<Vertex> vertexCollection)
-		{
-			var vertices = new List<float>();
-
-			foreach (var vertex in vertexCollection)
+			for (int i = 0; i < indicesList.Count; i++)
 			{
-				vertices.Add(vertex.Position.X);
-
-				vertices.Add(vertex.Position.Y);
-
-				vertices.Add(vertex.Position.Z);
-
-				vertices.Add(vertex.TexCoords.X);
-
-				vertices.Add(vertex.TexCoords.Y);
+				logger.Log<ModelRAMAssetImporter>($"INDICES [{i}]: {indicesList[i]}");
 			}
 
-			return vertices.ToArray();
+			indices = indicesList.ToArray();
 		}
 
+		private float[] BuildVertexAttributes(Vertex[] vertices)
+		{
+			var result = new float[vertices.Length * 24];
+
+			for (int i = 0; i < vertices.Length; i++)
+			{
+				result[i * 24 + 0] = vertices[i].Position.X;
+
+				result[i * 24 + 1] = vertices[i].Position.Y;
+
+				result[i * 24 + 2] = vertices[i].Position.Z;
+
+
+				result[i * 24 + 3] = vertices[i].Normal.X;
+
+				result[i * 24 + 4] = vertices[i].Normal.Y;
+
+				result[i * 24 + 5] = vertices[i].Normal.Z;
+
+
+				result[i * 24 + 6] = vertices[i].Tangent.X;
+
+				result[i * 24 + 7] = vertices[i].Tangent.Y;
+
+				result[i * 24 + 8] = vertices[i].Tangent.Z;
+
+
+				result[i * 24 + 9] = vertices[i].Bitangent.X;
+
+				result[i * 24 + 10] = vertices[i].Bitangent.Y;
+
+				result[i * 24 + 11] = vertices[i].Bitangent.Z;
+
+
+				result[i * 24 + 12] = vertices[i].UV0.X;
+
+				result[i * 24 + 13] = vertices[i].UV0.Y;
+
+
+				result[i * 24 + 14] = vertices[i].UV1.X;
+
+				result[i * 24 + 15] = vertices[i].UV1.Y;
+
+
+				result[i * 24 + 16] = vertices[i].UV2.X;
+
+				result[i * 24 + 17] = vertices[i].UV2.Y;
+
+
+				result[i * 24 + 18] = vertices[i].UV3.X;
+
+				result[i * 24 + 19] = vertices[i].UV3.Y;
+
+
+				result[i * 24 + 20] = vertices[i].Color.X;
+
+				result[i * 24 + 21] = vertices[i].Color.Y;
+
+				result[i * 24 + 22] = vertices[i].Color.Z;
+
+				result[i * 24 + 23] = vertices[i].Color.W;
+			}
+
+			return result.ToArray();
+		}
+
+		/*
 		private uint[] BuildIndices(List<uint> indices)
 		{
 			return indices.ToArray();
 		}
+		*/
 
 		#endregion
 

@@ -9,7 +9,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		public Geometry Geometry { get; private set; }
 
-		public VertexArrayOpenGL<float, uint> VertexArray { get; set; }
+		public VertexArrayOpenGL<Vertex> VertexArray { get; set; }
 
 		public BufferOpenGL<float> VerticesBuffer { get; set; }
 
@@ -17,7 +17,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public GeometryOpenGL(
 			Geometry geometry,
-			VertexArrayOpenGL<float, uint> vertexArray,
+			VertexArrayOpenGL<Vertex> vertexArray,
 			BufferOpenGL<float> verticesBuffer,
 			BufferOpenGL<uint> indicesBuffer)
 		{
@@ -44,7 +44,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			VerticesBuffer.Update(
 				gl,
-				geometry.Vertices);
+				geometry.VertexAttributes);
 
 			IndicesBuffer.Update(
 				gl,

@@ -6,7 +6,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 	{
 		public static BufferOpenGL<TValue> BuildBufferOpenGL<TValue>(
 			GL gl,
-			Span<TValue> data,
+			//Span<TValue> data,
 			BufferTargetARB bufferType)
 			where TValue : unmanaged
 		{
@@ -16,12 +16,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				handle,
 				bufferType);
 
+			/*
 			result.Bind(
 				gl);
 
 			result.Update(
 				gl,
 				data);
+			*/
 
 			return result;
 		}

@@ -14,13 +14,25 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public Vector3D<float> Tangent;
 
-		public Vector2D<float> TexCoords;
-
 		public Vector3D<float> Bitangent;
+
+		public Vector2D<float> UV0;
+
+		public Vector2D<float> UV1;
+
+		public Vector2D<float> UV2;
+
+		public Vector2D<float> UV3;
+
+		public Vector4D<float> Color;
 
 
 		public const int MAX_BONE_INFLUENCE = 4;
+
+		/*
 		public int[] BoneIds;
+		
 		public float[] Weights;
+		*/
 	}
 }

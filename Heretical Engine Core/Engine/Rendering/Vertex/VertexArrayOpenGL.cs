@@ -2,9 +2,8 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class VertexArrayOpenGL<TVertex, TIndex>
-		where TVertex : unmanaged
-		where TIndex : unmanaged
+	public class VertexArrayOpenGL<TVertex>
+		//where TVertex : unmanaged
 	{
 		private uint handle;
 
@@ -21,9 +20,36 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			uint index,
 			int count,
 			VertexAttribPointerType type,
-			uint vertexSize,
+			//uint vertexSize,
 			int offSet)
 		{
+			Console.WriteLine($"VertexAttributePointer: index: {index}, count: {count}, stride: {sizeof(TVertex)}, offset: {offSet}");
+
+			gl.VertexAttribPointer(
+				index,
+				count,
+				type,
+				false,
+				(uint)sizeof(TVertex),
+				(void*)offSet);
+
+			gl.EnableVertexAttribArray(index);
+
+			/*
+			gl.EnableVertexAttribArray(index);
+
+			Console.WriteLine($"VertexAttributePointer: index: {index}, count: {count}, stride: {sizeof(TVertex)}, offset: {offSet}");
+
+			gl.VertexAttribPointer(
+				index,
+				count,
+				type,
+				false,
+				(uint)sizeof(TVertex),
+				(void*)offSet);
+			*/
+
+			/*
 			gl.VertexAttribPointer(
 				index,
 				count,
@@ -33,6 +59,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				(void*)(offSet * sizeof(TVertex)));
 
 			gl.EnableVertexAttribArray(index);
+			*/
 		}
 
 		public void Bind(

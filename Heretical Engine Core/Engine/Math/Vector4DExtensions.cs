@@ -1,3 +1,5 @@
+using System.Numerics;
+
 using Silk.NET.Maths;
 
 namespace HereticalSolutions.HereticalEngine.Math
@@ -5,6 +7,16 @@ namespace HereticalSolutions.HereticalEngine.Math
 	//Courtesy of OpenTK https://github.com/opentk/opentk/blob/master/src/OpenTK.Mathematics/Vector/Vector4.cs
 	public static class Vector4DExtensions
 	{
+		public static Vector4D<float> ToSilkNetVector4D(this Vector4 vector)
+		{
+			return new Vector4D<float>(vector.X, vector.Y, vector.Z, vector.W);
+		}
+
+		public static Vector4 ToNumericsVector4(this Vector4D<float> vector)
+		{
+			return new Vector4(vector.X, vector.Y, vector.Z, vector.W);
+		}
+
 		/// <summary>
 		/// Transforms a vector by a quaternion rotation.
 		/// </summary>

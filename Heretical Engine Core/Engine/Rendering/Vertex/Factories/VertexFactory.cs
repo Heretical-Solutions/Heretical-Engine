@@ -4,18 +4,19 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public static class VertexFactory
 	{
-		public static VertexArrayOpenGL<TVertex, TIndex> BuildVertexArrayOpenGL<TVertex, TIndex>(
+		public static VertexArrayOpenGL<TVertex> BuildVertexArrayOpenGL<TVertex>(
 			GL gl)
-			where TVertex : unmanaged
-			where TIndex : unmanaged
+			//where TVertex : unmanaged
 		{
 			var handle = gl.GenVertexArray();
 
-			var result = new VertexArrayOpenGL<TVertex, TIndex>(
+			var result = new VertexArrayOpenGL<TVertex>(
 				handle);
 
+			/*
 			result.Bind(
 				gl);
+			*/
 
 			return result;
 		}
