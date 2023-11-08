@@ -9,31 +9,31 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		public Geometry Geometry { get; private set; }
 
-		public VertexArrayOpenGL<Vertex> VertexArray { get; set; }
+		public VertexArrayObjectOpenGL<Vertex> VertexArrayObject { get; set; }
 
-		public BufferOpenGL<float> VerticesBuffer { get; set; }
+		public BufferObjectOpenGL<float> VertexBufferObject { get; set; }
 
-		public BufferOpenGL<uint> IndicesBuffer { get; set; }
+		public BufferObjectOpenGL<uint> ElementBufferObject { get; set; }
 
 		public GeometryOpenGL(
 			Geometry geometry,
-			VertexArrayOpenGL<Vertex> vertexArray,
-			BufferOpenGL<float> verticesBuffer,
-			BufferOpenGL<uint> indicesBuffer)
+			VertexArrayObjectOpenGL<Vertex> vertexArrayObject,
+			BufferObjectOpenGL<float> vertexBufferObject,
+			BufferObjectOpenGL<uint> elementBufferObject)
 		{
 			Geometry = geometry;
 
-			VertexArray = vertexArray;
+			VertexArrayObject = vertexArrayObject;
 
-			VerticesBuffer = verticesBuffer;
+			VertexBufferObject = vertexBufferObject;
 
-			IndicesBuffer = indicesBuffer;
+			ElementBufferObject = elementBufferObject;
 		}
 
 		public void Bind(
 			GL gl)
 		{
-			VertexArray.Bind(gl);
+			VertexArrayObject.Bind(gl);
 		}
 
 		public void Update(
@@ -42,11 +42,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			Geometry = geometry;
 
-			VerticesBuffer.Update(
+			VertexBufferObject.Update(
 				gl,
 				geometry.VertexAttributes);
 
-			IndicesBuffer.Update(
+			ElementBufferObject.Update(
 				gl,
 				geometry.Indices);
 		}
@@ -54,11 +54,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public void Dispose(
 			GL gl)
 		{
-			VertexArray.Dispose(gl);
+			VertexArrayObject.Dispose(gl);
 
-			VerticesBuffer.Dispose(gl);
+			VertexBufferObject.Dispose(gl);
 
-			IndicesBuffer.Dispose(gl);
+			ElementBufferObject.Dispose(gl);
 		}
 	}
 }

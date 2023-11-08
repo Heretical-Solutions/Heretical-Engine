@@ -4,7 +4,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public static class BufferFactory
 	{
-		public static BufferOpenGL<TValue> BuildBufferOpenGL<TValue>(
+		public static BufferObjectOpenGL<TValue> BuildBufferOpenGL<TValue>(
 			GL gl,
 			//Span<TValue> data,
 			BufferTargetARB bufferType)
@@ -12,7 +12,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		{
 			var handle = gl.GenBuffer();
 
-			var result = new BufferOpenGL<TValue>(
+			var result = new BufferObjectOpenGL<TValue>(
 				handle,
 				bufferType);
 

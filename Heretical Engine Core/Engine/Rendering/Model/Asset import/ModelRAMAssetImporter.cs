@@ -204,31 +204,35 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			ModelDTO result = default;
 
-			//FBX:
-			//	0 - BAD
+			//BEWARE
+			//
+			//IF YOU IMPORT AN FBX THAT HAS NOT BEEN TRIANGULATED IN A CAD, YOU MAY HAVE FACES THAT CONTAIN NOT 3 BUT 4 INDICES BECAUSE
+			//THE MODEL WAS CREATED WITH QUADS RATHER THAN TRIS. AND THAT MEANS IF YOU RENDER THE MESH WITH glDrawArrays, BOY YOU ARE
+			//UP FOR SOME BAAAAD TIME
+			//
+			//BASICALLY, glDrawArrays GIVES ZERO POINT ZERO SHIT ABOUT EBO (or index buffer), PICKS EVERY 3 VERTICES IN A ROW FROM VBO
+			//AND DRAWS THEM INTO A FUCKING TRIANGLE, ONE AFTER ANOTHER. THAT MEANS THAT ONCE IT HITS A QUAD, ALL THE SUCCESSIVE INDICES
+			//ARE RENDERED USELESS AS IT WILL SHAPE TRIANGLES FROM CORRECT VERTICES BUT INVALID INDICES, PROVIDING YOU WITH A HORRIBLE
+			//MESS INSTEAD OF WHATEVER IT LOOKED LIKE IN THE CAD.
+			//
+			//YOU MAY TRY TO WORK THIS AROUND BY MODIFY EBO IN ANY WAY THAT YOU SEE FIT, LIKE READING THE QUADS AND MANUALLY PUTTING SIX
+			//INDICES OF A CAREFULLY TRIANGULATED QUAD WHERE FOUR ORIGINAL ONES WERE INTENDED TO BE BUT THAT WONT DO SHIT BECAUSE, ONCE
+			//AGAIN, glDrawArrays IGNORES EBO. YOUR TWO OPTIONS ARE EITHER TO MODIFY THE VERTEX ARRAY BY PUTTING ADDITIONAL VERTICES TO
+			//ENSURE THEY'RE ALWAYS IN A POWER OF 3 (WHICH IS GROSS) OR USE glDrawElements INSTEAD (WHICH IS RECOMMENDED)
+			//
+			//NOW ANOTHER THING TO NOTICE IS THAT PostProcessSteps.JoinIdenticalVertices FUCKS UP VERTICES ARRAY FOR ANY FORMAT,
+			//BE IT FBX, OBJ, STL - ANY OF THEM. GUESS WHAT THAT MEANS? IF YOU USE glDrawArrays, YOUR MODELS WILL BE DRAWN LIKE SHIT
+			//AS WELL. PostProcessSteps.Triangulate WORKS GOOD ON ALL FORMATS BUT IT DOES NOT PREVENT FBX'S FUCKERY WITH VERTICES
+			//ON A NON TRIANGULATED MESH - THAT MEANS, IF YOU'RE BOUND AND DETERMINED TO USE FBX AND YOU HAVE NO IDEA WHETHER THE
+			//MODEL THAT IS IMPORTED IS RASTERIZED OR NOT, USE glDrawElements AND PostProcessSteps.Triangulate TO ENSURE YOU DON'T
+			//HAVE TO TRIANGULATE THOSE QUADS INTO EBO ON YOUR OWN
+			//
+			//THANKS FOR READING MY RANT. OR TED TALK, WHATEVER SOUNDS BETTER TO YOU
 			//	JoinIdenticalVertices - BAD
-			//	Triangulate - BAD
-			//	Basically, everything is BAD
-			//OBJ:
-			//	0 - good
-			//	JoinIdenticalVertices - BAD
-			//	Triangulate - good
-			//	ValidateDataStructure - good
-			//	FindDegenerates - good
-			//	FindInvalidData - good
-			//STL:
-			//	0 - good
-			//	CalculateTangentSpace - good
-			//	GenerateNormals - good
-			//	JoinIdenticalVertices - BAD
-			//	Triangulate - good
-			//	GenerateUVCoords - good
-			//	ValidateDataStructure - good
-			//	FindDegenerates - good
-			//	FindInvalidData - good
 			var scene = assimp.ImportFile(
 				filePathSettings.FullPath,
-				0);
+				(uint)PostProcessSteps.Triangulate);
+				//0);
 				//(uint)PostProcessSteps.CalculateTangentSpace);
 				//(uint)PostProcessSteps.GenerateNormals);
 				//(uint)PostProcessSteps.JoinIdenticalVertices);
@@ -640,7 +644,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private unsafe MeshRAMAssetImporter BuildMeshAssetImporter(
 			string resourceID,
-			Mesh* mesh, //AssimpMesh* mesh,
+			Mesh* mesh,
 			List<string> meshResourcesInAsset,
 			Dictionary<uint, string> materialResourcesInAsset,
 			List<AssetImporter> assetImporters,
@@ -700,7 +704,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private unsafe GeometryRAMAssetImporter BuildGeometryAssetImporter(
 			string resourceID,
 			string meshResourceName,
-			Mesh* mesh, //AssimpMesh* mesh,
+			Mesh* mesh,
 			out string geometryResourceID)
 		{
 			Vertex[] vertices;
@@ -715,15 +719,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				mesh,
 				out indices);
 
-			///*
-			logger.Log<ModelRAMAssetImporter>($"VERTICES COUNT: {vertices.Length}");
-
-			logger.Log<ModelRAMAssetImporter>($"INDICES COUNT: {indices.Length}");
-
-			logger.Log<ModelRAMAssetImporter>($"TRIANGLES COUNT: {indices.Length / 3}");
-			//*/
-			
-
 			geometryResourceID = $"{resourceID}/{MODEL_GEOMETRIES_NESTED_RESOURCE_ID}/{meshResourceName}";
 
 			return new GeometryRAMAssetImporter(
@@ -733,7 +728,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				{
 					VertexAttributes = BuildVertexAttributes(vertices),
 
-					Indices = indices //BuildIndices(indices)
+					Indices = indices
 				},
 				logger);
 		}
@@ -747,6 +742,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			// walk through each of the mesh's vertices
 			for (uint i = 0; i < mesh->MNumVertices; i++)
 			{
+				#region Reference
+
 				//https://www.gamedev.net/forums/topic/560433-how-to-use-vertex-color-using-assimp/
 				/*
 				//if the scene contains meshes...
@@ -826,6 +823,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					}
 				}*/
 
+				#endregion
+
 				Vertex vertex = new Vertex();
 
 				//vertex.BoneIds = new int[Vertex.MAX_BONE_INFLUENCE];
@@ -890,7 +889,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			var random = new Random();
 
-			List<uint> indicesList = new List<uint>(); //it's not MNumFaces * 3 because face.MNumIndices variable exists
+			List<uint> indicesList = new List<uint>(); //it's not MNumFaces * 3 because face.MNumIndices variable exists, which means models can be non-triangulated (i.e. be saved in quads)
 
 			// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 			for (uint i = 0; i < mesh->MNumFaces; i++)
@@ -899,134 +898,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				if (face.MNumIndices != 3)
 				{
-					if (face.MNumIndices == 4)
-					{
-						/*
-						indicesList.Add(face.MIndices[0]);
-
-						indicesList.Add(face.MIndices[0]);
-
-						indicesList.Add(face.MIndices[0]);
-
-
-						indicesList.Add(face.MIndices[1]);
-
-						indicesList.Add(face.MIndices[1]);
-
-						indicesList.Add(face.MIndices[1]);
-
-
-						indicesList.Add(face.MIndices[2]);
-
-						indicesList.Add(face.MIndices[2]);
-
-						indicesList.Add(face.MIndices[2]);
-
-
-						indicesList.Add(face.MIndices[3]);
-
-						indicesList.Add(face.MIndices[3]);
-
-						indicesList.Add(face.MIndices[3]);
-						*/
-
-						//continue;
-
-						/*
-						indicesList.Add(face.MIndices[0]);
-
-						indicesList.Add(face.MIndices[1]);
-
-						indicesList.Add(face.MIndices[2]);
-
-						indicesList.Add(face.MIndices[3]);
-
-						//if (i < 10)
-						{
-							logger.Log<ModelRAMAssetImporter>($"QUAD INDICES [{i}]: {face.MIndices[0]} {face.MIndices[1]} {face.MIndices[2]} {face.MIndices[3]}");
-						}
-
-						continue;
-						*/
-
-						/*
-						logger.LogWarning<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. TRIANGULATING QUAD");
-
-						var A = mesh->MVertices[face.MIndices[0]].ToSilkNetVector3D();
-
-						var B = mesh->MVertices[face.MIndices[1]].ToSilkNetVector3D();
-
-						var C = mesh->MVertices[face.MIndices[2]].ToSilkNetVector3D();
-
-						var D = mesh->MVertices[face.MIndices[3]].ToSilkNetVector3D();
-
-						var diagonal1Squared = (C - A).LengthSquared;
-
-						var diagonal2Squared = (B - D).LengthSquared;
-
-						if (diagonal1Squared < diagonal2Squared)
-						{
-							indicesList.Add(face.MIndices[0]);
-
-							indicesList.Add(face.MIndices[1]);
-
-							indicesList.Add(face.MIndices[2]);
-
-
-							indicesList.Add(face.MIndices[0]);
-
-							indicesList.Add(face.MIndices[2]);
-
-							indicesList.Add(face.MIndices[3]);
-
-							//if (i < 10)
-							{
-								logger.Log<ModelRAMAssetImporter>($"QUAD INDICES [{i}]: {face.MIndices[0]} {face.MIndices[1]} {face.MIndices[2]} | {face.MIndices[0]} {face.MIndices[2]} {face.MIndices[3]}");
-							}
-						}
-						else
-						{
-							indicesList.Add(face.MIndices[0]);
-
-							indicesList.Add(face.MIndices[1]);
-
-							indicesList.Add(face.MIndices[3]);
-
-
-							indicesList.Add(face.MIndices[3]);
-
-							indicesList.Add(face.MIndices[1]);
-
-							indicesList.Add(face.MIndices[2]);
-
-							//if (i < 10)
-							{
-								logger.Log<ModelRAMAssetImporter>($"QUAD INDICES [{i}]: {face.MIndices[0]} {face.MIndices[1]} {face.MIndices[3]} | {face.MIndices[3]} {face.MIndices[1]} {face.MIndices[2]}");
-							}
-						}
-						*/
-					}
-					else
-						logger.LogError<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices}");
+					logger.ThrowException<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices} Face index: {i}");
 				}
 				else
 				{
-					//if (i < 10)
-					{
-						logger.Log<ModelRAMAssetImporter>($"TRI INDICES [{i}]: {face.MIndices[0]} {face.MIndices[1]} {face.MIndices[2]}");
-					}
-
 					// retrieve all indices of the face and store them in the indices vector
 					for (uint j = 0; j < face.MNumIndices; j++)
-						//indicesList.Add(10);
 						indicesList.Add(face.MIndices[j]);
-						//indicesList.Add((uint)random.Next(0, (int)mesh->MNumFaces * 3));
 				}
-			}
-
-			for (int i = 0; i < indicesList.Count; i++)
-			{
-				logger.Log<ModelRAMAssetImporter>($"INDICES [{i}]: {indicesList[i]}");
 			}
 
 			indices = indicesList.ToArray();
@@ -1097,13 +976,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			return result.ToArray();
 		}
-
-		/*
-		private uint[] BuildIndices(List<uint> indices)
-		{
-			return indices.ToArray();
-		}
-		*/
 
 		#endregion
 

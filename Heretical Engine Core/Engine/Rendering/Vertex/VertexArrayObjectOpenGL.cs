@@ -2,14 +2,14 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class VertexArrayOpenGL<TVertex>
+	public class VertexArrayObjectOpenGL<TVertex>
 		//where TVertex : unmanaged
 	{
 		private uint handle;
 
 		public uint Handle => handle;
 
-		public VertexArrayOpenGL(
+		public VertexArrayObjectOpenGL(
 			uint handle)
 		{
             this.handle = handle;
@@ -18,13 +18,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public unsafe void VertexAttributePointer(
 			GL gl,
 			uint index,
-			int count,
+			int size,
 			VertexAttribPointerType type,
-			//uint vertexSize,
 			int offSet)
 		{
-			Console.WriteLine($"VertexAttributePointer: index: {index}, count: {count}, stride: {sizeof(TVertex)}, offset: {offSet}");
+			Console.WriteLine($"VertexAttributePointer: index: {index}, size: {size}, stride: {sizeof(TVertex)}, offset: {offSet}");
 
+			/*
 			gl.VertexAttribPointer(
 				index,
 				count,
@@ -34,32 +34,19 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				(void*)offSet);
 
 			gl.EnableVertexAttribArray(index);
+			*/
 
-			/*
+			///*
 			gl.EnableVertexAttribArray(index);
-
-			Console.WriteLine($"VertexAttributePointer: index: {index}, count: {count}, stride: {sizeof(TVertex)}, offset: {offSet}");
 
 			gl.VertexAttribPointer(
 				index,
-				count,
+				size,
 				type,
 				false,
 				(uint)sizeof(TVertex),
 				(void*)offSet);
-			*/
-
-			/*
-			gl.VertexAttribPointer(
-				index,
-				count,
-				type,
-				false,
-				vertexSize * (uint)sizeof(TVertex),
-				(void*)(offSet * sizeof(TVertex)));
-
-			gl.EnableVertexAttribArray(index);
-			*/
+			//*/
 		}
 
 		public void Bind(

@@ -37,12 +37,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		private IFormatLogger logger = null;
 
-		private int debugCountdown = 0;
-
-		private int debugCountdownDuration = 10;
-
-		private int debugIndicesCounter;
-
 		#region IModule
 
 		#region IGenericLifetimeable<ApplicationContext>
@@ -275,7 +269,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				"Suzanne", //"Knight",
 				new FilePathSettings
 				{
-					RelativePath = "3D/Characters/Suzanne/Models/suzanne_triangulated.fbx", //"3D/Characters/Knight/Models/strongknight.fbx",
+					RelativePath = "3D/Characters/Suzanne/Models/suzanne.fbx", //"3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
 				},
 				mainThreadCommandBuffer,
@@ -421,16 +415,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				PolygonMode.Line);
 
 
-			//geometry.VertexArray.Bind(gl);
+			geometry.VertexArrayObject.Bind(gl);
 
 			shader.Use(gl);
-
-			/*
-			shader.SetUniform(
-				gl,
-				"uTexture0",
-				0);
-			*/
 
 			shader.SetUniform(
 				gl,
@@ -447,26 +434,10 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				"uProjection",
 				projectionMatrix);
 
+			#region Debug
 
-			debugCountdown--;
-
-			if (debugCountdown <= 0)
-			{
-				debugCountdown = debugCountdownDuration;
-
-				debugIndicesCounter += 3;
-
-				debugIndicesCounter %= geometry.IndicesBuffer.Length;
-
-				//Console.WriteLine($"DRAWING {debugIndicesCounter}");
-			}
-
-			geometry.VertexArray.Bind(gl);
-
-			//geometry.VerticesBuffer.Bind(gl);
-
-			//geometry.IndicesBuffer.Bind(gl);
-
+			//If I ever need to retrieve data back from OpenGL - well, here it is how it's done
+			/*
 			uint[] indicesFromBuffer = new uint[30];
 
 			fixed (uint* indicesFromBufferPointer = &indicesFromBuffer[0])
@@ -487,7 +458,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				sb.Append(" ");
 			}
 
-			Console.WriteLine(sb.ToString());
+			logger.Log<OpenGLDrawTestMeshModule>(sb.ToString());
 
 			float[] verticesFromBuffer = new float[30];
 
@@ -509,16 +480,17 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				sb.Append(" ");
 			}
 
-			Console.WriteLine(sb.ToString());
+			logger.Log<OpenGLDrawTestMeshModule>(sb.ToString());
+			*/
 
-			///*
+			#endregion
+
 			gl.DrawElements(
 				PrimitiveType.Triangles,
 				//(uint)debugIndicesCounter,
-				(uint)geometry.IndicesBuffer.Length,
+				(uint)geometry.ElementBufferObject.Length,
 				DrawElementsType.UnsignedInt,
-				0);
-			//*/
+				(void*)0); //MOTHERFUCKER! DUE TO THE ABUNDANCE OF FUCKING OVERLOADS FOR THIS METHOD IN Silk.NET, WHEN I PUT THE BLAND "0" AS AN ARGUMENT IT SWITCHES TO AN OVERLOAD THAT THINKS OF THIS ARGUMENT AS IF IT WAS A REFERENCE TO INDICES ARRAY. THE ONLY REASON I NOTICED IT IS THAT IT SOMEHOW SHOWED THE "in" MODIFIER WHEN I HOVERED THE MOUSE OVER THE CALL IN THE IDE. ALL THE FUCKING ISSUES I HAD FOR SEVERAL FUCKING DAYS IN A ROW WERE NOT BECAUSE I WAS POORLY TREATING GL COMMANDS BUT RATHER DUE TO THE FACT THAT THIS STUPID ASS 0 HAD TO BE CAST TO (void*) FOR THE PROPER OVERLOAD TO BE SELECTED
 
 			/*
 			gl.DrawArrays(
@@ -531,20 +503,10 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			if (error != GLEnum.NoError)
 			{
-				Console.WriteLine($"ERROR: {error}");
+				logger.LogError<OpenGLDrawTestMeshModule>($"OpenGL ERROR: {error}");
 			}
 
 			gl.BindVertexArray(0);
-
-			/*
-			gl.BindBuffer(
-				BufferTargetARB.ArrayBuffer,
-				0);
-
-			gl.BindBuffer(
-				BufferTargetARB.ElementArrayBuffer,
-				0);
-			*/
 		}
 	}
 }

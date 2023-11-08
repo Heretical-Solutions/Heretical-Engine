@@ -107,11 +107,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			1, 2, 3
 		};
 
-		private BufferOpenGL<float> CubeVBO = null;
+		private BufferObjectOpenGL<float> CubeVBO = null;
 
-		private BufferOpenGL<uint> CubeEBO = null;
+		private BufferObjectOpenGL<uint> CubeEBO = null;
 
-		private VertexArrayOpenGL<CubeVertex> CubeVAO = null;
+		private VertexArrayObjectOpenGL<CubeVertex> CubeVAO = null;
 
 		private ShaderOpenGL CubeShader = null;
 
@@ -320,7 +320,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		}
 
-		public void Draw(
+		public unsafe void Draw(
 			ApplicationContext context,
 			float timeDelta)
 		{

@@ -3,7 +3,7 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class BufferOpenGL<TValue>
+	public class BufferObjectOpenGL<TValue>
 		where TValue : unmanaged
 	{
 		private uint handle;
@@ -18,7 +18,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public BufferTargetARB BufferType => bufferType;
 
-		public unsafe BufferOpenGL(
+		public unsafe BufferObjectOpenGL(
 			uint handle,
 			BufferTargetARB bufferType)
 		{
