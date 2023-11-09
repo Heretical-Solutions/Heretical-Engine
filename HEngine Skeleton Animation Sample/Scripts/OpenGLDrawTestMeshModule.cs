@@ -266,10 +266,10 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var modelAssetImporter = new ModelRAMAssetImporter(
 				runtimeResourceManager,
-				"Suzanne", //"Knight",
+				"Knight",
 				new FilePathSettings
 				{
-					RelativePath = "3D/Characters/Suzanne/Models/suzanne.fbx", //"3D/Characters/Knight/Models/strongknight.fbx",
+					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
 				},
 				mainThreadCommandBuffer,
@@ -311,7 +311,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var modelOpenGLAssetImporter = new ModelOpenGLAssetImporter(
 				runtimeResourceManager,
-				"Suzanne", //"Knight",
+				"Knight",
 				modelRAMStorageHandle,
 				gl,
 				mainThreadCommandBuffer,
@@ -347,7 +347,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var modelMatrix = Matrix4X4<float>.Identity;
 
-			//modelMatrix *= Matrix4X4.CreateScale(0.02f);
+			//FOR DEBUG PURPOSES ONLY
+			modelMatrix *= Matrix4X4.CreateScale(0.02f);
 
 			var viewMatrix = camera.ViewMatrix;
 
@@ -370,9 +371,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			var nodeTransform = node.Transform;
 
-			var nodeModelMatrix = modelMatrix;
-
-			//var nodeModelMatrix = modelMatrix * nodeTransform.TRSMatrix;
+			var nodeModelMatrix = modelMatrix * nodeTransform.TRSMatrix;
 
 			foreach (var mesh in node.Meshes)
 			{
@@ -491,13 +490,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				(uint)geometry.ElementBufferObject.Length,
 				DrawElementsType.UnsignedInt,
 				(void*)0); //MOTHERFUCKER! DUE TO THE ABUNDANCE OF FUCKING OVERLOADS FOR THIS METHOD IN Silk.NET, WHEN I PUT THE BLAND "0" AS AN ARGUMENT IT SWITCHES TO AN OVERLOAD THAT THINKS OF THIS ARGUMENT AS IF IT WAS A REFERENCE TO INDICES ARRAY. THE ONLY REASON I NOTICED IT IS THAT IT SOMEHOW SHOWED THE "in" MODIFIER WHEN I HOVERED THE MOUSE OVER THE CALL IN THE IDE. ALL THE FUCKING ISSUES I HAD FOR SEVERAL FUCKING DAYS IN A ROW WERE NOT BECAUSE I WAS POORLY TREATING GL COMMANDS BUT RATHER DUE TO THE FACT THAT THIS STUPID ASS 0 HAD TO BE CAST TO (void*) FOR THE PROPER OVERLOAD TO BE SELECTED
-
-			/*
-			gl.DrawArrays(
-				PrimitiveType.Triangles,
-				0,
-				(uint)debugIndicesCounter);
-			*/
 
 			var error = gl.GetError();
 

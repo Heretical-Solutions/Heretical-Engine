@@ -35,6 +35,8 @@ using System.Numerics;
 using AssimpMesh = Silk.NET.Assimp.Mesh;
 
 using AssimpAPI = Silk.NET.Assimp.Assimp;
+using System.Text;
+using Silk.NET.Maths;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -228,21 +230,19 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			//HAVE TO TRIANGULATE THOSE QUADS INTO EBO ON YOUR OWN
 			//
 			//THANKS FOR READING MY RANT. OR TED TALK, WHATEVER SOUNDS BETTER TO YOU
+			//
+			//UPDATE:
+			//FBX STRIKE AGAIN. FOR SOME REASON WHILE LOADING THE FBX VERSION OF THE MODEL THE TRANSFORMS OF NODES IN THE HIERARCHY WERE
+			//TOTALLY WRONG: THEY HAD NO LOCAL POSITION (0; 0; 0) AND INCORRECT ROTATION VALUES. THE SAME MODEL, SAVED IN OBJ AND
+			//IMPORTED WITH ASSIMP, WAS TOTALLY CORRECT WITH PROPER LOCAL POSITION, ROTATION AND SCALE VALUES. I TRIED FIDDLING WITH
+			//TRS MATRICES MANUALLY TO NO AVAIL. BUT THIS ONE HELPED ME OUT:
+			//https://gamedev.stackexchange.com/questions/194821/objects-lose-their-individual-positions-and-rotations-when-imported-from-fbx-usi/194831#194831
+			//NOW WITH PreTransformVertices BLACK MAGIC FBX FUCKERY IS ELIMINATED ONCE AGAIN. OR UNTIL THE NEXT BIG FUCK UP THAT I HAVE
+			//NOT REACHED YET BECAUSE I'M STILL IN THE PROGRESS OF FIGURING OUT SHIT STEP BY STEP. FUCKING FBX KEEPS GETTING ON MY NERVES
 			//	JoinIdenticalVertices - BAD
 			var scene = assimp.ImportFile(
 				filePathSettings.FullPath,
-				(uint)PostProcessSteps.Triangulate);
-				//0);
-				//(uint)PostProcessSteps.CalculateTangentSpace);
-				//(uint)PostProcessSteps.GenerateNormals);
-				//(uint)PostProcessSteps.JoinIdenticalVertices);
-				//(uint)PostProcessSteps.Triangulate);
-				//(uint)PostProcessSteps.GenerateUVCoords);
-				//(uint)PostProcessPreset.TargetRealTimeFast);
-				//(uint)PostProcessSteps.ValidateDataStructure);
-				//(uint)PostProcessSteps.FindDegenerates);
-				//(uint)PostProcessSteps.FindInvalidData);
-				//(uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.ValidateDataStructure);
+				(uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.PreTransformVertices);
 
 			if (scene == null
 				|| scene->MFlags == AssimpAPI.SceneFlagsIncomplete
