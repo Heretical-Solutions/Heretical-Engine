@@ -131,6 +131,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					vertexShaderSource,
 					fragmentShaderSource,
 					cachedGL,
+					logger,
 					out uint handle,
 					out vertexShaderMetadata,
 					out fragmentShaderMetadata,

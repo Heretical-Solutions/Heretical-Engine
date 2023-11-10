@@ -242,6 +242,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				CubeVertShader,
 				CubeFragShader,
 				gl,
+				logger,
 				out uint cubeShaderHandle,
 				out var _1,
 				out var _2,

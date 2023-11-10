@@ -15,7 +15,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 	public static class ShaderFactory
 	{
 		public static ShaderDescriptorOpenGL ParseGLSL(
-			string shaderCode)
+			string shaderCode,
+			IFormatLogger logger)
 		{
 			AntlrInputStream inputStream = new AntlrInputStream(shaderCode);
 
@@ -24,15 +25,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			GLSLParser glslParser = new GLSLParser(commonTokenStream);
 
 			GLSLParser.Translation_unitContext context = glslParser.translation_unit();
-			GLSLParserBaseVisitor<object> visitor = new GLSLParserBaseVisitor<object>();
-			visitor.Visit(context);
 
-			/*
-			foreach (var line in visitor.Lines)
-			{
-				Console.WriteLine("{0} has said {1}", line.Person, line.Text);
-			}
-			*/
+			//GLSLParserBaseVisitor<object> visitor = new GLSLParserBaseVisitor<object>();
+			//visitor.Visit(context);
+
+			ShaderDescriptorBuilder builder = new ShaderDescriptorBuilder(logger);
+			builder.Visit(context);
 
 			return default;
 		}
@@ -41,6 +39,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			string vertexShaderSource,
 			string fragmentShaderSource,
 			GL gl,
+			IFormatLogger logger,
 			out uint handle,
 			out ShaderResourceMetadata VertexShaderMetadata,
 			out ShaderResourceMetadata FragmentShaderMetadata,
@@ -48,7 +47,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		{
 			handle = 0;
 
-			ParseGLSL(vertexShaderSource);
+			ParseGLSL(
+				vertexShaderSource,
+				logger);
 
 			uint vertex = CompileShader(
 				gl,
