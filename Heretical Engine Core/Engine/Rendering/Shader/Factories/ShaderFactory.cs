@@ -6,10 +6,37 @@ using HereticalSolutions.Logging;
 
 using Silk.NET.OpenGL;
 
+using Antlr4.Runtime;
+
+//using HereticalSolutions.HereticalEngine.Grammars;
+
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public static class ShaderFactory
 	{
+		public static ShaderDescriptorOpenGL ParseGLSL(
+			string shaderCode)
+		{
+			AntlrInputStream inputStream = new AntlrInputStream(shaderCode);
+
+			GLSLLexer glslLexer = new GLSLLexer(inputStream);
+			CommonTokenStream commonTokenStream = new CommonTokenStream(glslLexer);
+			GLSLParser glslParser = new GLSLParser(commonTokenStream);
+
+			GLSLParser.Translation_unitContext context = glslParser.translation_unit();
+			GLSLParserBaseVisitor<object> visitor = new GLSLParserBaseVisitor<object>();
+			visitor.Visit(context);
+
+			/*
+			foreach (var line in visitor.Lines)
+			{
+				Console.WriteLine("{0} has said {1}", line.Person, line.Text);
+			}
+			*/
+
+			return default;
+		}
+
 		public static bool BuildShaderProgram(
 			string vertexShaderSource,
 			string fragmentShaderSource,
@@ -20,6 +47,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			out ShaderResourceMetadata ShaderProgramMetadata)
 		{
 			handle = 0;
+
+			ParseGLSL(vertexShaderSource);
 
 			uint vertex = CompileShader(
 				gl,

@@ -3,7 +3,6 @@ using System.Numerics;
 using Silk.NET.OpenGL;
 
 using Silk.NET.Maths;
-using HereticalSolutions.HereticalEngine.Math;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {

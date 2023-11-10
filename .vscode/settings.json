@@ -1,3 +1,11 @@
 {
-	"dotnet.defaultSolution": "Heretical Engine.sln"
+	"dotnet.defaultSolution": "Heretical Engine.sln",
+	"antlr4.generation":
+	{
+		"package": "HereticalSolutions.HereticalEngine.Grammars",
+		"mode": "external",
+		"language": "CSharp",
+		"listeners": false,
+		"visitors": true
+	}
 }

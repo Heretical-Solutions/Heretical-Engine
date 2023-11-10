@@ -31,9 +31,43 @@
     <PackageReference Include="Silk.NET" Version="2.17.1" />
     <PackageReference Include="Silk.NET.OpenGL" Version="2.17.1" />
 
+    <!-- Language parsing-->
+    <PackageReference Include="Antlr4BuildTasks" Version="12.4.0" PrivateAssets="all" />
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <!--
+    <PackageReference Include="Antlr4" Version="4.6.6">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
+    -->
+    
     <!-- Debug -->
     <PackageReference Include="Silk.NET.OpenGL.Extensions.ImGui" Version="2.17.1" />
 
+  </ItemGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="Engine/Grammars/GLSL/GLSLLexer.g4">
+      <!-- <Generator>MSBuild:Compile</Generator> -->
+      <CustomToolNamespace>HereticalSolutions.HereticalEngine.Grammars</CustomToolNamespace>
+      <Listener>False</Listener>
+      <Visitor>True</Visitor>
+    </Antlr4>
+
+    <Antlr4 Include="Engine/Grammars/GLSL/GLSLPreParser.g4">
+      <!-- <Generator>MSBuild:Compile</Generator> -->
+      <CustomToolNamespace>HereticalSolutions.HereticalEngine.Grammars</CustomToolNamespace>
+      <Listener>False</Listener>
+      <Visitor>True</Visitor>
+    </Antlr4>
+
+    <Antlr4 Include="Engine/Grammars/GLSL/GLSLParser.g4">
+      <!-- <Generator>MSBuild:Compile</Generator> -->
+      <CustomToolNamespace>HereticalSolutions.HereticalEngine.Grammars</CustomToolNamespace>
+      <Listener>False</Listener>
+      <Visitor>True</Visitor>
+    </Antlr4>
   </ItemGroup>
 
 </Project>
