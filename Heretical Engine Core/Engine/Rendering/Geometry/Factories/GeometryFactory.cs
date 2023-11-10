@@ -76,10 +76,18 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				VertexAttribPointerType.Float, //"Next up, we tell it that we're using floats"
 				0);
 
-			// uv0
+			// normals
 			vao.VertexAttributePointer(
 				gl,
 				1,
+				3,
+				VertexAttribPointerType.Float,
+				12); //3 * 4
+
+			// uv0
+			vao.VertexAttributePointer(
+				gl,
+				2,
 				2,
 				VertexAttribPointerType.Float,
 				48); //12 * 4

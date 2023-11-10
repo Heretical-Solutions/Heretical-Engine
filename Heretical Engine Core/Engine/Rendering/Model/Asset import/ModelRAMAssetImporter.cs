@@ -239,10 +239,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			//https://gamedev.stackexchange.com/questions/194821/objects-lose-their-individual-positions-and-rotations-when-imported-from-fbx-usi/194831#194831
 			//NOW WITH PreTransformVertices BLACK MAGIC FBX FUCKERY IS ELIMINATED ONCE AGAIN. OR UNTIL THE NEXT BIG FUCK UP THAT I HAVE
 			//NOT REACHED YET BECAUSE I'M STILL IN THE PROGRESS OF FIGURING OUT SHIT STEP BY STEP. FUCKING FBX KEEPS GETTING ON MY NERVES
-			//	JoinIdenticalVertices - BAD
 			var scene = assimp.ImportFile(
 				filePathSettings.FullPath,
-				(uint)PostProcessSteps.Triangulate | (uint)PostProcessSteps.PreTransformVertices);
+				(uint)PostProcessSteps.Triangulate
+				| (uint)PostProcessSteps.PreTransformVertices);
 
 			if (scene == null
 				|| scene->MFlags == AssimpAPI.SceneFlagsIncomplete

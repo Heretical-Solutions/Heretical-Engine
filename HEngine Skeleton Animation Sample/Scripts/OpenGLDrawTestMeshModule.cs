@@ -266,10 +266,10 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var modelAssetImporter = new ModelRAMAssetImporter(
 				runtimeResourceManager,
-				"Knight",
+				"Knight", //"Suzanne", //"Knight",
 				new FilePathSettings
 				{
-					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx",
+					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx", // "3D/Characters/Suzanne/Models/suzanne_triangulated.fbx", //"3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
 				},
 				mainThreadCommandBuffer,
@@ -311,7 +311,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var modelOpenGLAssetImporter = new ModelOpenGLAssetImporter(
 				runtimeResourceManager,
-				"Knight",
+				"Knight", //"Suzanne", //"Knight",
 				modelRAMStorageHandle,
 				gl,
 				mainThreadCommandBuffer,
@@ -348,6 +348,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			var modelMatrix = Matrix4X4<float>.Identity;
 
 			//FOR DEBUG PURPOSES ONLY
+			//Use when the imported model (like some FBXes) is huge
 			modelMatrix *= Matrix4X4.CreateScale(0.02f);
 
 			var viewMatrix = camera.ViewMatrix;
@@ -407,12 +408,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var shader = material.Shader;
 
-
+			/*
 			//FOR TEST PURPOSES
+			//Draws lines instead of polys
 			gl.PolygonMode(
 				GLEnum.FrontAndBack,
 				PolygonMode.Line);
-
+			*/
 
 			geometry.VertexArrayObject.Bind(gl);
 
@@ -484,9 +486,26 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			#endregion
 
+			/*
+			foreach (var textureOpenGL in material.Textures)
+			{
+				// Much like our texture creation earlier, we must first set our active texture unit, and then bind the
+				// texture to use it during draw!
+				textureOpenGL.Bind(gl);
+			}
+			*/
+
+			//material.Textures[0].Bind(gl);
+
+			/*
+			gl.DrawArrays(
+				PrimitiveType.Triangles,
+				0,
+				(uint)geometry.VertexBufferObject.Length);
+			*/
+
 			gl.DrawElements(
 				PrimitiveType.Triangles,
-				//(uint)debugIndicesCounter,
 				(uint)geometry.ElementBufferObject.Length,
 				DrawElementsType.UnsignedInt,
 				(void*)0); //MOTHERFUCKER! DUE TO THE ABUNDANCE OF FUCKING OVERLOADS FOR THIS METHOD IN Silk.NET, WHEN I PUT THE BLAND "0" AS AN ARGUMENT IT SWITCHES TO AN OVERLOAD THAT THINKS OF THIS ARGUMENT AS IF IT WAS A REFERENCE TO INDICES ARRAY. THE ONLY REASON I NOTICED IT IS THAT IT SOMEHOW SHOWED THE "in" MODIFIER WHEN I HOVERED THE MOUSE OVER THE CALL IN THE IDE. ALL THE FUCKING ISSUES I HAD FOR SEVERAL FUCKING DAYS IN A ROW WERE NOT BECAUSE I WAS POORLY TREATING GL COMMANDS BUT RATHER DUE TO THE FACT THAT THIS STUPID ASS 0 HAD TO BE CAST TO (void*) FOR THE PROPER OVERLOAD TO BE SELECTED

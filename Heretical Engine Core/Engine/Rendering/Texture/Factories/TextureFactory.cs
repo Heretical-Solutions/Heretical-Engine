@@ -33,6 +33,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				gl,
 				ramTexture);
 
+			gl.BindTexture(
+				TextureTarget.Texture2D, 0);
+
 			return result;
 		}
 
@@ -57,6 +60,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				data,
 				width,
 				height);
+
+			gl.BindTexture(
+				TextureTarget.Texture2D, 0);
 
 			return result;
 		}

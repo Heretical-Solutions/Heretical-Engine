@@ -162,7 +162,51 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context,
 			float timeDelta)
 		{
+			EnableDepthBuffer(gl);
+
+			EnableBackfaceCulling(gl);
+
+			EnableScissorTest(gl);
+
+			EnableBlend(gl);
+
+			gl.PolygonMode(
+				TriangleFace.FrontAndBack,
+				PolygonMode.Fill);
+
 			Clear(gl);
+		}
+
+		private void EnableDepthBuffer(
+			GL gl)
+		{
+			gl.Enable(EnableCap.DepthTest);
+
+			gl.DepthFunc(DepthFunction.Less);
+		}
+
+		private void EnableBackfaceCulling(
+			GL gl)
+		{
+			gl.Enable(EnableCap.CullFace);
+
+			gl.CullFace(TriangleFace.Back);
+		}
+
+		private void EnableScissorTest(
+			GL gl)
+		{
+			gl.Enable(EnableCap.ScissorTest);
+		}
+
+		private void EnableBlend(GL gl)
+		{
+			gl.Enable(EnableCap.Blend);
+
+			//Is this additive? TODO: figure out
+			//gl.BlendEquation(BlendEquationModeEXT.FuncAdd);
+
+			gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 		}
 
 		private void Clear(
@@ -177,7 +221,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					(int)(.60f * 255)));
 
 			gl.Clear(
-				(uint)ClearBufferMask.ColorBufferBit);
+				(uint)(
+					ClearBufferMask.ColorBufferBit
+					| ClearBufferMask.DepthBufferBit));
 		}
 
 		#endregion

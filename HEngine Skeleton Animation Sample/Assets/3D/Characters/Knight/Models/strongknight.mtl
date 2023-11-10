@@ -1,0 +1,44 @@
+# Blender MTL File: 'None'
+# Material Count: 3
+
+newmtl cloth.002
+Ns 171.483739
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/clothNormal.png
+map_Kd -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/clothColor.png
+map_Ks -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/clothSpecular.png
+refl -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/clothSpecular.png
+
+newmtl knight.002
+Ns 319.999996
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/knight1Normal.png
+map_Kd -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/knight1Color.png
+map_Ks -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/knight1Specular.png
+refl -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/knight1Specular.png
+
+newmtl weapons.002
+Ns 342.967523
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/weaponsNormal.png
+map_Kd -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/weaponsColor.png
+map_Ks -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/weaponsSpecular.png
+refl -o 0.000000 -1.000000 0.000000 /SSD1/Repositories/C#/Heretical Engine/HEngine Skeleton Animation Sample/Assets/3D/Characters/Knight/Documents/Projects/knights/tex/weaponsSpecular.png
