@@ -554,9 +554,9 @@ namespace HereticalSolutions.ResourceManagement
 			finally
 			{
 				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
 			}
+
+			progress?.Report(1f);
 		}
 
 		public async Task RemoveRootResource(
@@ -591,11 +591,19 @@ namespace HereticalSolutions.ResourceManagement
 			}
 
 			if (free)
+			{
+				progress?.Report(0.5f);
+
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.5f,
+					1f);
+
 				await ((IResourceData)resource)
 					.Clear(
 						free,
-						progress)
+						localProgress)
 					.ThrowExceptions<ConcurrentRuntimeResourceManager>(logger);
+			}
 
 			progress?.Report(1f);
 		}
@@ -618,35 +626,13 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
+			IReadOnlyResourceData[] rootResourcesToFree;
+
 			await semaphore.WaitAsync(); // Acquire the semaphore
 
 			try
 			{
-				int totalRootResourcesCount = rootResourcesRepository.Count;
-
-				int counter = 0;
-
-				foreach (var key in rootResourcesRepository.Keys)
-				{
-					if (rootResourcesRepository.TryGet(key, out var rootResource))
-					{
-						IProgress<float> localProgress = progress.CreateLocalProgress(
-							0f,
-							1f,
-							counter,
-							totalRootResourcesCount);
-
-						await ((IResourceData)rootResource)
-							.Clear(
-								free,
-								localProgress)
-							.ThrowExceptions<ConcurrentRuntimeResourceManager>(logger);
-					}
-
-					counter++;
-
-					progress?.Report((float)counter / (float)totalRootResourcesCount);
-				}
+				rootResourcesToFree = rootResourcesRepository.Values.ToArray();
 
 				rootResourceIDHashToID.Clear();
 
@@ -655,9 +641,37 @@ namespace HereticalSolutions.ResourceManagement
 			finally
 			{
 				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
 			}
+
+			if (free)
+			{
+				int rootResourcesToFreeCount = rootResourcesToFree.Length;
+
+				int totalStepsCount = rootResourcesToFreeCount + 1; //Clearing the repos counts as a step
+
+				progress?.Report(1f / (float)totalStepsCount);
+
+				for (int i = 0; i < rootResourcesToFreeCount; i++)
+				{
+					IResourceData rootResource = (IResourceData)rootResourcesToFree[i];
+
+					IProgress<float> localProgress = progress.CreateLocalProgress(
+						(1f / (float)totalStepsCount),
+						1f,
+						i,
+						rootResourcesToFreeCount);
+
+					await rootResource
+						.Clear(
+							free,
+							localProgress)
+						.ThrowExceptions<ConcurrentRuntimeResourceManager>(logger);
+
+					progress?.Report((float)(i + 2) / (float)totalStepsCount); // +1 for clearing the repo, +1 because the step is actually finished
+				}
+			}
+
+			progress?.Report(1f);
 		}
 
 		#endregion

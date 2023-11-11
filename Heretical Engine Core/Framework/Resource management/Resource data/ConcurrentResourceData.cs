@@ -480,11 +480,19 @@ namespace HereticalSolutions.ResourceManagement
 			}
 
 			if (allocate)
+			{
+				progress?.Report(0.5f);
+
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.5f,
+					1f);
+
 				await variant
 					.StorageHandle
-					.Allocate(progress)
+					.Allocate(localProgress)
 					.ThrowExceptions<ConcurrentResourceData>(logger);
-
+			}
+			
 			progress?.Report(1f);
 		}
 
@@ -526,10 +534,18 @@ namespace HereticalSolutions.ResourceManagement
 			}
 
 			if (free)
+			{
+				progress?.Report(0.5f);
+
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.5f,
+					1f);
+
 				await variant
 					.StorageHandle
-					.Free(progress)
+					.Free(localProgress)
 					.ThrowExceptions<ConcurrentResourceData>(logger);
+			}
 
 			progress?.Report(1f);
 		}
@@ -575,41 +591,15 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
+			IResourceVariantData[] variantsToFree;
+
 			await semaphore.WaitAsync(); 
 			
 			//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC");
 
 			try
 			{
-				int totalVariantsCount = variantsRepository.Count;
-
-				int counter = 0;
-
-				foreach (var key in variantsRepository.Keys)
-				{
-					if (variantsRepository.TryGet(
-						key,
-						out var variant))
-					{
-						if (free)
-						{
-							IProgress<float> localProgress = progress.CreateLocalProgress(
-								0f,
-								1f,
-								counter,
-								totalVariantsCount);
-								
-							await variant
-								.StorageHandle
-								.Free(localProgress)
-								.ThrowExceptions<ConcurrentResourceData>(logger);
-						}
-					}
-
-					counter++;
-
-					progress?.Report((float)counter / (float)totalVariantsCount);
-				}
+				variantsToFree = variantsRepository.Values.ToArray();
 
 				variantIDHashToID.Clear();
 
@@ -622,9 +612,34 @@ namespace HereticalSolutions.ResourceManagement
 				semaphore.Release(); 
 				
 				//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
-
-				progress?.Report(1f);
 			}
+
+			if (free)
+			{
+				int variantsToFreeCount = variantsToFree.Length;
+
+				int totalStepsCount = variantsToFreeCount + 1; //Clearing the repos counts as a step
+
+				progress?.Report(1f / (float)totalStepsCount);
+
+				for (int i = 0; i < variantsToFree.Length; i++)
+				{
+					IProgress<float> localProgress = progress.CreateLocalProgress(
+						(1f / (float)totalStepsCount),
+						1f,
+						i,
+						variantsToFreeCount);
+
+					await variantsToFree[i]
+						.StorageHandle
+						.Free(localProgress)
+						.ThrowExceptions<ConcurrentResourceData>(logger);
+
+					progress?.Report((float)(i + 2) / (float)totalStepsCount); // +1 for clearing the repo, +1 because the step is actually finished
+				}
+			}
+
+			progress?.Report(1f);
 		}
 
 		public async Task AddNestedResource(
@@ -661,9 +676,9 @@ namespace HereticalSolutions.ResourceManagement
 				semaphore.Release(); 
 				
 				//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
-
-				progress?.Report(1f);
 			}
+
+			progress?.Report(1f);
 		}
 
 		public async Task RemoveNestedResource(
@@ -704,12 +719,20 @@ namespace HereticalSolutions.ResourceManagement
 			}
 
 			if (free)
+			{
+				progress?.Report(0.5f);
+
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.5f,
+					1f);
+
 				await ((IResourceData)nestedResource)
 					.Clear(
 						free,
-						progress)
+						localProgress)
 					.ThrowExceptions<ConcurrentResourceData>(logger);
-
+			}
+			
 			progress?.Report(1f);
 		}
 
@@ -733,41 +756,15 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
+			IReadOnlyResourceData[] nestedResourcesToFree;
+
 			await semaphore.WaitAsync(); 
 			
 			//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC");
 
 			try
 			{
-				int totalNestedResourcesCount = nestedResourcesRepository.Count;
-
-				int counter = 0;
-
-				foreach (var key in nestedResourcesRepository.Keys)
-				{
-					if (!nestedResourcesRepository.TryGet(
-						key,
-						out var nestedResource))
-					{
-						((IResourceData)nestedResource).ParentResource = null;
-
-						IProgress<float> localProgress = progress.CreateLocalProgress(
-							0f,
-							1f,
-							counter,
-							totalNestedResourcesCount);
-
-						await ((IResourceData)nestedResource)
-							.Clear(
-								free,
-								localProgress)
-							.ThrowExceptions<ConcurrentResourceData>(logger);
-					}
-
-					counter++;
-
-					progress?.Report((float)counter / (float)totalNestedResourcesCount);
-				}
+				nestedResourcesToFree = nestedResourcesRepository.Values.ToArray();
 
 				nestedResourceIDHashToID.Clear();
 
@@ -778,9 +775,39 @@ namespace HereticalSolutions.ResourceManagement
 				semaphore.Release(); 
 				
 				//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
-
-				progress?.Report(1f);
 			}
+
+			if (free)
+			{
+				int nestedResourcesToFreeCount = nestedResourcesToFree.Length;
+
+				int totalStepsCount = nestedResourcesToFreeCount + 1; //Clearing the repos counts as a step
+
+				progress?.Report(1f / (float)totalStepsCount);
+
+				for (int i = 0; i < nestedResourcesToFreeCount; i++)
+				{
+					IResourceData nestedResource = (IResourceData)nestedResourcesToFree[i];
+
+					nestedResource.ParentResource = null;
+
+					IProgress<float> localProgress = progress.CreateLocalProgress(
+						(1f / (float)totalStepsCount),
+						1f,
+						i,
+						nestedResourcesToFreeCount);
+
+					await nestedResource
+						.Clear(
+							free,
+							localProgress)
+						.ThrowExceptions<ConcurrentResourceData>(logger);
+
+					progress?.Report((float)(i + 2) / (float)totalStepsCount); // +1 for clearing the repo, +1 because the step is actually finished
+				}
+			}
+
+			progress?.Report(1f);
 		}
 
 		public async Task Clear(
@@ -789,44 +816,27 @@ namespace HereticalSolutions.ResourceManagement
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); 
-			
-			//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED ASYNC");
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.5f);
 
-			try
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
-					0f,
-					0.5f);
+			await ClearAllVariants(
+				free,
+				localProgress)
+				.ThrowExceptions<ConcurrentResourceData>(logger);
 
-				await ClearAllVariants(
-					free,
-					localProgress)
-					.ThrowExceptions<ConcurrentResourceData>(logger);
+			progress?.Report(0.5f);
 
-				progress?.Report(0.5f);
+			localProgress = progress.CreateLocalProgress(
+				0.5f,
+				1f);
 
-				localProgress = progress.CreateLocalProgress(
-					0.5f,
-					1f);
+			await ClearAllNestedResources(
+				free,
+				localProgress)
+				.ThrowExceptions<ConcurrentResourceData>(logger);
 
-				await ClearAllNestedResources(
-					free,
-					localProgress)
-					.ThrowExceptions<ConcurrentResourceData>(logger);
-
-				defaultVariant = null;
-
-				ParentResource = null;
-			}
-			finally
-			{
-				semaphore.Release(); 
-				
-				//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
-
-				progress?.Report(1f);
-			}
+			progress?.Report(1f);
 		}
 
 		#endregion
