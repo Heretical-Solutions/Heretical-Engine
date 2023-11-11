@@ -21,6 +21,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		private readonly IReadOnlyResourceStorageHandle geometryRAMStorageHandle = null;
 
+		private readonly IReadOnlyResourceStorageHandle shaderStorageHandle = null;
+
 		private readonly SemaphoreSlim semaphore;
 
 		private readonly GL cachedGL = default;
@@ -36,12 +38,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public ConcurrentGeometryOpenGLStorageHandle(
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
+			IReadOnlyResourceStorageHandle shaderStorageHandle,
 			SemaphoreSlim semaphore,
 			GL gl,
 			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			this.geometryRAMStorageHandle = geometryRAMStorageHandle;
+
+			this.shaderStorageHandle = shaderStorageHandle;
 
 			this.semaphore = semaphore;
 
@@ -107,17 +112,23 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						.ThrowExceptions<ConcurrentGeometryOpenGLStorageHandle>(logger);
 				}
 
-				/*
-				geometry = GeometryFactory.BuildGeometryOpenGL(
-					cachedGL,
-					geometryRAMStorageHandle.GetResource<Geometry>());
-				*/
+				if (!shaderStorageHandle.Allocated)
+				{
+					IProgress<float> localProgress = progress.CreateLocalProgress();
+
+					await shaderStorageHandle
+						.Allocate(
+							localProgress)
+						.ThrowExceptions<GeometryOpenGLStorageHandle>(logger);
+				}
 
 				Action buildShaderDelegate = () =>
 				{
 					geometry = GeometryFactory.BuildGeometryOpenGL(
 						cachedGL,
-						geometryRAMStorageHandle.GetResource<Geometry>());
+						geometryRAMStorageHandle.GetResource<Geometry>(),
+						shaderStorageHandle.GetResource<ShaderOpenGL>().Descriptor,
+						logger);
 				};
 
 				var command = new MainThreadCommand(

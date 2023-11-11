@@ -5,7 +5,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public struct Geometry
 	{
-		public float[] VertexAttributes;
+		public Vertex[] Vertices;
 
 		public uint[] Indices;
 	}

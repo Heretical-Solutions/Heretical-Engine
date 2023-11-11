@@ -2,8 +2,7 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class VertexArrayObjectOpenGL<TVertex>
-		//where TVertex : unmanaged
+	public class VertexArrayObjectOpenGL
 	{
 		private uint handle;
 
@@ -17,36 +16,23 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public unsafe void VertexAttributePointer(
 			GL gl,
-			uint index,
+			uint location,
 			int size,
 			VertexAttribPointerType type,
+			uint stride,
 			int offSet)
 		{
-			Console.WriteLine($"VertexAttributePointer: index: {index}, size: {size}, stride: {sizeof(TVertex)}, offset: {offSet}");
+			Console.WriteLine($"VertexAttributePointer: location: {location}, size: {size}, stride: {stride}, offset: {offSet}");
 
-			/*
-			gl.VertexAttribPointer(
-				index,
-				count,
-				type,
-				false,
-				(uint)sizeof(TVertex),
-				(void*)offSet);
-
-			gl.EnableVertexAttribArray(index);
-			*/
-
-			///*
-			gl.EnableVertexAttribArray(index);
+			gl.EnableVertexAttribArray(location);
 
 			gl.VertexAttribPointer(
-				index,
+				location,
 				size,
 				type,
 				false,
-				(uint)sizeof(TVertex),
+				stride,
 				(void*)offSet);
-			//*/
 		}
 
 		public void Bind(

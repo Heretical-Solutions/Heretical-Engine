@@ -6,6 +6,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public int Stride;
 
-		public ShaderAttributeOpenGL[] Attributes;
+		public ShaderAttributeOpenGL[] VertexAttributes;
 	}
 }

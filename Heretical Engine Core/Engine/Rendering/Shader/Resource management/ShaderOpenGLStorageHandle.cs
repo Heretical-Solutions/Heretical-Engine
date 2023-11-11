@@ -133,6 +133,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					cachedGL,
 					logger,
 					out uint handle,
+					out var descriptor,
 					out vertexShaderMetadata,
 					out fragmentShaderMetadata,
 					out shaderProgramMetadata))
@@ -146,7 +147,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				}
 
 				shader = new ShaderOpenGL(
-					handle);
+					handle,
+					descriptor);
 			};
 
 			var command = new MainThreadCommand(

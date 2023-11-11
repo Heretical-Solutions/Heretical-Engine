@@ -726,7 +726,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				geometryResourceID,
 				new Geometry
 				{
-					VertexAttributes = BuildVertexAttributes(vertices),
+					Vertices = vertices,
 
 					Indices = indices
 				},
@@ -827,9 +827,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				Vertex vertex = new Vertex();
 
-				//vertex.BoneIds = new int[Vertex.MAX_BONE_INFLUENCE];
+				vertex.BoneIds = new int[Vertex.MAX_BONE_INFLUENCE];
 
-				//vertex.Weights = new float[Vertex.MAX_BONE_INFLUENCE];
+				vertex.Weights = new float[Vertex.MAX_BONE_INFLUENCE];
 
 				vertex.Position = mesh->MVertices[i].ToSilkNetVector3D();
 
@@ -909,72 +909,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			}
 
 			indices = indicesList.ToArray();
-		}
-
-		private float[] BuildVertexAttributes(Vertex[] vertices)
-		{
-			var result = new float[vertices.Length * 24];
-
-			for (int i = 0; i < vertices.Length; i++)
-			{
-				result[i * 24 + 0] = vertices[i].Position.X;
-
-				result[i * 24 + 1] = vertices[i].Position.Y;
-
-				result[i * 24 + 2] = vertices[i].Position.Z;
-
-
-				result[i * 24 + 3] = vertices[i].Normal.X;
-
-				result[i * 24 + 4] = vertices[i].Normal.Y;
-
-				result[i * 24 + 5] = vertices[i].Normal.Z;
-
-
-				result[i * 24 + 6] = vertices[i].Tangent.X;
-
-				result[i * 24 + 7] = vertices[i].Tangent.Y;
-
-				result[i * 24 + 8] = vertices[i].Tangent.Z;
-
-
-				result[i * 24 + 9] = vertices[i].Bitangent.X;
-
-				result[i * 24 + 10] = vertices[i].Bitangent.Y;
-
-				result[i * 24 + 11] = vertices[i].Bitangent.Z;
-
-
-				result[i * 24 + 12] = vertices[i].UV0.X;
-
-				result[i * 24 + 13] = vertices[i].UV0.Y;
-
-
-				result[i * 24 + 14] = vertices[i].UV1.X;
-
-				result[i * 24 + 15] = vertices[i].UV1.Y;
-
-
-				result[i * 24 + 16] = vertices[i].UV2.X;
-
-				result[i * 24 + 17] = vertices[i].UV2.Y;
-
-
-				result[i * 24 + 18] = vertices[i].UV3.X;
-
-				result[i * 24 + 19] = vertices[i].UV3.Y;
-
-
-				result[i * 24 + 20] = vertices[i].Color.X;
-
-				result[i * 24 + 21] = vertices[i].Color.Y;
-
-				result[i * 24 + 22] = vertices[i].Color.Z;
-
-				result[i * 24 + 23] = vertices[i].Color.W;
-			}
-
-			return result.ToArray();
 		}
 
 		#endregion

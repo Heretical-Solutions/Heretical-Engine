@@ -12,10 +12,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public uint Handle { get => handle; }
 
+		public ShaderDescriptorOpenGL Descriptor { get; private set; }
+
 		public ShaderOpenGL(
-			uint handle)
+			uint handle,
+			ShaderDescriptorOpenGL descriptor)
 		{
 			this.handle = handle;
+
+			Descriptor = descriptor;
 		}
 
 		public void Use(

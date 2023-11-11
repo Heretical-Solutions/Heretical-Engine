@@ -26,6 +26,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly IReadOnlyResourceStorageHandle geometryRAMStorageHandle;
 
+		private readonly IReadOnlyResourceStorageHandle shaderStorageHandle;
+
 		private readonly GL cachedGL;
 
 		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
@@ -34,6 +36,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
+			IReadOnlyResourceStorageHandle shaderStorageHandle,
 			GL gl,
 			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
@@ -44,6 +47,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.resourceID = resourceID;
 
 			this.geometryRAMStorageHandle = geometryRAMStorageHandle;
+
+			this.shaderStorageHandle = shaderStorageHandle;
 
 			cachedGL = gl;
 
@@ -74,12 +79,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				GeometryFactory.BuildConcurrentGeometryOpenGLStorageHandle(
 					geometryRAMStorageHandle,
+					shaderStorageHandle,
 					cachedGL,
 					mainThreadCommandBuffer,
 					logger),
 #else
 				GeometryFactory.BuildGeometryOpenGLStorageHandle(
 					geometryRAMStorageHandle,
+					shaderStorageHandle,
 					cachedGL,
 					mainThreadCommandBuffer,
 					logger),

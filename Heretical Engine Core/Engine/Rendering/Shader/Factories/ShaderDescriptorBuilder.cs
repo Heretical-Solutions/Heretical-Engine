@@ -17,12 +17,90 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		private string attributeType = string.Empty;
 
+		private List<ShaderAttributeOpenGL> attributes;
+
 		private IFormatLogger logger;
 
 		public ShaderDescriptorBuilder(
+			List<ShaderAttributeOpenGL> attributes,
 			IFormatLogger logger)
 		{
+			this.attributes = attributes;
+
 			this.logger = logger;
+
+
+			attributes.Clear();
+		}
+
+		public override object VisitTranslation_unit(
+			GLSLParser.Translation_unitContext context)
+		{
+			logger.Log<ShaderDescriptorBuilder>(
+				$"VISITING TRANSLATION UNIT");
+
+			attributes.Clear();
+
+			base.VisitTranslation_unit(context);
+
+			ArrangeAttributesByLocation();
+
+			int stride = CalculateStrideAndOffsets();
+
+			var result = new ShaderDescriptorOpenGL
+			{
+				VertexAttributes = attributes.ToArray(),
+
+				Stride = stride
+			};
+
+			attributes.Clear();
+
+			return result;
+		}
+
+		private void ArrangeAttributesByLocation()
+		{
+			int currentLocation = 0;
+
+			for (int i = 0; i < attributes.Count; i++)
+			{
+				if (attributes[i].Location != -1)
+				{
+					currentLocation = attributes[i].Location;
+				}
+				else
+				{
+					var attribute = attributes[i];
+
+					attribute.Location = currentLocation;
+
+					attributes[i] = attribute;
+
+					currentLocation++;
+				}
+			}
+
+			attributes.Sort((a, b) => a.Location.CompareTo(b.Location));
+		}
+
+		private int CalculateStrideAndOffsets()
+		{
+			int stride = 0;
+
+			for (int i = 0; i < attributes.Count; i++)
+			{
+				var attribute = attributes[i];
+
+				attribute.Offset = stride;
+
+				attributes[i] = attribute;
+
+
+				stride += attributes[i].ByteSize;
+			}
+
+			return stride;
 		}
 
 		public override object VisitDeclaration(
@@ -32,15 +110,25 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			var declaration = context.GetText();
 
-			logger.Log<ShaderDescriptorBuilder>(
-				$"DECLARATION: {declaration}");
-
 			base.VisitDeclaration(context);
 
 			if (inAttributeFound)
 			{
+				var attribute = new ShaderAttributeOpenGL
+				{
+					Name = attributeName,
+					Type = attributeType,
+					Location = locationIndex
+				};
+
+				ShaderFactory.TryFillAttributeValues(
+					ref attribute,
+					logger);
+
 				logger.Log<ShaderDescriptorBuilder>(
-					$"PARSED ATTRIBUTE. NAME: {attributeName} TYPE: {attributeType} INDEX: {locationIndex}");
+					$"PARSED ATTRIBUTE. NAME: {attribute.Name} TYPE: {attribute.Type} POINTER TYPE: {attribute.PointerType} INDEX: {attribute.Location} ATTRIBUTE SIZE: {attribute.AttributeSize} BYTE SIZE: {attribute.ByteSize} OFFSET: {attribute.Offset}");
+
+				attributes.Add(attribute);
 			}
 
 			Clear();
@@ -55,9 +143,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			if (storageQualifier == "in")
 			{
-				logger.Log<ShaderDescriptorBuilder>(
-					"FOUND AN 'IN' ATTRIBUTE");
-
 				inAttributeFound = true;
 			}
 

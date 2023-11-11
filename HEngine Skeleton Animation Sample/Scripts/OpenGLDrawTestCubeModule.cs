@@ -244,11 +244,14 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				gl,
 				logger,
 				out uint cubeShaderHandle,
+				out var descriptor,
 				out var _1,
 				out var _2,
 				out var _3);
 
-			CubeShader = new ShaderOpenGL(cubeShaderHandle);
+			CubeShader = new ShaderOpenGL(
+				cubeShaderHandle,
+				descriptor);
 
 
 			IsInitialized = true;

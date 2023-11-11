@@ -4,13 +4,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public static class VertexFactory
 	{
-		public static VertexArrayObjectOpenGL<TVertex> BuildVertexArrayOpenGL<TVertex>(
+		public static VertexArrayObjectOpenGL BuildVertexArrayOpenGL<TVertex>(
 			GL gl)
-			//where TVertex : unmanaged
 		{
 			var handle = gl.GenVertexArray();
 
-			var result = new VertexArrayObjectOpenGL<TVertex>(
+			var result = new VertexArrayObjectOpenGL(
 				handle);
 
 			/*

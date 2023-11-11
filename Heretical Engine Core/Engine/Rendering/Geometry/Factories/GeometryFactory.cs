@@ -14,7 +14,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 	{
 		public static GeometryOpenGL BuildGeometryOpenGL(
 			GL gl,
-			Geometry geometry)
+			Geometry ramGeometry,
+			ShaderDescriptorOpenGL shaderDescriptor,
+			IFormatLogger logger)
 		{
 			//https://learnopengl.com/Model-Loading/Mesh
 			/*
@@ -65,32 +67,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			vbo.Update(
 				gl,
-				geometry.VertexAttributes);
+				BuildVertexBufferObject(
+					ramGeometry.Vertices,
+					shaderDescriptor,
+					logger));
 
 
-			// vertex positions
-			vao.VertexAttributePointer(
-				gl,
-				0, //Position of the attribute in the shader. For instance, "layout (location = 0) in vec3 vPos;" -> location = 0 shows that this variable should be 0
-				3, //"Since we're using a vec3, we tell it that the size is 3"
-				VertexAttribPointerType.Float, //"Next up, we tell it that we're using floats"
-				0);
-
-			// normals
-			vao.VertexAttributePointer(
-				gl,
-				1,
-				3,
-				VertexAttribPointerType.Float,
-				12); //3 * 4
-
-			// uv0
-			vao.VertexAttributePointer(
-				gl,
-				2,
-				2,
-				VertexAttribPointerType.Float,
-				48); //12 * 4
+			BindAttributePointers(
+				shaderDescriptor,
+				vao,
+				gl);
 
 
 			var ebo = BufferFactory.BuildBufferOpenGL<uint>(
@@ -103,7 +89,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			ebo.Update(
 				gl,
-				geometry.Indices);
+				ramGeometry.Indices);
 
 
 			gl.BindVertexArray(0);
@@ -113,20 +99,197 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
 
 			return new GeometryOpenGL(
-				geometry,
+				ramGeometry,
 				vao,
 				vbo,
 				ebo);
 		}
 
+		private static float[] BuildVertexBufferObject(
+			Vertex[] vertices,
+			ShaderDescriptorOpenGL shaderDescriptor,
+			IFormatLogger logger)
+		{
+			float[] result = new float[vertices.Length * shaderDescriptor.Stride];
+
+			for (int i = 0; i < shaderDescriptor.VertexAttributes.Length; i++)
+			{
+				if (shaderDescriptor.VertexAttributes[i].CommonVertexAttribute)
+				{
+					FillVBOWithAttribute(
+						vertices,
+						shaderDescriptor.VertexAttributes[i],
+						result,
+						shaderDescriptor.Stride,
+						logger);
+				}
+			}
+
+			return result;
+		}
+
+		private static void FillVBOWithAttribute(
+			Vertex[] vertices,
+			ShaderAttributeOpenGL attribute,
+			float[] vbo,
+			int stride,
+			IFormatLogger logger)
+		{
+			ECommonVertexAttributes vertexAttribute;
+
+			if (Enum.TryParse(
+				attribute.Name,
+				out vertexAttribute))
+			{
+				attribute.CommonVertexAttribute = true;
+
+				switch (vertexAttribute)
+				{
+					case ECommonVertexAttributes.VertexPosition:
+
+						for (int i = 0; i < vertices.Length; i++)
+						{
+							vbo[i * stride + attribute.Offset] = vertices[i].Position.X;
+
+							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Position.Y;
+
+							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Position.Z;
+						}
+
+						return;
+
+					case ECommonVertexAttributes.VertexNormal:
+
+						for (int i = 0; i < vertices.Length; i++)
+						{
+							vbo[i * stride + attribute.Offset] = vertices[i].Normal.X;
+
+							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Normal.Y;
+
+							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Normal.Z;
+						}
+
+						return;
+
+					case ECommonVertexAttributes.VertexTangent:
+						
+						for (int i = 0; i < vertices.Length; i++)
+						{
+							vbo[i * stride + attribute.Offset] = vertices[i].Tangent.X;
+
+							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Tangent.Y;
+
+							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Tangent.Z;
+						}
+
+						return;
+
+					case ECommonVertexAttributes.VertexBitangent:
+						
+						for (int i = 0; i < vertices.Length; i++)
+						{
+							vbo[i * stride + attribute.Offset] = vertices[i].Bitangent.X;
+
+							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Bitangent.Y;
+
+							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Bitangent.Z;
+						}
+
+						return;
+
+					case ECommonVertexAttributes.VertexColor:
+						
+						for (int i = 0; i < vertices.Length; i++)
+						{
+							vbo[i * stride + attribute.Offset] = vertices[i].Color.X;
+
+							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Color.Y;
+
+							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Color.Z;
+
+							vbo[i * stride + attribute.Offset + sizeof(float) * 3] = vertices[i].Color.W;
+						}
+
+						return;
+
+					case ECommonVertexAttributes.VertexUV0:
+						
+						for (int i = 0; i < vertices.Length; i++)
+						{
+							vbo[i * stride + attribute.Offset] = vertices[i].UV0.X;
+
+							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].UV0.Y;
+						}
+
+						return;
+
+					case ECommonVertexAttributes.VertexUV1:
+
+						for (int i = 0; i < vertices.Length; i++)
+						{
+							vbo[i * stride + attribute.Offset] = vertices[i].UV1.X;
+
+							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].UV1.Y;
+						}
+
+						return;
+
+					case ECommonVertexAttributes.VertexUV2:
+
+						for (int i = 0; i < vertices.Length; i++)
+						{
+							vbo[i * stride + attribute.Offset] = vertices[i].UV2.X;
+
+							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].UV2.Y;
+						}
+						
+						return;
+
+					case ECommonVertexAttributes.VertexUV3:
+
+						for (int i = 0; i < vertices.Length; i++)
+						{
+							vbo[i * stride + attribute.Offset] = vertices[i].UV3.X;
+
+							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].UV3.Y;
+						}
+
+						return;
+
+					default:
+						logger.LogWarning(
+							$"[ShaderFactory] CANNOT FILL VBO WITH VALUES OF ATTRIBUTE {attribute.Name}");
+
+						return;
+				}
+			}
+		}
+
+		private static void BindAttributePointers(
+			ShaderDescriptorOpenGL descriptor,
+			VertexArrayObjectOpenGL vao,
+			GL gl)
+		{
+			for (int i = 0; i < descriptor.VertexAttributes.Length; i++)
+				vao.VertexAttributePointer(
+					gl,
+					(uint)descriptor.VertexAttributes[i].Location,
+					descriptor.VertexAttributes[i].AttributeSize,
+					descriptor.VertexAttributes[i].PointerType,
+					(uint)descriptor.Stride,
+					descriptor.VertexAttributes[i].Offset);
+		}
+
 		public static GeometryOpenGLStorageHandle BuildGeometryOpenGLStorageHandle(
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
+			IReadOnlyResourceStorageHandle shaderStorageHandle,
 			GL gl,
 			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			return new GeometryOpenGLStorageHandle(
 				geometryRAMStorageHandle,
+				shaderStorageHandle,
 				gl,
 				mainThreadCommandBuffer,
 				logger);
@@ -134,12 +297,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		public static ConcurrentGeometryOpenGLStorageHandle BuildConcurrentGeometryOpenGLStorageHandle(
 			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
+			IReadOnlyResourceStorageHandle shaderStorageHandle,
 			GL gl,
 			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
 			return new ConcurrentGeometryOpenGLStorageHandle(
 				geometryRAMStorageHandle,
+				shaderStorageHandle,
 				new SemaphoreSlim(1, 1),
 				gl,
 				mainThreadCommandBuffer,

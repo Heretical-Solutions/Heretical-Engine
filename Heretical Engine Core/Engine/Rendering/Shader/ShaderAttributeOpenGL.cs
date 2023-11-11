@@ -1,3 +1,5 @@
+using Silk.NET.OpenGL;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public struct ShaderAttributeOpenGL
@@ -6,10 +8,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public string Type;
 
-		public int Index;
+		public VertexAttribPointerType PointerType;
 
-		public int Size;
+		public int Location;
+
+		public int AttributeSize;
+
+		public int ByteSize;
 
 		public int Offset;
+
+		public bool CommonVertexAttribute;
 	}
 }
