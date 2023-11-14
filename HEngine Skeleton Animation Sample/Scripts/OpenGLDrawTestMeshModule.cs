@@ -1,5 +1,3 @@
-using System.Text;
-
 using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.Persistence.Arguments;
@@ -205,7 +203,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			progress.ProgressChanged += (sender, value) =>
 			{
-				logger?.Log<Program>
+				logger?.Log<OpenGLDrawTestMeshModule>
 					($"PROGRESS: {(int)(value * 100f)} %");
 			};
 			*/
@@ -244,7 +242,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			shaderImportProgress.ProgressChanged += (sender, value) =>
 			{
-				logger?.Log<Program>
+				logger?.Log<OpenGLDrawTestMeshModule>
 					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
@@ -252,7 +250,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			await shaderAssetImporter
 				.Import(
 					shaderImportProgress)
-				.ThrowExceptions<IResourceVariantData, Program>(logger);
+				.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
 			*/
 
 			tasks.Add(
@@ -281,7 +279,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			modelImportProgress.ProgressChanged += (sender, value) =>
 			{
-				logger?.Log<Program>
+				logger?.Log<OpenGLDrawTestMeshModule>
 					($"MODEL IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
@@ -289,21 +287,26 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			modelRAMData = await modelAssetImporter
 				.Import(
 					modelImportProgress)
-				.ThrowExceptions<IResourceVariantData, Program>(logger);
+				.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
 
 			var modelRAMStorageHandle = modelRAMData.StorageHandle;
 			*/
 
 			tasks.Add(
 				Task.Run(
-					async delegate { modelRAMData = await modelAssetImporter.Import(); }));
-			//async delegate { modelRAMData = await modelAssetImporter.Import(modelImportProgress); }));
+					async delegate
+					{
+						modelRAMData = await modelAssetImporter
+							.Import()
+							.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
+					}));
+			//async delegate{ modelRAMData = await modelAssetImporter.Import(modelImportProgress).ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger); }));
 
 			#endregion
 
 			await Task
 				.WhenAll(tasks)
-				.ThrowExceptions<Program>(logger);
+				.ThrowExceptions<OpenGLDrawTestMeshModule>(logger);
 
 			var modelRAMStorageHandle = modelRAMData.StorageHandle;
 
@@ -321,14 +324,14 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			modelOpenGLImportProgress.ProgressChanged += (sender, value) =>
 			{
-				logger?.Log<Program>
+				logger?.Log<OpenGLDrawTestMeshModule>
 					($"MODEL OPENGL IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
 			var modelOpenGLData = await modelOpenGLAssetImporter
 				.Import()
 				//modelOpenGLImportProgress)
-				.ThrowExceptions<IResourceVariantData, Program>(logger);
+				.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
 
 			modelOpenGL = modelOpenGLData
 				.StorageHandle
@@ -336,7 +339,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			#endregion
 
-			logger?.Log<Program>("IMPORT FINISHED");
+			logger?.Log<OpenGLDrawTestMeshModule>("IMPORT FINISHED");
 		}
 
 		private void RenderModel(

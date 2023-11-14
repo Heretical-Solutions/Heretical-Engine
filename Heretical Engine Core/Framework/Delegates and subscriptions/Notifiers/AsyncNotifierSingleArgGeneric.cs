@@ -47,7 +47,9 @@ namespace HereticalSolutions.Delegates.Notifiers
 			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE RELEASED");
 
 
-			await completionSource.Task;
+			await completionSource
+				.Task
+				.ThrowExceptions<TValue, AsyncNotifierSingleArgGeneric<TArgument, TValue>>(logger);
 
 			return completionSource.Task.Result;
 		}

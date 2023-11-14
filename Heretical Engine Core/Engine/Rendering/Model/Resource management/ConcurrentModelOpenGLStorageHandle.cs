@@ -246,7 +246,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			for (int i = 0; i < children.Length; i++)
 			{
 				children[i] = await BuildModelNodeOpenGL(
-					dto.Children[i]);
+					dto.Children[i])
+					.ThrowExceptions<ModelNodeOpenGL, ModelOpenGLStorageHandle>(logger);
 			}
 
 			Transform transform = new Transform

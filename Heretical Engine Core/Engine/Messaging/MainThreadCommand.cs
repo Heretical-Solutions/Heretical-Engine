@@ -75,7 +75,9 @@ namespace HereticalSolutions.HereticalEngine.Messaging
 				status = ECommandStatus.IN_PROGRESS;
 			}
 
-			await AsyncDelegateToPerform?.Invoke();
+			//TODO: .ThrowExceptions() here
+			await AsyncDelegateToPerform?
+				.Invoke();
 
 			lock (lockObject)
 			{

@@ -6,14 +6,19 @@ using HereticalSolutions.Repositories;
 
 using HereticalSolutions.Logging;
 
+using HereticalSolutions.Delegates.Notifiers;
+
 namespace HereticalSolutions.ResourceManagement
 {
 	public class ConcurrentRuntimeResourceManager
-		: IRuntimeResourceManager
+		: IRuntimeResourceManager,
+		  IAsyncContainsRootResources
 	{
 		private readonly IRepository<int, string> rootResourceIDHashToID;
 
 		private readonly IRepository<int, IReadOnlyResourceData> rootResourcesRepository;
+
+		private readonly IAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData> rootResourceAddedNotifier;
 
 		private readonly SemaphoreSlim semaphore;
 
@@ -22,12 +27,15 @@ namespace HereticalSolutions.ResourceManagement
 		public ConcurrentRuntimeResourceManager(
 			IRepository<int, string> rootResourceIDHashToID,
 			IRepository<int, IReadOnlyResourceData> rootResourcesRepository,
+			IAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData> rootResourceAddedNotifier,
 			SemaphoreSlim semaphore,
 			IFormatLogger logger)
 		{
 			this.rootResourceIDHashToID = rootResourceIDHashToID;
 
 			this.rootResourcesRepository = rootResourcesRepository;
+
+			this.rootResourceAddedNotifier = rootResourceAddedNotifier;
 
 			this.semaphore = semaphore;
 
@@ -677,6 +685,118 @@ namespace HereticalSolutions.ResourceManagement
 
 		#endregion
 
+		#region IAsyncContainsRootResources
+
+		#region Get
+
+		public async Task<IReadOnlyResourceData> GetRootResourceWhenAvailable(int resourceIDHash)
+		{
+			semaphore.Wait();
+
+			//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED");
+
+			try
+			{
+				if (rootResourcesRepository.TryGet(
+					resourceIDHash,
+					out var result))
+				{
+					return result;
+				}
+			}
+			finally
+			{
+				semaphore.Release();
+
+				//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
+			}
+
+			return await rootResourceAddedNotifier
+				.GetValueWhenNotified(resourceIDHash)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+		}
+
+		public async Task<IReadOnlyResourceData> GetRootResourceWhenAvailable(string resourceID)
+		{
+			return await GetRootResourceWhenAvailable(
+				resourceID.AddressToHash())
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+		}
+
+		public async Task<IReadOnlyResourceData> GetResourceWhenAvailable(int[] resourceIDHashes)
+		{
+			var result = await GetRootResourceWhenAvailable(
+				resourceIDHashes[0])
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+
+			return await GetNestedResourceWhenAvailableRecursive(
+				result,
+				resourceIDHashes)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+		}
+
+		public async Task<IReadOnlyResourceData> GetResourceWhenAvailable(string[] resourceIDs)
+		{
+			var result = await GetRootResourceWhenAvailable(
+				resourceIDs[0])
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+
+			return await GetNestedResourceWhenAvailableRecursive(
+				result,
+				resourceIDs)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+		}
+
+		#endregion
+
+		#region Get default
+
+		public async Task<IResourceVariantData> GetDefaultRootResourceWhenAvailable(int resourceIDHash)
+		{
+			var rootResource = await GetRootResourceWhenAvailable(resourceIDHash)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+
+			return rootResource.DefaultVariant;
+		}
+
+		public async Task<IResourceVariantData> GetDefaultRootResourceWhenAvailable(string resourceID)
+		{
+			var rootResource = await GetRootResourceWhenAvailable(resourceID)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+
+			return rootResource.DefaultVariant;
+		}
+
+		public async Task<IResourceVariantData> GetDefaultResourceWhenAvailable(int[] resourceIDHashes)
+		{
+			var result = await GetRootResourceWhenAvailable(resourceIDHashes[0])
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+
+			result = await GetNestedResourceWhenAvailableRecursive(
+				result,
+				resourceIDHashes)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+
+			return result.DefaultVariant;
+		}
+
+		public async Task<IResourceVariantData> GetDefaultResourceWhenAvailable(string[] resourceIDs)
+		{
+			var result = await GetRootResourceWhenAvailable(resourceIDs[0])
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+
+			result = await GetNestedResourceWhenAvailableRecursive(
+				result,
+				resourceIDs)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+
+			return result.DefaultVariant;
+		}
+
+		#endregion
+
+		#endregion
+
 		private bool GetNestedResourceRecursive(
 			ref IReadOnlyResourceData currentData,
 			int[] resourceIDHashes)
@@ -709,6 +829,48 @@ namespace HereticalSolutions.ResourceManagement
 			}
 
 			return true;
+		}
+
+		private async Task<IReadOnlyResourceData> GetNestedResourceWhenAvailableRecursive(
+			IReadOnlyResourceData currentData,
+			int[] resourceIDHashes)
+		{
+			for (int i = 1; i < resourceIDHashes.Length; i++)
+			{
+				IAsyncContainsNestedResources concurrentCurrentData = currentData as IAsyncContainsNestedResources;
+
+				if (concurrentCurrentData == null)
+					logger.ThrowException<ConcurrentRuntimeResourceManager>(
+						$"RESOURCE DATA {currentData.Descriptor.ID} IS NOT CONCURRENT");
+
+				currentData = await concurrentCurrentData
+					.GetNestedResourceWhenAvailable(
+						resourceIDHashes[i])
+					.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+			}
+
+			return currentData;
+		}
+
+		private async Task<IReadOnlyResourceData> GetNestedResourceWhenAvailableRecursive(
+			IReadOnlyResourceData currentData,
+			string[] resourceIDs)
+		{
+			for (int i = 1; i < resourceIDs.Length; i++)
+			{
+				IAsyncContainsNestedResources concurrentCurrentData = currentData as IAsyncContainsNestedResources;
+
+				if (concurrentCurrentData == null)
+					logger.ThrowException<ConcurrentRuntimeResourceManager>(
+						$"RESOURCE DATA {currentData.Descriptor.ID} IS NOT CONCURRENT");
+
+				currentData = await concurrentCurrentData
+					.GetNestedResourceWhenAvailable(
+						resourceIDs[i])
+					.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+			}
+
+			return currentData;
 		}
 	}
 }

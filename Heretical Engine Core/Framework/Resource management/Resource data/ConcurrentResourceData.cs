@@ -494,9 +494,11 @@ namespace HereticalSolutions.ResourceManagement
 
 				UpdateDefaultVariant();
 
-				await variantAddedNotifier.Notify(
-					variant.Descriptor.VariantIDHash,
-					variant);
+				await variantAddedNotifier
+					.Notify(
+						variant.Descriptor.VariantIDHash,
+						variant)
+					.ThrowExceptions<ConcurrentResourceData>(logger);
 			}
 			finally
 			{
@@ -697,9 +699,11 @@ namespace HereticalSolutions.ResourceManagement
 					nestedResource.Descriptor.IDHash,
 					nestedResource.Descriptor.ID);
 
-				await nestedResourceAddedNotifier.Notify(
-					nestedResource.Descriptor.IDHash,
-					nestedResource);
+				await nestedResourceAddedNotifier
+					.Notify(
+						nestedResource.Descriptor.IDHash,
+						nestedResource)
+					.ThrowExceptions<ConcurrentResourceData>(logger);
 			}
 			finally
 			{
@@ -896,14 +900,17 @@ namespace HereticalSolutions.ResourceManagement
 				//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
 			}
 
-			return await variantAddedNotifier.GetValueWhenNotified(variantIDHash);
+			return await variantAddedNotifier
+				.GetValueWhenNotified(variantIDHash)
+				.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(logger);
 		}
 
 		public async Task<IResourceVariantData> GetVariantWhenAvailable(
 			string variantID)
 		{
 			return await GetVariantWhenAvailable(
-				variantID.AddressToHash());
+				variantID.AddressToHash())
+				.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(logger);
 		}
 
 		#endregion
@@ -933,14 +940,17 @@ namespace HereticalSolutions.ResourceManagement
 				//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
 			}
 
-			return await nestedResourceAddedNotifier.GetValueWhenNotified(nestedResourceIDHash);
+			return await nestedResourceAddedNotifier
+				.GetValueWhenNotified(nestedResourceIDHash)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentResourceData>(logger);
 		}
 
 		public async Task<IReadOnlyResourceData> GetNestedResourceWhenAvailable(
 			string nestedResourceID)
 		{
 			return await GetNestedResourceWhenAvailable(
-				nestedResourceID.AddressToHash());
+				nestedResourceID.AddressToHash())
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentResourceData>(logger);
 		}
 
 		#endregion
