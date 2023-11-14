@@ -27,12 +27,14 @@ namespace HereticalSolutions.Delegates.Notifiers
 		#region IAsyncPropertySingleArgGeneric
 
 		public async Task<TValue> GetValueWhenNotified(
-			TArgument argument = default)
+			TArgument argument = default,
+			bool ignoreKey = false)
 		{
 			TaskCompletionSource<TValue> completionSource = new TaskCompletionSource<TValue>();
 
 			var request = new NotifyRequestSingleArgGeneric<TArgument, TValue>(
 				argument,
+				ignoreKey,
 				completionSource);
 
 
@@ -66,7 +68,8 @@ namespace HereticalSolutions.Delegates.Notifiers
 			{
 				var request = requests[i];
 
-				if (EqualityComparer<TArgument>.Default.Equals(request.Key, argument)) //if (request.Key.Equals(argument)) - bad for strings
+				if (request.IgnoreKey
+					|| EqualityComparer<TArgument>.Default.Equals(request.Key, argument)) //if (request.Key.Equals(argument)) - bad for strings
 				{
 					requests.RemoveAt(i);
 

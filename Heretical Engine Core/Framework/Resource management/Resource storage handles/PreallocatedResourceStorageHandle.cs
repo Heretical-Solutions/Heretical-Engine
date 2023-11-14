@@ -1,87 +1,34 @@
 using System;
 using System.Threading.Tasks;
 
+using HereticalSolutions.HereticalEngine.Application;
+
 namespace HereticalSolutions.ResourceManagement
 {
     public class PreallocatedResourceStorageHandle
-        : IReadOnlyResourceStorageHandle
+        : AReadOnlyResourceStorageHandle<object>
     {
-        private bool allocated = false;
-
-        private object rawResource;
+        private object value;
 
         public PreallocatedResourceStorageHandle(
-            object rawResource)
+            object value,
+            ApplicationContext context)
+            : base(
+                context)
         {
-            this.rawResource = rawResource;
-
-            allocated = true;
+            this.value = value;
         }
 
-        #region IReadOnlyResourceStorageHandle
-
-        #region IAllocatable
-
-        public bool Allocated
-        {
-            get => allocated;
-        }
-
-        public virtual async Task Allocate(
+        protected override object AllocateResource(
             IProgress<float> progress = null)
         {
-            progress?.Report(0f);
-
-            if (allocated)
-            {
-                progress?.Report(1f);
-
-                return;
-            }
-
-            allocated = true;
-
-            progress?.Report(1f);
+            return value;
         }
 
-        public virtual async Task Free(
+        protected override void FreeResource(
+            object resource,
             IProgress<float> progress = null)
         {
-            progress?.Report(0f);
-
-            if (!allocated)
-            {
-                progress?.Report(1f);
-
-                return;
-            }
-
-            allocated = false;
-
-            progress?.Report(1f);
         }
-
-        #endregion
-
-        public object RawResource
-        {
-            get
-            {
-                if (!allocated)
-                    throw new InvalidOperationException("Resource is not allocated.");
-
-                return rawResource;
-            }
-        }
-
-        public TValue GetResource<TValue>()
-        {
-            if (!allocated)
-                throw new InvalidOperationException("Resource is not allocated.");
-
-            return (TValue)rawResource;
-        }
-
-        #endregion
     }
 }

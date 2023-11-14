@@ -2,186 +2,36 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 
+using HereticalSolutions.HereticalEngine.Application;
+
 namespace HereticalSolutions.ResourceManagement
 {
 	public class ConcurrentReadWriteResourceStorageHandle
-		: IResourceStorageHandle
+		: AConcurrentReadWriteResourceStorageHandle<object>
 	{
-		private bool allocated = false;
-
-		private object rawResource;
-
-		private readonly SemaphoreSlim semaphore;
+		private object defaultValue;
 
 		public ConcurrentReadWriteResourceStorageHandle(
-			object rawResource,
-			SemaphoreSlim semaphore)
+			object defaultValue,
+			SemaphoreSlim semaphore,
+			ApplicationContext context)
+			: base(
+				semaphore,
+				context)
 		{
-			this.rawResource = rawResource;
-
-			this.semaphore = semaphore;
-
-			allocated = true;
+			this.defaultValue = defaultValue;
 		}
 
-		#region IResourceStorageHandle
-
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-
-				try
-				{
-					return allocated;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public async Task Allocate(
+		protected override async Task<object> AllocateResource(
 			IProgress<float> progress = null)
 		{
-			progress?.Report(0f);
-
-			await semaphore.WaitAsync(); // Acquire the semaphore
-
-			try
-			{
-				if (allocated)
-				{
-					progress?.Report(1f);
-
-					return;
-				}
-
-				allocated = true;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
+			return defaultValue;
 		}
 
-		public async Task Free(
+		protected override async Task FreeResource(
+			object resource,
 			IProgress<float> progress = null)
 		{
-			progress?.Report(0f);
-
-			await semaphore.WaitAsync(); // Acquire the semaphore
-
-			try
-			{
-				if (!allocated)
-				{
-					progress?.Report(1f);
-
-					return;
-				}
-
-				allocated = false;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-
-				try
-				{
-					if (!allocated)
-						throw new InvalidOperationException("Resource is not allocated");
-
-					return rawResource;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			semaphore.Wait(); // Acquire the semaphore
-
-			try
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated");
-
-				return (TValue)rawResource;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-			}
-		}
-
-		#endregion
-
-		public bool SetRawResource(object rawResource)
-		{
-			semaphore.Wait(); // Acquire the semaphore
-
-			try
-			{
-				if (!allocated)
-				{
-					return false;
-				}
-
-				this.rawResource = rawResource;
-
-				return true;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-			}
-		}
-
-		public bool SetResource<TValue>(TValue resource)
-		{
-			semaphore.Wait(); // Acquire the semaphore
-
-			try
-			{
-				if (!allocated)
-				{
-					return false;
-				}
-
-				rawResource = resource;
-
-				return true;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-			}
-		}
-
-		#endregion
 	}
 }

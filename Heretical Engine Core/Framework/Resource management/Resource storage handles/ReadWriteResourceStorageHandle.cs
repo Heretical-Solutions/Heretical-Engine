@@ -1,115 +1,34 @@
 using System;
 using System.Threading.Tasks;
 
+using HereticalSolutions.HereticalEngine.Application;
+
 namespace HereticalSolutions.ResourceManagement
 {
 	public class ReadWriteResourceStorageHandle
-		: IResourceStorageHandle
+		: AReadWriteResourceStorageHandle<object>
 	{
-		private bool allocated = false;
-
-		private object rawResource;
+		private object defaultValue;
 
 		public ReadWriteResourceStorageHandle(
-			object rawResource)
+			object defaultValue,
+			ApplicationContext context)
+			: base(
+				context)
 		{
-			this.rawResource = rawResource;
-
-			allocated = true;
+			this.defaultValue = defaultValue;
 		}
 
-		#region IResourceStorageHandle
-
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get => allocated;
-		}
-
-		public virtual async Task Allocate(
+		protected override object AllocateResource(
 			IProgress<float> progress = null)
 		{
-			progress?.Report(0f);
-
-			if (allocated)
-			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			allocated = true;
-
-			progress?.Report(1f);
+			return defaultValue;
 		}
 
-		public virtual async Task Free(
+		protected override void FreeResource(
+			object resource,
 			IProgress<float> progress = null)
 		{
-			progress?.Report(0f);
-
-			if (!allocated)
-			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			allocated = false;
-
-			progress?.Report(1f);
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
-
-				return rawResource;
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			if (!allocated)
-				throw new InvalidOperationException("Resource is not allocated.");
-
-			return (TValue)rawResource;
-		}
-
-		#endregion
-
-		public bool SetRawResource(object rawResource)
-		{
-			if (!allocated)
-			{
-				return false;
-			}
-
-			this.rawResource = rawResource;
-
-			return true;
-		}
-
-		public bool SetResource<TValue>(TValue resource)
-		{
-			if (!allocated)
-			{
-				return false;
-			}
-
-			rawResource = resource;
-
-			return true;
-		}
-
-		#endregion
 	}
 }

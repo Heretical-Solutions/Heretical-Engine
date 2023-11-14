@@ -877,6 +877,31 @@ namespace HereticalSolutions.ResourceManagement
 
 		#region IAsyncContainsResourceVariants
 
+		public async Task<IResourceVariantData> GetDefaultVariantWhenAvailable()
+		{
+			semaphore.Wait();
+
+			//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED");
+
+			try
+			{
+				if (defaultVariant != null)
+				{
+					return defaultVariant;
+				}
+			}
+			finally
+			{
+				semaphore.Release();
+
+				//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
+			}
+
+			return await variantAddedNotifier
+				.GetValueWhenNotified(-1, true)
+				.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(logger);
+		}
+
 		public async Task<IResourceVariantData> GetVariantWhenAvailable(
 			int variantIDHash)
 		{
