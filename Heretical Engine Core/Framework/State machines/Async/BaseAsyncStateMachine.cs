@@ -15,16 +15,28 @@ namespace HereticalSolutions.StateMachines
         where TBaseState : IState
     {
         private readonly IReadOnlyRepository<Type, TBaseState> states;
+
         private readonly IReadOnlyRepository<Type, ITransitionEvent<TBaseState>> events;
+
         private readonly Queue<TransitionRequest<TBaseState>> transitionRequestsQueue;
+
         private readonly ITransitionController<TBaseState> transitionController;
+
         private readonly EAsyncTransitionRules defaultAsyncTransitionRules;
+
         private readonly IFormatLogger logger;
+
+
         private Task processTransitionQueueTask;
+
         private readonly object lockObject;
+
         private CancellationTokenSource processTransitionQueueCancellationTokenSource;
+
         private CancellationTokenSource transitToImmediatelyCancellationTokenSource;
+
         private bool transitionInProgress;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseAsyncStateMachine{TBaseState}"/> class.
@@ -46,15 +58,26 @@ namespace HereticalSolutions.StateMachines
             IFormatLogger logger)
         {
             this.states = states;
+
             this.events = events;
+
             this.transitionRequestsQueue = transitionRequestsQueue;
+
             this.transitionController = transitionController;
+
             this.defaultAsyncTransitionRules = defaultAsyncTransitionRules;
+
             this.logger = logger;
+
+
             CurrentState = currentState;
+
             OnCurrentStateChangeStarted = null;
+
             OnCurrentStateChangeFinished = null;
+
             transitionInProgress = false;
+
             lockObject = new object();
         }
 

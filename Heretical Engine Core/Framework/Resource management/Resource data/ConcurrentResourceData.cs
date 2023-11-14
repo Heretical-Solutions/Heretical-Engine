@@ -1,20 +1,27 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 using System.Collections.Generic;
 
 using HereticalSolutions.Repositories;
 
 using HereticalSolutions.Logging;
 
+using HereticalSolutions.Delegates.Notifiers;
+
 namespace HereticalSolutions.ResourceManagement
 {
 	public class ConcurrentResourceData
-		: IResourceData
+		: IResourceData,
+		  IAsyncContainsResourceVariants,
+		  IAsyncContainsNestedResources
 	{
 		private readonly IRepository<int, string> variantIDHashToID;
 
 		private readonly IRepository<int, IResourceVariantData> variantsRepository;
+
+		private readonly IAsyncNotifierSingleArgGeneric<int, IResourceVariantData> variantAddedNotifier;
 
 		private IResourceVariantData defaultVariant;
 
@@ -25,6 +32,8 @@ namespace HereticalSolutions.ResourceManagement
 
 		private readonly IRepository<int, IReadOnlyResourceData> nestedResourcesRepository;
 
+		private readonly IAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData> nestedResourceAddedNotifier;
+
 
 		private readonly SemaphoreSlim semaphore;
 
@@ -32,22 +41,35 @@ namespace HereticalSolutions.ResourceManagement
 
 		public ConcurrentResourceData(
 			ResourceDescriptor descriptor,
+
 			IRepository<int, string> variantIDHashToID,
 			IRepository<int, IResourceVariantData> variantsRepository,
+			IAsyncNotifierSingleArgGeneric<int, IResourceVariantData> variantAddedNotifier,
+
 			IRepository<int, string> nestedResourceIDHashToID,
 			IRepository<int, IReadOnlyResourceData> nestedResourcesRepository,
+			IAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData> nestedResourceAddedNotifier,
+
 			SemaphoreSlim semaphore,
+
 			IFormatLogger logger)
 		{
 			Descriptor = descriptor;
+
 
 			this.variantIDHashToID = variantIDHashToID;
 
 			this.variantsRepository = variantsRepository;
 
+			this.variantAddedNotifier = variantAddedNotifier;
+
+
 			this.nestedResourceIDHashToID = nestedResourceIDHashToID;
 
 			this.nestedResourcesRepository = nestedResourcesRepository;
+
+			this.nestedResourceAddedNotifier = nestedResourceAddedNotifier;
+
 
 			this.semaphore = semaphore;
 
@@ -471,6 +493,10 @@ namespace HereticalSolutions.ResourceManagement
 					variant.Descriptor.VariantID);
 
 				UpdateDefaultVariant();
+
+				await variantAddedNotifier.Notify(
+					variant.Descriptor.VariantIDHash,
+					variant);
 			}
 			finally
 			{
@@ -670,6 +696,10 @@ namespace HereticalSolutions.ResourceManagement
 				nestedResourceIDHashToID.AddOrUpdate(
 					nestedResource.Descriptor.IDHash,
 					nestedResource.Descriptor.ID);
+
+				await nestedResourceAddedNotifier.Notify(
+					nestedResource.Descriptor.IDHash,
+					nestedResource);
 			}
 			finally
 			{
@@ -837,6 +867,80 @@ namespace HereticalSolutions.ResourceManagement
 				.ThrowExceptions<ConcurrentResourceData>(logger);
 
 			progress?.Report(1f);
+		}
+
+		#endregion
+
+		#region IAsyncContainsResourceVariants
+
+		public async Task<IResourceVariantData> GetVariantWhenAvailable(
+			int variantIDHash)
+		{
+			semaphore.Wait();
+
+			//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED");
+
+			try
+			{
+				if (variantsRepository.TryGet(
+					variantIDHash,
+					out var result))
+				{
+					return result;
+				}
+			}
+			finally
+			{
+				semaphore.Release();
+
+				//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
+			}
+
+			return await variantAddedNotifier.GetValueWhenNotified(variantIDHash);
+		}
+
+		public async Task<IResourceVariantData> GetVariantWhenAvailable(
+			string variantID)
+		{
+			return await GetVariantWhenAvailable(
+				variantID.AddressToHash());
+		}
+
+		#endregion
+
+		#region IAsyncContainsNestedResources
+
+		public async Task<IReadOnlyResourceData> GetNestedResourceWhenAvailable(
+			int nestedResourceIDHash)
+		{
+			semaphore.Wait();
+
+			//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED");
+
+			try
+			{
+				if (nestedResourcesRepository.TryGet(
+					nestedResourceIDHash,
+					out var result))
+				{
+					return result;
+				}
+			}
+			finally
+			{
+				semaphore.Release();
+
+				//logger.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
+			}
+
+			return await nestedResourceAddedNotifier.GetValueWhenNotified(nestedResourceIDHash);
+		}
+
+		public async Task<IReadOnlyResourceData> GetNestedResourceWhenAvailable(
+			string nestedResourceID)
+		{
+			return await GetNestedResourceWhenAvailable(
+				nestedResourceID.AddressToHash());
 		}
 
 		#endregion

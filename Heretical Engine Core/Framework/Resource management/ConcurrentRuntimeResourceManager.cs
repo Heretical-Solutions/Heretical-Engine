@@ -8,7 +8,8 @@ using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
-	public class ConcurrentRuntimeResourceManager : IRuntimeResourceManager
+	public class ConcurrentRuntimeResourceManager
+		: IRuntimeResourceManager
 	{
 		private readonly IRepository<int, string> rootResourceIDHashToID;
 

@@ -56,10 +56,15 @@ namespace HereticalSolutions.StateMachines
             TransitionProtocol transitionProtocol = null)
         {
             Event = @event;
+
             CancellationTokenSource = cancellationTokenSource;
+
             StateExitProgress = stateExitProgress;
+
             StateEnterProgress = stateEnterProgress;
+
             TransitionProtocol = transitionProtocol;
+            
             TransitionState = EAsyncTransitionState.QUEUED;
         }
     }

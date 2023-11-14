@@ -1,3 +1,4 @@
+using HereticalSolutions.Delegates.Factories;
 using HereticalSolutions.Logging;
 using HereticalSolutions.Repositories.Factories;
 
@@ -52,8 +53,10 @@ namespace HereticalSolutions.ResourceManagement.Factories
                 descriptor,
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IResourceVariantData>(),
+                NotifiersFactory.BuildAsyncNotifierSingleArgGeneric<int, IResourceVariantData>(logger),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IReadOnlyResourceData>(),
+                NotifiersFactory.BuildAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData>(logger),
                 new SemaphoreSlim(1, 1),
                 logger);
         }

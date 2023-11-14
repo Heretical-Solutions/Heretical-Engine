@@ -1,0 +1,21 @@
+using System;
+
+using HereticalSolutions.Delegates.Notifiers;
+
+using HereticalSolutions.Logging;
+
+namespace HereticalSolutions.Delegates.Factories
+{
+	public static partial class NotifiersFactory
+	{
+		public static AsyncNotifierSingleArgGeneric<TArgument, TValue> BuildAsyncNotifierSingleArgGeneric<TArgument, TValue>(
+			IFormatLogger logger)
+			where TArgument : IEquatable<TArgument>
+		{
+			return new AsyncNotifierSingleArgGeneric<TArgument, TValue>(
+				new List<NotifyRequestSingleArgGeneric<TArgument, TValue>>(),
+				new SemaphoreSlim(1, 1),
+				logger);
+		}
+	}
+}

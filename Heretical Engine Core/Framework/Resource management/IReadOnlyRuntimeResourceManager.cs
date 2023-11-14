@@ -31,13 +31,21 @@ namespace HereticalSolutions.ResourceManagement
 
         #region Try get
 
-        bool TryGetRootResource(int resourceIDHash, out IReadOnlyResourceData resource);
+        bool TryGetRootResource(
+            int resourceIDHash,
+            out IReadOnlyResourceData resource);
 
-        bool TryGetRootResource(string resourceID, out IReadOnlyResourceData resource);
+        bool TryGetRootResource(
+            string resourceID,
+            out IReadOnlyResourceData resource);
 
-        bool TryGetResource(int[] resourceIDHashes, out IReadOnlyResourceData resource);
+        bool TryGetResource(
+            int[] resourceIDHashes,
+            out IReadOnlyResourceData resource);
 
-        bool TryGetResource(string[] resourceIDs, out IReadOnlyResourceData resource);
+        bool TryGetResource(
+            string[] resourceIDs,
+            out IReadOnlyResourceData resource);
 
         #endregion
 
@@ -55,13 +63,21 @@ namespace HereticalSolutions.ResourceManagement
 
         #region Try get default
 
-        bool TryGetDefaultRootResource(int resourceIDHash, out IResourceVariantData resource);
+        bool TryGetDefaultRootResource(
+            int resourceIDHash,
+            out IResourceVariantData resource);
 
-        bool TryGetDefaultRootResource(string resourceID, out IResourceVariantData resource);
+        bool TryGetDefaultRootResource(
+            string resourceID,
+            out IResourceVariantData resource);
 
-        bool TryGetDefaultResource(int[] resourceIDHashes, out IResourceVariantData resource);
+        bool TryGetDefaultResource(
+            int[] resourceIDHashes,
+            out IResourceVariantData resource);
 
-        bool TryGetDefaultResource(string[] resourceIDs, out IResourceVariantData resource);
+        bool TryGetDefaultResource(
+            string[] resourceIDs,
+            out IResourceVariantData resource);
 
         #endregion
 
