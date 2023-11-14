@@ -91,7 +91,7 @@
 			public TBaseState GetState<TConcreteState>()
 			{
 				if (!states.TryGet(typeof(TConcreteState), out var result))
-					logger.ThrowException(
+					logger?.ThrowException(
 						GetType(),
 						$"STATE {typeof(TConcreteState).Name} NOT FOUND");
 
@@ -106,7 +106,7 @@
 			public TBaseState GetState(Type stateType)
 			{
 				if (!states.TryGet(stateType, out var result))
-					logger.ThrowException(
+					logger?.ThrowException(
 						GetType(),
 						$"STATE {stateType.Name} NOT FOUND");
 
@@ -126,7 +126,7 @@
 				ITransitionEvent<TBaseState> @event;
 
 				if (!events.TryGet(typeof(TEvent), out @event))
-					logger.ThrowException(
+					logger?.ThrowException(
 						GetType(),
 						$"EVENT {typeof(TEvent).Name} NOT FOUND");
 
@@ -145,7 +145,7 @@
 				ITransitionEvent<TBaseState> @event;
 
 				if (!events.TryGet(eventType, out @event))
-					logger.ThrowException(
+					logger?.ThrowException(
 						GetType(),
 						$"EVENT {eventType.Name} NOT FOUND");
 
@@ -171,7 +171,7 @@
 			public void TransitToImmediately<TState>()
 			{
 				if (!states.Has(typeof(TState)))
-					logger.ThrowException(
+					logger?.ThrowException(
 						GetType(),
 						$"STATE {typeof(TState).Name} NOT FOUND");
 
@@ -190,7 +190,7 @@
 			public void TransitToImmediately(Type stateType)
 			{
 				if (!states.Has(stateType))
-					logger.ThrowException(
+					logger?.ThrowException(
 						GetType(),
 						$"STATE {stateType.Name} NOT FOUND");
 
@@ -213,7 +213,7 @@
 					string currentStateString = CurrentState.GetType().Name;
 					string fromStateString = @event.From.GetType().Name;
 
-					logger.ThrowException(
+					logger?.ThrowException(
 						GetType(),
 						$"CURRENT STATE {currentStateString} IS NOT EQUAL TO TRANSITION FROM STATE {fromStateString}");
 				}

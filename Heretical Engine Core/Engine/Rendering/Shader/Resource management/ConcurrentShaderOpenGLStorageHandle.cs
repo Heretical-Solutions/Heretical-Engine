@@ -175,7 +175,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
-				logger.Log<ConcurrentShaderOpenGLStorageHandle>(
+				logger?.Log<ConcurrentShaderOpenGLStorageHandle>(
 					$"ALLOCATING");
 
 				// Delegate the shader building task to the main thread
@@ -192,7 +192,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						out fragmentShaderMetadata,
 						out shaderProgramMetadata))
 					{
-						logger.LogError<ConcurrentShaderOpenGLStorageHandle>(
+						logger?.LogError<ConcurrentShaderOpenGLStorageHandle>(
 							$"BUILDING SHADER PROGRAM FAILED");
 
 						return;
@@ -217,7 +217,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				allocated = true;
 
-				logger.Log<ConcurrentShaderOpenGLStorageHandle>(
+				logger?.Log<ConcurrentShaderOpenGLStorageHandle>(
 					$"ALLOCATED");
 			}
 			finally
@@ -244,7 +244,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
-				logger.Log<ConcurrentShaderOpenGLStorageHandle>(
+				logger?.Log<ConcurrentShaderOpenGLStorageHandle>(
 					$"FREEING");
 
 				//cachedGL.DeleteProgram(shader.Handle);
@@ -281,7 +281,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				allocated = false;
 
-				logger.Log<ConcurrentShaderOpenGLStorageHandle>(
+				logger?.Log<ConcurrentShaderOpenGLStorageHandle>(
 					$"FREE");
 			}
 			finally

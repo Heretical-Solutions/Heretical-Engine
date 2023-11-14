@@ -26,7 +26,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger.ThrowException<GizmoModule>(
+				context.Logger?.ThrowException<GizmoModule>(
 					"ALREADY SET UP");
 
 			//Set up
@@ -42,13 +42,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger.ThrowException<GizmoModule>(
+				context.Logger?.ThrowException<GizmoModule>(
 					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
 			}
 
 			if (IsInitialized)
 			{
-				logger.ThrowException<GizmoModule>(
+				logger?.ThrowException<GizmoModule>(
 					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
 			}
 

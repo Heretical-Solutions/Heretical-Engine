@@ -77,7 +77,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<GeometryOpenGLStorageHandle>(
+			logger?.Log<GeometryOpenGLStorageHandle>(
 				$"ALLOCATING");
 
 			if (!geometryRAMStorageHandle.Allocated)
@@ -125,7 +125,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = true;
 
-			logger.Log<GeometryOpenGLStorageHandle>(
+			logger?.Log<GeometryOpenGLStorageHandle>(
 				$"ALLOCATED");
 
 			progress?.Report(1f);
@@ -143,7 +143,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<GeometryOpenGLStorageHandle>(
+			logger?.Log<GeometryOpenGLStorageHandle>(
 				$"FREEING");
 
 			//geometry.Dispose(cachedGL);
@@ -172,7 +172,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = false;
 
-			logger.Log<GeometryOpenGLStorageHandle>(
+			logger?.Log<GeometryOpenGLStorageHandle>(
 				$"FREE");
 
 			progress?.Report(1f);

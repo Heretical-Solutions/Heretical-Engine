@@ -257,7 +257,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						return;
 
 					default:
-						logger.LogWarning(
+						logger?.LogWarning(
 							$"[ShaderFactory] CANNOT FILL VBO WITH VALUES OF ATTRIBUTE {attribute.Name}");
 
 						return;

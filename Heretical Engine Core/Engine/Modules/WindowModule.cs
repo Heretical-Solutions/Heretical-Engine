@@ -31,7 +31,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger.ThrowException<WindowModule>(
+				context.Logger?.ThrowException<WindowModule>(
 					"ALREADY SET UP");
 
 			var windowOptions = WindowOptions.Default;
@@ -133,13 +133,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger.ThrowException<WindowModule>(
+				context.Logger?.ThrowException<WindowModule>(
 					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
 			}
 
 			if (IsInitialized)
 			{
-				logger.ThrowException<WindowModule>(
+				logger?.ThrowException<WindowModule>(
 					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
 			}
 
@@ -250,7 +250,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger.ThrowException<WindowModule>(
+				context.Logger?.ThrowException<WindowModule>(
 					"CORE MODULE SHOULD BE SET UP BEFORE BEING RUN");
 			}
 

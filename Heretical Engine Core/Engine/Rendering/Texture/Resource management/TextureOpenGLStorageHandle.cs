@@ -79,7 +79,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<TextureOpenGLStorageHandle>(
+			logger?.Log<TextureOpenGLStorageHandle>(
 				$"ALLOCATING");
 
 			Func<Task> loadTextureDelegate = async () =>
@@ -114,7 +114,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = true;
 
-			logger.Log<TextureOpenGLStorageHandle>(
+			logger?.Log<TextureOpenGLStorageHandle>(
 				$"ALLOCATED");
 
 			progress?.Report(1f);
@@ -179,7 +179,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<TextureOpenGLStorageHandle>(
+			logger?.Log<TextureOpenGLStorageHandle>(
 				$"FREEING");
 
 			//cachedGL.DeleteTexture(texture.Handle);
@@ -208,7 +208,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = false;
 
-			logger.Log<TextureOpenGLStorageHandle>(
+			logger?.Log<TextureOpenGLStorageHandle>(
 				$"FREE");
 
 			progress?.Report(1f);

@@ -114,7 +114,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<ShaderOpenGLStorageHandle>(
+			logger?.Log<ShaderOpenGLStorageHandle>(
 				$"ALLOCATING");
 
 			//According to this: https://old.reddit.com/r/opengl/comments/14zul38/how_to_transfer_gl_context_to_different_thread_in/js1pl1v/
@@ -140,7 +140,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				{
 					//progress?.Report(1f);
 
-					logger.LogError<ShaderOpenGLStorageHandle>(
+					logger?.LogError<ShaderOpenGLStorageHandle>(
 						$"BUILDING SHADER PROGRAM FAILED");
 
 					return;
@@ -167,7 +167,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = true;
 
-			logger.Log<ShaderOpenGLStorageHandle>(
+			logger?.Log<ShaderOpenGLStorageHandle>(
 				$"ALLOCATED");
 
 			progress?.Report(1f);
@@ -185,7 +185,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<ShaderOpenGLStorageHandle>(
+			logger?.Log<ShaderOpenGLStorageHandle>(
 				$"FREEING");
 
 			//cachedGL.DeleteProgram(shader.Handle);
@@ -229,7 +229,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = false;
 
-			logger.Log<ShaderOpenGLStorageHandle>(
+			logger?.Log<ShaderOpenGLStorageHandle>(
 				$"FREE");
 
 			progress?.Report(1f);

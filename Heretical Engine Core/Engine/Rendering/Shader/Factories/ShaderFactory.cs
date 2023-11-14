@@ -77,7 +77,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					case ECommonVertexAttributes.VertexPosition:
 						if (attribute.Type != VEC3)
 						{
-							logger.LogWarning(
+							logger?.LogWarning(
 								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC3}");
 
 							break;
@@ -91,7 +91,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					case ECommonVertexAttributes.VertexNormal:
 						if (attribute.Type != VEC3)
 						{
-							logger.LogWarning(
+							logger?.LogWarning(
 								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC3}");
 
 							break;
@@ -105,7 +105,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					case ECommonVertexAttributes.VertexTangent:
 						if (attribute.Type != VEC3)
 						{
-							logger.LogWarning(
+							logger?.LogWarning(
 								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC3}");
 
 							break;
@@ -119,7 +119,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					case ECommonVertexAttributes.VertexBitangent:
 						if (attribute.Type != VEC3)
 						{
-							logger.LogWarning(
+							logger?.LogWarning(
 								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC3}");
 
 							break;
@@ -133,7 +133,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					case ECommonVertexAttributes.VertexColor:
 						if (attribute.Type != VEC4)
 						{
-							logger.LogWarning(
+							logger?.LogWarning(
 								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC4}");
 
 							break;
@@ -147,7 +147,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					case ECommonVertexAttributes.VertexUV0:
 						if (attribute.Type != VEC2)
 						{
-							logger.LogWarning(
+							logger?.LogWarning(
 								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC2}");
 
 							break;
@@ -161,7 +161,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					case ECommonVertexAttributes.VertexUV1:
 						if (attribute.Type != VEC2)
 						{
-							logger.LogWarning(
+							logger?.LogWarning(
 								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC2}");
 
 							break;
@@ -175,7 +175,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					case ECommonVertexAttributes.VertexUV2:
 						if (attribute.Type != VEC2)
 						{
-							logger.LogWarning(
+							logger?.LogWarning(
 								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC2}");
 
 							break;
@@ -189,7 +189,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					case ECommonVertexAttributes.VertexUV3:
 						if (attribute.Type != VEC2)
 						{
-							logger.LogWarning(
+							logger?.LogWarning(
 								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC2}");
 
 							break;
@@ -201,7 +201,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						return;
 
 					default:
-						logger.LogWarning(
+						logger?.LogWarning(
 							$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT PARSING LOGIC FOR THIS KIND OF ATTRIBUTE IS NOT IMPLEMENTED YET");
 
 						return;
@@ -255,7 +255,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					return;
 
 				default:
-					logger.LogError(
+					logger?.LogError(
 						$"[ShaderFactory] SHADER VARIABLE {attribute.Name} TYPE IS EITHER INVALID OR ITS PARSING IS NOT IMPLEMENTED YET");
 
 					return;

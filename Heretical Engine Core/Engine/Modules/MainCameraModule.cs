@@ -65,7 +65,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger.ThrowException<MainCameraModule>(
+				context.Logger?.ThrowException<MainCameraModule>(
 					"ALREADY SET UP");
 
 			//Set up
@@ -83,13 +83,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger.ThrowException<MainCameraModule>(
+				context.Logger?.ThrowException<MainCameraModule>(
 					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
 			}
 
 			if (IsInitialized)
 			{
-				logger.ThrowException<MainCameraModule>(
+				logger?.ThrowException<MainCameraModule>(
 					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
 			}
 

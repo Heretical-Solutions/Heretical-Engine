@@ -90,7 +90,7 @@ namespace HereticalSolutions.GameEntities
             World valueToPopulate)
         {
             /*
-            logger.Log(
+            logger?.Log(
                 GetType(),
                 "PARSING EVENTS BUFFER");
             */
@@ -124,7 +124,7 @@ namespace HereticalSolutions.GameEntities
             }
             
             /*
-            logger.Log(
+            logger?.Log(
                 GetType(),
                 $"RECEIVED EVENT ENTITY FROM BUFFER, COMPONENTS AMOUNT: {eventEntityDTO.Components.Length}");
             */
@@ -139,7 +139,7 @@ namespace HereticalSolutions.GameEntities
             out TValue value)
         {
             if (!(DTO.GetType().Equals(typeof(ECSEventsBufferDTO))))
-                logger.ThrowException<ECSEventWorldVisitor>(
+                logger?.ThrowException<ECSEventWorldVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(ECSEventsBufferDTO).ToString()}\" RECEIVED: \"{DTO.GetType().ToString()}\"");
 
             bool result = Load((ECSEventsBufferDTO)DTO, out World returnValue);
@@ -156,7 +156,7 @@ namespace HereticalSolutions.GameEntities
             out TValue value)
         {
             if (!(typeof(TDTO).Equals(typeof(ECSEventsBufferDTO))))
-                logger.ThrowException<ECSEventWorldVisitor>(
+                logger?.ThrowException<ECSEventWorldVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(ECSEventsBufferDTO).ToString()}\" RECEIVED: \"{typeof(TDTO).ToString()}\"");
 
             //DIRTY HACKS DO NOT REPEAT
@@ -177,7 +177,7 @@ namespace HereticalSolutions.GameEntities
             TValue valueToPopulate)
         {
             if (!(DTO.GetType().Equals(typeof(ECSEventsBufferDTO))))
-                logger.ThrowException<ECSEventWorldVisitor>(
+                logger?.ThrowException<ECSEventWorldVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(ECSEventsBufferDTO).ToString()}\" RECEIVED: \"{DTO.GetType().ToString()}\"");
 
             //DIRTY HACKS DO NOT REPEAT
@@ -193,7 +193,7 @@ namespace HereticalSolutions.GameEntities
             TValue valueToPopulate)
         {
             if (!(typeof(TDTO).Equals(typeof(ECSEventsBufferDTO))))
-                logger.ThrowException<ECSEventWorldVisitor>(
+                logger?.ThrowException<ECSEventWorldVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(ECSEventsBufferDTO).ToString()}\" RECEIVED: \"{typeof(TDTO).ToString()}\"");
 
             //DIRTY HACKS DO NOT REPEAT
@@ -258,7 +258,7 @@ namespace HereticalSolutions.GameEntities
             foreach (ref readonly Entity eventEntity in eventEntities.GetEntities())
             {
                 /*
-                logger.Log<ECSEventWorldVisitor>(
+                logger?.Log<ECSEventWorldVisitor>(
                     "PARSING EVENT ENTITY FROM EVENT WORLD");
                 */
                 
@@ -281,7 +281,7 @@ namespace HereticalSolutions.GameEntities
                 entityDTOs.Add(entityDTO);
                 
                 /*
-                logger.Log<ECSEventWorldVisitor>(
+                logger?.Log<ECSEventWorldVisitor>(
                     $"PARSED EVENT ENTITY, COMPONENT COUNT: {entityDTO.Components.Length}");
                 */
             }
@@ -310,7 +310,7 @@ namespace HereticalSolutions.GameEntities
             out object DTO)
         {
             if (!(typeof(World).IsAssignableFrom(typeof(TValue))))
-                logger.ThrowException<ECSEventWorldVisitor>(
+                logger?.ThrowException<ECSEventWorldVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(World).ToString()}\" RECEIVED: \"{typeof(TValue).ToString()}\"");
 
             //DIRTY HACKS DO NOT REPEAT
@@ -332,7 +332,7 @@ namespace HereticalSolutions.GameEntities
             out TDTO DTO)
         {
             if (!(typeof(World).IsAssignableFrom(typeof(TValue))))
-                logger.ThrowException<ECSEventWorldVisitor>(
+                logger?.ThrowException<ECSEventWorldVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(World).ToString()}\" RECEIVED: \"{typeof(TValue).ToString()}\"");
 
             //DIRTY HACKS DO NOT REPEAT

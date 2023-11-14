@@ -186,7 +186,7 @@ namespace HereticalSolutions.GameEntities
             
             if (string.IsNullOrEmpty(prototypeID))
             {
-                logger.LogError(
+                logger?.LogError(
                     GetType(),
                     $"INVALID PROTOTYPE ID");
                 
@@ -196,7 +196,7 @@ namespace HereticalSolutions.GameEntities
             /*
             if (!entityManagerInternal.WorldsRepository.TryGet(EWorld.PROTOTYPE, out var prototypesWorld))
             {
-                logger.LogError(
+                logger?.LogError(
                     GetType(),
                     "NO PROTOTYPES WORLD REGISTERED");
                 
@@ -206,7 +206,7 @@ namespace HereticalSolutions.GameEntities
             
             if (!entityManagerInternal.PrototypesRepository.TryGet(prototypeID, out var prototypeEntity))
             {
-                logger.LogError(
+                logger?.LogError(
                     GetType(),
                     $"NO PROTOTYPE REGISTERED BY ID {prototypeID}");
 

@@ -41,19 +41,19 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			{
 				module.OnInitialized += () =>
 				{
-					logger.Log<Program>(
+					logger?.Log<Program>(
 						$"MODULE {module.GetType().Name} INITIALIZED");
 				};
 
 				module.OnCleanedUp += () =>
 				{
-					logger.Log<Program>(
+					logger?.Log<Program>(
 						$"MODULE {module.GetType().Name} CLEANED UP");
 				};
 
 				module.OnTornDown += () =>
 				{
-					logger.Log<Program>(
+					logger?.Log<Program>(
 						$"MODULE {module.GetType().Name} TORN DOWN");
 				};
 			}

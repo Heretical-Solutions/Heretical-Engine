@@ -81,7 +81,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
-				logger.Log<ConcurrentMeshOpenGLStorageHandle>(
+				logger?.Log<ConcurrentMeshOpenGLStorageHandle>(
 					$"ALLOCATING");
 
 				bool result = await LoadMesh(
@@ -99,7 +99,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				allocated = true;
 
-				logger.Log<ConcurrentMeshOpenGLStorageHandle>(
+				logger?.Log<ConcurrentMeshOpenGLStorageHandle>(
 					$"ALLOCATED");
 			}
 			finally
@@ -201,14 +201,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					return;
 				}
 
-				logger.Log<ConcurrentMeshOpenGLStorageHandle>(
+				logger?.Log<ConcurrentMeshOpenGLStorageHandle>(
 					$"FREEING");
 
 				mesh = null;
 
 				allocated = false;
 
-				logger.Log<ConcurrentMeshOpenGLStorageHandle>(
+				logger?.Log<ConcurrentMeshOpenGLStorageHandle>(
 					$"FREE");
 			}
 			finally

@@ -61,7 +61,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<ModelOpenGLStorageHandle>(
+			logger?.Log<ModelOpenGLStorageHandle>(
 				$"ALLOCATING");
 
 			bool result = await LoadModel(
@@ -79,7 +79,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = true;
 
-			logger.Log<ModelOpenGLStorageHandle>(
+			logger?.Log<ModelOpenGLStorageHandle>(
 				$"ALLOCATED");
 
 			progress?.Report(1f);
@@ -268,7 +268,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<ModelOpenGLStorageHandle>(
+			logger?.Log<ModelOpenGLStorageHandle>(
 				$"FREEING");
 
 			model = null;
@@ -276,7 +276,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = false;
 
-			logger.Log<ModelOpenGLStorageHandle>(
+			logger?.Log<ModelOpenGLStorageHandle>(
 				$"FREE");
 
 			progress?.Report(1f);

@@ -85,7 +85,7 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger.LogError<TSource>(
+						logger?.LogError<TSource>(
 							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 					})
 				.ConfigureAwait(false);
@@ -112,7 +112,7 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger.ThrowException<TSource>(
+						logger?.ThrowException<TSource>(
 							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 					})
 				.ConfigureAwait(false);
@@ -140,7 +140,7 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger.LogError(
+						logger?.LogError(
 							logSource,
 							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 					})
@@ -169,7 +169,7 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger.ThrowException(
+						logger?.ThrowException(
 							logSource,
 							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 					})
@@ -251,7 +251,7 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger.LogError<TSource>(
+						logger?.LogError<TSource>(
 							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 
 						return default;
@@ -280,7 +280,7 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger.ThrowException<TSource>(
+						logger?.ThrowException<TSource>(
 							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 
 						return default;
@@ -310,7 +310,7 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger.LogError(
+						logger?.LogError(
 							logSource,
 							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 
@@ -341,7 +341,7 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger.ThrowException(
+						logger?.ThrowException(
 							logSource,
 							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
 

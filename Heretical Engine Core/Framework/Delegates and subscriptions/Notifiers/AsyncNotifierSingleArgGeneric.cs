@@ -38,13 +38,13 @@ namespace HereticalSolutions.Delegates.Notifiers
 
 			await semaphore.WaitAsync();
 
-			//logger.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE ACQUIRED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE ACQUIRED");
 
 			requests.Add(request);
 
 			semaphore.Release();
 
-			//logger.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE RELEASED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE RELEASED");
 
 
 			await completionSource.Task;
@@ -58,7 +58,7 @@ namespace HereticalSolutions.Delegates.Notifiers
 		{
 			await semaphore.WaitAsync();
 
-			//logger.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE ACQUIRED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE ACQUIRED");
 
 			for (int i = requests.Count - 1; i >= 0; i--)
 			{
@@ -74,7 +74,7 @@ namespace HereticalSolutions.Delegates.Notifiers
 
 			semaphore.Release();
 
-			//logger.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE RELEASED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE RELEASED");
 		}
 
 		#endregion

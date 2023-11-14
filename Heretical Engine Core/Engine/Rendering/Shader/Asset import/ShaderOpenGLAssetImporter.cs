@@ -65,7 +65,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger.Log<ShaderOpenGLAssetImporter>(
+			logger?.Log<ShaderOpenGLAssetImporter>(
 				$"IMPORTING {fullResourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -111,7 +111,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			progress?.Report(1f);
 
-			logger.Log<ShaderOpenGLAssetImporter>(
+			logger?.Log<ShaderOpenGLAssetImporter>(
 				$"IMPORTING {fullResourceID} FINISHED");
 
 			return result;

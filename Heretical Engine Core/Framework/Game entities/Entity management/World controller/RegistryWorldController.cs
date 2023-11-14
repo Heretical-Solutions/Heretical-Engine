@@ -33,7 +33,7 @@ namespace HereticalSolutions.GameEntities
             ISystem<Entity> initializationSystems,
             ISystem<Entity> deinitializationSystems)
         {
-            logger.ThrowException<RegistryWorldController>(
+            logger?.ThrowException<RegistryWorldController>(
                 "REGISTRY WORLD SHOULD NOT CONTAIN INITIALIZATION, RESOLVE AND DEINITIALIZATION SYSTEMS");
         }
 
@@ -41,7 +41,7 @@ namespace HereticalSolutions.GameEntities
             Entity registryEntity,
             string prototypeID)
         {
-            logger.ThrowException<RegistryWorldController>(
+            logger?.ThrowException<RegistryWorldController>(
                 "REGISTRY WORLD SHOULD NOT BE ABLE TO ADD REGISTRY ENTITY TO ANOTHER REGISTRY ENTITY");
 
             return false;
@@ -50,7 +50,7 @@ namespace HereticalSolutions.GameEntities
         public void DespawnEntity(
             Entity registryEntity)
         {
-            logger.ThrowException<RegistryWorldController>(
+            logger?.ThrowException<RegistryWorldController>(
                 "REGISTRY WORLD SHOULD NOT BE ABLE TO DELETE REGISTRY ENTITY FROM ANOTHER REGISTRY ENTITY");   
         }
         
@@ -58,7 +58,7 @@ namespace HereticalSolutions.GameEntities
             Entity registryEntity,
             string prototypeID)
         {
-            logger.ThrowException<RegistryWorldController>(
+            logger?.ThrowException<RegistryWorldController>(
                 "REGISTRY WORLD SHOULD NOT BE ABLE TO REPLACE REGISTRY ENTITY AT ANOTHER REGISTRY ENTITY");
         }
         
@@ -75,7 +75,7 @@ namespace HereticalSolutions.GameEntities
         public void SpawnEntityFromPrototype(
             Entity registryEntity)
         {
-            logger.ThrowException<RegistryWorldController>(
+            logger?.ThrowException<RegistryWorldController>(
                 "REGISTRY ENTITY SPAWNING IS HANDLED BY ENTITY MANAGER");
         }
         
@@ -83,7 +83,7 @@ namespace HereticalSolutions.GameEntities
             Entity registryEntity,
             object target)
         {
-            logger.ThrowException<RegistryWorldController>(
+            logger?.ThrowException<RegistryWorldController>(
                 "REGISTRY ENTITY RESOLVING IS HANDLED BY ENTITY MANAGER");
         }
         
@@ -96,7 +96,7 @@ namespace HereticalSolutions.GameEntities
             
             if (string.IsNullOrEmpty(prototypeID))
             {
-                logger.LogError<RegistryWorldController>(
+                logger?.LogError<RegistryWorldController>(
                     $"INVALID PROTOTYPE ID");
                 
                 return false;
@@ -104,7 +104,7 @@ namespace HereticalSolutions.GameEntities
 
             if (!entityManagerInternal.WorldsRepository.TryGet(EWorld.PROTOTYPE, out var prototypesWorld))
             {
-                logger.LogError<RegistryWorldController>(
+                logger?.LogError<RegistryWorldController>(
                     "NO PROTOTYPES WORLD REGISTERED");
                 
                 return false;
@@ -112,7 +112,7 @@ namespace HereticalSolutions.GameEntities
             
             if (!entityManagerInternal.PrototypesRepository.TryGet(prototypeID, out var prototypeEntity))
             {
-                logger.LogError<RegistryWorldController>(
+                logger?.LogError<RegistryWorldController>(
                     $"NO PROTOTYPE REGISTERED BY ID {prototypeID}");
 
                 return false;

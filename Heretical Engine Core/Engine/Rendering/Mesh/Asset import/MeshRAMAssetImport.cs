@@ -36,7 +36,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger.Log<MeshRAMAssetImporter>(
+			logger?.Log<MeshRAMAssetImporter>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -67,7 +67,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			progress?.Report(1f);
 
-			logger.Log<MeshRAMAssetImporter>(
+			logger?.Log<MeshRAMAssetImporter>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;

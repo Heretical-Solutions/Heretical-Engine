@@ -30,7 +30,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger.Log<DefaultPreallocatedAssetImporter<TAsset>>(
+			logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -61,7 +61,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 			progress?.Report(1f);
 
-			logger.Log<DefaultPreallocatedAssetImporter<TAsset>>(
+			logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;

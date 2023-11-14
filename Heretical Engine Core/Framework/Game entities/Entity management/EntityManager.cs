@@ -78,7 +78,7 @@ namespace HereticalSolutions.GameEntities
         {
             if (!worldsRepository.TryGet(worldID, out var targetWorld))
             {
-                logger.LogError<EntityManager>(
+                logger?.LogError<EntityManager>(
                     $"NO WORLD REGISTERED BY ID {worldID.ToString()}");
                 
                 return null;
@@ -91,7 +91,7 @@ namespace HereticalSolutions.GameEntities
         {
             if (!worldControllersRepository.TryGet(worldID, out var targetWorld))
             {
-                logger.LogError<EntityManager>(
+                logger?.LogError<EntityManager>(
                     $"NO WORLD CONTROLLER REGISTERED BY ID {worldID.ToString()}");
                 
                 return null;
@@ -113,7 +113,7 @@ namespace HereticalSolutions.GameEntities
         {
             if (!prototypesRepository.TryGet(prototypeID, out var prototypeEntity))
             {
-                logger.LogError<EntityManager>(
+                logger?.LogError<EntityManager>(
                     $"NO PROTOTYPE REGISTERED BY ID {prototypeID}");
 
                 return default(Entity);

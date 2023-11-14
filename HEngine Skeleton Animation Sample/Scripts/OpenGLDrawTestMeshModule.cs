@@ -45,7 +45,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger.ThrowException<OpenGLDrawTestMeshModule>(
+				context.Logger?.ThrowException<OpenGLDrawTestMeshModule>(
 					"ALREADY SET UP");
 
 			//Set up
@@ -62,13 +62,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger.ThrowException<OpenGLDrawTestMeshModule>(
+				context.Logger?.ThrowException<OpenGLDrawTestMeshModule>(
 					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
 			}
 
 			if (IsInitialized)
 			{
-				logger.ThrowException<OpenGLDrawTestMeshModule>(
+				logger?.ThrowException<OpenGLDrawTestMeshModule>(
 					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
 			}
 
@@ -205,7 +205,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			progress.ProgressChanged += (sender, value) =>
 			{
-				logger.Log<Program>
+				logger?.Log<Program>
 					($"PROGRESS: {(int)(value * 100f)} %");
 			};
 			*/
@@ -244,7 +244,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			shaderImportProgress.ProgressChanged += (sender, value) =>
 			{
-				logger.Log<Program>
+				logger?.Log<Program>
 					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
@@ -281,7 +281,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			modelImportProgress.ProgressChanged += (sender, value) =>
 			{
-				logger.Log<Program>
+				logger?.Log<Program>
 					($"MODEL IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
@@ -321,7 +321,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			modelOpenGLImportProgress.ProgressChanged += (sender, value) =>
 			{
-				logger.Log<Program>
+				logger?.Log<Program>
 					($"MODEL OPENGL IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
@@ -336,7 +336,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			#endregion
 
-			logger.Log<Program>("IMPORT FINISHED");
+			logger?.Log<Program>("IMPORT FINISHED");
 		}
 
 		private void RenderModel(
@@ -459,7 +459,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				sb.Append(" ");
 			}
 
-			logger.Log<OpenGLDrawTestMeshModule>(sb.ToString());
+			logger?.Log<OpenGLDrawTestMeshModule>(sb.ToString());
 
 			float[] verticesFromBuffer = new float[30];
 
@@ -481,7 +481,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				sb.Append(" ");
 			}
 
-			logger.Log<OpenGLDrawTestMeshModule>(sb.ToString());
+			logger?.Log<OpenGLDrawTestMeshModule>(sb.ToString());
 			*/
 
 			#endregion
@@ -514,7 +514,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			if (error != GLEnum.NoError)
 			{
-				logger.LogError<OpenGLDrawTestMeshModule>($"OpenGL ERROR: {error}");
+				logger?.LogError<OpenGLDrawTestMeshModule>($"OpenGL ERROR: {error}");
 			}
 
 			gl.BindVertexArray(0);

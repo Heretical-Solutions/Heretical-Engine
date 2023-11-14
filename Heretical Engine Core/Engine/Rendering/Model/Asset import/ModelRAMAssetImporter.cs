@@ -85,7 +85,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger.Log<ModelRAMAssetImporter>(
+			logger?.Log<ModelRAMAssetImporter>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -97,7 +97,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			progress?.Report(1f);
 
-			logger.Log<ModelRAMAssetImporter>(
+			logger?.Log<ModelRAMAssetImporter>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;
@@ -898,7 +898,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				if (face.MNumIndices != 3)
 				{
-					logger.ThrowException<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices} Face index: {i}");
+					logger?.ThrowException<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices} Face index: {i}");
 				}
 				else
 				{

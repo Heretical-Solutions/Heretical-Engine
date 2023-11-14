@@ -56,7 +56,7 @@ namespace HereticalSolutions.MVVM.View
         public virtual void SetUp()
         {
             if (IsSetUp)
-                logger.ThrowException(
+                logger?.ThrowException(
                     GetType(),
                     "ALREADY SET UP");
 
@@ -70,14 +70,14 @@ namespace HereticalSolutions.MVVM.View
         {
             if (!IsSetUp)
             {
-                logger.ThrowException(
+                logger?.ThrowException(
                     GetType(),
                     "VIEW SHOULD BE SET UP BEFORE BEING INITIALIZED");
             }
 
             if (IsInitialized)
             {
-                logger.ThrowException(
+                logger?.ThrowException(
                     GetType(),
                     "INITIALIZING VIEW THAT IS ALREADY INITIALIZED");
             }
@@ -133,7 +133,7 @@ namespace HereticalSolutions.MVVM.View
 
             if (!propertyObtained)
             {
-                logger.ThrowException(
+                logger?.ThrowException(
                     GetType(),
                     $"COULD NOT OBTAIN PROPERTY {propertyID} FROM VIEWMODEL {viewModel.GetType().Name}");
             }

@@ -166,7 +166,7 @@ namespace HereticalSolutions.GameEntities
             out object DTO)
         {
             if (!(typeof(World).IsAssignableFrom(typeof(TValue))))
-                logger.ThrowException<ECSWorldFullStateVisitor>(
+                logger?.ThrowException<ECSWorldFullStateVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(World).ToString()}\" RECEIVED: \"{typeof(TValue).ToString()}\"");
 
             //DIRTY HACKS DO NOT REPEAT
@@ -196,7 +196,7 @@ namespace HereticalSolutions.GameEntities
             out TDTO DTO)
         {
             if (!(typeof(World).IsAssignableFrom(typeof(TValue))))
-                logger.ThrowException<ECSWorldFullStateVisitor>(
+                logger?.ThrowException<ECSWorldFullStateVisitor>(
                     $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(World).ToString()}\" RECEIVED: \"{typeof(TValue).ToString()}\"");
 
             //DIRTY HACKS DO NOT REPEAT

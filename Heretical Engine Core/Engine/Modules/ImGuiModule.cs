@@ -32,7 +32,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger.ThrowException<ImGuiModule>(
+				context.Logger?.ThrowException<ImGuiModule>(
 					"ALREADY SET UP");
 
 			//Set up
@@ -48,13 +48,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger.ThrowException<ImGuiModule>(
+				context.Logger?.ThrowException<ImGuiModule>(
 					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
 			}
 
 			if (IsInitialized)
 			{
-				logger.ThrowException<ImGuiModule>(
+				logger?.ThrowException<ImGuiModule>(
 					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
 			}
 

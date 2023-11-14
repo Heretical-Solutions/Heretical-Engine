@@ -67,7 +67,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<TextureRAMStorageHandle>(
+			logger?.Log<TextureRAMStorageHandle>(
 				$"ALLOCATING");
 
 #if LOAD_IMAGES_ASYNC
@@ -75,7 +75,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			//Whatever, we have main thread commands now
 			Func<Task> loadTextureDelegate = async () =>
 			{
-				logger.Log<TextureRAMStorageHandle>(
+				logger?.Log<TextureRAMStorageHandle>(
 					$"INITIATING ASYNC TEXTURE LOADING. THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
 
 				texture = await Image
@@ -83,7 +83,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						filePathSettings.FullPath)
 					.ThrowExceptions<Image<Rgba32>, TextureRAMStorageHandle>(logger);
 
-				logger.Log<TextureRAMStorageHandle>(
+				logger?.Log<TextureRAMStorageHandle>(
 					$"DONE. TEXTURE IS LOADED: {(texture != default).ToString()}");
 			};
 
@@ -106,7 +106,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = true;
 
-			logger.Log<TextureRAMStorageHandle>(
+			logger?.Log<TextureRAMStorageHandle>(
 				$"ALLOCATED");
 
 			progress?.Report(1f);
@@ -124,7 +124,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				return;
 			}
 
-			logger.Log<TextureRAMStorageHandle>(
+			logger?.Log<TextureRAMStorageHandle>(
 				$"FREEING");
 
 			texture.Dispose();
@@ -134,7 +134,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			allocated = false;
 
-			logger.Log<TextureRAMStorageHandle>(
+			logger?.Log<TextureRAMStorageHandle>(
 				$"FREE");
 
 			progress?.Report(1f);

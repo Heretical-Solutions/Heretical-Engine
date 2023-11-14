@@ -36,7 +36,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public override object VisitTranslation_unit(
 			GLSLParser.Translation_unitContext context)
 		{
-			logger.Log<ShaderDescriptorBuilder>(
+			logger?.Log<ShaderDescriptorBuilder>(
 				$"VISITING TRANSLATION UNIT");
 
 			attributes.Clear();
@@ -125,7 +125,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					ref attribute,
 					logger);
 
-				logger.Log<ShaderDescriptorBuilder>(
+				logger?.Log<ShaderDescriptorBuilder>(
 					$"PARSED ATTRIBUTE. NAME: {attribute.Name} TYPE: {attribute.Type} POINTER TYPE: {attribute.PointerType} INDEX: {attribute.Location} ATTRIBUTE SIZE: {attribute.AttributeSize} BYTE SIZE: {attribute.ByteSize} OFFSET: {attribute.Offset}");
 
 				attributes.Add(attribute);
@@ -181,7 +181,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					index,
 					out locationIndex))
 				{
-					logger.LogError<ShaderDescriptorBuilder>(
+					logger?.LogError<ShaderDescriptorBuilder>(
 						$"COULD NOT PARSE INDEX: {index}");
 				}
 			}
