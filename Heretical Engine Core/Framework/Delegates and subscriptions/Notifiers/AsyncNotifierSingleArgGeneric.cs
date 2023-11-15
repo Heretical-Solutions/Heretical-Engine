@@ -56,6 +56,42 @@ namespace HereticalSolutions.Delegates.Notifiers
 			return completionSource.Task.Result;
 		}
 
+		public async Task<Task<TValue>> GetWaitForNotificationTask(
+			TArgument argument = default,
+			bool ignoreKey = false)
+		{
+			TaskCompletionSource<TValue> completionSource = new TaskCompletionSource<TValue>();
+
+			var request = new NotifyRequestSingleArgGeneric<TArgument, TValue>(
+				argument,
+				ignoreKey,
+				completionSource);
+
+
+			await semaphore.WaitAsync();
+
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE ACQUIRED");
+
+			requests.Add(request);
+
+			semaphore.Release();
+
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"SEMAPHORE RELEASED");
+
+
+			return GetValueFromCompletionSource(completionSource);
+		}
+
+		private async Task<TValue> GetValueFromCompletionSource(
+			TaskCompletionSource<TValue> completionSource)
+		{
+			await completionSource
+				.Task
+				.ThrowExceptions<TValue, AsyncNotifierSingleArgGeneric<TArgument, TValue>>(logger);
+
+			return completionSource.Task.Result;
+		}
+
 		public async Task Notify(
 			TArgument argument,
 			TValue value)

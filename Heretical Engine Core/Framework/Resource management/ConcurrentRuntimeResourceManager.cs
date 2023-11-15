@@ -691,6 +691,8 @@ namespace HereticalSolutions.ResourceManagement
 
 		public async Task<IReadOnlyResourceData> GetRootResourceWhenAvailable(int resourceIDHash)
 		{
+			Task<IReadOnlyResourceData> waitForNotificationTask;
+
 			semaphore.Wait();
 
 			//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED");
@@ -703,6 +705,10 @@ namespace HereticalSolutions.ResourceManagement
 				{
 					return result;
 				}
+
+				waitForNotificationTask = await rootResourceAddedNotifier
+					.GetWaitForNotificationTask(resourceIDHash)
+					.ThrowExceptions<Task<IReadOnlyResourceData>, ConcurrentRuntimeResourceManager>(logger);
 			}
 			finally
 			{
@@ -711,8 +717,13 @@ namespace HereticalSolutions.ResourceManagement
 				//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
 			}
 
+			/*
 			return await rootResourceAddedNotifier
 				.GetValueWhenNotified(resourceIDHash)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+			*/
+
+			return await waitForNotificationTask
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
 		}
 

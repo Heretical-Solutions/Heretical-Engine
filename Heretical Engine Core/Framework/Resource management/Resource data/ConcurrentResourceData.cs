@@ -879,6 +879,8 @@ namespace HereticalSolutions.ResourceManagement
 
 		public async Task<IResourceVariantData> GetDefaultVariantWhenAvailable()
 		{
+			Task<IResourceVariantData> waitForNotificationTask;
+
 			semaphore.Wait();
 
 			//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED");
@@ -889,6 +891,10 @@ namespace HereticalSolutions.ResourceManagement
 				{
 					return defaultVariant;
 				}
+
+				waitForNotificationTask = await variantAddedNotifier
+					.GetWaitForNotificationTask(-1, true)
+					.ThrowExceptions<Task<IResourceVariantData>, ConcurrentResourceData>(logger);
 			}
 			finally
 			{
@@ -897,14 +903,21 @@ namespace HereticalSolutions.ResourceManagement
 				//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
 			}
 
+			return await waitForNotificationTask
+				.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(logger);
+
+			/*
 			return await variantAddedNotifier
 				.GetValueWhenNotified(-1, true)
 				.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(logger);
+			*/
 		}
 
 		public async Task<IResourceVariantData> GetVariantWhenAvailable(
 			int variantIDHash)
 		{
+			Task<IResourceVariantData> waitForNotificationTask;
+
 			semaphore.Wait();
 
 			//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED");
@@ -917,6 +930,10 @@ namespace HereticalSolutions.ResourceManagement
 				{
 					return result;
 				}
+
+				waitForNotificationTask = await variantAddedNotifier
+					.GetWaitForNotificationTask(variantIDHash)
+					.ThrowExceptions<Task<IResourceVariantData>, ConcurrentResourceData>(logger);
 			}
 			finally
 			{
@@ -925,9 +942,14 @@ namespace HereticalSolutions.ResourceManagement
 				//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
 			}
 
+			return await waitForNotificationTask
+				.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(logger);
+
+			/*
 			return await variantAddedNotifier
 				.GetValueWhenNotified(variantIDHash)
 				.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(logger);
+			*/
 		}
 
 		public async Task<IResourceVariantData> GetVariantWhenAvailable(
@@ -945,6 +967,8 @@ namespace HereticalSolutions.ResourceManagement
 		public async Task<IReadOnlyResourceData> GetNestedResourceWhenAvailable(
 			int nestedResourceIDHash)
 		{
+			Task<IReadOnlyResourceData> waitForNotificationTask;
+
 			semaphore.Wait();
 
 			//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED");
@@ -957,6 +981,10 @@ namespace HereticalSolutions.ResourceManagement
 				{
 					return result;
 				}
+
+				waitForNotificationTask = await nestedResourceAddedNotifier
+					.GetWaitForNotificationTask(nestedResourceIDHash)
+					.ThrowExceptions<Task<IReadOnlyResourceData>, ConcurrentResourceData>(logger);
 			}
 			finally
 			{
@@ -965,8 +993,13 @@ namespace HereticalSolutions.ResourceManagement
 				//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
 			}
 
+			/*
 			return await nestedResourceAddedNotifier
 				.GetValueWhenNotified(nestedResourceIDHash)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentResourceData>(logger);
+			*/
+
+			return await waitForNotificationTask
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentResourceData>(logger);
 		}
 

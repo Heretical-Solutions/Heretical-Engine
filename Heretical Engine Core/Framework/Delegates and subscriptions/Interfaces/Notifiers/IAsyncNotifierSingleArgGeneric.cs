@@ -8,6 +8,10 @@ namespace HereticalSolutions.Delegates.Notifiers
 			TArgument argument = default,
 			bool ignoreKey = false);
 
+		Task<Task<TValue>> GetWaitForNotificationTask(
+			TArgument argument = default,
+			bool ignoreKey = false);
+
 		Task Notify(
 			TArgument argument,
 			TValue value);
