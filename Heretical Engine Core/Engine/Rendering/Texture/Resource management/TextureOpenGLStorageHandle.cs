@@ -1,15 +1,10 @@
-using System;
-using System.Threading.Tasks;
-
-using HereticalSolutions.Collections.Managed;
+#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
 
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using HereticalSolutions.HereticalEngine.Messaging;
-
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 using Silk.NET.OpenGL;
 
@@ -18,223 +13,158 @@ using Silk.NET.Assimp;
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureOpenGLStorageHandle
-		: IReadOnlyResourceStorageHandle
+		: AReadOnlyResourceStorageHandle<TextureOpenGL>
 	{
-		private readonly IReadOnlyResourceStorageHandle textureRAMStorageHandle = null;
+		private readonly string glPath;
+
+		private readonly string textureRamPath;
 
 		private readonly TextureType textureType;
 
-		private readonly GL cachedGL = default;
-
-		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
-
-		private readonly IFormatLogger logger;
-
-
-		private bool allocated = false;
-
-		private TextureOpenGL texture = null;
-
 		public TextureOpenGLStorageHandle(
-			IReadOnlyResourceStorageHandle textureRAMStorageHandle,
+			string glPath,
+			string textureRamPath,
 			TextureType textureType,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
+			: base (
+				context)
 		{
-			this.textureRAMStorageHandle = textureRAMStorageHandle;
+			this.glPath = glPath;
+
+			this.textureRamPath = textureRamPath;
 
 			this.textureType = textureType;
-
-			cachedGL = gl;
-
-			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
-
-			this.logger = logger;
-
-
-			texture = null;
-
-			allocated = false;
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get => allocated;
-		}
-
-		public virtual async Task Allocate(
+		protected override async Task<TextureOpenGL> AllocateResource(
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			if (allocated)
+			IReadOnlyResourceStorageHandle glStorageHandle = null;
+
+			IReadOnlyResourceStorageHandle textureRAMStorageHandle = null;
+
+#if PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
+			List<Task> loadDependencyTasks = new List<Task>();
+
+			List<float> loadDependencyProgresses = new List<float>();
+
+			IProgress<float> glLoadProgress = progress.CreateLocalProgress(
+				0f,
+				0.666f,
+				loadDependencyProgresses,
+				0);
+
+			loadDependencyTasks.Add(
+				Task.Run(async () => 
+					{
+						glStorageHandle = await LoadDependency(
+							glPath,
+							string.Empty,
+							glLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
+					}));
+
+			IProgress<float> textureRAMLoadProgress = progress.CreateLocalProgress(
+				0f,
+				0.666f,
+				loadDependencyProgresses,
+				1);
+
+			loadDependencyTasks.Add(
+				Task.Run(async () =>
+					{
+						textureRAMStorageHandle = await LoadDependency(
+							textureRamPath,
+							TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID,
+							textureRAMLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
+					}));
+
+
+			await Task
+				.WhenAll(loadDependencyTasks)
+				.ThrowExceptions<TextureOpenGLStorageHandle>(context.Logger);
+#else
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.333f);
+
+			glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
+
+			progress?.Report(0.333f);
+
+			localProgress = progress.CreateLocalProgress(
+				0.333f,
+				0.666f);
+
+			textureRAMStorageHandle = await LoadDependency(
+				textureRamPath,
+				TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
+#endif
+
+			GL gl = glStorageHandle.GetResource<GL>();
+
+			Image<Rgba32> textureRAM = textureRAMStorageHandle.GetResource<Image<Rgba32>>();
+
+			progress?.Report(0.666f);
+
+			TextureOpenGL textureOpenGL = null;
+
+			Action buildTextureOpenGLDelegate = () =>
 			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			logger?.Log<TextureOpenGLStorageHandle>(
-				$"ALLOCATING");
-
-			Func<Task> loadTextureDelegate = async () =>
-			{
-				bool result = await LoadTexture(
-					textureRAMStorageHandle,
-					textureType,
-					cachedGL,
-					true,
-					progress)
-					.ThrowExceptions<bool, TextureOpenGLStorageHandle>(logger);
-
-				if (!result)
-				{
-					progress?.Report(1f);
-
-					return;
-				}
+				textureOpenGL = TextureFactory.BuildTextureOpenGL(
+					gl,
+					textureRAM,
+					textureType);
 			};
 
-			var command = new MainThreadCommand(loadTextureDelegate);
-
-			while (!mainThreadCommandBuffer.TryProduce(command))
-			{
-				await Task.Yield();
-			}
-
-			while (command.Status != ECommandStatus.DONE)
-			{
-				await Task.Yield();
-			}
-
-			allocated = true;
-
-			logger?.Log<TextureOpenGLStorageHandle>(
-				$"ALLOCATED");
+			await ExecuteOnMainThread(
+				buildTextureOpenGLDelegate)
+				.ThrowExceptions<TextureOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(1f);
+
+			return textureOpenGL;
 		}
 
-		private async Task<bool> LoadTexture(
-			IReadOnlyResourceStorageHandle textureRAMStorageHandle,
-			TextureType textureType,
-			GL gl,
-			bool freeRamAfterAllocation = true,
+		protected override async Task FreeResource(
+			TextureOpenGL resource,
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			if (!textureRAMStorageHandle.Allocated)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
-					0f,
-					0.5f);
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.5f);
 
-				await textureRAMStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<TextureOpenGLStorageHandle>(logger);
-			}
+			var glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
 
-			var ramTexture = textureRAMStorageHandle.GetResource<Image<Rgba32>>();
-
-			texture = TextureFactory.BuildTextureOpenGL(
-				gl,
-				ramTexture,
-				textureType);
+			GL gl = glStorageHandle.GetResource<GL>();
 
 			progress?.Report(0.5f);
 
-			if (freeRamAfterAllocation)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
-					0.5f,
-					1f);
-
-				await textureRAMStorageHandle
-					.Free(
-						localProgress)
-					.ThrowExceptions<TextureOpenGLStorageHandle>(logger);
-			}
-
-			progress?.Report(1f);
-
-			return true;
-		}
-
-		public virtual async Task Free(
-			IProgress<float> progress = null)
-		{
-			progress?.Report(0f);
-
-			if (!allocated)
-			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			logger?.Log<TextureOpenGLStorageHandle>(
-				$"FREEING");
-
-			//cachedGL.DeleteTexture(texture.Handle);
-
 			Action deleteShaderDelegate = () =>
 			{
-				cachedGL.DeleteTexture(texture.Handle);
+				gl.DeleteTexture(resource.Handle);
 			};
 
-			var command = new MainThreadCommand(
-				deleteShaderDelegate);
-
-			while (!mainThreadCommandBuffer.TryProduce(
-				command))
-			{
-				await Task.Yield();
-			}
-
-			while (command.Status != ECommandStatus.DONE)
-			{
-				await Task.Yield();
-			}
-
-			texture = null;
-
-
-			allocated = false;
-
-			logger?.Log<TextureOpenGLStorageHandle>(
-				$"FREE");
+			await ExecuteOnMainThread(
+				deleteShaderDelegate)
+				.ThrowExceptions<TextureOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(1f);
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
-
-				return texture;
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			if (!allocated)
-				throw new InvalidOperationException("Resource is not allocated.");
-
-			return (TValue)(object)texture; //DO NOT REPEAT
-		}
-
-		#endregion
 	}
 }
