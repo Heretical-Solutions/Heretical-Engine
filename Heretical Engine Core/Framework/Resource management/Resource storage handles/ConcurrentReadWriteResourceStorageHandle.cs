@@ -6,13 +6,13 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.ResourceManagement
 {
-	public class ConcurrentReadWriteResourceStorageHandle
-		: AConcurrentReadWriteResourceStorageHandle<object>
+	public class ConcurrentReadWriteResourceStorageHandle<TResource>
+		: AConcurrentReadWriteResourceStorageHandle<TResource>
 	{
-		private object defaultValue;
+		private TResource defaultValue;
 
 		public ConcurrentReadWriteResourceStorageHandle(
-			object defaultValue,
+			TResource defaultValue,
 			SemaphoreSlim semaphore,
 			ApplicationContext context)
 			: base(
@@ -22,14 +22,14 @@ namespace HereticalSolutions.ResourceManagement
 			this.defaultValue = defaultValue;
 		}
 
-		protected override async Task<object> AllocateResource(
+		protected override async Task<TResource> AllocateResource(
 			IProgress<float> progress = null)
 		{
 			return defaultValue;
 		}
 
 		protected override async Task FreeResource(
-			object resource,
+			TResource resource,
 			IProgress<float> progress = null)
 		{
 		}

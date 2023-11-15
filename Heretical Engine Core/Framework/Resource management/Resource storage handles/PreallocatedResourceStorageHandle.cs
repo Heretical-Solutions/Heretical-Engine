@@ -5,28 +5,27 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.ResourceManagement
 {
-    public class PreallocatedResourceStorageHandle
-        : AReadOnlyResourceStorageHandle<object>
+    public class PreallocatedResourceStorageHandle<TResource>
+        : AReadOnlyResourceStorageHandle<TResource>
     {
-        private object value;
+        private TResource value;
 
         public PreallocatedResourceStorageHandle(
-            object value,
+            TResource value,
             ApplicationContext context)
             : base(
                 context)
         {
             this.value = value;
         }
-
-        protected override object AllocateResource(
+        protected override async Task<TResource> AllocateResource(
             IProgress<float> progress = null)
         {
             return value;
         }
 
-        protected override void FreeResource(
-            object resource,
+        protected override async Task FreeResource(
+            TResource resource,
             IProgress<float> progress = null)
         {
         }

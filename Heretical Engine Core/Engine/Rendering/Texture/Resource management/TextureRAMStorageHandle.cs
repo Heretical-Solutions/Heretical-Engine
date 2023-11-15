@@ -1,166 +1,63 @@
 #define LOAD_IMAGES_ASYNC
 
-using System;
-using System.Threading.Tasks;
-
-using HereticalSolutions.Collections.Managed;
-
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.Persistence.IO;
 
-using HereticalSolutions.HereticalEngine.Messaging;
-
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureRAMStorageHandle
-		: IReadOnlyResourceStorageHandle
+		: AReadOnlyResourceStorageHandle<Image<Rgba32>>
 	{
 		private readonly FilePathSettings filePathSettings;
 
-		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
-
-		private readonly IFormatLogger logger;
-
-
-		private bool allocated = false;
-
-		private Image<Rgba32> texture = null;
-
 		public TextureRAMStorageHandle(
 			FilePathSettings filePathSettings,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
+			: base (context)
 		{
 			this.filePathSettings = filePathSettings;
-
-			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
-
-			this.logger = logger;
-
-
-			texture = null;
-
-			allocated = false;
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get => allocated;
-		}
-
-		public virtual async Task Allocate(
+		protected override async Task<Image<Rgba32>> AllocateResource(
 			IProgress<float> progress = null)
 		{
-			progress?.Report(0f);
-
-			if (allocated)
-			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			logger?.Log<TextureRAMStorageHandle>(
-				$"ALLOCATING");
+			Image<Rgba32> texture = default;
 
 #if LOAD_IMAGES_ASYNC
 			//The LoadAsync method is not thread safe somehow and throws exceptions if called not from the main thread.
 			//Whatever, we have main thread commands now
 			Func<Task> loadTextureDelegate = async () =>
 			{
-				logger?.Log<TextureRAMStorageHandle>(
+				context.Logger?.Log<TextureRAMStorageHandle>(
 					$"INITIATING ASYNC TEXTURE LOADING. THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
 
 				texture = await Image
 					.LoadAsync<Rgba32>(
 						filePathSettings.FullPath)
-					.ThrowExceptions<Image<Rgba32>, TextureRAMStorageHandle>(logger);
+					.ThrowExceptions<Image<Rgba32>, TextureRAMStorageHandle>(context.Logger);
 
-				logger?.Log<TextureRAMStorageHandle>(
+				context.Logger?.Log<TextureRAMStorageHandle>(
 					$"DONE. TEXTURE IS LOADED: {(texture != default).ToString()}");
 			};
 
-			var command = new MainThreadCommand(
-				loadTextureDelegate);
-
-			while (!mainThreadCommandBuffer.TryProduce(
-				command))
-			{
-				await Task.Yield();
-			}
-
-			while (command.Status != ECommandStatus.DONE)
-			{
-				await Task.Yield();
-			}
+			await ExecuteOnMainThread(
+				loadTextureDelegate)
+				.ThrowExceptions<TextureRAMStorageHandle>(context.Logger);
 #else
 			texture = Image.Load<Rgba32>(filePathSettings.FullPath);
 #endif
 
-			allocated = true;
-
-			logger?.Log<TextureRAMStorageHandle>(
-				$"ALLOCATED");
-
-			progress?.Report(1f);
+			return texture;
 		}
 
-		public virtual async Task Free(
+		protected override async Task FreeResource(
+			Image<Rgba32> resource,
 			IProgress<float> progress = null)
 		{
-			progress?.Report(0f);
-
-			if (!allocated)
-			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			logger?.Log<TextureRAMStorageHandle>(
-				$"FREEING");
-
-			texture.Dispose();
-
-			texture = null;
-
-
-			allocated = false;
-
-			logger?.Log<TextureRAMStorageHandle>(
-				$"FREE");
-
-			progress?.Report(1f);
+			resource.Dispose();
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
-
-				return texture;
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			if (!allocated)
-				throw new InvalidOperationException("Resource is not allocated.");
-
-			return (TValue)(object)texture; //DO NOT REPEAT
-		}
-
-		#endregion
 	}
 }

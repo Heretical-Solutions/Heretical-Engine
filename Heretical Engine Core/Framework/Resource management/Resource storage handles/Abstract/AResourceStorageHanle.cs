@@ -1,9 +1,10 @@
 using HereticalSolutions.HereticalEngine.Application;
 
+using HereticalSolutions.HereticalEngine.Messaging;
+
 namespace HereticalSolutions.ResourceManagement
 {
-	public abstract class AReadOnlyResourceStorageHandle<TResource>
-		: IReadOnlyResourceStorageHandle
+	public abstract class AResourceStorageHandle<TResource>
 	{
 		protected readonly ApplicationContext context;
 
@@ -12,7 +13,7 @@ namespace HereticalSolutions.ResourceManagement
 
 		protected TResource resource = default;
 
-		public AReadOnlyResourceStorageHandle(
+		public AResourceStorageHandle(
 			ApplicationContext context)
 		{
 			this.context = context;
@@ -23,89 +24,10 @@ namespace HereticalSolutions.ResourceManagement
 			allocated = false;
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get => allocated;
-		}
-
-		public virtual async Task Allocate(
-			IProgress<float> progress = null)
-		{
-			progress?.Report(0f);
-
-			if (allocated)
-			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			resource = AllocateResource(
-				progress);
-
-			allocated = true;
-
-			progress?.Report(1f);
-		}
-
-		public virtual async Task Free(
-			IProgress<float> progress = null)
-		{
-			progress?.Report(0f);
-
-			if (!allocated)
-			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			FreeResource(
-				resource,
-				progress);
-
-			resource = default;
-
-			allocated = false;
-
-			progress?.Report(1f);
-		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				if (!allocated)
-					context.Logger?.ThrowException(
-						GetType(),
-						"RESOURCE IS NOT ALLOCATED");
-
-				return resource;
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			if (!allocated)
-				context.Logger?.ThrowException(
-					GetType(),
-					"RESOURCE IS NOT ALLOCATED");
-
-			return (TValue)(object)resource; //DO NOT REPEAT
-		}
-
-		#endregion
-
-		protected abstract TResource AllocateResource(
+		protected abstract Task<TResource> AllocateResource(
 			IProgress<float> progress = null);
 
-		protected abstract void FreeResource(
+		protected abstract Task FreeResource(
 			TResource resource,
 			IProgress<float> progress = null);
 
@@ -209,6 +131,42 @@ namespace HereticalSolutions.ResourceManagement
 			progress?.Report(1f);
 
 			return dependencyStorageHandle;
+		}
+
+		protected async Task ExecuteOnMainThread(
+			Action delegateToExecute)
+		{
+			var command = new MainThreadCommand(
+				delegateToExecute);
+
+			while (!context.MainThreadCommandBuffer.TryProduce(
+				command))
+			{
+				await Task.Yield();
+			}
+
+			while (command.Status != ECommandStatus.DONE)
+			{
+				await Task.Yield();
+			}
+		}
+
+		protected async Task ExecuteOnMainThread(
+			Func<Task> asyncDelegateToExecute)
+		{
+			var command = new MainThreadCommand(
+				asyncDelegateToExecute);
+
+			while (!context.MainThreadCommandBuffer.TryProduce(
+				command))
+			{
+				await Task.Yield();
+			}
+
+			while (command.Status != ECommandStatus.DONE)
+			{
+				await Task.Yield();
+			}
 		}
 	}
 }
