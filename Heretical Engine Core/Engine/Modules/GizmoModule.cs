@@ -55,7 +55,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			//Initialization
 			var glStorageHandle = context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/GL".SplitAddressBySeparator())
+					OpenGLModule.GL_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			Task task;

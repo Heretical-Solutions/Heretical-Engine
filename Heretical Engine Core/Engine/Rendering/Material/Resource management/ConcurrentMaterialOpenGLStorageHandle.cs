@@ -1,269 +1,154 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
 
 using HereticalSolutions.ResourceManagement;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ConcurrentMaterialOpenGLStorageHandle
-		: IReadOnlyResourceStorageHandle
+		: AConcurrentReadOnlyResourceStorageHandle<MaterialOpenGL>
 	{
-		private readonly IRuntimeResourceManager resourceManager = null;
+		private readonly string materialRAMPath;
 
-		private readonly IReadOnlyResourceStorageHandle materialRAMStorageHandle = null;
-
-		private readonly SemaphoreSlim semaphore;
-
-		private readonly IFormatLogger logger;
-
-
-		private bool allocated = false;
-
-		private MaterialOpenGL material = null;
+		private readonly string materialRAMVariantID;
 
 		public ConcurrentMaterialOpenGLStorageHandle(
-			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle materialRAMStorageHandle,
+			string materialRAMPath,
+			string materialRAMVariantID,
 			SemaphoreSlim semaphore,
-			IFormatLogger logger)
+			ApplicationContext context)
+			: base(
+				semaphore,
+				context)
 		{
-			this.resourceManager = resourceManager;
+			this.materialRAMPath = materialRAMPath;
 
-			this.materialRAMStorageHandle = materialRAMStorageHandle;
-
-			this.semaphore = semaphore;
-
-			this.logger = logger;
-
-			
-			material = null;
-
-			allocated = false;
+			this.materialRAMVariantID = materialRAMVariantID;
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-
-				try
-				{
-					return allocated;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public async Task Allocate(IProgress<float> progress = null)
-		{
-			progress?.Report(0f);
-
-			await semaphore.WaitAsync(); // Acquire the semaphore
-
-			try
-			{
-				if (allocated)
-				{
-					progress?.Report(1f);
-
-					return;
-				}
-
-				logger?.Log<ConcurrentMaterialOpenGLStorageHandle>(
-					$"ALLOCATING");
-
-				bool result = await LoadMaterial(
-					resourceManager,
-					materialRAMStorageHandle,
-					progress)
-					.ThrowExceptions<bool, ConcurrentMaterialOpenGLStorageHandle>(logger);
-
-				if (!result)
-				{
-					progress?.Report(1f);
-
-					return;
-				}
-
-				allocated = true;
-
-				logger?.Log<ConcurrentMaterialOpenGLStorageHandle>(
-					$"ALLOCATED");
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
-		}
-
-		private async Task<bool> LoadMaterial(
-			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle materialRAMStorageHandle,
+		protected override async Task<MaterialOpenGL> AllocateResource(
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			if (!materialRAMStorageHandle.Allocated)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
-					0f,
-					0.333f);
 
-				await materialRAMStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<ConcurrentMaterialOpenGLStorageHandle>(logger);
-			}
+			IReadOnlyResourceStorageHandle materialRAMStorageHandle = null;
+
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.333f);
+
+			materialRAMStorageHandle = await LoadDependency(
+				materialRAMPath,
+				materialRAMVariantID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
 
 			var materialDTO = materialRAMStorageHandle.GetResource<MaterialDTO>();
 
+			IReadOnlyResourceStorageHandle shaderOpenGLStorageHandle = null;
+
+			IReadOnlyResourceStorageHandle[] textureOpenGLStorageHandles = new IReadOnlyResourceStorageHandle[materialDTO.TextureResourceIDs.Length];
+
 			progress?.Report(0.333f);
 
-			var shaderStorageHandle = resourceManager
-				.GetResource(
-					materialDTO.ShaderResourceID.SplitAddressBySeparator())
-				.GetVariant(
-					ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID)
-				.StorageHandle;
 
-			if (!shaderStorageHandle.Allocated)
+#if PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
+			List<Task> loadDependencyTasks = new List<Task>();
+
+			List<float> loadDependencyProgresses = new List<float>();
+
+			IProgress<float> shaderLoadProgress = progress.CreateLocalProgress(
+				0.333f,
+				1f,
+				loadDependencyProgresses,
+				0);
+
+			loadDependencyTasks.Add(
+				Task.Run(async () => 
+					{
+						shaderOpenGLStorageHandle = await LoadDependency(
+							materialDTO.ShaderResourceID,
+							ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID,
+							shaderLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
+					}));
+
+			for (int i = 0; i < textureOpenGLStorageHandles.Length; i++)
 			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
+				IProgress<float> textureLoadProgress = progress.CreateLocalProgress(
 					0.333f,
-					0.666f);
+					1f,
+					loadDependencyProgresses,
+					i + 1);
 
-				await shaderStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<ConcurrentMaterialOpenGLStorageHandle>(logger);
+				loadDependencyTasks.Add(
+					Task.Run(async () =>
+						{
+							textureOpenGLStorageHandles[i] = await LoadDependency(
+								materialDTO.TextureResourceIDs[i],
+								TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID,
+								textureLoadProgress)
+								.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
+						}));
 			}
 
-			var shader = shaderStorageHandle.GetResource<ShaderOpenGL>();
+			await Task
+				.WhenAll(loadDependencyTasks)
+				.ThrowExceptions<ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
+#else
+			localProgress = progress.CreateLocalProgress(
+				0.333f,
+				0.666f);
+
+			shaderOpenGLStorageHandle = await LoadDependency(
+				materialDTO.ShaderResourceID,
+				ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(0.666f);
+
+			for (int i = 0; i < textureOpenGLStorageHandles.Length; i++)
+			{
+				IProgress<float> textureLoadProgress = progress.CreateLocalProgress(
+					0.666f,
+					1f,
+					i,
+					textureOpenGLStorageHandles.Length);
+
+				textureOpenGLStorageHandles[i] = await LoadDependency(
+					materialDTO.TextureResourceIDs[i],
+					TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID,
+					textureLoadProgress)
+					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
+			}
+#endif
+
+			var shader = shaderOpenGLStorageHandle.GetResource<ShaderOpenGL>();
 
 			var textures = new TextureOpenGL[materialDTO.TextureResourceIDs.Length];
 
 			for (int i = 0; i < textures.Length; i++)
 			{
-				var textureOpenGLStorageHandle = resourceManager
-					.GetResource(
-						materialDTO.TextureResourceIDs[i].SplitAddressBySeparator())
-					.GetVariant(
-						TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID)
-					.StorageHandle;
-
-				if (!textureOpenGLStorageHandle.Allocated)
-				{
-					IProgress<float> localProgress = progress.CreateLocalProgress(
-						0.666f,
-						1f,
-						i,
-						textures.Length);
-
-					await textureOpenGLStorageHandle
-						.Allocate(
-							localProgress)
-						.ThrowExceptions<ConcurrentMaterialOpenGLStorageHandle>(logger);
-				}
-
-				textures[i] = textureOpenGLStorageHandle.GetResource<TextureOpenGL>();
+				textures[i] = textureOpenGLStorageHandles[i].GetResource<TextureOpenGL>();
 			}
 
-			material = new MaterialOpenGL(
+			var material = new MaterialOpenGL(
 				shader,
 				textures);
 
 			progress?.Report(1f);
 
-			return true;
+			return material;
 		}
 
-		public async Task Free(IProgress<float> progress = null)
+		protected override async Task FreeResource(
+			MaterialOpenGL resource,
+			IProgress<float> progress = null)
 		{
-			progress?.Report(0f);
-
-			await semaphore.WaitAsync(); // Acquire the semaphore
-			
-			try
-			{
-				if (!allocated)
-				{
-					progress?.Report(1f);
-
-					return;
-				}
-
-				logger?.Log<ConcurrentMaterialOpenGLStorageHandle>(
-					$"FREEING");
-
-				material = null;
-
-				allocated = false;
-
-				logger?.Log<ConcurrentMaterialOpenGLStorageHandle>(
-					$"FREE");
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
+			progress?.Report(1f);
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-
-				try
-				{
-					if (!allocated)
-						throw new InvalidOperationException("Resource is not allocated.");
-
-					return material;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			semaphore.Wait(); // Acquire the semaphore
-
-			try
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
-
-				return (TValue)(object)material;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-			}
-		}
-
-		#endregion
 	}
 }

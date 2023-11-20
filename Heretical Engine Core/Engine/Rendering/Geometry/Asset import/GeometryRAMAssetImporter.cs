@@ -5,7 +5,7 @@ using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -20,13 +20,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private readonly Geometry geometry;
 
 		public GeometryRAMAssetImporter(
-			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			Geometry geometry,
-			IFormatLogger logger)
+			ApplicationContext context)
 			: base(
-				resourceManager,
-				logger)
+				context)
 		{
 			this.resourceID = resourceID;
 
@@ -36,7 +34,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger?.Log<GeometryRAMAssetImporter>(
+			context.Logger?.Log<GeometryRAMAssetImporter>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -44,7 +42,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourceID)
-					.ThrowExceptions<IResourceData, GeometryRAMAssetImporter>(logger),
+					.ThrowExceptions<IResourceData, GeometryRAMAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = GEOMETRY_RAM_VARIANT_ID,
@@ -55,19 +53,21 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					ResourceType = typeof(Geometry),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle(
-					geometry),
+				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<Geometry>(
+					geometry,
+					context),
 #else
-				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
-					geometry),
+				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<Geometry>(
+					geometry,
+					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, GeometryRAMAssetImporter>(logger);
+				.ThrowExceptions<IResourceVariantData, GeometryRAMAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			logger?.Log<GeometryRAMAssetImporter>(
+			context.Logger?.Log<GeometryRAMAssetImporter>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;

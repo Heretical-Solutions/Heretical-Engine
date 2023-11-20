@@ -6,7 +6,7 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -18,26 +18,29 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly string resourceID;
 
-		private readonly IReadOnlyResourceStorageHandle meshRAMStorageHandle;
+		private readonly string meshRAMPath;
+
+		private readonly string meshRAMVariantID;
 
 		public MeshOpenGLAssetImporter(
-			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			IReadOnlyResourceStorageHandle meshRAMStorageHandle,
-			IFormatLogger logger)
+			string meshRAMPath,
+			string meshRAMVariantID,
+			ApplicationContext context)
 			: base(
-				resourceManager,
-				logger)
+				context)
 		{
 			this.resourceID = resourceID;
 
-			this.meshRAMStorageHandle = meshRAMStorageHandle;
+			this.meshRAMPath = meshRAMPath;
+
+			this.meshRAMVariantID = meshRAMVariantID;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger?.Log<MeshOpenGLAssetImporter>(
+			context.Logger?.Log<MeshOpenGLAssetImporter>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -45,7 +48,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourceID)
-					.ThrowExceptions<IResourceData, MeshOpenGLAssetImporter>(logger),
+					.ThrowExceptions<IResourceData, MeshOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = MESH_OPENGL_VARIANT_ID,
@@ -57,22 +60,22 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				MeshFactory.BuildConcurrentMeshOpenGLStorageHandle(
-					resourceManager,
-					meshRAMStorageHandle,
-					logger),
+					meshRAMPath,
+					meshRAMVariantID,
+					context),
 #else
 				MeshFactory.BuildMeshOpenGLStorageHandle(
-					resourceManager,
-					meshRAMStorageHandle,
-					logger),
+					meshRAMPath,
+					meshRAMVariantID,
+					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, MeshOpenGLAssetImporter>(logger);
+				.ThrowExceptions<IResourceVariantData, MeshOpenGLAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			logger?.Log<MeshOpenGLAssetImporter>(
+			context.Logger?.Log<MeshOpenGLAssetImporter>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;

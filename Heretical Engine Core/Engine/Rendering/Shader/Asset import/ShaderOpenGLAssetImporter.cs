@@ -1,7 +1,5 @@
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
-using HereticalSolutions.Collections.Managed;
-
 using HereticalSolutions.Persistence;
 
 using HereticalSolutions.ResourceManagement;
@@ -10,11 +8,7 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using HereticalSolutions.HereticalEngine.Messaging;
-
-using HereticalSolutions.Logging;
-
-using Silk.NET.OpenGL;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -32,22 +26,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly ISerializationArgument fragmentShaderSerializationArgument;
 
-		private readonly GL cachedGL;
-
-		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
-
 		public ShaderOpenGLAssetImporter(
-			IRuntimeResourceManager resourceManager,
 			string fullResourceID,
 			ISerializer serializer,
 			ISerializationArgument vertexShaderSerializationArgument,
 			ISerializationArgument fragmentShaderSerializationArgument,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
 			: base(
-				resourceManager,
-				logger)
+				context)
 		{
 			this.fullResourceID = fullResourceID;
 
@@ -56,16 +42,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			this.vertexShaderSerializationArgument = vertexShaderSerializationArgument;
 
 			this.fragmentShaderSerializationArgument = fragmentShaderSerializationArgument;
-
-			cachedGL = gl;
-
-			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger?.Log<ShaderOpenGLAssetImporter>(
+			context.Logger?.Log<ShaderOpenGLAssetImporter>(
 				$"IMPORTING {fullResourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -80,7 +62,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(fullResourceID)
-					.ThrowExceptions<IResourceData, ShaderOpenGLAssetImporter>(logger),
+					.ThrowExceptions<IResourceData, ShaderOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor
 				{
 					VariantID = SHADER_OPENGL_VARIANT_ID,
@@ -94,24 +76,20 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ShaderFactory.BuildConcurrentShaderOpenGLStorageHandle(
 					vertexShaderSourceDTO.Text,
 					fragmentShaderSourceDTO.Text,
-					cachedGL,
-					mainThreadCommandBuffer,
-					logger),
+					context),
 #else
 				ShaderFactory.BuildShaderOpenGLStorageHandle(
 					vertexShaderSourceDTO.Text,
 					fragmentShaderSourceDTO.Text,
-					cachedGL,
-					mainThreadCommandBuffer,
-					logger),
+					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, ShaderOpenGLAssetImporter>(logger);
+				.ThrowExceptions<IResourceVariantData, ShaderOpenGLAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			logger?.Log<ShaderOpenGLAssetImporter>(
+			context.Logger?.Log<ShaderOpenGLAssetImporter>(
 				$"IMPORTING {fullResourceID} FINISHED");
 
 			return result;

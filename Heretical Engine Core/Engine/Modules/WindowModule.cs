@@ -13,6 +13,12 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	public class WindowModule
 		: ICoreModule
 	{
+		public const string WINDOW_RESOURCE_PATH = "Application/Window";
+
+		public const string INPUT_CONTEXT_RESOURCE_PATH = "Application/Input context";
+
+		public const string PRIMARY_KEYBOARD_RESOURCE_PATH = "Application/Primary keyboard";
+
 		private IWindow window = null;
 
 		private IKeyboard primaryKeyboard = null;
@@ -96,7 +102,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var windowImporter = new DefaultPreallocatedAssetImporter<IWindow>(
 				context.RuntimeResourceManager,
-				"Application/Window",
+				WINDOW_RESOURCE_PATH,
 				window,
 				context.Logger);
 
@@ -150,7 +156,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var inputContextImporter = new DefaultPreallocatedAssetImporter<IInputContext>(
 				context.RuntimeResourceManager,
-				"Application/Input context",
+				INPUT_CONTEXT_RESOURCE_PATH,
 				inputContext,
 				context.Logger);
 
@@ -161,7 +167,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var primaryKeyboardImporter = new DefaultPreallocatedAssetImporter<IKeyboard>(
 				context.RuntimeResourceManager,
-				"Application/Primary keyboard",
+				PRIMARY_KEYBOARD_RESOURCE_PATH,
 				primaryKeyboard,
 				context.Logger);
 

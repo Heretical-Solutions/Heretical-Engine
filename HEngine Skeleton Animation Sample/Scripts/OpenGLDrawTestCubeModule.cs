@@ -162,7 +162,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var glStorageHandle = context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/GL".SplitAddressBySeparator())
+					OpenGLModule.GL_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			Task task;
@@ -179,7 +179,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			cameraStorageHandle = (IResourceStorageHandle)context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/Main camera".SplitAddressBySeparator())
+					MainCameraModule.MAIN_CAMERA_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			if (!cameraStorageHandle.Allocated)

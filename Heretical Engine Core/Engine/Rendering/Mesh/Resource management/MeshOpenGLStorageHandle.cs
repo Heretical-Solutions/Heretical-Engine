@@ -1,212 +1,137 @@
-using System;
-using System.Threading.Tasks;
+#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
 
 using HereticalSolutions.ResourceManagement;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MeshOpenGLStorageHandle
-		: IReadOnlyResourceStorageHandle
+		: AReadOnlyResourceStorageHandle<MeshOpenGL>
 	{
-		private readonly IRuntimeResourceManager resourceManager = null;
+		private readonly string meshRAMPath;
 
-		private readonly IReadOnlyResourceStorageHandle meshRAMStorageHandle = null;
-
-		private readonly IFormatLogger logger;
-
-
-		private bool allocated = false;
-
-		private MeshOpenGL mesh = null;
+		private readonly string meshRAMVariantID;
 
 		public MeshOpenGLStorageHandle(
-			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle meshRAMStorageHandle,
-			IFormatLogger logger)
+			string meshRAMPath,
+			string meshRAMVariantID,
+			ApplicationContext context)
+			: base(
+				context)
 		{
-			this.resourceManager = resourceManager;
+			this.meshRAMPath = meshRAMPath;
 
-			this.meshRAMStorageHandle = meshRAMStorageHandle;
-
-			this.logger = logger;
-
-
-			mesh = null;
-
-			allocated = false;
+			this.meshRAMVariantID = meshRAMVariantID;
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get => allocated;
-		}
-
-		public virtual async Task Allocate(
+		protected override async Task<MeshOpenGL> AllocateResource(
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			if (allocated)
-			{
-				progress?.Report(1f);
+			IReadOnlyResourceStorageHandle meshRAMStorageHandle = null;
 
-				return;
-			}
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.333f);
 
-			logger?.Log<MeshOpenGLStorageHandle>(
-				$"ALLOCATING");
-
-			bool result = await LoadMesh(
-				resourceManager,
-				meshRAMStorageHandle,
-				progress)
-				.ThrowExceptions<bool, MeshOpenGLStorageHandle>(logger);
-
-			if (!result)
-			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			allocated = true;
-
-			logger?.Log<MeshOpenGLStorageHandle>(
-				$"ALLOCATED");
-
-			progress?.Report(1f);
-		}
-
-		private async Task<bool> LoadMesh(
-			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle meshRAMStorageHandle,
-			IProgress<float> progress = null)
-		{
-			progress?.Report(0f);
-
-			if (!meshRAMStorageHandle.Allocated)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
-					0f,
-					0.333f);
-
-				await meshRAMStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<MeshOpenGLStorageHandle>(logger);
-			}
+			meshRAMStorageHandle = await LoadDependency(
+				meshRAMPath,
+				meshRAMVariantID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
 
 			var meshDTO = meshRAMStorageHandle.GetResource<MeshDTO>();
 
+			IReadOnlyResourceStorageHandle geometryOpenGLStorageHandle = null;
+
+			IReadOnlyResourceStorageHandle materialOpenGLStorageHandle = null;
+
 			progress?.Report(0.333f);
 
-			var geometryStorageHandle = resourceManager
-				.GetResource(
-					meshDTO.GeometryResourceID.SplitAddressBySeparator())
-				.GetVariant(
-					GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID)
-				.StorageHandle;
+#if PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
+			List<Task> loadDependencyTasks = new List<Task>();
 
-			if (!geometryStorageHandle.Allocated)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
-					0.333f,
-					0.666f);
+			List<float> loadDependencyProgresses = new List<float>();
 
-				await geometryStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<MeshOpenGLStorageHandle>(logger);
-			}
+			IProgress<float> geometryOpenGLLoadProgress = progress.CreateLocalProgress(
+				0.333f,
+				1f,
+				loadDependencyProgresses,
+				0);
 
-			var geometry = geometryStorageHandle.GetResource<GeometryOpenGL>();
+			loadDependencyTasks.Add(
+				Task.Run(async () => 
+					{
+						geometryOpenGLStorageHandle = await LoadDependency(
+							meshDTO.GeometryResourceID,
+							GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
+							geometryOpenGLLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
+					}));
+
+			IProgress<float> materialOpenGLLoadProgress = progress.CreateLocalProgress(
+				0.333f,
+				1f,
+				loadDependencyProgresses,
+				1);
+
+			loadDependencyTasks.Add(
+				Task.Run(async () =>
+					{
+						materialOpenGLStorageHandle = await LoadDependency(
+							meshDTO.MaterialResourceID,
+							MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
+							materialOpenGLLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
+					}));
+
+			await Task
+				.WhenAll(loadDependencyTasks)
+				.ThrowExceptions<MeshOpenGLStorageHandle>(context.Logger);
+#else
+			localProgress = progress.CreateLocalProgress(
+				0.333f,
+				0.666f);
+
+			geometryOpenGLStorageHandle = await LoadDependency(
+				meshDTO.GeometryResourceID,
+				GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(0.666f);
 
+			localProgress = progress.CreateLocalProgress(
+				0.666f,
+				1f);
 
-			var materialOpenGLStorageHandle = resourceManager
-				.GetResource(
-					meshDTO.MaterialResourceID.SplitAddressBySeparator())
-				.GetVariant(
-					MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID)
-				.StorageHandle;
+			materialOpenGLStorageHandle = await LoadDependency(
+				meshDTO.MaterialResourceID,
+				MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
+#endif
 
-			if (!materialOpenGLStorageHandle.Allocated)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
-					0.666f,
-					1f);
-
-				await materialOpenGLStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<MeshOpenGLStorageHandle>(logger);
-			}
+			var geometry = geometryOpenGLStorageHandle.GetResource<GeometryOpenGL>();
 
 			var material = materialOpenGLStorageHandle.GetResource<MaterialOpenGL>();
 
-			mesh = new MeshOpenGL(
+			var mesh = new MeshOpenGL(
 				geometry,
 				material);
 
 			progress?.Report(1f);
 
-			return true;
+			return mesh;
 		}
 
-		public virtual async Task Free(
+		protected override async Task FreeResource(
+			MeshOpenGL resource,
 			IProgress<float> progress = null)
 		{
-			progress?.Report(0f);
-
-			if (!allocated)
-			{
-				progress?.Report(1f);
-
-				return;
-			}
-
-			logger?.Log<MeshOpenGLStorageHandle>(
-				$"FREEING");
-
-			mesh = null;
-
-
-			allocated = false;
-
-			logger?.Log<MeshOpenGLStorageHandle>(
-				$"FREE");
-
 			progress?.Report(1f);
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
-
-				return mesh;
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			if (!allocated)
-				throw new InvalidOperationException("Resource is not allocated.");
-
-			return (TValue)(object)mesh; //DO NOT REPEAT
-		}
-
-		#endregion
 	}
 }

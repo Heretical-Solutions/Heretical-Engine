@@ -90,7 +90,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					resourceManager,
 					modelRAMStorageHandle,
 					progress)
-					.ThrowExceptions<bool, ModelOpenGLStorageHandle>(logger);
+					.ThrowExceptions<bool, ConcurrentModelOpenGLStorageHandle>(logger);
 
 				if (!result)
 				{
@@ -128,7 +128,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				await modelRAMStorageHandle
 					.Allocate(
 						localProgress)
-					.ThrowExceptions<ModelOpenGLStorageHandle>(logger);
+					.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
 			}
 
 			var modelDTO = modelRAMStorageHandle.GetResource<ModelDTO>();
@@ -144,7 +144,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				(1f / 6f),
 				(2f / 6f),
 				progress)
-				.ThrowExceptions<ModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
 
 			progress?.Report(2f / 6f);
 
@@ -157,7 +157,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				(2f / 6f),
 				(3f / 6f),
 				progress)
-				.ThrowExceptions<ModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
 
 			progress?.Report(3f / 6f);
 
@@ -170,7 +170,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				(3f / 6f),
 				(4f / 6f),
 				progress)
-				.ThrowExceptions<ModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
 
 			progress?.Report(4f / 6f);
 
@@ -183,13 +183,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				(4f / 6f),
 				(5f / 6f),
 				progress)
-				.ThrowExceptions<ModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
 
 			progress?.Report(5f / 6f);
 
 			ModelNodeOpenGL rootNode = await BuildModelNodeOpenGL(
 				modelDTO.RootNode)
-				.ThrowExceptions<ModelNodeOpenGL, ModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ModelNodeOpenGL, ConcurrentModelOpenGLStorageHandle>(logger);
 
 			model = new ModelOpenGL(
 				meshes,
@@ -231,7 +231,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					await resourceStorageHandle
 						.Allocate(
 							localProgress)
-						.ThrowExceptions<ModelOpenGLStorageHandle>(logger);
+						.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
 				}
 
 				resourceCollection[i] = resourceStorageHandle.GetResource<TResource>();
@@ -247,7 +247,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			{
 				children[i] = await BuildModelNodeOpenGL(
 					dto.Children[i])
-					.ThrowExceptions<ModelNodeOpenGL, ModelOpenGLStorageHandle>(logger);
+					.ThrowExceptions<ModelNodeOpenGL, ConcurrentModelOpenGLStorageHandle>(logger);
 			}
 
 			Transform transform = new Transform
@@ -268,7 +268,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				-1f,
 				-1f,
 				null)
-				.ThrowExceptions<ModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
 
 			var result = new ModelNodeOpenGL(
 				dto.Name,

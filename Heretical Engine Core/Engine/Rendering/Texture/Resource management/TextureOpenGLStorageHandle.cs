@@ -17,13 +17,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		private readonly string glPath;
 
-		private readonly string textureRamPath;
+		private readonly string textureRAMPath;
+
+		private readonly string textureRAMVariantID;
 
 		private readonly TextureType textureType;
 
 		public TextureOpenGLStorageHandle(
 			string glPath,
-			string textureRamPath,
+			string textureRAMPath,
+			string textureRAMVariantID,
 			TextureType textureType,
 			ApplicationContext context)
 			: base (
@@ -31,9 +34,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			this.glPath = glPath;
 
-			this.textureRamPath = textureRamPath;
+			this.textureRAMPath = textureRAMPath;
 
 			this.textureType = textureType;
+
+			this.textureRAMVariantID = textureRAMVariantID;
 		}
 
 		protected override async Task<TextureOpenGL> AllocateResource(
@@ -76,8 +81,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				Task.Run(async () =>
 					{
 						textureRAMStorageHandle = await LoadDependency(
-							textureRamPath,
-							TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID,
+							textureRAMPath,
+							textureRAMVariantID,
 							textureRAMLoadProgress)
 							.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
 					}));

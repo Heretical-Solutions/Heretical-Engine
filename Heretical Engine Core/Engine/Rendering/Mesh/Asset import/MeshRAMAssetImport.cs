@@ -5,7 +5,7 @@ using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -20,13 +20,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private readonly MeshDTO mesh;
 
 		public MeshRAMAssetImporter(
-			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			MeshDTO mesh,
-			IFormatLogger logger)
+			ApplicationContext context)
 			: base(
-				resourceManager,
-				logger)
+				context)
 		{
 			this.resourceID = resourceID;
 
@@ -36,7 +34,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger?.Log<MeshRAMAssetImporter>(
+			context.Logger?.Log<MeshRAMAssetImporter>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -44,7 +42,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourceID)
-					.ThrowExceptions<IResourceData, MeshRAMAssetImporter>(logger),
+					.ThrowExceptions<IResourceData, MeshRAMAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = MESH_RAM_VARIANT_ID,
@@ -55,19 +53,21 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					ResourceType = typeof(MaterialDTO),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle(
-					mesh),
+				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<MeshDTO>(
+					mesh,
+					context),
 #else
-				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
-					mesh),
+				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<MeshDTO>(
+					mesh,
+					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, MeshRAMAssetImporter>(logger);
+				.ThrowExceptions<IResourceVariantData, MeshRAMAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			logger?.Log<MeshRAMAssetImporter>(
+			context.Logger?.Log<MeshRAMAssetImporter>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;

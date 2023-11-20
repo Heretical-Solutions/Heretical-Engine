@@ -6,7 +6,7 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -18,26 +18,29 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly string resourceID;
 
-		private readonly IReadOnlyResourceStorageHandle materialRAMStorageHandle;
+		private readonly string materialRAMPath;
+
+		private readonly string materialRAMVariantID;
 
 		public MaterialOpenGLAssetImporter(
-			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			IReadOnlyResourceStorageHandle materialRAMStorageHandle,
-			IFormatLogger logger)
+			string materialRAMPath,
+			string materialRAMVariantID,
+			ApplicationContext context)
 			: base(
-				resourceManager,
-				logger)
+				context)
 		{
 			this.resourceID = resourceID;
 
-			this.materialRAMStorageHandle = materialRAMStorageHandle;
+			this.materialRAMPath = materialRAMPath;
+
+			this.materialRAMVariantID = materialRAMVariantID;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger?.Log<MaterialOpenGLAssetImporter>(
+			context.Logger?.Log<MaterialOpenGLAssetImporter>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -45,7 +48,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourceID)
-					.ThrowExceptions<IResourceData, MaterialOpenGLAssetImporter>(logger),
+					.ThrowExceptions<IResourceData, MaterialOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = MATERIAL_OPENGL_VARIANT_ID,
@@ -57,22 +60,22 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				MaterialFactory.BuildConcurrentMaterialOpenGLStorageHandle(
-					resourceManager,
-					materialRAMStorageHandle,
-					logger),
+					materialRAMPath,
+					materialRAMVariantID,
+					context),
 #else
 				MaterialFactory.BuildMaterialOpenGLStorageHandle(
-					resourceManager,
-					materialRAMStorageHandle,
-					logger),
+					materialRAMPath,
+					materialRAMVariantID,
+					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, MaterialOpenGLAssetImporter>(logger);
+				.ThrowExceptions<IResourceVariantData, MaterialOpenGLAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			logger?.Log<MaterialOpenGLAssetImporter>(
+			context.Logger?.Log<MaterialOpenGLAssetImporter>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;

@@ -1,32 +1,30 @@
-using HereticalSolutions.ResourceManagement;
-
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public static class MeshFactory
 	{
 		public static MeshOpenGLStorageHandle BuildMeshOpenGLStorageHandle(
-			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle meshRAMStorageHandle,
-			IFormatLogger logger)
+			string meshRAMPath,
+			string meshRAMVariantID,
+			ApplicationContext context)
 		{
 			return new MeshOpenGLStorageHandle(
-				resourceManager,
-				meshRAMStorageHandle,
-				logger);
+				meshRAMPath,
+				meshRAMVariantID,
+				context);
 		}
 
 		public static ConcurrentMeshOpenGLStorageHandle BuildConcurrentMeshOpenGLStorageHandle(
-			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle meshRAMStorageHandle,
-			IFormatLogger logger)
+			string meshRAMPath,
+			string meshRAMVariantID,
+			ApplicationContext context)
 		{
 			return new ConcurrentMeshOpenGLStorageHandle(
-				resourceManager,
-				meshRAMStorageHandle,
+				meshRAMPath,
+				meshRAMVariantID,
 				new SemaphoreSlim(1, 1),
-				logger);
+				context);
 		}
 	}
 }

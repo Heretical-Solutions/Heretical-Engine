@@ -6,6 +6,10 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Application;
 
+using HereticalSolutions.HereticalEngine.Scenes;
+
+using HereticalSolutions.ResourceManagement;
+
 using HereticalSolutions.Logging;
 
 using Silk.NET.Maths;
@@ -13,14 +17,14 @@ using Silk.NET.Maths;
 using Silk.NET.Windowing;
 
 using Silk.NET.Input;
-using HereticalSolutions.HereticalEngine.Scenes;
-using HereticalSolutions.ResourceManagement;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
 	public class MainCameraModule
 		: IModule
 	{
+		public const string MAIN_CAMERA_RESOURCE_PATH = "Application/Main camera";
+
 		private IWindow window = null;
 
 		private IKeyboard primaryKeyboard = null;
@@ -96,9 +100,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			//Initialization
 
 			var windowStorageHandle = context.RuntimeResourceManager
-										.GetDefaultResource(
-											"Application/Window".SplitAddressBySeparator())
-										.StorageHandle;
+				.GetDefaultResource(
+					WindowModule.WINDOW_RESOURCE_PATH.SplitAddressBySeparator())
+				.StorageHandle;
 
 			Task task;
 
@@ -115,7 +119,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var primaryKeyboardStorageHandle = context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/Primary keyboard".SplitAddressBySeparator())
+					WindowModule.PRIMARY_KEYBOARD_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			if (!primaryKeyboardStorageHandle.Allocated)
@@ -130,7 +134,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var inputContextStorageHandle = context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/Input context".SplitAddressBySeparator())
+					WindowModule.INPUT_CONTEXT_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			if (!inputContextStorageHandle.Allocated)
@@ -161,7 +165,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var cameraImporter = new DefaultReadWriteAssetImporter<Camera>(
 				context.RuntimeResourceManager,
-				"Application/Main camera",
+				MAIN_CAMERA_RESOURCE_PATH,
 				camera,
 				context.Logger);
 

@@ -1,5 +1,3 @@
-#define LOAD_IMAGES_ASYNC
-
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.Persistence.IO;
@@ -26,7 +24,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			Image<Rgba32> texture = default;
 
-#if LOAD_IMAGES_ASYNC
+			//texture = Image.Load<Rgba32>(filePathSettings.FullPath);
+
 			//The LoadAsync method is not thread safe somehow and throws exceptions if called not from the main thread.
 			//Whatever, we have main thread commands now
 			Func<Task> loadTextureDelegate = async () =>
@@ -46,9 +45,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			await ExecuteOnMainThread(
 				loadTextureDelegate)
 				.ThrowExceptions<TextureRAMStorageHandle>(context.Logger);
-#else
-			texture = Image.Load<Rgba32>(filePathSettings.FullPath);
-#endif
 
 			return texture;
 		}

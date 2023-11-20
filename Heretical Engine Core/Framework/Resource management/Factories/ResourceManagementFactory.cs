@@ -1,4 +1,5 @@
 using HereticalSolutions.Delegates.Factories;
+using HereticalSolutions.HereticalEngine.Application;
 using HereticalSolutions.Logging;
 using HereticalSolutions.Repositories.Factories;
 
@@ -28,6 +29,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
             return new ConcurrentRuntimeResourceManager(
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IReadOnlyResourceData>(),
+                NotifiersFactory.BuildAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData>(logger),
                 new SemaphoreSlim(1, 1),
                 logger);
         }
@@ -76,28 +78,42 @@ namespace HereticalSolutions.ResourceManagement.Factories
                 storageHandle);
         }
 
-        public static PreallocatedResourceStorageHandle BuildPreallocatedResourceStorageHandle(object resource)
+        public static PreallocatedResourceStorageHandle<TResource> BuildPreallocatedResourceStorageHandle<TResource>(
+            TResource resource,
+            ApplicationContext context)
         {
-            return new PreallocatedResourceStorageHandle(resource);
-        }
-
-        public static ConcurrentPreallocatedResourceStorageHandle BuildConcurrentPreallocatedResourceStorageHandle(object resource)
-        {
-            return new ConcurrentPreallocatedResourceStorageHandle(
+            return new PreallocatedResourceStorageHandle<TResource>(
                 resource,
-                new SemaphoreSlim(1, 1));
+                context);
         }
 
-        public static ReadWriteResourceStorageHandle BuildReadWriteResourceStorageHandle(object resource)
+        public static ConcurrentPreallocatedResourceStorageHandle<TResource> BuildConcurrentPreallocatedResourceStorageHandle<TResource>(
+            TResource resource,
+            ApplicationContext context)
         {
-            return new ReadWriteResourceStorageHandle(resource);
-        }
-
-        public static ConcurrentReadWriteResourceStorageHandle BuildConcurrentReadWriteResourceStorageHandle(object resource)
-        {
-            return new ConcurrentReadWriteResourceStorageHandle(
+            return new ConcurrentPreallocatedResourceStorageHandle<TResource>(
                 resource,
-                new SemaphoreSlim(1, 1));
+                new SemaphoreSlim(1, 1),
+                context);
+        }
+
+        public static ReadWriteResourceStorageHandle<TResource> BuildReadWriteResourceStorageHandle<TResource>(
+            TResource resource,
+            ApplicationContext context)
+        {
+            return new ReadWriteResourceStorageHandle<TResource>(
+                resource,
+                context);
+        }
+
+        public static ConcurrentReadWriteResourceStorageHandle<TResource> BuildConcurrentReadWriteResourceStorageHandle<TResource>(
+            TResource resource,
+            ApplicationContext context)
+        {
+            return new ConcurrentReadWriteResourceStorageHandle<TResource>(
+                resource,
+                new SemaphoreSlim(1, 1),
+                context);
         }
     }
 }

@@ -1,8 +1,6 @@
-using HereticalSolutions.Collections.Managed;
+using HereticalSolutions.HereticalEngine.Modules;
 
-using HereticalSolutions.ResourceManagement;
-
-using HereticalSolutions.HereticalEngine.Messaging;
+using HereticalSolutions.HereticalEngine.Application;
 
 using HereticalSolutions.Logging;
 
@@ -258,7 +256,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 					default:
 						logger?.LogWarning(
-							$"[ShaderFactory] CANNOT FILL VBO WITH VALUES OF ATTRIBUTE {attribute.Name}");
+							$"[GeometryFactory] CANNOT FILL VBO WITH VALUES OF ATTRIBUTE {attribute.Name}");
 
 						return;
 				}
@@ -281,34 +279,36 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		}
 
 		public static GeometryOpenGLStorageHandle BuildGeometryOpenGLStorageHandle(
-			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
-			IReadOnlyResourceStorageHandle shaderStorageHandle,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			string shaderOpenGLPath,
+			string shaderOpenGLVariantID,
+			string geometryRAMPath,
+			string geometryRAMVariantID,
+			ApplicationContext context)
 		{
 			return new GeometryOpenGLStorageHandle(
-				geometryRAMStorageHandle,
-				shaderStorageHandle,
-				gl,
-				mainThreadCommandBuffer,
-				logger);
+				OpenGLModule.GL_RESOURCE_PATH,
+				shaderOpenGLPath,
+				shaderOpenGLVariantID,
+				geometryRAMPath,
+				geometryRAMVariantID,
+				context);
 		}
 
 		public static ConcurrentGeometryOpenGLStorageHandle BuildConcurrentGeometryOpenGLStorageHandle(
-			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
-			IReadOnlyResourceStorageHandle shaderStorageHandle,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			string shaderOpenGLPath,
+			string shaderOpenGLVariantID,
+			string geometryRAMPath,
+			string geometryRAMVariantID,
+			ApplicationContext context)
 		{
 			return new ConcurrentGeometryOpenGLStorageHandle(
-				geometryRAMStorageHandle,
-				shaderStorageHandle,
+				OpenGLModule.GL_RESOURCE_PATH,
+				shaderOpenGLPath,
+				shaderOpenGLVariantID,
+				geometryRAMPath,
+				geometryRAMVariantID,
 				new SemaphoreSlim(1, 1),
-				gl,
-				mainThreadCommandBuffer,
-				logger);
+				context);
 		}
 	}
 }

@@ -1,15 +1,12 @@
-using HereticalSolutions.Collections.Managed;
-
 using HereticalSolutions.Persistence.IO;
 
-using HereticalSolutions.HereticalEngine.Messaging;
+using HereticalSolutions.HereticalEngine.Application;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Modules;
 
 using Silk.NET.OpenGL;
 
 using Silk.NET.Assimp;
-using HereticalSolutions.ResourceManagement;
 
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
@@ -69,56 +66,50 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		public static TextureRAMStorageHandle BuildTextureRAMStorageHandle(
 			FilePathSettings filePathSettings,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
 		{
 			return new TextureRAMStorageHandle(
 				filePathSettings,
-				mainThreadCommandBuffer,
-				logger);
+				context);
 		}
 
 		public static ConcurrentTextureRAMStorageHandle BuildConcurrentTextureRAMStorageHandle(
 			FilePathSettings filePathSettings,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
 		{
 			return new ConcurrentTextureRAMStorageHandle(
 				filePathSettings,
-				mainThreadCommandBuffer,
 				new SemaphoreSlim(1, 1),
-				logger);
+				context);
 		}
 
 		public static TextureOpenGLStorageHandle BuildTextureOpenGLStorageHandle(
-			IReadOnlyResourceStorageHandle textureRAMStorageHandle,
+			string textureRAMPath,
+			string textureRAMVariantID,
 			TextureType textureType,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
 		{
 			return new TextureOpenGLStorageHandle(
-				textureRAMStorageHandle,
+				OpenGLModule.GL_RESOURCE_PATH,
+				textureRAMPath,
+				textureRAMVariantID,
 				textureType,
-				gl,
-				mainThreadCommandBuffer,
-				logger);
+				context);
 		}
 
 		public static ConcurrentTextureOpenGLStorageHandle BuildConcurrentTextureOpenGLStorageHandle(
-			IReadOnlyResourceStorageHandle textureRAMStorageHandle,
+			string textureRAMPath,
+			string textureRAMVariantID,
 			TextureType textureType,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
 		{
 			return new ConcurrentTextureOpenGLStorageHandle(
-				textureRAMStorageHandle,
+				OpenGLModule.GL_RESOURCE_PATH,
+				textureRAMPath,
+				textureRAMVariantID,
 				textureType,
-				gl,
-				mainThreadCommandBuffer,
 				new SemaphoreSlim(1, 1),
-				logger);
+				context);
 		}
 	}
 }

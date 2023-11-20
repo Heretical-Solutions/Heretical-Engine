@@ -15,6 +15,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	public class OpenGLModule
 		: IModule
 	{
+		public const string GL_RESOURCE_PATH = "Application/GL";
+
 		private IWindow window = null;
 
 		private GL gl = null;
@@ -59,7 +61,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			//Initialization
 			var windowStorageHandle = context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/Window".SplitAddressBySeparator())
+					WindowModule.WINDOW_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			Task task;
@@ -78,7 +80,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var glImporter = new DefaultPreallocatedAssetImporter<GL>(
 				context.RuntimeResourceManager,
-				"Application/GL",
+				GL_RESOURCE_PATH,
 				gl,
 				context.Logger);
 

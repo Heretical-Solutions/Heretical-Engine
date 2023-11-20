@@ -141,12 +141,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						() => assetImporter
 							.Import(
 								localImportProgress)
-							.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger)));
+							.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(logger)));
 			}
 
 			await Task
 				.WhenAll(assetImportersTasks)
-				.ThrowExceptions<ModelRAMAssetImporter>(logger);
+				.ThrowExceptions<ModelOpenGLAssetImporter>(logger);
 #else
 			int totalAssetImporters = assetImporters.Count;
 
@@ -163,7 +163,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				await assetImporter
 					.Import(
 						localImportProgress)
-					.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
+					.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(logger);
 
 				current++;
 			}

@@ -7,6 +7,8 @@ using HereticalSolutions.Logging;
 using Silk.NET.OpenGL;
 
 using Antlr4.Runtime;
+using HereticalSolutions.HereticalEngine.Modules;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
@@ -435,32 +437,26 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public static ShaderOpenGLStorageHandle BuildShaderOpenGLStorageHandle(
 			string vertexShaderSource,
 			string fragmentShaderSource,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
 		{
 			return new ShaderOpenGLStorageHandle(
+				OpenGLModule.GL_RESOURCE_PATH,
 				vertexShaderSource,
 				fragmentShaderSource,
-				gl,
-				mainThreadCommandBuffer,
-				logger);
+				context);
 		}
 
 		public static ConcurrentShaderOpenGLStorageHandle BuildConcurrentShaderOpenGLStorageHandle(
 			string vertexShaderSource,
 			string fragmentShaderSource,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
 		{
 			return new ConcurrentShaderOpenGLStorageHandle(
+				OpenGLModule.GL_RESOURCE_PATH,
 				vertexShaderSource,
 				fragmentShaderSource,
-				gl,
-				mainThreadCommandBuffer,
 				new SemaphoreSlim(1, 1),
-				logger);
+				context);
 		}
 	}
 }

@@ -1,257 +1,215 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-using HereticalSolutions.Collections.Managed;
+#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
 
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using HereticalSolutions.HereticalEngine.Messaging;
-
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ConcurrentGeometryOpenGLStorageHandle
-		: IReadOnlyResourceStorageHandle
+		: AConcurrentReadOnlyResourceStorageHandle<GeometryOpenGL>
 	{
-		private readonly IReadOnlyResourceStorageHandle geometryRAMStorageHandle = null;
+		private readonly string glPath;
 
-		private readonly IReadOnlyResourceStorageHandle shaderStorageHandle = null;
+		private readonly string shaderOpenGLPath;
 
-		private readonly SemaphoreSlim semaphore;
+		private readonly string shaderOpenGLVariantID;
 
-		private readonly GL cachedGL = default;
+		private readonly string geometryRAMPath;
 
-		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
-
-		private readonly IFormatLogger logger;
-
-
-		private bool allocated = false;
-
-		private GeometryOpenGL geometry = null;
+		private readonly string geometryRAMVariantID;
 
 		public ConcurrentGeometryOpenGLStorageHandle(
-			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
-			IReadOnlyResourceStorageHandle shaderStorageHandle,
+			string glPath,
+			string shaderOpenGLPath,
+			string shaderOpenGLVariantID,
+			string geometryRAMPath,
+			string geometryRAMVariantID,
 			SemaphoreSlim semaphore,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
+			: base(
+				semaphore,
+				context)
 		{
-			this.geometryRAMStorageHandle = geometryRAMStorageHandle;
+			this.glPath = glPath;
 
-			this.shaderStorageHandle = shaderStorageHandle;
+			this.shaderOpenGLPath = shaderOpenGLPath;
 
-			this.semaphore = semaphore;
+			this.shaderOpenGLVariantID = shaderOpenGLVariantID;
 
-			cachedGL = gl;
+			this.geometryRAMPath = geometryRAMPath;
 
-			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
-
-			this.logger = logger;
-
-
-			geometry = null;
-
-			allocated = false;
+			this.geometryRAMVariantID = geometryRAMVariantID;
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-
-				try
-				{
-					return allocated;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public async Task Allocate(
+		protected override async Task<GeometryOpenGL> AllocateResource(
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			IReadOnlyResourceStorageHandle glStorageHandle = null;
 
-			try
+			IReadOnlyResourceStorageHandle shaderOpenGLStorageHandle = null;
+
+			IReadOnlyResourceStorageHandle geometryRAMStorageHandle = null;
+
+#if PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
+			List<Task> loadDependencyTasks = new List<Task>();
+
+			List<float> loadDependencyProgresses = new List<float>();
+
+			IProgress<float> glLoadProgress = progress.CreateLocalProgress(
+				0f,
+				0.75f,
+				loadDependencyProgresses,
+				0);
+
+			loadDependencyTasks.Add(
+				Task.Run(async () => 
+					{
+						glStorageHandle = await LoadDependency(
+							glPath,
+							string.Empty,
+							glLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
+					}));
+
+			IProgress<float> shaderOpenGLLoadProgress = progress.CreateLocalProgress(
+				0f,
+				0.75f,
+				loadDependencyProgresses,
+				1);
+
+			loadDependencyTasks.Add(
+				Task.Run(async () =>
+					{
+						shaderOpenGLStorageHandle = await LoadDependency(
+							shaderOpenGLPath,
+							shaderOpenGLVariantID,
+							shaderOpenGLLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
+					}));
+
+			IProgress<float> geometryRAMLoadProgress = progress.CreateLocalProgress(
+				0f,
+				0.75f,
+				loadDependencyProgresses,
+				2);
+
+			loadDependencyTasks.Add(
+				Task.Run(async () =>
+					{
+						geometryRAMStorageHandle = await LoadDependency(
+							geometryRAMPath,
+							geometryRAMVariantID,
+							geometryRAMLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
+					}));
+
+
+			await Task
+				.WhenAll(loadDependencyTasks)
+				.ThrowExceptions<ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
+#else
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.25f);
+
+			glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
+
+			progress?.Report(0.25f);
+
+			localProgress = progress.CreateLocalProgress(
+				0.25f,
+				0.5f);
+
+			shaderOpenGLStorageHandle = await LoadDependency(
+				shaderOpenGLPath,
+				shaderOpenGLVariantID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
+
+			progress?.Report(0.5f);
+
+			localProgress = progress.CreateLocalProgress(
+				0.5f,
+				0.75f);
+
+			geometryRAMStorageHandle = await LoadDependency(
+				geometryRAMPath,
+				geometryRAMVariantID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
+#endif
+
+			GL gl = glStorageHandle.GetResource<GL>();
+
+			ShaderOpenGL shaderOpenGL = shaderOpenGLStorageHandle.GetResource<ShaderOpenGL>();
+
+			Geometry geometryRAM = geometryRAMStorageHandle.GetResource<Geometry>();
+
+			progress?.Report(0.75f);
+
+			GeometryOpenGL geometryOpenGL = null;
+
+			Action buildShaderDelegate = () =>
 			{
-				if (allocated)
-				{
-					progress?.Report(1f);
+				geometryOpenGL = GeometryFactory.BuildGeometryOpenGL(
+					gl,
+					geometryRAMStorageHandle.GetResource<Geometry>(),
+					shaderOpenGLStorageHandle.GetResource<ShaderOpenGL>().Descriptor,
+					context.Logger);
+			};
 
-					return;
-				}
+			await ExecuteOnMainThread(
+				buildShaderDelegate)
+				.ThrowExceptions<ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
 
-				logger?.Log<ConcurrentGeometryOpenGLStorageHandle>(
-					$"ALLOCATING");
+			progress?.Report(1f);
 
-				if (!geometryRAMStorageHandle.Allocated)
-				{
-					IProgress<float> localProgress = progress.CreateLocalProgress();
-
-					await geometryRAMStorageHandle
-						.Allocate(
-							localProgress)
-						.ThrowExceptions<ConcurrentGeometryOpenGLStorageHandle>(logger);
-				}
-
-				if (!shaderStorageHandle.Allocated)
-				{
-					IProgress<float> localProgress = progress.CreateLocalProgress();
-
-					await shaderStorageHandle
-						.Allocate(
-							localProgress)
-						.ThrowExceptions<GeometryOpenGLStorageHandle>(logger);
-				}
-
-				Action buildShaderDelegate = () =>
-				{
-					geometry = GeometryFactory.BuildGeometryOpenGL(
-						cachedGL,
-						geometryRAMStorageHandle.GetResource<Geometry>(),
-						shaderStorageHandle.GetResource<ShaderOpenGL>().Descriptor,
-						logger);
-				};
-
-				var command = new MainThreadCommand(
-					buildShaderDelegate);
-
-				while (!mainThreadCommandBuffer.TryProduce(
-					command))
-				{
-					await Task.Yield();
-				}
-
-				while (command.Status != ECommandStatus.DONE)
-				{
-					await Task.Yield();
-				}
-
-				allocated = true;
-
-				logger?.Log<ConcurrentGeometryOpenGLStorageHandle>(
-					$"ALLOCATED");
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
+			return geometryOpenGL;
 		}
 
-		public async Task Free(
+		protected override async Task FreeResource(
+			GeometryOpenGL resource,
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.5f);
 
-			try
+			var glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
+
+			GL gl = glStorageHandle.GetResource<GL>();
+
+			progress?.Report(0.5f);
+
+			//resource.Dispose(gl);
+
+			Action deleteShaderDelegate = () =>
 			{
-				if (!allocated)
-				{
-					progress?.Report(1f);
+				resource.Dispose(gl);
+			};
 
-					return;
-				}
+			await ExecuteOnMainThread(
+				deleteShaderDelegate)
+				.ThrowExceptions<ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
 
-				logger?.Log<ConcurrentGeometryOpenGLStorageHandle>(
-					$"FREEING");
-
-				//geometry.Dispose(cachedGL);
-
-				Action deleteShaderDelegate = () =>
-				{
-					geometry.Dispose(cachedGL);
-				};
-
-				var command = new MainThreadCommand(
-					deleteShaderDelegate);
-
-				while (!mainThreadCommandBuffer.TryProduce(
-					command))
-				{
-					await Task.Yield();
-				}
-
-				while (command.Status != ECommandStatus.DONE)
-				{
-					await Task.Yield();
-				}
-
-				geometry = null;
-
-				allocated = false;
-
-				logger?.Log<ConcurrentGeometryOpenGLStorageHandle>(
-					$"FREE");
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
+			progress?.Report(1f);
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-
-				try
-				{
-					if (!allocated)
-						throw new InvalidOperationException("Resource is not allocated.");
-						
-					return geometry;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			semaphore.Wait(); // Acquire the semaphore
-
-			try
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
-
-				return (TValue)(object)geometry;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-			}
-		}
-
-		#endregion
 	}
 }

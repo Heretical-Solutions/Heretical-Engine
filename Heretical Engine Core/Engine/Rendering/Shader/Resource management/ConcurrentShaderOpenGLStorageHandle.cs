@@ -1,39 +1,21 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-using HereticalSolutions.HereticalEngine.Messaging;
-
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
-
-using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.ResourceManagement;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class ConcurrentShaderOpenGLStorageHandle : IReadOnlyResourceStorageHandle
+	public class ConcurrentShaderOpenGLStorageHandle
+		: AConcurrentReadOnlyResourceStorageHandle<ShaderOpenGL>
 	{
+		private readonly string glPath;
+
 		private readonly string vertexShaderSource = string.Empty;
 
 		private readonly string fragmentShaderSource = string.Empty;
-
-		private readonly GL cachedGL = default;
-
-		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
-
-		private readonly SemaphoreSlim semaphore;
-
-		private readonly IFormatLogger logger;
-
-
-		private bool allocated = false;
-
-		private ShaderOpenGL shader = null;
 
 
 		private ShaderResourceMetadata vertexShaderMetadata;
@@ -94,29 +76,20 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		}
 
 		public ConcurrentShaderOpenGLStorageHandle(
+			string glPath,
 			string vertexShaderSource,
 			string fragmentShaderSource,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			SemaphoreSlim semaphore,
-			IFormatLogger logger)
+			ApplicationContext context)
+			: base(
+				semaphore,
+				context)
 		{
+			this.glPath = glPath;
+
 			this.vertexShaderSource = vertexShaderSource;
 
 			this.fragmentShaderSource = fragmentShaderSource;
-
-			cachedGL = gl;
-
-			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
-
-			this.semaphore = semaphore;
-
-			this.logger = logger;
-
-
-			shader = null;
-
-			allocated = false;
 
 
 			vertexShaderMetadata = new ShaderResourceMetadata
@@ -138,198 +111,102 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			};
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-				
-				try
-				{
-					return allocated;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public virtual async Task Allocate(
+		protected override async Task<ShaderOpenGL> AllocateResource(
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.5f);
 
-			try
+			var glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentShaderOpenGLStorageHandle>(context.Logger);
+
+			GL gl = glStorageHandle.GetResource<GL>();
+
+			progress?.Report(0.5f);
+
+			ShaderOpenGL shaderOpenGL = null;
+
+			// Delegate the shader building task to the main thread
+			Action buildShaderDelegate = () =>
 			{
-				if (allocated)
+				if (!ShaderFactory.BuildShaderProgram(
+					vertexShaderSource,
+					fragmentShaderSource,
+					gl,
+					context.Logger,
+					out uint handle,
+					out var descriptor,
+					out vertexShaderMetadata,
+					out fragmentShaderMetadata,
+					out shaderProgramMetadata))
 				{
-					progress?.Report(1f);
+					context.Logger?.LogError<ConcurrentShaderOpenGLStorageHandle>(
+						$"BUILDING SHADER PROGRAM FAILED");
 
 					return;
 				}
 
-				logger?.Log<ConcurrentShaderOpenGLStorageHandle>(
-					$"ALLOCATING");
+				shaderOpenGL = new ShaderOpenGL(
+					handle,
+					descriptor);
+			};
 
-				// Delegate the shader building task to the main thread
-				Action buildShaderDelegate = () =>
-				{
-					if (!ShaderFactory.BuildShaderProgram(
-						vertexShaderSource,
-						fragmentShaderSource,
-						cachedGL,
-						logger,
-						out uint handle,
-						out var descriptor,
-						out vertexShaderMetadata,
-						out fragmentShaderMetadata,
-						out shaderProgramMetadata))
-					{
-						logger?.LogError<ConcurrentShaderOpenGLStorageHandle>(
-							$"BUILDING SHADER PROGRAM FAILED");
+			await ExecuteOnMainThread(
+				buildShaderDelegate)
+				.ThrowExceptions<ConcurrentShaderOpenGLStorageHandle>(context.Logger);
 
-						return;
-					}
+			progress?.Report(1f);
 
-					shader = new ShaderOpenGL(
-						handle,
-						descriptor);
-				};
-
-				var command = new MainThreadCommand(buildShaderDelegate);
-
-				while (!mainThreadCommandBuffer.TryProduce(command))
-				{
-					await Task.Yield();
-				}
-
-				while (command.Status != ECommandStatus.DONE)
-				{
-					await Task.Yield();
-				}
-
-				allocated = true;
-
-				logger?.Log<ConcurrentShaderOpenGLStorageHandle>(
-					$"ALLOCATED");
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
+			return shaderOpenGL;
 		}
 
-		public virtual async Task Free(
+		protected override async Task FreeResource(
+			ShaderOpenGL resource,
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.5f);
 
-			try
+			var glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentShaderOpenGLStorageHandle>(context.Logger);
+
+			GL gl = glStorageHandle.GetResource<GL>();
+
+			progress?.Report(0.5f);
+
+			//gl.DeleteProgram(resource.Handle);
+
+			Action deleteShaderDelegate = () =>
 			{
-				if (!allocated)
-				{
-					progress?.Report(1f);
+				gl.DeleteProgram(resource.Handle);
+			};
 
-					return;
-				}
+			await ExecuteOnMainThread(
+				deleteShaderDelegate)
+				.ThrowExceptions<ConcurrentShaderOpenGLStorageHandle>(context.Logger);
 
-				logger?.Log<ConcurrentShaderOpenGLStorageHandle>(
-					$"FREEING");
+			vertexShaderMetadata.Compiled = false;
+			vertexShaderMetadata.CompilationLog = string.Empty;
 
-				//cachedGL.DeleteProgram(shader.Handle);
+			fragmentShaderMetadata.Compiled = false;
+			fragmentShaderMetadata.CompilationLog = string.Empty;
 
-				Action deleteShaderDelegate = () =>
-				{
-					cachedGL.DeleteProgram(shader.Handle);
-				};
+			shaderProgramMetadata.Compiled = false;
+			shaderProgramMetadata.CompilationLog = string.Empty;
 
-				var command = new MainThreadCommand(
-					deleteShaderDelegate);
-
-				while (!mainThreadCommandBuffer.TryProduce(
-					command))
-				{
-					await Task.Yield();
-				}
-
-				while (command.Status != ECommandStatus.DONE)
-				{
-					await Task.Yield();
-				}
-
-				shader = null;
-
-				vertexShaderMetadata.Compiled = false;
-				vertexShaderMetadata.CompilationLog = string.Empty;
-
-				fragmentShaderMetadata.Compiled = false;
-				fragmentShaderMetadata.CompilationLog = string.Empty;
-
-				shaderProgramMetadata.Compiled = false;
-				shaderProgramMetadata.CompilationLog = string.Empty;
-
-				allocated = false;
-
-				logger?.Log<ConcurrentShaderOpenGLStorageHandle>(
-					$"FREE");
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
+			progress?.Report(1f);
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-
-				try
-				{
-					if (!allocated)
-						throw new InvalidOperationException("Resource is not allocated.");
-
-					return shader;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			semaphore.Wait(); // Acquire the semaphore
-			try
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
-
-				return (TValue)(object)shader;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-			}
-		}
-
-		#endregion
 	}
 }

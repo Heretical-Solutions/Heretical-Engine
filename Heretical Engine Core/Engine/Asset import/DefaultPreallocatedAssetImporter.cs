@@ -3,7 +3,7 @@
 using HereticalSolutions.ResourceManagement;
 using HereticalSolutions.ResourceManagement.Factories;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
@@ -14,13 +14,11 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		private readonly TAsset preallocatedAsset;
 
 		public DefaultPreallocatedAssetImporter(
-			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			TAsset preallocatedAsset,
-			IFormatLogger logger)
+			ApplicationContext context)
 			: base(
-				resourceManager,
-				logger)
+				context)
 		{
 			this.resourceID = resourceID;
 
@@ -30,7 +28,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
+			context.Logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -38,7 +36,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourceID)
-					.ThrowExceptions<IResourceData, DefaultPreallocatedAssetImporter<TAsset>>(logger),
+					.ThrowExceptions<IResourceData, DefaultPreallocatedAssetImporter<TAsset>>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = string.Empty,
@@ -49,19 +47,21 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					ResourceType = typeof(TAsset),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle(
-					preallocatedAsset),
+				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<TAsset>(
+					preallocatedAsset,
+					context),
 #else
-				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
-					preallocatedAsset),
+				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<TAsset>(
+					preallocatedAsset,
+					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, DefaultPreallocatedAssetImporter<TAsset>>(logger);
+				.ThrowExceptions<IResourceVariantData, DefaultPreallocatedAssetImporter<TAsset>>(context.Logger);
 
 			progress?.Report(1f);
 
-			logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
+			context.Logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;

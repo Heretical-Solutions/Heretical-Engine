@@ -3,23 +3,18 @@
 using HereticalSolutions.ResourceManagement;
 using HereticalSolutions.ResourceManagement.Factories;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
 	public abstract class AssetImporter
 	{
-		protected readonly IRuntimeResourceManager resourceManager;
-
-		protected readonly IFormatLogger logger;
+		protected readonly ApplicationContext context;
 
 		public AssetImporter(
-			IRuntimeResourceManager resourceManager,
-			IFormatLogger logger)
+			ApplicationContext context)
 		{
-			this.resourceManager = resourceManager;
-
-			this.logger = logger;
+			this.context = context;
 		}
 
 		public virtual async Task<IResourceVariantData> Import(
@@ -35,7 +30,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 			IReadOnlyResourceData currentData = null;
 
-			if (!resourceManager.TryGetRootResource(
+			if (!context.RuntimeResourceManager.TryGetRootResource(
 				resourceIDs[0],
 				out currentData))
 			{
@@ -50,18 +45,18 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 					ResourceManagementFactory.BuildConcurrentResourceData(
 						descriptor,
-						logger);
+						context.Logger);
 #else
 					ResourceManagementFactory.BuildResourceData(
 						descriptor,
 						logger);
 #endif
 
-				await resourceManager.AddRootResource(
+				await context.RuntimeResourceManager.AddRootResource(
 					currentData)
 					.ThrowExceptions(
 						GetType(),
-						logger);
+						context.Logger);
 			}
 
 			for (int i = 1; i < resourceIDs.Length; i++)
@@ -87,7 +82,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 						ResourceManagementFactory.BuildConcurrentResourceData(
 							descriptor,
-							logger);
+							context.Logger);
 #else						
 						ResourceManagementFactory.BuildResourceData(
 							descriptor,
@@ -99,7 +94,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 							newCurrentData)
 						.ThrowExceptions(
 							GetType(),
-							logger);
+							context.Logger);
 
 					currentData = newCurrentData;
 				}
@@ -116,7 +111,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				fullResourceID)
 				.ThrowExceptions(
 					GetType(),
-					logger);
+					context.Logger);
 
 			var descriptor = new ResourceDescriptor()
 			{
@@ -129,7 +124,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				ResourceManagementFactory.BuildConcurrentResourceData(
 					descriptor,
-					logger);
+					context.Logger);
 #else				
 				ResourceManagementFactory.BuildResourceData(
 					descriptor,
@@ -141,7 +136,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					child)
 				.ThrowExceptions(
 					GetType(),
-					logger);
+					context.Logger);
 
 			return (IResourceData)child;
 		}
@@ -166,7 +161,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					progress)
 				.ThrowExceptions(
 					GetType(),
-					logger);
+					context.Logger);
 
 			progress?.Report(1f);
 

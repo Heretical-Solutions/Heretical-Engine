@@ -17,13 +17,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		private readonly string glPath;
 
-		private readonly string textureRamPath;
+		private readonly string textureRAMPath;
+
+		private readonly string textureRAMVariantID;
 
 		private readonly TextureType textureType;
 
 		public ConcurrentTextureOpenGLStorageHandle(
 			string glPath,
-			string textureRamPath,
+			string textureRAMPath,
+			string textureRAMVariantID,
 			TextureType textureType,
 			SemaphoreSlim semaphore,
 			ApplicationContext context)
@@ -33,7 +36,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			this.glPath = glPath;
 
-			this.textureRamPath = textureRamPath;
+			this.textureRAMPath = textureRAMPath;
+
+			this.textureRAMVariantID = textureRAMVariantID;
 
 			this.textureType = textureType;
 		}
@@ -65,7 +70,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 							glPath,
 							string.Empty,
 							glLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 					}));
 
 			IProgress<float> textureRAMLoadProgress = progress.CreateLocalProgress(
@@ -78,16 +83,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				Task.Run(async () =>
 					{
 						textureRAMStorageHandle = await LoadDependency(
-							textureRamPath,
-							TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID,
+							textureRAMPath,
+							textureRAMVariantID,
 							textureRAMLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 					}));
 
 
 			await Task
 				.WhenAll(loadDependencyTasks)
-				.ThrowExceptions<TextureOpenGLStorageHandle>(context.Logger);
+				.ThrowExceptions<ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 #else
 			IProgress<float> localProgress = progress.CreateLocalProgress(
 				0f,
@@ -97,7 +102,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				glPath,
 				string.Empty,
 				localProgress)
-				.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(0.333f);
 
@@ -109,7 +114,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				textureRamPath,
 				TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID,
 				localProgress)
-				.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 #endif
 
 			GL gl = glStorageHandle.GetResource<GL>();
@@ -130,7 +135,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			await ExecuteOnMainThread(
 				buildTextureOpenGLDelegate)
-				.ThrowExceptions<TextureOpenGLStorageHandle>(context.Logger);
+				.ThrowExceptions<ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(1f);
 
@@ -151,7 +156,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				glPath,
 				string.Empty,
 				localProgress)
-				.ThrowExceptions<IReadOnlyResourceStorageHandle, TextureOpenGLStorageHandle>(context.Logger);
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 
 			GL gl = glStorageHandle.GetResource<GL>();
 
@@ -164,7 +169,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			await ExecuteOnMainThread(
 				deleteShaderDelegate)
-				.ThrowExceptions<TextureOpenGLStorageHandle>(context.Logger);
+				.ThrowExceptions<ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(1f);
 		}

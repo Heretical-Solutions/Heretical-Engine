@@ -1,6 +1,6 @@
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 using HereticalSolutions.Persistence;
 
@@ -21,15 +21,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		protected readonly ILoadVisitorGeneric<TAsset, TDTO> visitor;
 
 		public DefaultAssetImporterFromFile(
-			IRuntimeResourceManager resourceManager,
 			string fullResourceID,
 			ISerializer serializer,
 			ISerializationArgument serializationArgument,
 			ILoadVisitorGeneric<TAsset, TDTO> visitor,
-			IFormatLogger logger)
+			ApplicationContext context)
 			: base(
-				resourceManager,
-				logger)
+				context)
 		{
 			this.fullResourceID = fullResourceID;
 
@@ -59,7 +57,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				progress)
 				.ThrowExceptions<IResourceVariantData>(
 					GetType(),
-					logger);
+					context.Logger);
 
 			progress?.Report(1f);
 
@@ -77,7 +75,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				await GetOrCreateResourceData(fullResourceID)
 					.ThrowExceptions<IResourceData>(
 						GetType(),
-						logger),
+						context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = string.Empty,
@@ -96,7 +94,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #endif
 				allocate,
 				progress)
-				.ThrowExceptions<IResourceVariantData>(
+				.ThrowExceptions<IResourceVariantData>( //TODO: FIX - incorrect overload
 					GetType(),
 					logger);
 

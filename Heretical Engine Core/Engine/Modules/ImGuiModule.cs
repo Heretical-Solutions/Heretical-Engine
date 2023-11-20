@@ -60,9 +60,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			//Initialization
 			var windowStorageHandle = context.RuntimeResourceManager
-							.GetDefaultResource(
-								"Application/Window".SplitAddressBySeparator())
-							.StorageHandle;
+				.GetDefaultResource(
+					WindowModule.WINDOW_RESOURCE_PATH.SplitAddressBySeparator())
+				.StorageHandle;
 
 			Task task;
 
@@ -78,7 +78,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var inputContextStorageHandle = context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/Input context".SplitAddressBySeparator())
+					WindowModule.INPUT_CONTEXT_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			if (!inputContextStorageHandle.Allocated)
@@ -93,7 +93,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var glStorageHandle = context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/GL".SplitAddressBySeparator())
+					OpenGLModule.GL_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			if (!glStorageHandle.Allocated)

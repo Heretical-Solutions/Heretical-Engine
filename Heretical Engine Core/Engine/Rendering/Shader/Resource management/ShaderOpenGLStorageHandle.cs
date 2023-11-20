@@ -1,37 +1,21 @@
-using System;
-using System.Threading.Tasks;
-
-using HereticalSolutions.HereticalEngine.Messaging;
-
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
-
-using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.ResourceManagement;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ShaderOpenGLStorageHandle
-		: IReadOnlyResourceStorageHandle
+		: AReadOnlyResourceStorageHandle<ShaderOpenGL>
 	{
+		private readonly string glPath;
+
 		private readonly string vertexShaderSource = string.Empty;
 
 		private readonly string fragmentShaderSource = string.Empty;
-
-		private readonly GL cachedGL = default;
-
-		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
-
-		private readonly IFormatLogger logger;
-
-
-		private bool allocated = false;
-
-		private ShaderOpenGL shader = null;
 
 
 		private ShaderResourceMetadata vertexShaderMetadata;
@@ -49,26 +33,18 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public ShaderResourceMetadata ShaderProgramMetadata { get => shaderProgramMetadata; }
 
 		public ShaderOpenGLStorageHandle(
+			string glPath,
 			string vertexShaderSource,
 			string fragmentShaderSource,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
+			: base (
+				context)
 		{
+			this.glPath = glPath;
+
 			this.vertexShaderSource = vertexShaderSource;
 
 			this.fragmentShaderSource = fragmentShaderSource;
-
-			cachedGL = gl;
-
-			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
-
-			this.logger = logger;
-
-
-			shader = null;
-
-			allocated = false;
 
 
 			vertexShaderMetadata = new ShaderResourceMetadata
@@ -93,29 +69,26 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			};
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get => allocated;
-		}
-
-		public virtual async Task Allocate(
+		protected override async Task<ShaderOpenGL> AllocateResource(
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			if (allocated)
-			{
-				progress?.Report(1f);
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.5f);
 
-				return;
-			}
+			var glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ShaderOpenGLStorageHandle>(context.Logger);
 
-			logger?.Log<ShaderOpenGLStorageHandle>(
-				$"ALLOCATING");
+			GL gl = glStorageHandle.GetResource<GL>();
+
+			progress?.Report(0.5f);
+
+			ShaderOpenGL shaderOpenGL = null;
 
 			//According to this: https://old.reddit.com/r/opengl/comments/14zul38/how_to_transfer_gl_context_to_different_thread_in/js1pl1v/
 			//OpenGL is not thread safe and should be executed on the main thread only
@@ -130,132 +103,66 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				if (!ShaderFactory.BuildShaderProgram(
 					vertexShaderSource,
 					fragmentShaderSource,
-					cachedGL,
-					logger,
+					gl,
+					context.Logger,
 					out uint handle,
 					out var descriptor,
 					out vertexShaderMetadata,
 					out fragmentShaderMetadata,
 					out shaderProgramMetadata))
 				{
-					//progress?.Report(1f);
-
-					logger?.LogError<ShaderOpenGLStorageHandle>(
+					context.Logger?.LogError<ShaderOpenGLStorageHandle>(
 						$"BUILDING SHADER PROGRAM FAILED");
 
 					return;
 				}
 
-				shader = new ShaderOpenGL(
+				shaderOpenGL = new ShaderOpenGL(
 					handle,
 					descriptor);
 			};
 
-			var command = new MainThreadCommand(
-				buildShaderDelegate);
-
-			while (!mainThreadCommandBuffer.TryProduce(
-				command))
-			{
-				await Task.Yield();
-			}
-
-			while (command.Status != ECommandStatus.DONE)
-			{
-				await Task.Yield();
-			}
-
-			allocated = true;
-
-			logger?.Log<ShaderOpenGLStorageHandle>(
-				$"ALLOCATED");
+			await ExecuteOnMainThread(
+				buildShaderDelegate)
+				.ThrowExceptions<ShaderOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(1f);
+
+			return shaderOpenGL;
 		}
 
-		public virtual async Task Free(
+		protected override async Task FreeResource(
+			ShaderOpenGL resource,
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			if (!allocated)
-			{
-				progress?.Report(1f);
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+							0f,
+							0.5f);
 
-				return;
-			}
+			var glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ShaderOpenGLStorageHandle>(context.Logger);
 
-			logger?.Log<ShaderOpenGLStorageHandle>(
-				$"FREEING");
+			GL gl = glStorageHandle.GetResource<GL>();
 
-			//cachedGL.DeleteProgram(shader.Handle);
+			progress?.Report(0.5f);
+
+			//gl.DeleteProgram(resource.Handle);
 
 			Action deleteShaderDelegate = () =>
 			{
-				cachedGL.DeleteProgram(shader.Handle);
+				gl.DeleteProgram(resource.Handle);
 			};
 
-			var command = new MainThreadCommand(
-				deleteShaderDelegate);
-
-			while (!mainThreadCommandBuffer.TryProduce(
-				command))
-			{
-				await Task.Yield();
-			}
-
-			while (command.Status != ECommandStatus.DONE)
-			{
-				await Task.Yield();
-			}
-
-			shader = null;
-
-
-			vertexShaderMetadata.Compiled = false;
-
-			vertexShaderMetadata.CompilationLog = string.Empty;
-
-
-			fragmentShaderMetadata.Compiled = false;
-
-			fragmentShaderMetadata.CompilationLog = string.Empty;
-
-
-			shaderProgramMetadata.Compiled = false;
-
-			shaderProgramMetadata.CompilationLog = string.Empty;
-
-
-			allocated = false;
-
-			logger?.Log<ShaderOpenGLStorageHandle>(
-				$"FREE");
+			await ExecuteOnMainThread(
+				deleteShaderDelegate)
+				.ThrowExceptions<ShaderOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(1f);
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
-
-				return shader;
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			if (!allocated)
-				throw new InvalidOperationException("Resource is not allocated.");
-
-			return (TValue)(object)shader; //DO NOT REPEAT
-		}
-
-		#endregion
 	}
 }

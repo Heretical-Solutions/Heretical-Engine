@@ -1,204 +1,213 @@
-using System;
-using System.Threading.Tasks;
-
-using HereticalSolutions.Collections.Managed;
+#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
 
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using HereticalSolutions.HereticalEngine.Messaging;
-
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class GeometryOpenGLStorageHandle
-		: IReadOnlyResourceStorageHandle
+		: AReadOnlyResourceStorageHandle<GeometryOpenGL>
 	{
-		private readonly IReadOnlyResourceStorageHandle geometryRAMStorageHandle = null;
+		private readonly string glPath;
 
-		private readonly IReadOnlyResourceStorageHandle shaderStorageHandle = null;
+		private readonly string shaderOpenGLPath;
 
-		private readonly GL cachedGL = default;
+		private readonly string shaderOpenGLVariantID;
 
-		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+		private readonly string geometryRAMPath;
 
-		private readonly IFormatLogger logger;
-
-
-		private bool allocated = false;
-
-		private GeometryOpenGL geometry = null;
+		private readonly string geometryRAMVariantID;
 
 		public GeometryOpenGLStorageHandle(
-			IReadOnlyResourceStorageHandle geometryRAMStorageHandle,
-			IReadOnlyResourceStorageHandle shaderStorageHandle,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			string glPath,
+			string shaderOpenGLPath,
+			string shaderOpenGLVariantID,
+			string geometryRAMPath,
+			string geometryRAMVariantID,
+			ApplicationContext context)
+			: base(
+				context)
 		{
-			this.geometryRAMStorageHandle = geometryRAMStorageHandle;
+			this.glPath = glPath;
 
-			this.shaderStorageHandle = shaderStorageHandle;
+			this.shaderOpenGLPath = shaderOpenGLPath;
 
-			cachedGL = gl;
+			this.shaderOpenGLVariantID = shaderOpenGLVariantID;
 
-			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
+			this.geometryRAMPath = geometryRAMPath;
 
-			this.logger = logger;
-
-
-			geometry = null;
-
-			allocated = false;
+			this.geometryRAMVariantID = geometryRAMVariantID;
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get => allocated;
-		}
-
-		public virtual async Task Allocate(
+		protected override async Task<GeometryOpenGL> AllocateResource(
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			if (allocated)
-			{
-				progress?.Report(1f);
+			IReadOnlyResourceStorageHandle glStorageHandle = null;
 
-				return;
-			}
+			IReadOnlyResourceStorageHandle shaderOpenGLStorageHandle = null;
 
-			logger?.Log<GeometryOpenGLStorageHandle>(
-				$"ALLOCATING");
+			IReadOnlyResourceStorageHandle geometryRAMStorageHandle = null;
 
-			if (!geometryRAMStorageHandle.Allocated)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress();
+#if PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
+			List<Task> loadDependencyTasks = new List<Task>();
 
-				await geometryRAMStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<GeometryOpenGLStorageHandle>(logger);
-			}
+			List<float> loadDependencyProgresses = new List<float>();
 
-			if (!shaderStorageHandle.Allocated)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress();
+			IProgress<float> glLoadProgress = progress.CreateLocalProgress(
+				0f,
+				0.75f,
+				loadDependencyProgresses,
+				0);
 
-				await shaderStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<GeometryOpenGLStorageHandle>(logger);
-			}
+			loadDependencyTasks.Add(
+				Task.Run(async () => 
+					{
+						glStorageHandle = await LoadDependency(
+							glPath,
+							string.Empty,
+							glLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
+					}));
+
+			IProgress<float> shaderOpenGLLoadProgress = progress.CreateLocalProgress(
+				0f,
+				0.75f,
+				loadDependencyProgresses,
+				1);
+
+			loadDependencyTasks.Add(
+				Task.Run(async () =>
+					{
+						shaderOpenGLStorageHandle = await LoadDependency(
+							shaderOpenGLPath,
+							shaderOpenGLVariantID,
+							shaderOpenGLLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
+					}));
+
+			IProgress<float> geometryRAMLoadProgress = progress.CreateLocalProgress(
+				0f,
+				0.75f,
+				loadDependencyProgresses,
+				2);
+
+			loadDependencyTasks.Add(
+				Task.Run(async () =>
+					{
+						geometryRAMStorageHandle = await LoadDependency(
+							geometryRAMPath,
+							geometryRAMVariantID,
+							geometryRAMLoadProgress)
+							.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
+					}));
+
+
+			await Task
+				.WhenAll(loadDependencyTasks)
+				.ThrowExceptions<GeometryOpenGLStorageHandle>(context.Logger);
+#else
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.25f);
+
+			glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
+
+			progress?.Report(0.25f);
+
+			localProgress = progress.CreateLocalProgress(
+				0.25f,
+				0.5f);
+
+			shaderOpenGLStorageHandle = await LoadDependency(
+				shaderOpenGLPath,
+				shaderOpenGLVariantID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
+
+			progress?.Report(0.5f);
+
+			localProgress = progress.CreateLocalProgress(
+				0.5f,
+				0.75f);
+
+			geometryRAMStorageHandle = await LoadDependency(
+				geometryRAMPath,
+				geometryRAMVariantID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
+#endif
+
+			GL gl = glStorageHandle.GetResource<GL>();
+
+			ShaderOpenGL shaderOpenGL = shaderOpenGLStorageHandle.GetResource<ShaderOpenGL>();
+
+			Geometry geometryRAM = geometryRAMStorageHandle.GetResource<Geometry>();
+
+			progress?.Report(0.75f);
+
+			GeometryOpenGL geometryOpenGL = null;
 
 			Action buildShaderDelegate = () =>
 			{
-				geometry = GeometryFactory.BuildGeometryOpenGL(
-					cachedGL,
+				geometryOpenGL = GeometryFactory.BuildGeometryOpenGL(
+					gl,
 					geometryRAMStorageHandle.GetResource<Geometry>(),
-					shaderStorageHandle.GetResource<ShaderOpenGL>().Descriptor,
-					logger);
+					shaderOpenGLStorageHandle.GetResource<ShaderOpenGL>().Descriptor,
+					context.Logger);
 			};
 
-			var command = new MainThreadCommand(
-				buildShaderDelegate);
-
-			while (!mainThreadCommandBuffer.TryProduce(
-				command))
-			{
-				await Task.Yield();
-			}
-
-			while (command.Status != ECommandStatus.DONE)
-			{
-				await Task.Yield();
-			}
-
-			allocated = true;
-
-			logger?.Log<GeometryOpenGLStorageHandle>(
-				$"ALLOCATED");
+			await ExecuteOnMainThread(
+				buildShaderDelegate)
+				.ThrowExceptions<GeometryOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(1f);
+
+			return geometryOpenGL;
 		}
 
-		public virtual async Task Free(
+		protected override async Task FreeResource(
+			GeometryOpenGL resource,
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			if (!allocated)
-			{
-				progress?.Report(1f);
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.5f);
 
-				return;
-			}
+			var glStorageHandle = await LoadDependency(
+				glPath,
+				string.Empty,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
 
-			logger?.Log<GeometryOpenGLStorageHandle>(
-				$"FREEING");
+			GL gl = glStorageHandle.GetResource<GL>();
 
-			//geometry.Dispose(cachedGL);
+			progress?.Report(0.5f);
+
+			//resource.Dispose(gl);
 
 			Action deleteShaderDelegate = () =>
 			{
-				geometry.Dispose(cachedGL);
+				resource.Dispose(gl);
 			};
 
-			var command = new MainThreadCommand(
-				deleteShaderDelegate);
-
-			while (!mainThreadCommandBuffer.TryProduce(
-				command))
-			{
-				await Task.Yield();
-			}
-
-			while (command.Status != ECommandStatus.DONE)
-			{
-				await Task.Yield();
-			}
-
-			geometry = null;
-
-
-			allocated = false;
-
-			logger?.Log<GeometryOpenGLStorageHandle>(
-				$"FREE");
+			await ExecuteOnMainThread(
+				deleteShaderDelegate)
+				.ThrowExceptions<GeometryOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(1f);
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated.");
-
-				return geometry;
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			if (!allocated)
-				throw new InvalidOperationException("Resource is not allocated.");
-
-			return (TValue)(object)geometry; //DO NOT REPEAT
-		}
-
-		#endregion
 	}
 }

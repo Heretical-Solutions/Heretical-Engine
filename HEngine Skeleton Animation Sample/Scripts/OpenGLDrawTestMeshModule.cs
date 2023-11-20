@@ -1,5 +1,3 @@
-using HereticalSolutions.Collections.Managed;
-
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 using HereticalSolutions.Persistence.Factories;
@@ -7,8 +5,6 @@ using HereticalSolutions.Persistence.Factories;
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Application;
-
-using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.HereticalEngine.Rendering;
 
@@ -73,7 +69,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			//Initialization
 			var glStorageHandle = context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/GL".SplitAddressBySeparator())
+					OpenGLModule.GL_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			Task task;
@@ -90,7 +86,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			cameraStorageHandle = (IResourceStorageHandle)context.RuntimeResourceManager
 				.GetDefaultResource(
-					"Application/Main camera".SplitAddressBySeparator())
+					MainCameraModule.MAIN_CAMERA_RESOURCE_PATH.SplitAddressBySeparator())
 				.StorageHandle;
 
 			if (!cameraStorageHandle.Allocated)
@@ -102,10 +98,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 
 			LoadAssets(
-				context.RuntimeResourceManager,
-				gl,
-				context.MainThreadCommandBuffer,
-				logger);
+				context,
+				gl);
 
 
 			IsInitialized = true;
@@ -185,10 +179,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		#endregion
 
 		private async Task LoadAssets(
-			IRuntimeResourceManager runtimeResourceManager,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context,
+			GL gl)
 		{
 			var pathToExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
@@ -229,14 +221,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			};
 
 			var shaderAssetImporter = new ShaderOpenGLAssetImporter(
-				runtimeResourceManager,
 				"Default shader",
 				PersistenceFactory.BuildSimplePlainTextSerializer(),
 				vertexShaderArgument,
 				fragmentShaderArgument,
-				gl,
-				mainThreadCommandBuffer,
-				logger);
+				context);
 
 			var shaderImportProgress = new Progress<float>();
 
@@ -263,14 +252,14 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			#region Model import
 
 			var modelAssetImporter = new ModelRAMAssetImporter(
-				runtimeResourceManager,
+				context.RuntimeResourceManager,
 				"Knight", //"Suzanne", //"Knight",
 				new FilePathSettings
 				{
 					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx", // "3D/Characters/Suzanne/Models/suzanne_triangulated.fbx", //"3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
 				},
-				mainThreadCommandBuffer,
+				context.MainThreadCommandBuffer,
 				logger);
 
 			IResourceVariantData modelRAMData = null;
@@ -313,11 +302,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			#region Model OpenGL import
 
 			var modelOpenGLAssetImporter = new ModelOpenGLAssetImporter(
-				runtimeResourceManager,
+				context.RuntimeResourceManager,
 				"Knight", //"Suzanne", //"Knight",
 				modelRAMStorageHandle,
 				gl,
-				mainThreadCommandBuffer,
+				context.MainThreadCommandBuffer,
 				logger);
 
 			var modelOpenGLImportProgress = new Progress<float>();
