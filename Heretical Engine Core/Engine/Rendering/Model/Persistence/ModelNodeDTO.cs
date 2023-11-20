@@ -14,6 +14,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public TransformDTO Transform;
 
-		public string[] MeshResourceIDs;
+		public string[] MeshResourcePaths;
 	}
 }

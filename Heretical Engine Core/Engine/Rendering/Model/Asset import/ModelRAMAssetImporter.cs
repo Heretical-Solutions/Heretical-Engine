@@ -3,15 +3,9 @@
 
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
-//DO NOT DO THIS FOR NOW. SOME ASSET IMPORTERS ARE BLINDLY LOOKING FOR
-//RESOURCES BY GIVEN ID EXPECTING THEM TO BE PRESENT IN THE RESOURCE MANAGER. PARALLELIZING THE LOAD PROCESS MAY CAUSE RACE
-//CONDITIONS
-//TODO: UPDATE CERTAIN RESOURCE IMPORTERS AND STORAGE HANDLES TO WAIT UNTIL RESOURCE BECOMES AVAILABLE
-//#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
+#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
 
-using System;
-
-using HereticalSolutions.Collections.Managed;
+using System.Numerics;
 
 using HereticalSolutions.Persistence.IO;
 
@@ -24,19 +18,11 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Scenes;
 
-using HereticalSolutions.HereticalEngine.Messaging;
-
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 using Silk.NET.Assimp;
 
-using System.Numerics;
-
-using AssimpMesh = Silk.NET.Assimp.Mesh;
-
 using AssimpAPI = Silk.NET.Assimp.Assimp;
-using System.Text;
-using Silk.NET.Maths;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -59,25 +45,18 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly FilePathSettings filePathSettings;
 
-		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
-
 		private readonly AssimpAPI assimp;
 
 		public ModelRAMAssetImporter(
-			IRuntimeResourceManager resourceManager,
 			string resourceID,
 			FilePathSettings filePathSettings,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ApplicationContext context)
 			: base(
-				resourceManager,
-				logger)
+				context)
 		{
 			this.resourceID = resourceID;
 
 			this.filePathSettings = filePathSettings;
-
-			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 
 			assimp = AssimpAPI.GetApi();
 		}
@@ -85,7 +64,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger?.Log<ModelRAMAssetImporter>(
+			context.Logger?.Log<ModelRAMAssetImporter>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
@@ -93,11 +72,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await ImportModel(
 				filePathSettings,
 				progress)
-				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
+				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			logger?.Log<ModelRAMAssetImporter>(
+			context.Logger?.Log<ModelRAMAssetImporter>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;
@@ -137,12 +116,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						() => assetImporter
 							.Import(
 								localImportProgress)
-							.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger)));
+							.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger)));
 			}
 
 			await Task
 				.WhenAll(assetImportersTasks)
-				.ThrowExceptions<ModelRAMAssetImporter>(logger);
+				.ThrowExceptions<ModelRAMAssetImporter>(context.Logger);
 #else
 			int totalAssetImporters = assetImporters.Count;
 
@@ -174,7 +153,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourceID)
-					.ThrowExceptions<IResourceData, ModelRAMAssetImporter>(logger),
+					.ThrowExceptions<IResourceData, ModelRAMAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = MODEL_RAM_VARIANT_ID,
@@ -185,15 +164,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					ResourceType = typeof(ModelDTO),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle(
-					modelDTO),
+				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<ModelDTO>(
+					modelDTO,
+					context),
 #else
-				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle(
-					modelDTO),
+				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<ModelDTO>(
+					modelDTO,
+					context),
 #endif
 				true,
 				localProgress)
-				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
+				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
@@ -305,7 +286,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Dictionary<uint, string> materialResourcesInAsset,
 			List<AssetImporter> assetImporters)
 		{
-			modelDTO.MaterialResourceIDs = new string[scene->MNumMaterials];
+			modelDTO.MaterialResourcePaths = new string[scene->MNumMaterials];
 
 			for (int i = 0; i < scene->MNumMaterials; i++)
 			{
@@ -322,14 +303,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				assetImporters.Add(materialImporter);
 
-				modelDTO.MaterialResourceIDs[i] = materialResourceID;
+				modelDTO.MaterialResourcePaths[i] = materialResourceID;
 			}
 
-			modelDTO.TextureResourceIDs = new string[textureResourcesInAsset.Count];
+			modelDTO.TextureResourcePaths = new string[textureResourcesInAsset.Count];
 
-			for (int i = 0; i < modelDTO.TextureResourceIDs.Length; i++)
+			for (int i = 0; i < modelDTO.TextureResourcePaths.Length; i++)
 			{
-				modelDTO.TextureResourceIDs[i] = $"{resourceID}/{MODEL_TEXTURES_NESTED_RESOURCE_ID}/{textureResourcesInAsset.Values.ElementAt(i)}";
+				modelDTO.TextureResourcePaths[i] = $"{resourceID}/{MODEL_TEXTURES_NESTED_RESOURCE_ID}/{textureResourcesInAsset.Values.ElementAt(i)}";
 			}
 		}
 
@@ -419,10 +400,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			materialResourceID = $"{resourceID}/{MODEL_MATERIALS_NESTED_RESOURCE_ID}/{materialResourceName}";
 
 			return new MaterialRAMAssetImporter(
-				resourceManager,
 				materialResourceID,
 				materialDTO,
-				logger);
+				context);
 		}
 
 		private unsafe void GenerateMaterialResourceName(
@@ -534,11 +514,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			textureResourceID = $"{resourceID}/{MODEL_TEXTURES_NESTED_RESOURCE_ID}/{textureResourceName}";
 
 			var textureImporter = new TextureRAMAssetImporter(
-				resourceManager,
 				textureResourceID,
 				textureFilePathSettings,
-				mainThreadCommandBuffer,
-				logger);
+				context);
 
 			return textureImporter;
 		}
@@ -615,9 +593,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Dictionary<uint, string> materialResourcesInAsset,
 			List<AssetImporter> assetImporters)
 		{
-			modelDTO.MeshResourceIDs = new string[scene->MNumMeshes];
+			modelDTO.MeshResourcePaths = new string[scene->MNumMeshes];
 
-			modelDTO.GeometryResourceIDs = new string[scene->MNumMeshes];
+			modelDTO.GeometryResourcePaths = new string[scene->MNumMeshes];
 
 			for (int i = 0; i < scene->MNumMeshes; i++)
 			{
@@ -634,9 +612,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				assetImporters.Add(meshImporter);
 
-				modelDTO.MeshResourceIDs[i] = meshResourceID;
+				modelDTO.MeshResourcePaths[i] = meshResourceID;
 
-				modelDTO.GeometryResourceIDs[i] = geometryResourceID;
+				modelDTO.GeometryResourcePaths[i] = geometryResourceID;
 			}
 		}
 
@@ -671,7 +649,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var materialResourceID = $"{resourceID}/{MODEL_MATERIALS_NESTED_RESOURCE_ID}/{materialResourcesInAsset[mesh->MMaterialIndex]}";
 
 			return new MeshRAMAssetImporter(
-				resourceManager,
 				meshResourceID,
 				new MeshDTO
 				{
@@ -679,7 +656,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 					MaterialResourceID = materialResourceID
 				},
-				logger);
+				context);
 		}
 
 		private unsafe void GenerateMeshResourceName(
@@ -722,7 +699,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			geometryResourceID = $"{resourceID}/{MODEL_GEOMETRIES_NESTED_RESOURCE_ID}/{meshResourceName}";
 
 			return new GeometryRAMAssetImporter(
-				resourceManager,
 				geometryResourceID,
 				new Geometry
 				{
@@ -730,7 +706,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 					Indices = indices
 				},
-				logger);
+				context);
 		}
 
 		private unsafe void ParseVertices(
@@ -898,7 +874,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				if (face.MNumIndices != 3)
 				{
-					logger?.ThrowException<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices} Face index: {i}");
+					context.Logger?.ThrowException<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices} Face index: {i}");
 				}
 				else
 				{
@@ -945,13 +921,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			currentNodeDTO.Transform = transformDTO;
 
 
-			currentNodeDTO.MeshResourceIDs = new string[node->MNumMeshes];
+			currentNodeDTO.MeshResourcePaths = new string[node->MNumMeshes];
 
 			for (var i = 0; i < node->MNumMeshes; i++)
 			{
 				var meshResourceID = $"{resourceID}/{MODEL_MESHES_NESTED_RESOURCE_ID}/{meshResourcesInAsset[(int)(node->MMeshes[i])]}";
 
-				currentNodeDTO.MeshResourceIDs[i] = meshResourceID;
+				currentNodeDTO.MeshResourcePaths[i] = meshResourceID;
 			}
 
 			for (var i = 0; i < node->MNumChildren; i++)

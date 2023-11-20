@@ -19,6 +19,8 @@ using HereticalSolutions.HereticalEngine.Messaging;
 using HereticalSolutions.Logging;
 
 using Silk.NET.OpenGL;
+using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.HereticalEngine.Modules;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -31,51 +33,45 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private readonly string resourceID;
 
-		private readonly IReadOnlyResourceStorageHandle modelRAMStorageHandle;
+		private readonly string modelRAMPath;
 
-		private readonly GL cachedGL;
-
-		private readonly ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+		private readonly string modelRAMVariantID;
+		
 
 		public ModelOpenGLAssetImporter(
-			IRuntimeResourceManager resourceManager,
 			string resourceID,
-			IReadOnlyResourceStorageHandle modelRAMStorageHandle,
-			GL gl,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			string modelRAMPath,
+			string modelRAMVariantID,
+			ApplicationContext context)
 			: base(
-				resourceManager,
-				logger)
+				context)
 		{
 			this.resourceID = resourceID;
 
-			this.modelRAMStorageHandle = modelRAMStorageHandle;
+			this.modelRAMPath = modelRAMPath;
 
-			cachedGL = gl;
-
-			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
+			this.modelRAMVariantID = modelRAMVariantID;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			logger?.Log<ModelOpenGLAssetImporter>(
+			context.Logger?.Log<ModelOpenGLAssetImporter>(
 				$"IMPORTING {resourceID} INITIATED");
 
 			progress?.Report(0f);
 
-			if (!modelRAMStorageHandle.Allocated)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
-					0f,
-					0.25f);
+			IReadOnlyResourceStorageHandle modelRAMStorageHandle = null;
 
-				await modelRAMStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<ModelOpenGLStorageHandle>(logger);
-			}
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				0.25f);
+
+			modelRAMStorageHandle = await LoadDependency(
+				modelRAMPath,
+				modelRAMVariantID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ModelOpenGLAssetImporter>(context.Logger);
 
 			var modelDTO = modelRAMStorageHandle.GetResource<ModelDTO>();
 
@@ -83,41 +79,35 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			List<AssetImporter> assetImporters = new List<AssetImporter>();
 
-			for (int i = 0; i < modelDTO.MeshResourceIDs.Length; i++)
-			{
-				assetImporters.Add(
-					BuildMeshAssetImporter(
-						resourceManager,
-						modelDTO.MeshResourceIDs[i]));
-			}
-
-			for (int i = 0; i < modelDTO.GeometryResourceIDs.Length; i++)
-			{
-				assetImporters.Add(
-					BuildGeometryAssetImporter(
-						resourceManager,
-						modelDTO.GeometryResourceIDs[i],
-						cachedGL));
-			}
-
-			for (int i = 0; i < modelDTO.MaterialResourceIDs.Length; i++)
-			{
-				assetImporters.Add(
-					BuildMaterialAssetImporter(
-						resourceManager,
-						modelDTO.MaterialResourceIDs[i]));
-			}
-
-			for (int i = 0; i < modelDTO.TextureResourceIDs.Length; i++)
+			for (int i = 0; i < modelDTO.TextureResourcePaths.Length; i++)
 			{
 				assetImporters.Add(
 					BuildTextureAssetImporter(
-						resourceManager,
-						modelDTO.TextureResourceIDs[i],
-						cachedGL));
+						modelDTO.TextureResourcePaths[i]));
 			}
 
-			assetImporters.Reverse();
+			for (int i = 0; i < modelDTO.GeometryResourcePaths.Length; i++)
+			{
+				assetImporters.Add(
+					BuildGeometryAssetImporter(
+						modelDTO.GeometryResourcePaths[i],
+						"Default shader", //TODO: CHANGE. THIS IS ONLY TEMPORARY
+						ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID));
+			}
+
+			for (int i = 0; i < modelDTO.MaterialResourcePaths.Length; i++)
+			{
+				assetImporters.Add(
+					BuildMaterialAssetImporter(
+						modelDTO.MaterialResourcePaths[i]));
+			}
+
+			for (int i = 0; i < modelDTO.MeshResourcePaths.Length; i++)
+			{
+				assetImporters.Add(
+					BuildMeshAssetImporter(
+						modelDTO.MeshResourcePaths[i]));
+			}
 
 			progress?.Report(0.5f);
 
@@ -163,7 +153,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				await assetImporter
 					.Import(
 						localImportProgress)
-					.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(logger);
+					.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(context.Logger);
 
 				current++;
 			}
@@ -174,7 +164,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourceID)
-					.ThrowExceptions<IResourceData, ModelOpenGLAssetImporter>(logger),
+					.ThrowExceptions<IResourceData, ModelOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = MODEL_OPENGL_VARIANT_ID,
@@ -186,109 +176,76 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				ModelFactory.BuildConcurrentModelOpenGLStorageHandle(
-					resourceManager,
-					modelRAMStorageHandle,
-					logger),
+					modelRAMPath,
+					modelRAMVariantID,
+					context),
 #else
 				ModelFactory.BuildModelOpenGLStorageHandle(
-					resourceManager,
-					textureRAMStorageHandle,
-					logger),
+					modelRAMPath,
+					modelRAMVariantID,
+					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(logger);
+				.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			logger?.Log<ModelOpenGLAssetImporter>(
+			context.Logger?.Log<ModelOpenGLAssetImporter>(
 				$"IMPORTING {resourceID} FINISHED");
 
 			return result;
 		}
 
 		private MeshOpenGLAssetImporter BuildMeshAssetImporter(
-			IRuntimeResourceManager resourceManager,
-			string resourceID)
+			string resourcePath)
 		{
-			var resourceStorageHandle = resourceManager
-				.GetResource(
-					resourceID.SplitAddressBySeparator())
-				.GetVariant(
-					MeshRAMAssetImporter.MESH_RAM_VARIANT_ID)
-				.StorageHandle;
-
 			var meshImporter = new MeshOpenGLAssetImporter(
-				resourceManager,
-				resourceID,
-				resourceStorageHandle,
-				logger);
+				resourcePath,
+				resourcePath,
+				MeshRAMAssetImporter.MESH_RAM_VARIANT_ID,
+				context);
 
 			return meshImporter;
 		}
 
 		private GeometryOpenGLAssetImporter BuildGeometryAssetImporter(
-			IRuntimeResourceManager resourceManager,
-			string resourceID,
-			GL gl)
+			string resourcePath,
+			string shaderOpenGLPath,
+			string shaderOpenGLVariantID)
 		{
-			var resourceStorageHandle = resourceManager
-				.GetResource(
-					resourceID.SplitAddressBySeparator())
-				.GetVariant(
-					GeometryRAMAssetImporter.GEOMETRY_RAM_VARIANT_ID)
-				.StorageHandle;
-
 			var geometryImporter = new GeometryOpenGLAssetImporter(
-				resourceManager,
-				resourceID,
-				resourceStorageHandle,
-				gl,
-				mainThreadCommandBuffer,
-				logger);
+				resourcePath,
+				shaderOpenGLPath,
+				shaderOpenGLVariantID,
+				resourcePath,
+				GeometryRAMAssetImporter.GEOMETRY_RAM_VARIANT_ID,
+				context);
 
 			return geometryImporter;
 		}
 
 		private MaterialOpenGLAssetImporter BuildMaterialAssetImporter(
-			IRuntimeResourceManager resourceManager,
-			string resourceID)
+			string resourcePath)
 		{
-			var resourceStorageHandle = resourceManager
-				.GetResource(
-					resourceID.SplitAddressBySeparator())
-				.GetVariant(
-					MaterialRAMAssetImporter.MATERIAL_RAM_VARIANT_ID)
-				.StorageHandle;
-
 			var materialImporter = new MaterialOpenGLAssetImporter(
-				resourceManager,
-				resourceID,
-				resourceStorageHandle,
-				logger);
+				resourcePath,
+				resourcePath,
+				MaterialRAMAssetImporter.MATERIAL_RAM_VARIANT_ID,
+				context);
 
 			return materialImporter;
 		}
 
 		private TextureOpenGLAssetImporter BuildTextureAssetImporter(
-			IRuntimeResourceManager resourceManager,
-			string resourceID,
-			GL gl)
+			string resourcePath)
 		{
-			var resourceStorageHandle = resourceManager
-				.GetResource(
-					resourceID.SplitAddressBySeparator())
-				.GetVariant(
-					TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID)
-				.StorageHandle;
-
 			var textureImporter = new TextureOpenGLAssetImporter(
-				resourceManager,
-				resourceID,
-				resourceStorageHandle,
-				gl,
-				mainThreadCommandBuffer,
-				logger);
+				resourcePath,
+				resourcePath,
+				TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID,
+				Silk.NET.Assimp.TextureType.None, //TODO: fix
+				context);
 
 			return textureImporter;
 		}

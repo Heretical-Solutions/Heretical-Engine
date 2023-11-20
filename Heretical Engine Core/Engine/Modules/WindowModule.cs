@@ -101,10 +101,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 
 			var windowImporter = new DefaultPreallocatedAssetImporter<IWindow>(
-				context.RuntimeResourceManager,
 				WINDOW_RESOURCE_PATH,
 				window,
-				context.Logger);
+				context);
 
 			var task = windowImporter.Import();
 
@@ -155,10 +154,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 
 			var inputContextImporter = new DefaultPreallocatedAssetImporter<IInputContext>(
-				context.RuntimeResourceManager,
 				INPUT_CONTEXT_RESOURCE_PATH,
 				inputContext,
-				context.Logger);
+				context);
 
 			var task = inputContextImporter.Import();
 
@@ -166,10 +164,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 
 			var primaryKeyboardImporter = new DefaultPreallocatedAssetImporter<IKeyboard>(
-				context.RuntimeResourceManager,
 				PRIMARY_KEYBOARD_RESOURCE_PATH,
 				primaryKeyboard,
-				context.Logger);
+				context);
 
 			task = primaryKeyboardImporter.Import();
 

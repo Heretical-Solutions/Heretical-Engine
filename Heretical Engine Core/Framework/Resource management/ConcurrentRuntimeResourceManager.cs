@@ -12,7 +12,8 @@ namespace HereticalSolutions.ResourceManagement
 {
 	public class ConcurrentRuntimeResourceManager
 		: IRuntimeResourceManager,
-		  IAsyncContainsRootResources
+		  IAsyncContainsRootResources,
+		  IContainsDependencyResources
 	{
 		private readonly IRepository<int, string> rootResourceIDHashToID;
 
@@ -805,6 +806,55 @@ namespace HereticalSolutions.ResourceManagement
 		}
 
 		#endregion
+
+		#endregion
+
+		#region IContainsDependencyResources
+
+		public async Task<IReadOnlyResourceStorageHandle> LoadDependency(
+			string path,
+			string variantID = null,
+			IProgress<float> progress = null)
+		{
+			IReadOnlyResourceData dependencyResource = await GetDependencyResource(path)
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(
+					logger);
+
+			IResourceVariantData dependencyVariantData = await ((IContainsDependencyResourceVariants)dependencyResource)
+				.GetDependencyResourceVariant(variantID)
+				.ThrowExceptions<IResourceVariantData, ConcurrentRuntimeResourceManager>(
+					logger);
+
+			progress?.Report(0.5f);
+
+			var dependencyStorageHandle = dependencyVariantData.StorageHandle;
+
+			if (!dependencyStorageHandle.Allocated)
+			{
+				IProgress<float> localProgress = progress.CreateLocalProgress(
+					0.5f,
+					1f);
+
+				await dependencyStorageHandle
+					.Allocate(
+						localProgress)
+					.ThrowExceptions<ConcurrentRuntimeResourceManager>(
+						logger);
+			}
+
+			progress?.Report(1f);
+
+			return dependencyStorageHandle;
+		}
+
+		public async Task<IReadOnlyResourceData> GetDependencyResource(
+			string path)
+		{
+			return await GetResourceWhenAvailable(
+				path.SplitAddressBySeparator())
+				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(
+					logger);
+		}
 
 		#endregion
 

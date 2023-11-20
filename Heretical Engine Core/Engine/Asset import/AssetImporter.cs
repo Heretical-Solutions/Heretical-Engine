@@ -167,5 +167,20 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 			return variantData;
 		}
+
+		protected async Task<IReadOnlyResourceStorageHandle> LoadDependency(
+			string path,
+			string variantID = null,
+			IProgress<float> progress = null)
+		{
+			return await ((IContainsDependencyResources)context.RuntimeResourceManager)
+				.LoadDependency(
+					path,
+					variantID,
+					progress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle>(
+					GetType(),
+					context.Logger);
+		}
 	}
 }

@@ -1,197 +1,174 @@
-using System;
-using System.Threading.Tasks;
+#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
 
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Scenes;
+
 using HereticalSolutions.HereticalEngine.Math;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ConcurrentModelOpenGLStorageHandle
-		: IReadOnlyResourceStorageHandle
+		: AConcurrentReadOnlyResourceStorageHandle<ModelOpenGL>
 	{
-		private readonly IRuntimeResourceManager resourceManager = null;
+		private readonly string modelRAMPath;
 
-		private readonly IReadOnlyResourceStorageHandle modelRAMStorageHandle = null;
-
-		private readonly SemaphoreSlim semaphore;
-
-		private readonly IFormatLogger logger;
-
-
-		private bool allocated = false;
-
-		private ModelOpenGL model = null;
+		private readonly string modelRAMVariantID;
 
 		public ConcurrentModelOpenGLStorageHandle(
-			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle modelRAMStorageHandle,
+			string modelRAMPath,
+			string modelRAMVariantID,
 			SemaphoreSlim semaphore,
-			IFormatLogger logger)
+			ApplicationContext context)
+			: base(
+				semaphore,
+				context)
 		{
-			this.resourceManager = resourceManager;
+			this.modelRAMPath = modelRAMPath;
 
-			this.modelRAMStorageHandle = modelRAMStorageHandle;
-
-			this.semaphore = semaphore;
-
-			this.logger = logger;
-
-
-			model = null;
-
-			allocated = false;
+			this.modelRAMVariantID = modelRAMVariantID;
 		}
 
-		#region IReadOnlyResourceStorageHandle
-
-		#region IAllocatable
-
-		public bool Allocated
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-
-				try
-				{
-					return allocated;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public virtual async Task Allocate(
+		protected override async Task<ModelOpenGL> AllocateResource(
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			await semaphore.WaitAsync(); // Acquire the semaphore
+			IProgress<float> localProgress = progress.CreateLocalProgress(
+				0f,
+				(1f / 6f));
 
-			try
-			{
-				if (allocated)
-				{
-					progress?.Report(1f);
-
-					return;
-				}
-
-				logger?.Log<ConcurrentModelOpenGLStorageHandle>(
-					$"ALLOCATING");
-
-				bool result = await LoadModel(
-					resourceManager,
-					modelRAMStorageHandle,
-					progress)
-					.ThrowExceptions<bool, ConcurrentModelOpenGLStorageHandle>(logger);
-
-				if (!result)
-				{
-					progress?.Report(1f);
-
-					return;
-				}
-
-				allocated = true;
-
-				logger?.Log<ConcurrentModelOpenGLStorageHandle>(
-					$"ALLOCATED");
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
-		}
-
-		private async Task<bool> LoadModel(
-			IRuntimeResourceManager resourceManager,
-			IReadOnlyResourceStorageHandle modelRAMStorageHandle,
-			IProgress<float> progress = null)
-		{
-			progress?.Report(0f);
-
-			if (!modelRAMStorageHandle.Allocated)
-			{
-				IProgress<float> localProgress = progress.CreateLocalProgress(
-					0f,
-					(1f / 6f));
-
-				await modelRAMStorageHandle
-					.Allocate(
-						localProgress)
-					.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
-			}
+			var modelRAMStorageHandle = await LoadDependency(
+				modelRAMPath,
+				modelRAMVariantID,
+				localProgress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentModelOpenGLStorageHandle>(context.Logger);
 
 			var modelDTO = modelRAMStorageHandle.GetResource<ModelDTO>();
 
+			MeshOpenGL[] meshes = new MeshOpenGL[modelDTO.MeshResourcePaths.Length];
+
+			GeometryOpenGL[] geometries = new GeometryOpenGL[modelDTO.GeometryResourcePaths.Length];
+
+			MaterialOpenGL[] materials = new MaterialOpenGL[modelDTO.MaterialResourcePaths.Length];
+
+			TextureOpenGL[] textures = new TextureOpenGL[modelDTO.TextureResourcePaths.Length];
+
 			progress?.Report(1f / 6f);
 
-			MeshOpenGL[] meshes = new MeshOpenGL[modelDTO.MeshResourceIDs.Length];
+#if PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
+			List<Task> loadDependencyTasks = new List<Task>();
+
+			List<float> loadDependencyProgresses = new List<float>();
+
+			ScheduleLoading<MeshOpenGL>(
+				meshes,
+				modelDTO.MeshResourcePaths,
+				MeshOpenGLAssetImporter.MESH_OPENGL_VARIANT_ID,
+
+				loadDependencyTasks,
+				loadDependencyProgresses,
+
+				(1f / 6f),
+				(5f / 6f),
+				progress);
+
+			ScheduleLoading<GeometryOpenGL>(
+				geometries,
+				modelDTO.GeometryResourcePaths,
+				GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
+
+				loadDependencyTasks,
+				loadDependencyProgresses,
+
+				(1f / 6f),
+				(5f / 6f),
+				progress);
+
+			ScheduleLoading<MaterialOpenGL>(
+				materials,
+				modelDTO.MaterialResourcePaths,
+				MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
+
+				loadDependencyTasks,
+				loadDependencyProgresses,
+
+				(1f / 6f),
+				(5f / 6f),
+				progress);
+
+			ScheduleLoading<TextureOpenGL>(
+				textures,
+				modelDTO.TextureResourcePaths,
+				TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID,
+
+				loadDependencyTasks,
+				loadDependencyProgresses,
+
+				(1f / 6f),
+				(5f / 6f),
+				progress);
+
+
+			await Task
+				.WhenAll(loadDependencyTasks)
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(context.Logger);
+
+#else
 
 			await Load<MeshOpenGL>(
 				meshes,
-				modelDTO.MeshResourceIDs,
+				modelDTO.MeshResourcePaths,
 				MeshOpenGLAssetImporter.MESH_OPENGL_VARIANT_ID,
 				(1f / 6f),
 				(2f / 6f),
 				progress)
-				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(2f / 6f);
 
-			GeometryOpenGL[] geometries = new GeometryOpenGL[modelDTO.GeometryResourceIDs.Length];
-
 			await Load<GeometryOpenGL>(
 				geometries,
-				modelDTO.GeometryResourceIDs,
+				modelDTO.GeometryResourcePaths,
 				GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
 				(2f / 6f),
 				(3f / 6f),
 				progress)
-				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(3f / 6f);
 
-			MaterialOpenGL[] materials = new MaterialOpenGL[modelDTO.MaterialResourceIDs.Length];
-
 			await Load<MaterialOpenGL>(
 				materials,
-				modelDTO.MaterialResourceIDs,
+				modelDTO.MaterialResourcePaths,
 				MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
 				(3f / 6f),
 				(4f / 6f),
 				progress)
-				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(4f / 6f);
 
-			TextureOpenGL[] textures = new TextureOpenGL[modelDTO.TextureResourceIDs.Length];
-
 			await Load<TextureOpenGL>(
 				textures,
-				modelDTO.TextureResourceIDs,
+				modelDTO.TextureResourcePaths,
 				TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID,
 				(4f / 6f),
 				(5f / 6f),
 				progress)
-				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(context.Logger);
 
 			progress?.Report(5f / 6f);
 
+#endif
+
 			ModelNodeOpenGL rootNode = await BuildModelNodeOpenGL(
 				modelDTO.RootNode)
-				.ThrowExceptions<ModelNodeOpenGL, ConcurrentModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ModelNodeOpenGL, ConcurrentModelOpenGLStorageHandle>(context.Logger);
 
-			model = new ModelOpenGL(
+			var model = new ModelOpenGL(
 				meshes,
 				geometries,
 				materials,
@@ -200,7 +177,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			progress?.Report(1f);
 
-			return true;
+			return model;
 		}
 
 		private async Task Load<TResource>(
@@ -213,7 +190,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			for (int i = 0; i < resourceCollection.Length; i++)
 			{
-				var resourceStorageHandle = resourceManager
+				var resourceStorageHandle = context
+					.RuntimeResourceManager
 					.GetResource(
 						sourceCollection[i].SplitAddressBySeparator())
 					.GetVariant(
@@ -231,10 +209,44 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					await resourceStorageHandle
 						.Allocate(
 							localProgress)
-						.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
+						.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(context.Logger);
 				}
 
 				resourceCollection[i] = resourceStorageHandle.GetResource<TResource>();
+			}
+		}
+
+		private void ScheduleLoading<TResource>(
+			TResource[] resourceCollection,
+			string[] sourceCollection,
+			string variantID,
+
+			List<Task> loadDependencyTasks,
+			List<float> loadDependencyProgresses,
+
+			float totalProgressStart,
+			float totalProgressEnd,
+			IProgress<float> progress)
+		{
+			for (int i = 0; i < resourceCollection.Length; i++)
+			{
+				loadDependencyTasks.Add(
+					Task.Run(async () =>
+					{
+						IProgress<float> localProgress = progress.CreateLocalProgress(
+							totalProgressStart,
+							totalProgressEnd,
+							loadDependencyProgresses,
+							loadDependencyProgresses.Count);
+
+						var resourceStorageHandle = await ((IContainsDependencyResources)context.RuntimeResourceManager)
+							.LoadDependency(
+								sourceCollection[i],
+								variantID,
+								localProgress);
+
+						resourceCollection[i] = resourceStorageHandle.GetResource<TResource>();
+					}));
 			}
 		}
 
@@ -247,7 +259,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			{
 				children[i] = await BuildModelNodeOpenGL(
 					dto.Children[i])
-					.ThrowExceptions<ModelNodeOpenGL, ConcurrentModelOpenGLStorageHandle>(logger);
+					.ThrowExceptions<ModelNodeOpenGL, ConcurrentModelOpenGLStorageHandle>(context.Logger);
 			}
 
 			Transform transform = new Transform
@@ -259,16 +271,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			transform.RecalculateTRSMatrix();
 
-			MeshOpenGL[] meshes = new MeshOpenGL[dto.MeshResourceIDs.Length];
+			MeshOpenGL[] meshes = new MeshOpenGL[dto.MeshResourcePaths.Length];
 
 			await Load<MeshOpenGL>(
 				meshes,
-				dto.MeshResourceIDs,
+				dto.MeshResourcePaths,
 				MeshOpenGLAssetImporter.MESH_OPENGL_VARIANT_ID,
 				-1f,
 				-1f,
 				null)
-				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(logger);
+				.ThrowExceptions<ConcurrentModelOpenGLStorageHandle>(context.Logger);
 
 			var result = new ModelNodeOpenGL(
 				dto.Name,
@@ -284,80 +296,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			return result;
 		}
 
-		public virtual async Task Free(
+		protected override async Task FreeResource(
+			ModelOpenGL resource,
 			IProgress<float> progress = null)
 		{
-			progress?.Report(0f);
-
-			await semaphore.WaitAsync(); // Acquire the semaphore
-
-			try
-			{
-				if (!allocated)
-				{
-					progress?.Report(1f);
-
-					return;
-				}
-
-				logger?.Log<ConcurrentModelOpenGLStorageHandle>(
-					$"FREEING");
-
-				model = null;
-
-
-				allocated = false;
-
-				logger?.Log<ConcurrentModelOpenGLStorageHandle>(
-					$"FREE");
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-
-				progress?.Report(1f);
-			}
+			progress?.Report(1f);
 		}
-
-		#endregion
-
-		public object RawResource
-		{
-			get
-			{
-				semaphore.Wait(); // Acquire the semaphore
-
-				try
-				{
-					if (!allocated)
-						throw new InvalidOperationException("Resource is not allocated");
-
-					return model;
-				}
-				finally
-				{
-					semaphore.Release(); // Release the semaphore
-				}
-			}
-		}
-
-		public TValue GetResource<TValue>()
-		{
-			semaphore.Wait(); // Acquire the semaphore
-
-			try
-			{
-				if (!allocated)
-					throw new InvalidOperationException("Resource is not allocated");
-
-				return (TValue)(object)model;
-			}
-			finally
-			{
-				semaphore.Release(); // Release the semaphore
-			}
-		}
-
-		#endregion
 	}
 }

@@ -164,10 +164,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			camera = default;
 
 			var cameraImporter = new DefaultReadWriteAssetImporter<Camera>(
-				context.RuntimeResourceManager,
 				MAIN_CAMERA_RESOURCE_PATH,
 				camera,
-				context.Logger);
+				context);
 
 			cameraStorageHandle = (IResourceStorageHandle)
 				Task.Run(

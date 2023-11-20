@@ -1,7 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-
 using HereticalSolutions.Repositories;
 
 using HereticalSolutions.Logging;
@@ -12,7 +8,8 @@ namespace HereticalSolutions.ResourceManagement
 	/// Represents resource data that can be read and modified.
 	/// </summary>
 	public class ResourceData
-		: IResourceData
+		: IResourceData,
+		  IContainsDependencyResourceVariants
 	{
 		private readonly IRepository<int, string> variantIDHashToID;
 
@@ -483,6 +480,31 @@ namespace HereticalSolutions.ResourceManagement
 			ParentResource = null;
 
 			progress?.Report(1f);
+		}
+
+		#endregion
+	
+		#region IContainsDependencyResourceVariants
+
+		public async Task<IResourceVariantData> GetDependencyResourceVariant(string variantID = null)
+		{
+			IResourceVariantData dependencyResourceVariant = null;
+
+			if (string.IsNullOrEmpty(variantID))
+			{
+				dependencyResourceVariant = defaultVariant;
+			}
+			else
+			{
+				dependencyResourceVariant = GetVariant(
+					variantID);
+			}
+
+			if (dependencyResourceVariant == null)
+				logger?.ThrowException<ResourceData>(
+					$"VARIANT {(string.IsNullOrEmpty(variantID) ? "NULL" : variantID)} DOES NOT EXIST");
+
+			return dependencyResourceVariant;
 		}
 
 		#endregion

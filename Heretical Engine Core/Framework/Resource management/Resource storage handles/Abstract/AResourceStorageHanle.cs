@@ -36,6 +36,16 @@ namespace HereticalSolutions.ResourceManagement
 			string variantID = null,
 			IProgress<float> progress = null)
 		{
+			return await ((IContainsDependencyResources)context.RuntimeResourceManager)
+				.LoadDependency(
+					path,
+					variantID,
+					progress)
+				.ThrowExceptions<IReadOnlyResourceStorageHandle>(
+					GetType(),
+					context.Logger);
+
+			/*
 			#region Get resource data
 
 			var concurrentResourceManager = ((IAsyncContainsRootResources)context.RuntimeResourceManager);
@@ -131,6 +141,7 @@ namespace HereticalSolutions.ResourceManagement
 			progress?.Report(1f);
 
 			return dependencyStorageHandle;
+			*/
 		}
 
 		protected async Task ExecuteOnMainThread(

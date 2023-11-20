@@ -15,7 +15,8 @@ namespace HereticalSolutions.ResourceManagement
 	public class ConcurrentResourceData
 		: IResourceData,
 		  IAsyncContainsResourceVariants,
-		  IAsyncContainsNestedResources
+		  IAsyncContainsNestedResources,
+		  IContainsDependencyResourceVariants
 	{
 		private readonly IRepository<int, string> variantIDHashToID;
 
@@ -1009,6 +1010,31 @@ namespace HereticalSolutions.ResourceManagement
 			return await GetNestedResourceWhenAvailable(
 				nestedResourceID.AddressToHash())
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentResourceData>(logger);
+		}
+
+		#endregion
+
+		#region IContainsDependencyResourceVariants
+
+		public async Task<IResourceVariantData> GetDependencyResourceVariant(string variantID = null)
+		{
+			IResourceVariantData dependencyResourceVariant = null;
+
+			if (string.IsNullOrEmpty(variantID))
+			{
+				dependencyResourceVariant = await GetDefaultVariantWhenAvailable()
+					.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(
+						logger);
+			}
+			else
+			{
+				dependencyResourceVariant = await GetVariantWhenAvailable(
+					variantID)
+					.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(
+						logger);
+			}
+
+			return dependencyResourceVariant;
 		}
 
 		#endregion

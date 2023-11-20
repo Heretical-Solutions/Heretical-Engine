@@ -252,15 +252,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			#region Model import
 
 			var modelAssetImporter = new ModelRAMAssetImporter(
-				context.RuntimeResourceManager,
 				"Knight", //"Suzanne", //"Knight",
 				new FilePathSettings
 				{
 					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx", // "3D/Characters/Suzanne/Models/suzanne_triangulated.fbx", //"3D/Characters/Knight/Models/strongknight.fbx",
 					ApplicationDataFolder = pathToAssets
 				},
-				context.MainThreadCommandBuffer,
-				logger);
+				context);
 
 			IResourceVariantData modelRAMData = null;
 
@@ -297,17 +295,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				.WhenAll(tasks)
 				.ThrowExceptions<OpenGLDrawTestMeshModule>(logger);
 
-			var modelRAMStorageHandle = modelRAMData.StorageHandle;
-
 			#region Model OpenGL import
 
 			var modelOpenGLAssetImporter = new ModelOpenGLAssetImporter(
-				context.RuntimeResourceManager,
 				"Knight", //"Suzanne", //"Knight",
-				modelRAMStorageHandle,
-				gl,
-				context.MainThreadCommandBuffer,
-				logger);
+				"Knight",
+				ModelRAMAssetImporter.MODEL_RAM_VARIANT_ID,
+				context);
 
 			var modelOpenGLImportProgress = new Progress<float>();
 

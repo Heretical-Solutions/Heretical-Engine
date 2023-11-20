@@ -79,10 +79,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			gl = window.CreateOpenGL();
 
 			var glImporter = new DefaultPreallocatedAssetImporter<GL>(
-				context.RuntimeResourceManager,
 				GL_RESOURCE_PATH,
 				gl,
-				context.Logger);
+				context);
 
 			task = glImporter.Import();
 

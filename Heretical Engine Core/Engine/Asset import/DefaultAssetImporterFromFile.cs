@@ -87,16 +87,20 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				ResourceManagementFactory
-					.BuildConcurrentPreallocatedResourceStorageHandle(asset),
+					.BuildConcurrentPreallocatedResourceStorageHandle<TAsset>(
+						asset,
+						context),
 #else
 				ResourceManagementFactory
-					.BuildPreallocatedResourceStorageHandle(asset),
+					.BuildPreallocatedResourceStorageHandle<TAsset>(
+						asset,
+						context),
 #endif
 				allocate,
 				progress)
-				.ThrowExceptions<IResourceVariantData>( //TODO: FIX - incorrect overload
+				.ThrowExceptions<IResourceVariantData>(
 					GetType(),
-					logger);
+					context.Logger);
 
 			progress?.Report(1f);
 

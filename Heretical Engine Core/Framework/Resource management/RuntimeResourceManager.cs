@@ -8,7 +8,8 @@ namespace HereticalSolutions.ResourceManagement
     /// Represents a runtime resource manager.
     /// </summary>
     public class RuntimeResourceManager
-        : IRuntimeResourceManager
+        : IRuntimeResourceManager,
+          IContainsDependencyResources
     {
         private readonly IRepository<int, string> rootResourceIDHashToID;
 
@@ -421,6 +422,59 @@ namespace HereticalSolutions.ResourceManagement
             rootResourcesRepository.Clear();
 
             progress?.Report(1f);
+        }
+
+        #endregion
+
+        #region IContainsDependencyResources
+
+        public async Task<IReadOnlyResourceStorageHandle> LoadDependency(
+            string path,
+            string variantID = null,
+            IProgress<float> progress = null)
+        {
+            IReadOnlyResourceData dependencyResource = await GetDependencyResource(path)
+                .ThrowExceptions<IReadOnlyResourceData, RuntimeResourceManager>(
+                    logger);
+
+            IResourceVariantData dependencyVariantData = await ((IContainsDependencyResourceVariants)dependencyResource)
+                .GetDependencyResourceVariant(variantID)
+                .ThrowExceptions<IResourceVariantData, RuntimeResourceManager>(
+                    logger);
+
+            progress?.Report(0.5f);
+
+            var dependencyStorageHandle = dependencyVariantData.StorageHandle;
+
+            if (!dependencyStorageHandle.Allocated)
+            {
+                IProgress<float> localProgress = progress.CreateLocalProgress(
+                    0.5f,
+                    1f);
+
+                await dependencyStorageHandle
+                    .Allocate(
+                        localProgress)
+                    .ThrowExceptions<RuntimeResourceManager>(
+                        logger);
+            }
+
+            progress?.Report(1f);
+
+            return dependencyStorageHandle;
+        }
+
+        public async Task<IReadOnlyResourceData> GetDependencyResource(
+            string path)
+        {
+            IReadOnlyResourceData dependencyResource = GetResource(
+                path.SplitAddressBySeparator());
+
+            if (dependencyResource == null)
+                logger?.ThrowException<RuntimeResourceManager>(
+                    $"RESOURCE {path} DOES NOT EXIST");
+
+            return dependencyResource;
         }
 
         #endregion

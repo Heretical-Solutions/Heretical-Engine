@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace HereticalSolutions.ResourceManagement
 {
 	public interface IContainsResourceVariants
