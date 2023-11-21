@@ -724,8 +724,14 @@ namespace HereticalSolutions.ResourceManagement
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
 			*/
 
-			return await waitForNotificationTask
+			logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable AWAITING INITIATED");
+
+			var awaitedResult = await waitForNotificationTask
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
+
+			logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable AWAITING FINISHED");
+
+			return awaitedResult;
 		}
 
 		public async Task<IReadOnlyResourceData> GetRootResourceWhenAvailable(string resourceID)

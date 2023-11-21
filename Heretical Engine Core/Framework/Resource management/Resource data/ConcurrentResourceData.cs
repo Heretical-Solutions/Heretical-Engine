@@ -688,7 +688,7 @@ namespace HereticalSolutions.ResourceManagement
 					return;
 				}
 
-				((IResourceData)nestedResource).ParentResource = this;
+				((IResourceData)nestedResource).ParentResource = this; //Maybe this should be outside the critical section?
 
 				nestedResourceIDHashToID.AddOrUpdate(
 					nestedResource.Descriptor.IDHash,
@@ -898,8 +898,14 @@ namespace HereticalSolutions.ResourceManagement
 				logger?.Log<ConcurrentResourceData>($"({Descriptor.ID}) GetDefaultVariantWhenAvailable SEMAPHORE RELEASED");
 			}
 
-			return await waitForNotificationTask
+			logger?.Log<ConcurrentResourceData>($"({Descriptor.ID}) GetDefaultVariantWhenAvailable AWAITING INITIATED");
+
+			var awaitedResult = await waitForNotificationTask
 				.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(logger);
+
+			logger?.Log<ConcurrentResourceData>($"({Descriptor.ID}) GetDefaultVariantWhenAvailable AWAITING FINISHED");
+
+			return awaitedResult;
 
 			/*
 			return await variantAddedNotifier
@@ -937,8 +943,14 @@ namespace HereticalSolutions.ResourceManagement
 				logger?.Log<ConcurrentResourceData>($"({Descriptor.ID}) GetVariantWhenAvailable SEMAPHORE RELEASED");
 			}
 
-			return await waitForNotificationTask
+			logger?.Log<ConcurrentResourceData>($"({Descriptor.ID}) GetVariantWhenAvailable AWAITING INITIATED");
+
+			var awaitedResult = await waitForNotificationTask
 				.ThrowExceptions<IResourceVariantData, ConcurrentResourceData>(logger);
+
+			logger?.Log<ConcurrentResourceData>($"({Descriptor.ID}) GetVariantWhenAvailable AWAITING FINISHED");
+
+			return awaitedResult;
 
 			/*
 			return await variantAddedNotifier
@@ -994,8 +1006,14 @@ namespace HereticalSolutions.ResourceManagement
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentResourceData>(logger);
 			*/
 
-			return await waitForNotificationTask
+			logger?.Log<ConcurrentResourceData>($"({Descriptor.ID}) GetNestedResourceWhenAvailable AWAITING INITIATED");
+
+			var awaitedResult = await waitForNotificationTask
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentResourceData>(logger);
+
+			logger?.Log<ConcurrentResourceData>($"({Descriptor.ID}) GetNestedResourceWhenAvailable AWAITING FINISHED");
+
+			return awaitedResult;
 		}
 
 		public async Task<IReadOnlyResourceData> GetNestedResourceWhenAvailable(
