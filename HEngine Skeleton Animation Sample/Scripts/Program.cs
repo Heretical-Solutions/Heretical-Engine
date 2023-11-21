@@ -12,6 +12,7 @@ using HereticalSolutions.HereticalEngine.Application;
 using HereticalSolutions.HereticalEngine.Modules;
 
 using HereticalSolutions.Logging;
+using HereticalSolutions.Logging.Factories;
 
 namespace HereticalSolutions.HereticalEngine.Samples
 {
@@ -23,7 +24,18 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		{
 			//var program = new Program();
 
-			IFormatLogger logger = new ConsoleLogger();
+			var pathToExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+
+			//TODO: change
+			var applicationDataFolder = pathToExe.Substring(
+				0,
+				pathToExe.IndexOf("/bin/"));
+
+			string logFileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss");
+
+			IFormatLogger logger = LoggersFactory.BuildDefaultLoggerWithFileDump(
+				applicationDataFolder,
+				$"Runtime logs/{logFileName}.log");
 
 			var windowModule = new WindowModule();
 
@@ -86,6 +98,11 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			for (int i = 0; i < context.Modules.Length; i++)
 			{
 				context.Modules[i].TearDown();
+			}
+
+			if (logger != null)
+			{
+				((IDumpable)logger).Dump();
 			}
 		}
 	}

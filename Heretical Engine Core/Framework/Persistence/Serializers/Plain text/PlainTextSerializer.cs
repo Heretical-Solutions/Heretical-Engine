@@ -15,7 +15,27 @@ namespace HereticalSolutions.Persistence.Serializers
 
 		public bool Serialize<TValue>(ISerializationArgument argument, TValue DTO)
 		{
-			string text = ((IContainsPlainText)DTO).Text;
+			string text = string.Empty;
+
+			if (typeof(TValue) == typeof(string))
+			{
+				text = (string)(object)DTO;
+			}
+			else if (typeof(TValue) == typeof(string[]))
+			{
+				var array = (string[])(object)DTO;
+
+				text = string.Join("\n", array);
+			}
+			else
+			{
+				var containsPlainText = DTO as IContainsPlainText;
+
+				if (containsPlainText == null)
+					throw new Exception($"[PlainTextSerializer] DTO OF TYPE {typeof(TValue).ToString()} DOES NOT IMPLEMENT IContainsPlainText");
+
+				text = containsPlainText.Text;
+			}
 
 			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
 				throw new Exception($"[PlainTextSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
@@ -27,7 +47,27 @@ namespace HereticalSolutions.Persistence.Serializers
 
 		public bool Serialize(ISerializationArgument argument, Type DTOType, object DTO)
 		{
-			string text = ((IContainsPlainText)DTO).Text;
+			string text = string.Empty;
+
+			if (DTOType == typeof(string))
+			{
+				text = (string)DTO;
+			}
+			else if (DTOType == typeof(string[]))
+			{
+				var array = (string[])DTO;
+
+				text = string.Join("\n", array);
+			}
+			else
+			{
+				var containsPlainText = DTO as IContainsPlainText;
+
+				if (containsPlainText == null)
+					throw new Exception($"[PlainTextSerializer] DTO OF TYPE {DTOType.ToString()} DOES NOT IMPLEMENT IContainsPlainText");
+
+				text = containsPlainText.Text;
+			}
 
 			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
 				throw new Exception($"[PlainTextSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
@@ -49,7 +89,20 @@ namespace HereticalSolutions.Persistence.Serializers
 			if (!concreteStrategy.Deserialize(argument, out var text))
 				return false;
 
-			((IContainsPlainText)DTO).Text = text;
+			if (typeof(TValue) == typeof(string))
+			{
+				DTO = (TValue)(object)text;
+			}
+			else if (typeof(TValue) == typeof(string[]))
+			{
+				var array = text.Split("\n");
+
+				DTO = (TValue)(object)array;
+			}
+			else
+			{
+				((IContainsPlainText)DTO).Text = text;
+			}
 
 			return true;
 		}
@@ -66,7 +119,20 @@ namespace HereticalSolutions.Persistence.Serializers
 			if (!concreteStrategy.Deserialize(argument, out var text))
 				return false;
 
-			((IContainsPlainText)DTO).Text = text;
+			if (DTOType == typeof(string))
+			{
+				DTO = text;
+			}
+			else if (DTOType == typeof(string[]))
+			{
+				var array = text.Split("\n");
+
+				DTO = array;
+			}
+			else
+			{
+				((IContainsPlainText)DTO).Text = text;
+			}
 
 			return true;
 		}
