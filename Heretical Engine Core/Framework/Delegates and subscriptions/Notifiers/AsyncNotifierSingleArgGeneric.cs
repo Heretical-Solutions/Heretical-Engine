@@ -40,13 +40,13 @@ namespace HereticalSolutions.Delegates.Notifiers
 
 			await semaphore.WaitAsync();
 
-			logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"GetValueWhenNotified SEMAPHORE ACQUIRED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"GetValueWhenNotified SEMAPHORE ACQUIRED");
 
 			requests.Add(request);
 
 			semaphore.Release();
 
-			logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"GetValueWhenNotified SEMAPHORE RELEASED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"GetValueWhenNotified SEMAPHORE RELEASED");
 
 
 			await completionSource
@@ -70,13 +70,13 @@ namespace HereticalSolutions.Delegates.Notifiers
 
 			await semaphore.WaitAsync();
 
-			logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"GetWaitForNotificationTask SEMAPHORE ACQUIRED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"GetWaitForNotificationTask SEMAPHORE ACQUIRED");
 
 			requests.Add(request);
 
 			semaphore.Release();
 
-			logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"GetWaitForNotificationTask SEMAPHORE RELEASED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"GetWaitForNotificationTask SEMAPHORE RELEASED");
 
 
 			return GetValueFromCompletionSource(completionSource);
@@ -98,7 +98,7 @@ namespace HereticalSolutions.Delegates.Notifiers
 		{
 			await semaphore.WaitAsync();
 
-			logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"Notify SEMAPHORE ACQUIRED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"Notify SEMAPHORE ACQUIRED");
 
 			for (int i = requests.Count - 1; i >= 0; i--)
 			{
@@ -115,7 +115,7 @@ namespace HereticalSolutions.Delegates.Notifiers
 
 			semaphore.Release();
 
-			logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"Notify SEMAPHORE RELEASED");
+			//logger?.Log<AsyncNotifierSingleArgGeneric<TArgument, TValue>>($"Notify SEMAPHORE RELEASED");
 		}
 
 		#endregion

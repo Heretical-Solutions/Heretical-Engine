@@ -43,6 +43,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			base.VisitTranslation_unit(context);
 
+			logger?.Log<ShaderDescriptorBuilder>(
+				$"BUILDING STARTED");
+
 			ArrangeAttributesByLocation();
 
 			int stride = CalculateStrideAndOffsets();
@@ -55,6 +58,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			};
 
 			attributes.Clear();
+
+			logger?.Log<ShaderDescriptorBuilder>(
+				$"BUILDING FINISHED");
 
 			return result;
 		}
@@ -126,7 +132,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					logger);
 
 				logger?.Log<ShaderDescriptorBuilder>(
-					$"PARSED ATTRIBUTE. NAME: {attribute.Name} TYPE: {attribute.Type} POINTER TYPE: {attribute.PointerType} INDEX: {attribute.Location} ATTRIBUTE SIZE: {attribute.AttributeSize} BYTE SIZE: {attribute.ByteSize} OFFSET: {attribute.Offset}");
+					$"PARSED ATTRIBUTE. NAME: {attribute.Name} TYPE: {attribute.Type} POINTER TYPE: {attribute.PointerType} INDEX: {attribute.Location} ATTRIBUTE SIZE: {attribute.AttributeSize} BYTE SIZE: {attribute.ByteSize} OFFSET: {attribute.Offset} COMMON: {attribute.CommonVertexAttribute}");
 
 				attributes.Add(attribute);
 			}

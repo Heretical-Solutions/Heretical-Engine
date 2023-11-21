@@ -41,7 +41,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			GL gl,
 			Span<TValue> data)
 		{
-			Console.WriteLine($"Updating buffer {handle} with {data.Length} elements of type {typeof(TValue).Name}. Element size: {sizeof(TValue)} Total size: {((nuint)(data.Length * sizeof(TValue))).ToString()}");
+			//Console.WriteLine($"Updating buffer {handle} with {data.Length} elements of type {typeof(TValue).Name}. Element size: {sizeof(TValue)} Total size: {((nuint)(data.Length * sizeof(TValue))).ToString()}");
 
 			fixed (void* dataPointer = data)
 			{

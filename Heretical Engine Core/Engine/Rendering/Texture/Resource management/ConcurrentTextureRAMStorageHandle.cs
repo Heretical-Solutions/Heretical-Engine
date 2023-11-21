@@ -33,16 +33,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			//Whatever, we have main thread commands now
 			Func<Task> loadTextureDelegate = async () =>
 			{
-				context.Logger?.Log<ConcurrentTextureRAMStorageHandle>(
-					$"INITIATING ASYNC TEXTURE LOADING. THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
+				//context.Logger?.Log<ConcurrentTextureRAMStorageHandle>(
+				//	$"INITIATING ASYNC TEXTURE LOADING. THREAD ID: {Thread.CurrentThread.ManagedThreadId}");
 
 				texture = await Image
 					.LoadAsync<Rgba32>(
 						filePathSettings.FullPath)
 					.ThrowExceptions<Image<Rgba32>, ConcurrentTextureRAMStorageHandle>(context.Logger);
 
-				context.Logger?.Log<ConcurrentTextureRAMStorageHandle>(
-					$"DONE. TEXTURE IS LOADED: {(texture != default).ToString()}");
+				//context.Logger?.Log<ConcurrentTextureRAMStorageHandle>(
+				//	$"DONE. TEXTURE IS LOADED: {(texture != default).ToString()}");
 			};
 
 			await ExecuteOnMainThread(

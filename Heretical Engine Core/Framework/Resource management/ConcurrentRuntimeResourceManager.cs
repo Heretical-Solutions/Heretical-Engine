@@ -696,7 +696,7 @@ namespace HereticalSolutions.ResourceManagement
 
 			semaphore.Wait();
 
-			logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable SEMAPHORE ACQUIRED");
+			//logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable SEMAPHORE ACQUIRED");
 
 			try
 			{
@@ -715,7 +715,7 @@ namespace HereticalSolutions.ResourceManagement
 			{
 				semaphore.Release();
 
-				logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable SEMAPHORE RELEASED");
+				//logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable SEMAPHORE RELEASED");
 			}
 
 			/*
@@ -724,12 +724,12 @@ namespace HereticalSolutions.ResourceManagement
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
 			*/
 
-			logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable AWAITING INITIATED");
+			//logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable AWAITING INITIATED");
 
 			var awaitedResult = await waitForNotificationTask
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(logger);
 
-			logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable AWAITING FINISHED");
+			//logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable AWAITING FINISHED");
 
 			return awaitedResult;
 		}
