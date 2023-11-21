@@ -1,12 +1,6 @@
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
-//DO NOT DO THIS FOR NOW. SOME ASSET IMPORTERS ARE BLINDLY LOOKING FOR
-//RESOURCES BY GIVEN ID EXPECTING THEM TO BE PRESENT IN THE RESOURCE MANAGER. PARALLELIZING THE LOAD PROCESS MAY CAUSE RACE
-//CONDITIONS
-//TODO: UPDATE CERTAIN RESOURCE IMPORTERS AND STORAGE HANDLES TO WAIT UNTIL RESOURCE BECOMES AVAILABLE
-//#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
-
-using HereticalSolutions.Collections.Managed;
+#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
 
 using HereticalSolutions.ResourceManagement;
 
@@ -14,13 +8,7 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using HereticalSolutions.HereticalEngine.Messaging;
-
-using HereticalSolutions.Logging;
-
-using Silk.NET.OpenGL;
 using HereticalSolutions.HereticalEngine.Application;
-using HereticalSolutions.HereticalEngine.Modules;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -131,12 +119,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						() => assetImporter
 							.Import(
 								localImportProgress)
-							.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(logger)));
+							.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(context.Logger)));
 			}
 
 			await Task
 				.WhenAll(assetImportersTasks)
-				.ThrowExceptions<ModelOpenGLAssetImporter>(logger);
+				.ThrowExceptions<ModelOpenGLAssetImporter>(context.Logger);
 #else
 			int totalAssetImporters = assetImporters.Count;
 

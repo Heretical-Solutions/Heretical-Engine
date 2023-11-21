@@ -696,7 +696,7 @@ namespace HereticalSolutions.ResourceManagement
 
 			semaphore.Wait();
 
-			//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE ACQUIRED");
+			logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable SEMAPHORE ACQUIRED");
 
 			try
 			{
@@ -715,7 +715,7 @@ namespace HereticalSolutions.ResourceManagement
 			{
 				semaphore.Release();
 
-				//logger?.Log<ConcurrentResourceData>($"{Descriptor.ID} SEMAPHORE RELEASED");
+				logger?.Log<ConcurrentResourceData>($"GetRootResourceWhenAvailable SEMAPHORE RELEASED");
 			}
 
 			/*
