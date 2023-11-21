@@ -84,10 +84,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					loadDependencyProgresses,
 					i + 1);
 
+				int iClosure = i;
+
 				Func<Task> loadTextureOpenGL = async () =>
 				{
-					textureOpenGLStorageHandles[i] = await LoadDependency(
-						materialDTO.TextureResourceIDs[i],
+					textureOpenGLStorageHandles[iClosure] = await LoadDependency(
+						materialDTO.TextureResourceIDs[iClosure],
 						TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID,
 						textureLoadProgress)
 						.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);

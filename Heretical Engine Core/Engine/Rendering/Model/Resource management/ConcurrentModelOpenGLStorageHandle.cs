@@ -230,6 +230,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			for (int i = 0; i < resourceCollection.Length; i++)
 			{
+				int iClosure = i;
+
 				Func<Task> loadResource = async () =>
 				{
 					IProgress<float> localProgress = progress.CreateLocalProgress(
@@ -240,11 +242,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 					var resourceStorageHandle = await ((IContainsDependencyResources)context.RuntimeResourceManager)
 						.LoadDependency(
-							sourceCollection[i],
+							sourceCollection[iClosure],
 							variantID,
-							localProgress);
+							localProgress)
+						.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentModelOpenGLStorageHandle>(
+							context.Logger);
 
-					resourceCollection[i] = resourceStorageHandle.GetResource<TResource>();
+					resourceCollection[iClosure] = resourceStorageHandle.GetResource<TResource>();
+
+					context.Logger?.Log<ConcurrentModelOpenGLStorageHandle>(
+						$"LOADED {sourceCollection[iClosure]} VARIANT {variantID}");
 				};
 
 				loadDependencyTasks.Add(loadResource());
