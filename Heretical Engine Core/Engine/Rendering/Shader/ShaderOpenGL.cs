@@ -117,13 +117,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			string name,
 			Matrix4X4<float> value)
 		{
-			/*
-			SetUniform(
-				gl,
-				name,
-				value.ToNumericsMatrix4x4());
-			*/
-
 			int location = gl.GetUniformLocation(
 				handle,
 				name);

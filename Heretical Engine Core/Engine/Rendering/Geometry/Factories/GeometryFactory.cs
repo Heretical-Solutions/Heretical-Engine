@@ -79,7 +79,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			var ebo = BufferFactory.BuildBufferOpenGL<uint>(
 				gl,
-				//geometry.Indices,
 				BufferTargetARB.ElementArrayBuffer);
 
 			ebo.Bind(

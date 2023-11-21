@@ -248,8 +248,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 					resourceCollection[iClosure] = resourceStorageHandle.GetResource<TResource>();
 
-					context.Logger?.Log<ConcurrentModelOpenGLStorageHandle>(
-						$"LOADED {sourceCollection[iClosure]} VARIANT {variantID}");
+					//context.Logger?.Log<ConcurrentModelOpenGLStorageHandle>(
+					//	$"LOADED {sourceCollection[iClosure]} VARIANT {variantID}");
 				};
 
 				loadDependencyTasks.Add(loadResource());

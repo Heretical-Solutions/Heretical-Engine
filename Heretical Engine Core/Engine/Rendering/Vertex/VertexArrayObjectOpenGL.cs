@@ -22,7 +22,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			uint stride,
 			int offSet)
 		{
-			Console.WriteLine($"VertexAttributePointer: location: {location}, size: {size}, stride: {stride}, offset: {offSet}");
+			//Console.WriteLine($"VertexAttributePointer: location: {location}, size: {size}, stride: {stride}, offset: {offSet}");
 
 			gl.EnableVertexAttribArray(location);
 

@@ -12,11 +12,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			var result = new VertexArrayObjectOpenGL(
 				handle);
 
-			/*
-			result.Bind(
-				gl);
-			*/
-
 			return result;
 		}
 	}

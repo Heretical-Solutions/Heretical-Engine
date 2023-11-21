@@ -1,4 +1,3 @@
-using System.Text;
 using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
@@ -45,46 +44,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			fixed (void* dataPointer = data)
 			{
-				/*
-				gl.BufferSubData(
-					bufferType,
-					0,
-					(nuint)(data.Length * sizeof(TValue)),
-					dataPointer);
-				*/
-
-				/*
-				if (typeof(TValue) == typeof(uint))
-				{
-					uint* dataPointer2 = (uint*)dataPointer;
-
-					StringBuilder sb = new StringBuilder("DUMP:\n");
-
-					for (int i = 0; i < 10; i++)
-					{
-						sb.Append(*dataPointer2);
-
-						dataPointer2++;
-
-						sb.Append(" ");
-
-						sb.Append(*dataPointer2);
-
-						dataPointer2++;
-
-						sb.Append(" ");
-
-						sb.Append(*dataPointer2);
-
-						dataPointer2++;
-
-						sb.Append("\n");
-					}
-
-					Console.WriteLine(sb.ToString());
-				}
-				*/
-
 				gl.BufferData(
 					bufferType,
 					(nuint)(data.Length * sizeof(TValue)),
