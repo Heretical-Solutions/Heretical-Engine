@@ -291,9 +291,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			#endregion
 
+			/*
 			await Task
 				.WhenAll(tasks)
 				.ThrowExceptions<OpenGLDrawTestMeshModule>(logger);
+			*/
 
 			#region Model OpenGL import
 
@@ -311,10 +313,28 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					($"MODEL OPENGL IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
+			/*
 			var modelOpenGLData = await modelOpenGLAssetImporter
 				.Import()
 				//modelOpenGLImportProgress)
 				.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
+			*/
+
+			IResourceVariantData modelOpenGLData = null;
+
+			Func<Task> importModelIntoGPU = async () =>
+			{
+				modelOpenGLData = await modelOpenGLAssetImporter
+					.Import()
+					//modelOpenGLImportProgress)
+					.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
+			};
+
+			tasks.Add(importModelIntoGPU());
+
+			await Task
+				.WhenAll(tasks)
+				.ThrowExceptions<OpenGLDrawTestMeshModule>(logger);
 
 			modelOpenGL = modelOpenGLData
 				.StorageHandle

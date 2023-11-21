@@ -133,6 +133,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			int stride,
 			IFormatLogger logger)
 		{
+			int strideInFloat = (int)(stride / sizeof(float));
+
+			int offsetInFloat = (int)(attribute.Offset / sizeof(float));
+
 			ECommonVertexAttributes vertexAttribute;
 
 			if (Enum.TryParse(
@@ -147,11 +151,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
-							vbo[i * stride + attribute.Offset] = vertices[i].Position.X;
+							vbo[i * strideInFloat + offsetInFloat] = vertices[i].Position.X;
 
-							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Position.Y;
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].Position.Y;
 
-							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Position.Z;
+							vbo[i * strideInFloat + offsetInFloat + 2] = vertices[i].Position.Z;
 						}
 
 						return;
@@ -160,11 +164,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
-							vbo[i * stride + attribute.Offset] = vertices[i].Normal.X;
+							vbo[i * strideInFloat + offsetInFloat] = vertices[i].Normal.X;
 
-							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Normal.Y;
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].Normal.Y;
 
-							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Normal.Z;
+							vbo[i * strideInFloat + offsetInFloat + 2] = vertices[i].Normal.Z;
 						}
 
 						return;
@@ -173,11 +177,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						
 						for (int i = 0; i < vertices.Length; i++)
 						{
-							vbo[i * stride + attribute.Offset] = vertices[i].Tangent.X;
+							vbo[i * strideInFloat + offsetInFloat] = vertices[i].Tangent.X;
 
-							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Tangent.Y;
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].Tangent.Y;
 
-							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Tangent.Z;
+							vbo[i * strideInFloat + offsetInFloat + 2] = vertices[i].Tangent.Z;
 						}
 
 						return;
@@ -186,11 +190,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						
 						for (int i = 0; i < vertices.Length; i++)
 						{
-							vbo[i * stride + attribute.Offset] = vertices[i].Bitangent.X;
+							vbo[i * strideInFloat + offsetInFloat] = vertices[i].Bitangent.X;
 
-							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Bitangent.Y;
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].Bitangent.Y;
 
-							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Bitangent.Z;
+							vbo[i * strideInFloat + offsetInFloat + 2] = vertices[i].Bitangent.Z;
 						}
 
 						return;
@@ -199,13 +203,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						
 						for (int i = 0; i < vertices.Length; i++)
 						{
-							vbo[i * stride + attribute.Offset] = vertices[i].Color.X;
+							vbo[i * strideInFloat + offsetInFloat] = vertices[i].Color.X;
 
-							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].Color.Y;
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].Color.Y;
 
-							vbo[i * stride + attribute.Offset + sizeof(float) * 2] = vertices[i].Color.Z;
+							vbo[i * strideInFloat + offsetInFloat + 2] = vertices[i].Color.Z;
 
-							vbo[i * stride + attribute.Offset + sizeof(float) * 3] = vertices[i].Color.W;
+							vbo[i * strideInFloat + offsetInFloat + sizeof(float) * 3] = vertices[i].Color.W;
 						}
 
 						return;
@@ -214,9 +218,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						
 						for (int i = 0; i < vertices.Length; i++)
 						{
-							vbo[i * stride + attribute.Offset] = vertices[i].UV0.X;
+							vbo[i * strideInFloat + offsetInFloat] = vertices[i].UV0.X;
 
-							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].UV0.Y;
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].UV0.Y;
 						}
 
 						return;
@@ -225,9 +229,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
-							vbo[i * stride + attribute.Offset] = vertices[i].UV1.X;
+							vbo[i * strideInFloat + offsetInFloat] = vertices[i].UV1.X;
 
-							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].UV1.Y;
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].UV1.Y;
 						}
 
 						return;
@@ -236,9 +240,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
-							vbo[i * stride + attribute.Offset] = vertices[i].UV2.X;
+							vbo[i * strideInFloat + offsetInFloat] = vertices[i].UV2.X;
 
-							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].UV2.Y;
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].UV2.Y;
 						}
 						
 						return;
@@ -247,9 +251,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
-							vbo[i * stride + attribute.Offset] = vertices[i].UV3.X;
+							vbo[i * strideInFloat + offsetInFloat] = vertices[i].UV3.X;
 
-							vbo[i * stride + attribute.Offset + sizeof(float)] = vertices[i].UV3.Y;
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].UV3.Y;
 						}
 
 						return;
