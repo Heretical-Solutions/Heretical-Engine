@@ -65,15 +65,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				loadDependencyProgresses,
 				0);
 
-			loadDependencyTasks.Add(
-				Task.Run(async () => 
-					{
-						shaderOpenGLStorageHandle = await LoadDependency(
-							materialDTO.ShaderResourceID,
-							ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID,
-							shaderLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
-					}));
+			Func<Task> loadShaderOpenGL = async () =>
+			{
+				shaderOpenGLStorageHandle = await LoadDependency(
+					materialDTO.ShaderResourceID,
+					ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID,
+					shaderLoadProgress)
+					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
+			};
+
+			loadDependencyTasks.Add(loadShaderOpenGL());
 
 			for (int i = 0; i < textureOpenGLStorageHandles.Length; i++)
 			{
@@ -83,15 +84,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					loadDependencyProgresses,
 					i + 1);
 
-				loadDependencyTasks.Add(
-					Task.Run(async () =>
-						{
-							textureOpenGLStorageHandles[i] = await LoadDependency(
-								materialDTO.TextureResourceIDs[i],
-								TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID,
-								textureLoadProgress)
-								.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
-						}));
+				Func<Task> loadTextureOpenGL = async () =>
+				{
+					textureOpenGLStorageHandles[i] = await LoadDependency(
+						materialDTO.TextureResourceIDs[i],
+						TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID,
+						textureLoadProgress)
+						.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
+				};
+
+				loadDependencyTasks.Add(loadTextureOpenGL());
 			}
 
 			await Task

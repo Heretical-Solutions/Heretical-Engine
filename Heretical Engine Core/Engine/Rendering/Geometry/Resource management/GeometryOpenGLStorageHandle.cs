@@ -66,15 +66,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				loadDependencyProgresses,
 				0);
 
-			loadDependencyTasks.Add(
-				Task.Run(async () => 
-					{
-						glStorageHandle = await LoadDependency(
-							glPath,
-							string.Empty,
-							glLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
-					}));
+			Func<Task> loadGL = async () =>
+			{
+				glStorageHandle = await LoadDependency(
+					glPath,
+					string.Empty,
+					glLoadProgress)
+					.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
+			};
+
+			loadDependencyTasks.Add(loadGL());
 
 			IProgress<float> shaderOpenGLLoadProgress = progress.CreateLocalProgress(
 				0f,
@@ -82,15 +83,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				loadDependencyProgresses,
 				1);
 
-			loadDependencyTasks.Add(
-				Task.Run(async () =>
-					{
-						shaderOpenGLStorageHandle = await LoadDependency(
-							shaderOpenGLPath,
-							shaderOpenGLVariantID,
-							shaderOpenGLLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
-					}));
+			Func<Task> loadShaderOpenGL = async () =>
+			{
+				shaderOpenGLStorageHandle = await LoadDependency(
+					shaderOpenGLPath,
+					shaderOpenGLVariantID,
+					shaderOpenGLLoadProgress)
+					.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
+			};
+
+			loadDependencyTasks.Add(loadShaderOpenGL());
 
 			IProgress<float> geometryRAMLoadProgress = progress.CreateLocalProgress(
 				0f,
@@ -98,15 +100,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				loadDependencyProgresses,
 				2);
 
-			loadDependencyTasks.Add(
-				Task.Run(async () =>
-					{
-						geometryRAMStorageHandle = await LoadDependency(
-							geometryRAMPath,
-							geometryRAMVariantID,
-							geometryRAMLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
-					}));
+			Func<Task> loadGeometryRAM = async () =>
+			{
+				geometryRAMStorageHandle = await LoadDependency(
+					geometryRAMPath,
+					geometryRAMVariantID,
+					geometryRAMLoadProgress)
+					.ThrowExceptions<IReadOnlyResourceStorageHandle, GeometryOpenGLStorageHandle>(context.Logger);
+			};
+
+			loadDependencyTasks.Add(loadGeometryRAM());
 
 
 			await Task

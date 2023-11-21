@@ -115,11 +115,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					totalAssetImporters);
 
 				assetImportersTasks.Add(
-					Task.Run(
-						() => assetImporter
-							.Import(
-								localImportProgress)
-							.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(context.Logger)));
+					assetImporter
+						.Import(
+							localImportProgress));
+						//.ThrowExceptions<IResourceVariantData, ModelOpenGLAssetImporter>(context.Logger));
 			}
 
 			await Task

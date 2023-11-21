@@ -63,15 +63,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				loadDependencyProgresses,
 				0);
 
-			loadDependencyTasks.Add(
-				Task.Run(async () => 
-					{
-						glStorageHandle = await LoadDependency(
-							glPath,
-							string.Empty,
-							glLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
-					}));
+			Func<Task> loadGL = async () =>
+			{
+				glStorageHandle = await LoadDependency(
+					glPath,
+					string.Empty,
+					glLoadProgress)
+					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
+			};
+
+			loadDependencyTasks.Add(loadGL());
 
 			IProgress<float> textureRAMLoadProgress = progress.CreateLocalProgress(
 				0f,
@@ -79,15 +80,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				loadDependencyProgresses,
 				1);
 
-			loadDependencyTasks.Add(
-				Task.Run(async () =>
-					{
-						textureRAMStorageHandle = await LoadDependency(
-							textureRAMPath,
-							textureRAMVariantID,
-							textureRAMLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
-					}));
+			Func<Task> loadTextureRAM = async () =>
+			{
+				textureRAMStorageHandle = await LoadDependency(
+					textureRAMPath,
+					textureRAMVariantID,
+					textureRAMLoadProgress)
+					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
+			};
+
+			loadDependencyTasks.Add(loadTextureRAM());
 
 
 			await Task

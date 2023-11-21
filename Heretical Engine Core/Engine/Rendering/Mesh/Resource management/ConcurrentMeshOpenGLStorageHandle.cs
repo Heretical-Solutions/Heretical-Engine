@@ -63,15 +63,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				loadDependencyProgresses,
 				0);
 
-			loadDependencyTasks.Add(
-				Task.Run(async () => 
-					{
-						geometryOpenGLStorageHandle = await LoadDependency(
-							meshDTO.GeometryResourceID,
-							GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
-							geometryOpenGLLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMeshOpenGLStorageHandle>(context.Logger);
-					}));
+			Func<Task> loadGeometryOpenGL = async () =>
+			{
+				geometryOpenGLStorageHandle = await LoadDependency(
+					meshDTO.GeometryResourceID,
+					GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
+					geometryOpenGLLoadProgress)
+					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMeshOpenGLStorageHandle>(context.Logger);
+			};
+
+			loadDependencyTasks.Add(loadGeometryOpenGL());
 
 			IProgress<float> materialOpenGLLoadProgress = progress.CreateLocalProgress(
 				0.333f,
@@ -79,15 +80,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				loadDependencyProgresses,
 				1);
 
-			loadDependencyTasks.Add(
-				Task.Run(async () =>
-					{
-						materialOpenGLStorageHandle = await LoadDependency(
-							meshDTO.MaterialResourceID,
-							MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
-							materialOpenGLLoadProgress)
-							.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMeshOpenGLStorageHandle>(context.Logger);
-					}));
+			Func<Task> loadMaterialOpenGL = async () =>
+			{
+				materialOpenGLStorageHandle = await LoadDependency(
+					meshDTO.MaterialResourceID,
+					MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
+					materialOpenGLLoadProgress)
+					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMeshOpenGLStorageHandle>(context.Logger);
+			};
+
+			loadDependencyTasks.Add(loadMaterialOpenGL());
 
 			await Task
 				.WhenAll(loadDependencyTasks)

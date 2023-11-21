@@ -243,8 +243,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			*/
 
 			tasks.Add(
-				Task.Run(
-					() => shaderAssetImporter.Import()));
+				shaderAssetImporter.Import());
 			//shaderImportProgress)));
 
 			#endregion
@@ -279,14 +278,15 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			var modelRAMStorageHandle = modelRAMData.StorageHandle;
 			*/
 
-			tasks.Add(
-				Task.Run(
-					async delegate
-					{
-						modelRAMData = await modelAssetImporter
-							.Import()
-							.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
-					}));
+			Func<Task> importModelIntoRAM = async () =>
+			{
+				modelRAMData = await modelAssetImporter
+					.Import()
+					.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
+			};
+
+			tasks.Add(importModelIntoRAM());
+
 			//async delegate{ modelRAMData = await modelAssetImporter.Import(modelImportProgress).ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger); }));
 
 			#endregion

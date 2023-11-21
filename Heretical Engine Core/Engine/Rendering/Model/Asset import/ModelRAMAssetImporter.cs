@@ -23,6 +23,7 @@ using HereticalSolutions.HereticalEngine.Application;
 using Silk.NET.Assimp;
 
 using AssimpAPI = Silk.NET.Assimp.Assimp;
+using System.Runtime.CompilerServices;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -111,12 +112,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					assetImportProgresses,
 					totalAssetImporters);
 
-				assetImportersTasks.Add(
-					Task.Run(
-						() => assetImporter
-							.Import(
-								localImportProgress)
-							.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger)));
+				assetImportersTasks.Add(assetImporter
+					.Import(
+						localImportProgress));
+					//.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger));
 			}
 
 			await Task
@@ -138,7 +137,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				await assetImporter
 					.Import(
 						localImportProgress)
-					.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
+					.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger);
 
 				current++;
 			}

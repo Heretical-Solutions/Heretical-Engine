@@ -228,23 +228,24 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			for (int i = 0; i < resourceCollection.Length; i++)
 			{
-				loadDependencyTasks.Add(
-					Task.Run(async () =>
-					{
-						IProgress<float> localProgress = progress.CreateLocalProgress(
-							totalProgressStart,
-							totalProgressEnd,
-							loadDependencyProgresses,
-							loadDependencyProgresses.Count);
+				Func<Task> loadResource = async () =>
+				{
+					IProgress<float> localProgress = progress.CreateLocalProgress(
+						totalProgressStart,
+						totalProgressEnd,
+						loadDependencyProgresses,
+						loadDependencyProgresses.Count);
 
-						var resourceStorageHandle = await ((IContainsDependencyResources)context.RuntimeResourceManager)
-							.LoadDependency(
-								sourceCollection[i],
-								variantID,
-								localProgress);
+					var resourceStorageHandle = await ((IContainsDependencyResources)context.RuntimeResourceManager)
+						.LoadDependency(
+							sourceCollection[i],
+							variantID,
+							localProgress);
 
-						resourceCollection[i] = resourceStorageHandle.GetResource<TResource>();
-					}));
+					resourceCollection[i] = resourceStorageHandle.GetResource<TResource>();
+				};
+
+				loadDependencyTasks.Add(loadResource());
 			}
 		}
 
