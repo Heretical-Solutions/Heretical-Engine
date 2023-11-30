@@ -21,11 +21,11 @@ float LinearizeDepth(float depth)
 void main()
 {
     float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
-    FragColor = vec4(vec3(1.0 - depth), 1.0); //Color = depth buffer, linearized
+    //FragColor = vec4(vec3(1.0 - depth), 1.0); //Color = depth buffer, linearized
     //FragColor = vec4(vec3(gl_FragCoord.z), 1.0); //Color = depth buffer
     //FragColor = vec4(fUv, 0.0, 1.0); //Color = UV coords
     //FragColor = vec4(fNorm, 1.0); //Color = vertex normal
     //FragColor = vec4(fNorm.xy, 0.0, 1.0); //Color = vertex normal without Z part
-    //FragColor = texture(uTexture0, fUv); //Color = sampled pixel color on the texture
+    FragColor = texture(uTexture0, fUv); //Color = sampled pixel color on the texture
     //FragColor = vec4(1.0, 1.0, 1.0, 1.0); //Color = white
 }

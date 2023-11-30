@@ -14,6 +14,7 @@ void main()
 {
     //Multiplying our uniform with the vertex position, the multiplication order here does matter.
     gl_Position = uProjection * uView * uModel * vec4(VertexPosition, 1.0); //Set the vertex position
+    //gl_Position = vec4(VertexPosition, 1.0);
 
     vec3 pNorm = (uView * vec4(VertexNormal, 1.0)).xyz; //To translate the value of normal multiplied by view matrix to see its projection against the camera
     fNorm = pNorm * 0.5 + 0.5; //To ensure negative values are mapped correctly (i.e. [-1; 1] -> [0; 1])
