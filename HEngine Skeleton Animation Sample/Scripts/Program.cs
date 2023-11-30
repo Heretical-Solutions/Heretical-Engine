@@ -46,7 +46,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				new MainCameraModule(),
 				new OpenGLDrawTestMeshModule(),
 				//new OpenGLDrawTestCubeModule(),
-				new OpenGLDrawTextureModule(),
+				//new OpenGLDrawTextureModule(),
 				//new ImGuiModule()
 			};
 

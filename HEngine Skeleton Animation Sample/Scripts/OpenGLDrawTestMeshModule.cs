@@ -170,8 +170,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context,
 			float timeDelta)
 		{
-			return;
-
 			if (modelOpenGL != null)
 				RenderModel(
 					gl,
@@ -503,7 +501,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			}
 			*/
 
-			material.Textures[0].Bind(gl);
+			material.Textures[1].Bind(gl);
 
 			/*
 			gl.DrawArrays(

@@ -18,7 +18,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	public class OpenGLDrawTextureModule
 		: IModule
 	{
-		private const string TEXTURE_PATH = "Knight/Textures/weaponsColor";
+		private const string TEXTURE_PATH = "Knight/Textures/knight1Specular";
 
 		/*
 		private static readonly float[] QuadVertices =
