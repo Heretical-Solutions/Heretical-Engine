@@ -6,9 +6,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureOpenGL
 	{
-		//Courtesy of https://gamedev.stackexchange.com/questions/140789/texture-coordinates-seem-to-have-flipped-or-incorrect-position
-		private const bool FLIP_V_COORDINATES = true;
-
 		private uint handle;
 
 		public uint Handle { get => handle; }
@@ -60,9 +57,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 							TextureTarget.Texture2D,
 							0,
 							0,
-							(FLIP_V_COORDINATES
-								? accessor.Height - y - 1
-								: y),
+							y,
 							(uint)accessor.Width,
 							1,
 							PixelFormat.Rgba,
@@ -75,7 +70,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			SetParameters(gl);
 		}
 
-		//WARNING! THIS ONE WOULD PROBABLY NOT FLIP THE TEXTURE VERTICALLY
 		public unsafe void Update(
 			GL gl,
 			Span<byte> data,
