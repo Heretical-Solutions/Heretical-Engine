@@ -1,5 +1,7 @@
 ﻿#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
+using System.Globalization;
+
 using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.ResourceManagement.Factories;
@@ -31,11 +33,25 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				0,
 				pathToExe.IndexOf("/bin/"));
 
-			string logFileName = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss");
+			#region Logger initialization
+
+			//Courtesy of https://stackoverflow.com/questions/114983/given-a-datetime-object-how-do-i-get-an-iso-8601-date-in-string-format
+			//Read comments carefully
+
+			// Prefer this, to avoid having to manually define a framework-provided format
+			//string dateTimeNow = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
+
+			string dateTimeNow = DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture);
+
+			//string dateTimeNow = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+
+			string logFileName = dateTimeNow;
 
 			IFormatLogger logger = LoggersFactory.BuildDefaultLoggerWithFileDump(
 				applicationDataFolder,
 				$"Runtime logs/{logFileName}.log");
+
+			#endregion
 
 			var windowModule = new WindowModule();
 
