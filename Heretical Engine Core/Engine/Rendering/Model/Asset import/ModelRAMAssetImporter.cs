@@ -473,7 +473,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				}
 				else
 				{
-					var textureImporter = BuildTextureAssetImporter(
+					var textureRAMImporter = BuildTextureRAMAssetImporter(
 						resourceID,
 						path.AsString,
 						filePathSettings,
@@ -481,14 +481,22 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						out string textureResourceName,
 						out string textureResourceID);
 
-					assetImporters.Add(textureImporter);
+					assetImporters.Add(textureRAMImporter);
+
+
+					var textureDescriptorImporter = BuildTextureDescriptorAssetImporter(
+						textureResourceID,
+						textureResourceName,
+						type);
+
+					assetImporters.Add(textureDescriptorImporter);
 
 					textureResourcesInMaterial.Add(textureResourceName);
 				}
 			}
 		}
 
-		private unsafe TextureRAMAssetImporter BuildTextureAssetImporter(
+		private unsafe TextureRAMAssetImporter BuildTextureRAMAssetImporter(
 			string resourceID,
 			string textureRelativePathFromSource,
 			FilePathSettings filePathSettings,
@@ -580,6 +588,20 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				textureResourceName = $"{textureName} ({redundancyCounter})";
 			}
+		}
+
+		private unsafe TextureDescriptorAssetImporter BuildTextureDescriptorAssetImporter(
+			string textureResourceID,
+			string textureName,
+			TextureType textureType)
+		{
+			var textureDescriptorImporter = new TextureDescriptorAssetImporter(
+				textureResourceID,
+				textureName,
+				textureType,
+				context);
+
+			return textureDescriptorImporter;
 		}
 
 		#endregion

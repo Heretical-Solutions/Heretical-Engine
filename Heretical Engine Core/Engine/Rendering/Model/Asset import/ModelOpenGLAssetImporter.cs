@@ -231,7 +231,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				resourcePath,
 				resourcePath,
 				TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID,
-				Silk.NET.Assimp.TextureType.None, //TODO: fix
+				resourcePath,
+				TextureDescriptorAssetImporter.TEXTURE_DESCRIPTOR_VARIANT_ID,
 				context);
 
 			return textureImporter;

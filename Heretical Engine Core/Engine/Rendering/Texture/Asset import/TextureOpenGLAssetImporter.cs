@@ -8,8 +8,6 @@ using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 using HereticalSolutions.HereticalEngine.Application;
 
-using Silk.NET.Assimp;
-
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureOpenGLAssetImporter : AssetImporter
@@ -18,19 +16,26 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public const int TEXTURE_OPENGL_PRIORITY = 1;
 
+
 		private readonly string resourceID;
+
 
 		private readonly string textureRAMPath;
 
 		private readonly string textureRAMVariantID;
 
-		private readonly TextureType textureType;
+
+		private readonly string textureDescriptorPath;
+
+		private readonly string textureDescriptorVariantID;
+
 
 		public TextureOpenGLAssetImporter(
 			string resourceID,
 			string textureRAMPath,
 			string textureRAMVariantID,
-			TextureType textureType,
+			string textureDescriptorPath,
+			string textureDescriptorVariantID,
 			ApplicationContext context)
 			: base(
 				context)
@@ -41,7 +46,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			this.textureRAMVariantID = textureRAMVariantID;
 
-			this.textureType = textureType;
+			this.textureDescriptorPath = textureDescriptorPath;
+
+			this.textureDescriptorVariantID = textureDescriptorVariantID;
 		}
 
 		public override async Task<IResourceVariantData> Import(
@@ -69,13 +76,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				TextureFactory.BuildConcurrentTextureOpenGLStorageHandle(
 					textureRAMPath,
 					textureRAMVariantID,
-					textureType,
+					textureDescriptorPath,
+					textureDescriptorVariantID,
 					context),
 #else
 				TextureFactory.BuildTextureOpenGLStorageHandle(
 					textureRAMPath,
 					textureRAMVariantID,
-					textureType,
+					textureDescriptorPath,
+					textureDescriptorVariantID,
 					context),
 #endif
 				true,

@@ -12,23 +12,53 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public static class TextureFactory
 	{
+		public static TextureDescriptorDTO BuildTextureDescriptorDTO(
+			string name,
+			TextureType type)
+		{
+			int wrapS = (int)GLEnum.ClampToEdge;
+
+			int wrapT = (int)GLEnum.ClampToEdge;
+
+			int minFilter = (int)GLEnum.LinearMipmapLinear;
+
+			int magFilter = (int)GLEnum.Linear;
+
+			int baseLevel = 0;
+
+			int maxLevel = 8;
+
+			return new TextureDescriptorDTO
+			{
+				Name = name,
+				Type = type,
+				WrapS = wrapS,
+				WrapT = wrapT,
+				MinFilter = minFilter,
+				MagFilter = magFilter,
+				BaseLevel = baseLevel,
+				MaxLevel = maxLevel
+			};
+		}
+
 		public static unsafe TextureOpenGL BuildTextureOpenGL(
 			GL gl,
 			Image<Rgba32> ramTexture,
-			TextureType textureType)
+			TextureDescriptorDTO descriptor)
 		{
 			var handle = gl.GenTexture();
 
 			var result = new TextureOpenGL(
 				handle,
-				textureType);
+				descriptor.Type);
 
 			result.Bind(
 				gl);
 
 			result.Update(
 				gl,
-				ramTexture);
+				ramTexture,
+				descriptor);
 
 			gl.BindTexture(
 				TextureTarget.Texture2D, 0);
@@ -41,13 +71,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			Span<byte> data,
 			uint width,
 			uint height,
-			TextureType textureType)
+			TextureDescriptorDTO descriptor)
 		{
 			var handle = gl.GenTexture();
 
 			var result = new TextureOpenGL(
 				handle,
-				textureType);
+				descriptor.Type);
 
 			result.Bind(
 				gl);
@@ -56,7 +86,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				gl,
 				data,
 				width,
-				height);
+				height,
+				descriptor);
 
 			gl.BindTexture(
 				TextureTarget.Texture2D, 0);
@@ -86,28 +117,32 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public static TextureOpenGLStorageHandle BuildTextureOpenGLStorageHandle(
 			string textureRAMPath,
 			string textureRAMVariantID,
-			TextureType textureType,
+			string textureDescriptorPath,
+			string textureDescriptorVariantID,
 			ApplicationContext context)
 		{
 			return new TextureOpenGLStorageHandle(
 				OpenGLModule.GL_RESOURCE_PATH,
 				textureRAMPath,
 				textureRAMVariantID,
-				textureType,
+				textureDescriptorPath,
+				textureDescriptorVariantID,
 				context);
 		}
 
 		public static ConcurrentTextureOpenGLStorageHandle BuildConcurrentTextureOpenGLStorageHandle(
 			string textureRAMPath,
 			string textureRAMVariantID,
-			TextureType textureType,
+			string textureDescriptorPath,
+			string textureDescriptorVariantID,
 			ApplicationContext context)
 		{
 			return new ConcurrentTextureOpenGLStorageHandle(
 				OpenGLModule.GL_RESOURCE_PATH,
 				textureRAMPath,
 				textureRAMVariantID,
-				textureType,
+				textureDescriptorPath,
+				textureDescriptorVariantID,
 				new SemaphoreSlim(1, 1),
 				context);
 		}

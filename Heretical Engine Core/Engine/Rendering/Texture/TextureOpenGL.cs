@@ -34,7 +34,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public unsafe void Update(
 			GL gl,
-			Image<Rgba32> ramTexture)
+			Image<Rgba32> ramTexture,
+			TextureDescriptorDTO descriptor)
 		{
 			gl.TexImage2D(
 				TextureTarget.Texture2D,
@@ -67,14 +68,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				}
 			});
 
-			SetParameters(gl);
+			SetParameters(
+				gl,
+				descriptor);
 		}
 
 		public unsafe void Update(
 			GL gl,
 			Span<byte> data,
 			uint width,
-			uint height)
+			uint height,
+			TextureDescriptorDTO descriptor)
 		{
 			fixed (void* dataPointer = &data[0])
 			{
@@ -89,42 +93,45 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					PixelType.UnsignedByte,
 					dataPointer);
 
-				SetParameters(gl);
+				SetParameters(
+					gl,
+					descriptor);
 			}
 		}
 
 		public void SetParameters(
-			GL gl)
+			GL gl,
+			TextureDescriptorDTO descriptor)
 		{
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureWrapS,
-				(int)GLEnum.ClampToEdge);
+				descriptor.WrapS);
 
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureWrapT,
-				(int)GLEnum.ClampToEdge);
+				descriptor.WrapT);
 
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureMinFilter,
-				(int)GLEnum.LinearMipmapLinear);
+				descriptor.MinFilter);
 
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureMagFilter,
-				(int)GLEnum.Linear);
+				descriptor.MagFilter);
 
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureBaseLevel,
-				0);
+				descriptor.BaseLevel);
 
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureMaxLevel,
-				8);
+				descriptor.MaxLevel);
 
 			gl.GenerateMipmap(
 				TextureTarget.Texture2D);
