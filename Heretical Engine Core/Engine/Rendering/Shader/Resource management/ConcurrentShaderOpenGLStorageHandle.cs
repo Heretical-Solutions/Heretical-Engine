@@ -147,7 +147,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					out shaderProgramMetadata))
 				{
 					context.Logger?.LogError<ConcurrentShaderOpenGLStorageHandle>(
-						$"BUILDING SHADER PROGRAM FAILED");
+						$"BUILDING SHADER PROGRAM FAILED. LOGS:\nVERTEX: {vertexShaderMetadata.CompilationLog}\nFRAGMENT: {fragmentShaderMetadata.CompilationLog}\nSHADER PROGRAM:{shaderProgramMetadata.CompilationLog}");
 
 					return;
 				}

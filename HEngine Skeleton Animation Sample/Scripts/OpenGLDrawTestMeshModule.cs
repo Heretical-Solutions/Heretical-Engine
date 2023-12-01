@@ -21,7 +21,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	public class OpenGLDrawTestMeshModule
 		: IModule
 	{
-		private const string PATH_TO_SHADERS = "Shaders/default";
+		private const string PATH_TO_SHADERS = "Shaders/";
 
 		private GL gl = null;
 
@@ -204,47 +204,233 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			#region Shader import
 
-			var vertexShaderArgument = new TextFileArgument();
+			#region Default shader
 
-			vertexShaderArgument.Settings = new FilePathSettings
+			var defaultVertexShaderArgument = new TextFileArgument();
+
+			defaultVertexShaderArgument.Settings = new FilePathSettings
 			{
-				RelativePath = PATH_TO_SHADERS + ".vert",
+				RelativePath = $"{PATH_TO_SHADERS}Default/default.vert",
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var fragmentShaderArgument = new TextFileArgument();
+			var defaultFragmentShaderArgument = new TextFileArgument();
 
-			fragmentShaderArgument.Settings = new FilePathSettings
+			defaultFragmentShaderArgument.Settings = new FilePathSettings
 			{
-				RelativePath = PATH_TO_SHADERS + ".frag",
+				RelativePath = $"{PATH_TO_SHADERS}Default/default.frag",
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var shaderAssetImporter = new ShaderOpenGLAssetImporter(
+			var defaultShaderAssetImporter = new ShaderOpenGLAssetImporter(
 				"Default shader",
 				PersistenceFactory.BuildSimplePlainTextSerializer(),
-				vertexShaderArgument,
-				fragmentShaderArgument,
+				defaultVertexShaderArgument,
+				defaultFragmentShaderArgument,
 				context);
 
-			var shaderImportProgress = new Progress<float>();
+			var defaultShaderImportProgress = new Progress<float>();
 
-			shaderImportProgress.ProgressChanged += (sender, value) =>
+			defaultShaderImportProgress.ProgressChanged += (sender, value) =>
 			{
 				logger?.Log<OpenGLDrawTestMeshModule>
 					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			/*
-			await shaderAssetImporter
-				.Import(
-					shaderImportProgress)
-				.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
-			*/
+			tasks.Add(
+				defaultShaderAssetImporter.Import());
+
+			#endregion
+
+			#region Color shader
+
+			var colorVertexShaderArgument = new TextFileArgument();
+
+			colorVertexShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Color/color.vert",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var colorFragmentShaderArgument = new TextFileArgument();
+
+			colorFragmentShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Color/color.frag",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var colorShaderAssetImporter = new ShaderOpenGLAssetImporter(
+				"Color shader",
+				PersistenceFactory.BuildSimplePlainTextSerializer(),
+				colorVertexShaderArgument,
+				colorFragmentShaderArgument,
+				context);
+
+			var colorShaderImportProgress = new Progress<float>();
+
+			colorShaderImportProgress.ProgressChanged += (sender, value) =>
+			{
+				logger?.Log<OpenGLDrawTestMeshModule>
+					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
+			};
 
 			tasks.Add(
-				shaderAssetImporter.Import());
-			//shaderImportProgress)));
+				colorShaderAssetImporter.Import());
+
+			#endregion
+
+			#region Depth shader
+
+			var depthVertexShaderArgument = new TextFileArgument();
+
+			depthVertexShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Depth/depth.vert",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var depthFragmentShaderArgument = new TextFileArgument();
+
+			depthFragmentShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Depth/depth.frag",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var depthShaderAssetImporter = new ShaderOpenGLAssetImporter(
+				"Depth shader",
+				PersistenceFactory.BuildSimplePlainTextSerializer(),
+				depthVertexShaderArgument,
+				depthFragmentShaderArgument,
+				context);
+
+			var depthShaderImportProgress = new Progress<float>();
+
+			depthShaderImportProgress.ProgressChanged += (sender, value) =>
+			{
+				logger?.Log<OpenGLDrawTestMeshModule>
+					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
+			};
+
+			tasks.Add(
+				depthShaderAssetImporter.Import());
+
+			#endregion
+
+			#region Diffuse shader
+
+			var diffuseVertexShaderArgument = new TextFileArgument();
+
+			diffuseVertexShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Diffuse/diffuse.vert",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var diffuseFragmentShaderArgument = new TextFileArgument();
+
+			diffuseFragmentShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Diffuse/diffuse.frag",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var diffuseShaderAssetImporter = new ShaderOpenGLAssetImporter(
+				"Diffuse shader",
+				PersistenceFactory.BuildSimplePlainTextSerializer(),
+				diffuseVertexShaderArgument,
+				diffuseFragmentShaderArgument,
+				context);
+
+			var diffuseShaderImportProgress = new Progress<float>();
+
+			diffuseShaderImportProgress.ProgressChanged += (sender, value) =>
+			{
+				logger?.Log<OpenGLDrawTestMeshModule>
+					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
+			};
+
+			tasks.Add(
+				diffuseShaderAssetImporter.Import());
+
+			#endregion
+
+			#region Error checker UV shader
+
+			var errorCheckerUVVertexShaderArgument = new TextFileArgument();
+
+			errorCheckerUVVertexShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Error checker UV/errorCheckerUV.vert",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var errorCheckerUVFragmentShaderArgument = new TextFileArgument();
+
+			errorCheckerUVFragmentShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Error checker UV/errorCheckerUV.frag",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var errorCheckerUVShaderAssetImporter = new ShaderOpenGLAssetImporter(
+				"Error checker UV shader",
+				PersistenceFactory.BuildSimplePlainTextSerializer(),
+				errorCheckerUVVertexShaderArgument,
+				errorCheckerUVFragmentShaderArgument,
+				context);
+
+			var errorCheckerUVShaderImportProgress = new Progress<float>();
+
+			errorCheckerUVShaderImportProgress.ProgressChanged += (sender, value) =>
+			{
+				logger?.Log<OpenGLDrawTestMeshModule>
+					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
+			};
+
+			tasks.Add(
+				errorCheckerUVShaderAssetImporter.Import());
+
+			#endregion
+
+			#region Error checker screenspace shader
+
+			var errorCheckerScreenspaceVertexShaderArgument = new TextFileArgument();
+
+			errorCheckerScreenspaceVertexShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Error checker screenspace/errorCheckerScreenspace.vert",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var errorCheckerScreenspaceFragmentShaderArgument = new TextFileArgument();
+
+			errorCheckerScreenspaceFragmentShaderArgument.Settings = new FilePathSettings
+			{
+				RelativePath = $"{PATH_TO_SHADERS}Error checker screenspace/errorCheckerScreenspace.frag",
+				ApplicationDataFolder = pathToAssets
+			};
+
+			var errorCheckerScreenspaceShaderAssetImporter = new ShaderOpenGLAssetImporter(
+				"Error checker screenspace shader",
+				PersistenceFactory.BuildSimplePlainTextSerializer(),
+				errorCheckerScreenspaceVertexShaderArgument,
+				errorCheckerScreenspaceFragmentShaderArgument,
+				context);
+
+			var errorCheckerScreenspaceShaderImportProgress = new Progress<float>();
+
+			errorCheckerScreenspaceShaderImportProgress.ProgressChanged += (sender, value) =>
+			{
+				logger?.Log<OpenGLDrawTestMeshModule>
+					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
+			};
+
+			tasks.Add(
+				errorCheckerScreenspaceShaderAssetImporter.Import());
+
+			#endregion
 
 			#endregion
 
