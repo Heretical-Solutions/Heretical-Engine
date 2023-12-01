@@ -2,8 +2,8 @@
 in vec3 fNorm;
 in vec2 fUv;
 
-uniform sampler2D uTexture0;
-uniform sampler2D uTexture1;
+uniform sampler2D TextureDiffuse;
+uniform sampler2D TextureNormal;
 uniform sampler2D uTexture2;
 
 out vec4 FragColor;
@@ -26,6 +26,6 @@ void main()
     //FragColor = vec4(fUv, 0.0, 1.0); //Color = UV coords
     //FragColor = vec4(fNorm, 1.0); //Color = vertex normal
     //FragColor = vec4(fNorm.xy, 0.0, 1.0); //Color = vertex normal without Z part
-    FragColor = texture(uTexture0, fUv); //Color = sampled pixel color on the texture
+    FragColor = texture(TextureDiffuse, fUv); //Color = sampled pixel color on the texture
     //FragColor = vec4(1.0, 1.0, 1.0, 1.0); //Color = white
 }

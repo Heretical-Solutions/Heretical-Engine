@@ -1,6 +1,6 @@
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public enum ECommonVertexAttributes
+	public enum EVertexAttributeKeywords
 	{
 		VertexPosition,
 		VertexNormal,

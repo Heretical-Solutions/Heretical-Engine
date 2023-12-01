@@ -1,14 +1,13 @@
-using HereticalSolutions.Collections.Managed;
-
-using HereticalSolutions.HereticalEngine.Messaging;
-
 using HereticalSolutions.Logging;
+
+using HereticalSolutions.HereticalEngine.Modules;
+using HereticalSolutions.HereticalEngine.Application;
+
+using Antlr4.Runtime;
 
 using Silk.NET.OpenGL;
 
-using Antlr4.Runtime;
-using HereticalSolutions.HereticalEngine.Modules;
-using HereticalSolutions.HereticalEngine.Application;
+using Silk.NET.Assimp;
 
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
@@ -62,210 +61,272 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		
 		public const string VEC4 = "vec4";
 
-		public static void TryFillAttributeValues(
-			ref ShaderAttributeOpenGL attribute,
+		public static void TryFillVertexAttributeValues(
+			ref ShaderVertexAttributeOpenGL vertexAttribute,
 			IFormatLogger logger)
 		{
-			ECommonVertexAttributes vertexAttribute;
+			#region Keyword parsing
+
+			EVertexAttributeKeywords vertexAttributeKeyword;
 
 			if (Enum.TryParse(
-				attribute.Name,
-				out vertexAttribute))
+				vertexAttribute.Name,
+				out vertexAttributeKeyword))
 			{
-				attribute.CommonVertexAttribute = true;
+				vertexAttribute.KeywordVertexAttribute = true;
 
-				switch (vertexAttribute)
+				switch (vertexAttributeKeyword)
 				{
-					case ECommonVertexAttributes.VertexPosition:
-						if (attribute.Type != VEC3)
+					case EVertexAttributeKeywords.VertexPosition:
+						if (vertexAttribute.Type != VEC3)
 						{
 							logger?.LogWarning(
-								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC3}");
+								typeof(ShaderFactory),
+								$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT IS NOT OF TYPE {VEC3}");
 
 							break;
 						}
 
-						attribute.PointerType = VertexAttribPointerType.Float;
-						attribute.AttributeSize = 3;
-						attribute.ByteSize = sizeof(float) * 3;
+						vertexAttribute.PointerType = VertexAttribPointerType.Float;
+						vertexAttribute.AttributeSize = 3;
+						vertexAttribute.ByteSize = sizeof(float) * 3;
 						return;
 
-					case ECommonVertexAttributes.VertexNormal:
-						if (attribute.Type != VEC3)
+					case EVertexAttributeKeywords.VertexNormal:
+						if (vertexAttribute.Type != VEC3)
 						{
 							logger?.LogWarning(
-								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC3}");
+								typeof(ShaderFactory),
+								$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT IS NOT OF TYPE {VEC3}");
 
 							break;
 						}
 
-						attribute.PointerType = VertexAttribPointerType.Float;
-						attribute.AttributeSize = 3;
-						attribute.ByteSize = sizeof(float) * 3;
+						vertexAttribute.PointerType = VertexAttribPointerType.Float;
+						vertexAttribute.AttributeSize = 3;
+						vertexAttribute.ByteSize = sizeof(float) * 3;
 						return;
 
-					case ECommonVertexAttributes.VertexTangent:
-						if (attribute.Type != VEC3)
+					case EVertexAttributeKeywords.VertexTangent:
+						if (vertexAttribute.Type != VEC3)
 						{
 							logger?.LogWarning(
-								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC3}");
+								typeof(ShaderFactory),
+								$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT IS NOT OF TYPE {VEC3}");
 
 							break;
 						}
 
-						attribute.PointerType = VertexAttribPointerType.Float;
-						attribute.AttributeSize = 3;
-						attribute.ByteSize = sizeof(float) * 3;
+						vertexAttribute.PointerType = VertexAttribPointerType.Float;
+						vertexAttribute.AttributeSize = 3;
+						vertexAttribute.ByteSize = sizeof(float) * 3;
 						return;
 
-					case ECommonVertexAttributes.VertexBitangent:
-						if (attribute.Type != VEC3)
+					case EVertexAttributeKeywords.VertexBitangent:
+						if (vertexAttribute.Type != VEC3)
 						{
 							logger?.LogWarning(
-								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC3}");
+								typeof(ShaderFactory),
+								$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT IS NOT OF TYPE {VEC3}");
 
 							break;
 						}
 
-						attribute.PointerType = VertexAttribPointerType.Float;
-						attribute.AttributeSize = 3;
-						attribute.ByteSize = sizeof(float) * 3;
+						vertexAttribute.PointerType = VertexAttribPointerType.Float;
+						vertexAttribute.AttributeSize = 3;
+						vertexAttribute.ByteSize = sizeof(float) * 3;
 						return;
 
-					case ECommonVertexAttributes.VertexColor:
-						if (attribute.Type != VEC4)
+					case EVertexAttributeKeywords.VertexColor:
+						if (vertexAttribute.Type != VEC4)
 						{
 							logger?.LogWarning(
-								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC4}");
+								typeof(ShaderFactory),
+								$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT IS NOT OF TYPE {VEC4}");
 
 							break;
 						}
 
-						attribute.PointerType = VertexAttribPointerType.Float;
-						attribute.AttributeSize = 4;
-						attribute.ByteSize = sizeof(float) * 4;
+						vertexAttribute.PointerType = VertexAttribPointerType.Float;
+						vertexAttribute.AttributeSize = 4;
+						vertexAttribute.ByteSize = sizeof(float) * 4;
 						return;
 
-					case ECommonVertexAttributes.VertexUV0:
-						if (attribute.Type != VEC2)
+					case EVertexAttributeKeywords.VertexUV0:
+						if (vertexAttribute.Type != VEC2)
 						{
 							logger?.LogWarning(
-								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC2}");
+								typeof(ShaderFactory),
+								$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT IS NOT OF TYPE {VEC2}");
 
 							break;
 						}
 
-						attribute.PointerType = VertexAttribPointerType.Float;
-						attribute.AttributeSize = 2;
-						attribute.ByteSize = sizeof(float) * 2;
+						vertexAttribute.PointerType = VertexAttribPointerType.Float;
+						vertexAttribute.AttributeSize = 2;
+						vertexAttribute.ByteSize = sizeof(float) * 2;
 						return;
 
-					case ECommonVertexAttributes.VertexUV1:
-						if (attribute.Type != VEC2)
+					case EVertexAttributeKeywords.VertexUV1:
+						if (vertexAttribute.Type != VEC2)
 						{
 							logger?.LogWarning(
-								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC2}");
+								typeof(ShaderFactory),
+								$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT IS NOT OF TYPE {VEC2}");
 
 							break;
 						}
 
-						attribute.PointerType = VertexAttribPointerType.Float;
-						attribute.AttributeSize = 2;
-						attribute.ByteSize = sizeof(float) * 2;
+						vertexAttribute.PointerType = VertexAttribPointerType.Float;
+						vertexAttribute.AttributeSize = 2;
+						vertexAttribute.ByteSize = sizeof(float) * 2;
 						return;
 
-					case ECommonVertexAttributes.VertexUV2:
-						if (attribute.Type != VEC2)
+					case EVertexAttributeKeywords.VertexUV2:
+						if (vertexAttribute.Type != VEC2)
 						{
 							logger?.LogWarning(
-								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC2}");
+								typeof(ShaderFactory),
+								$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT IS NOT OF TYPE {VEC2}");
 
 							break;
 						}
 
-						attribute.PointerType = VertexAttribPointerType.Float;
-						attribute.AttributeSize = 2;
-						attribute.ByteSize = sizeof(float) * 2;
+						vertexAttribute.PointerType = VertexAttribPointerType.Float;
+						vertexAttribute.AttributeSize = 2;
+						vertexAttribute.ByteSize = sizeof(float) * 2;
 						return;
 
-					case ECommonVertexAttributes.VertexUV3:
-						if (attribute.Type != VEC2)
+					case EVertexAttributeKeywords.VertexUV3:
+						if (vertexAttribute.Type != VEC2)
 						{
 							logger?.LogWarning(
-								$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT IS NOT OF TYPE {VEC2}");
+								typeof(ShaderFactory),
+								$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT IS NOT OF TYPE {VEC2}");
 
 							break;
 						}
 
-						attribute.PointerType = VertexAttribPointerType.Float;
-						attribute.AttributeSize = 2;
-						attribute.ByteSize = sizeof(float) * 2;
+						vertexAttribute.PointerType = VertexAttribPointerType.Float;
+						vertexAttribute.AttributeSize = 2;
+						vertexAttribute.ByteSize = sizeof(float) * 2;
 						return;
 
 					default:
 						logger?.LogWarning(
-							$"[ShaderFactory] SHADER VARIABLE {attribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE, BUT PARSING LOGIC FOR THIS KIND OF ATTRIBUTE IS NOT IMPLEMENTED YET");
+							typeof(ShaderFactory),
+							$"SHADER VARIABLE {vertexAttribute.Name} IS NAMED LIKE A VERTEX ATTRIBUTE KEYWORD, BUT PARSING LOGIC FOR THIS KIND OF ATTRIBUTE IS NOT IMPLEMENTED YET");
 
 						return;
 				}
 			}
 
-			attribute.CommonVertexAttribute = false;
+			#endregion
 
-			switch (attribute.Type)
+			vertexAttribute.KeywordVertexAttribute = false;
+
+			switch (vertexAttribute.Type)
 			{
 				case DOUBLE:
-					attribute.PointerType = VertexAttribPointerType.Double;
-					attribute.AttributeSize = 1;
-					attribute.ByteSize = sizeof(double);
+					vertexAttribute.PointerType = VertexAttribPointerType.Double;
+					vertexAttribute.AttributeSize = 1;
+					vertexAttribute.ByteSize = sizeof(double);
 					return;
 
 				case FLOAT:
-					attribute.PointerType = VertexAttribPointerType.Float;
-					attribute.AttributeSize = 1;
-					attribute.ByteSize = sizeof(float);
+					vertexAttribute.PointerType = VertexAttribPointerType.Float;
+					vertexAttribute.AttributeSize = 1;
+					vertexAttribute.ByteSize = sizeof(float);
 					return;
 
 				case INT:
-					attribute.PointerType = VertexAttribPointerType.Int;
-					attribute.AttributeSize = 1;
-					attribute.ByteSize = sizeof(int);
+					vertexAttribute.PointerType = VertexAttribPointerType.Int;
+					vertexAttribute.AttributeSize = 1;
+					vertexAttribute.ByteSize = sizeof(int);
 					return;
 
 				case UINT:
-					attribute.PointerType = VertexAttribPointerType.UnsignedInt;
-					attribute.AttributeSize = 1;
-					attribute.ByteSize = sizeof(uint);
+					vertexAttribute.PointerType = VertexAttribPointerType.UnsignedInt;
+					vertexAttribute.AttributeSize = 1;
+					vertexAttribute.ByteSize = sizeof(uint);
 					return;
 
 				case VEC2:
-					attribute.PointerType = VertexAttribPointerType.Float;
-					attribute.AttributeSize = 2;
-					attribute.ByteSize = sizeof(float) * 2;
+					vertexAttribute.PointerType = VertexAttribPointerType.Float;
+					vertexAttribute.AttributeSize = 2;
+					vertexAttribute.ByteSize = sizeof(float) * 2;
 					return;
 
 				case VEC3:
-					attribute.PointerType = VertexAttribPointerType.Float;
-					attribute.AttributeSize = 3;
-					attribute.ByteSize = sizeof(float) * 3;
+					vertexAttribute.PointerType = VertexAttribPointerType.Float;
+					vertexAttribute.AttributeSize = 3;
+					vertexAttribute.ByteSize = sizeof(float) * 3;
 					return;
 
 				case VEC4:
-					attribute.PointerType = VertexAttribPointerType.Float;
-					attribute.AttributeSize = 4;
-					attribute.ByteSize = sizeof(float) * 4;
+					vertexAttribute.PointerType = VertexAttribPointerType.Float;
+					vertexAttribute.AttributeSize = 4;
+					vertexAttribute.ByteSize = sizeof(float) * 4;
 					return;
 
 				default:
 					logger?.LogError(
-						$"[ShaderFactory] SHADER VARIABLE {attribute.Name} TYPE IS EITHER INVALID OR ITS PARSING IS NOT IMPLEMENTED YET");
+						typeof(ShaderFactory),
+						$"SHADER VARIABLE {vertexAttribute.Name} TYPE IS EITHER INVALID OR ITS PARSING IS NOT IMPLEMENTED YET");
 
 					return;
 			}
 		}
 
-		public static ShaderDescriptorOpenGL ParseGLSL(
+		public static void TryFillSamplerArgumentValues(
+			ref ShaderSampler2DArgumentOpenGL samplerArgument,
+			IFormatLogger logger)
+		{
+			ETextureKeywords textureKeyword;
+
+			if (Enum.TryParse(
+				samplerArgument.Name,
+				out textureKeyword))
+			{
+				samplerArgument.KeywordTexture = true;
+
+				switch (textureKeyword)
+				{
+					case ETextureKeywords.TextureDiffuse:
+
+						samplerArgument.Type = TextureType.Diffuse;
+
+						break;
+
+					case ETextureKeywords.TextureNormal:
+
+						samplerArgument.Type = TextureType.Normals;
+
+						break;
+
+					default:
+						logger?.LogWarning(
+							typeof(ShaderFactory),
+							$"TEXTURE SAMPLER {samplerArgument.Name} IS NAMED LIKE A TEXTURE ARGUMENT KEYWORD, BUT PARSING LOGIC FOR THIS KIND OF ARGUMENT IS NOT IMPLEMENTED YET");
+
+						samplerArgument.Type = TextureType.None;
+
+						break;
+				}
+
+				return;
+			}
+
+			samplerArgument.KeywordTexture = false;
+
+			samplerArgument.Type = TextureType.None;
+		}
+
+		public static void ParseGLSL(
 			string shaderCode,
+			ref ShaderDescriptorOpenGL descriptor,
+			bool parseVertexAttributes,
+			bool parseUniformSamplers,
 			IFormatLogger logger)
 		{
 			AntlrInputStream inputStream = new AntlrInputStream(shaderCode);
@@ -276,16 +337,24 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			GLSLParser.Translation_unitContext context = glslParser.translation_unit();
 
-			//GLSLParserBaseVisitor<object> visitor = new GLSLParserBaseVisitor<object>();
-			//visitor.Visit(context);
-
 			ShaderDescriptorBuilder builder = new ShaderDescriptorBuilder(
-				new List<ShaderAttributeOpenGL>(),
+				new List<ShaderVertexAttributeOpenGL>(),
+				new List<ShaderSampler2DArgumentOpenGL>(),
 				logger);
 
-			var result = (ShaderDescriptorOpenGL)builder.Visit(context);
+			builder.Result = descriptor;
 
-			return result;
+			builder.ParseVertexAttributes = parseVertexAttributes;
+
+			builder.ParseUniformSamplers = parseUniformSamplers;
+
+			//var result = (ShaderDescriptorOpenGL)builder.Visit(context);
+
+			builder.Visit(context);
+
+			descriptor = builder.Result;
+
+			//return result;
 		}
 
 		public static bool BuildShaderProgram(
@@ -397,8 +466,20 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			gl.DeleteShader(fragment);
 
-			descriptor = ParseGLSL(
+			descriptor = default;
+
+			ParseGLSL(
 				vertexShaderSource,
+				ref descriptor,
+				true,
+				false,
+				logger);
+
+			ParseGLSL(
+				fragmentShaderSource,
+				ref descriptor,
+				false,
+				true,
 				logger);
 
 			return true;

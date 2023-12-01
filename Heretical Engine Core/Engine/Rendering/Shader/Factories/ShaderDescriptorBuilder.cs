@@ -1,10 +1,43 @@
 using HereticalSolutions.Logging;
 
+using Silk.NET.OpenGL;
+
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public class ShaderDescriptorBuilder
 		: GLSLParserBaseVisitor<object>
 	{
+		#region Parsing settings
+
+		private ShaderDescriptorOpenGL result = default;
+
+		public ShaderDescriptorOpenGL Result
+		{
+			get => result;
+			set => result = value;
+		}
+
+		public bool ParseVertexAttributes { get; set; } = false;
+
+		public bool ParseUniformSamplers { get; set; } = false;
+
+		#endregion
+
+		#region Local variables used in translation unit visit
+
+		private bool insideFunctionDefinition = false;
+
+		private int currentTextureIndex = 0;
+
+		private List<ShaderVertexAttributeOpenGL> vertexAttributes;
+
+		private List<ShaderSampler2DArgumentOpenGL> sampler2DArguments;
+
+		#endregion
+
+		#region Local variables used in declaration visit
+
+		//Vertex attributes
 		private bool inAttributeFound = false;
 
 		private bool layoutSpecified = false;
@@ -17,47 +50,75 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		private string attributeType = string.Empty;
 
-		private List<ShaderAttributeOpenGL> attributes;
+
+		//Uniform samplers
+		private bool uniformFound = false;
+
+		private bool sampler2DFound = false;
+
+		private string samplerName = string.Empty;
+
+		#endregion
 
 		private IFormatLogger logger;
 
 		public ShaderDescriptorBuilder(
-			List<ShaderAttributeOpenGL> attributes,
+			List<ShaderVertexAttributeOpenGL> vertexAttributes,
+			List<ShaderSampler2DArgumentOpenGL> sampler2DArguments,
 			IFormatLogger logger)
 		{
-			this.attributes = attributes;
+			this.vertexAttributes = vertexAttributes;
+
+			this.sampler2DArguments = sampler2DArguments;
 
 			this.logger = logger;
 
 
-			attributes.Clear();
+			vertexAttributes.Clear();
 		}
 
 		public override object VisitTranslation_unit(
 			GLSLParser.Translation_unitContext context)
 		{
+			ClearTranslationUnitVisitVariables();
+
 			logger?.Log<ShaderDescriptorBuilder>(
 				$"VISITING TRANSLATION UNIT");
-
-			attributes.Clear();
 
 			base.VisitTranslation_unit(context);
 
 			logger?.Log<ShaderDescriptorBuilder>(
+				$"VISITING FINISHED");
+
+			logger?.Log<ShaderDescriptorBuilder>(
 				$"BUILDING STARTED");
 
-			ArrangeAttributesByLocation();
-
-			int stride = CalculateStrideAndOffsets();
-
-			var result = new ShaderDescriptorOpenGL
+			if (ParseVertexAttributes)
 			{
-				VertexAttributes = attributes.ToArray(),
+				ArrangeAttributesByLocation();
 
-				Stride = stride
-			};
+				int stride = CalculateStrideAndOffsets();
 
-			attributes.Clear();
+				/*
+				var result = new ShaderDescriptorOpenGL
+				{
+					VertexAttributes = vertexAttributes.ToArray(),
+
+					Stride = stride
+				};
+				*/
+
+				result.VertexAttributes = vertexAttributes.ToArray();
+
+				result.Stride = stride;
+			}
+
+			if (ParseUniformSamplers)
+			{
+				result.Sampler2DArguments = sampler2DArguments.ToArray();
+			}
+
+			ClearTranslationUnitVisitVariables();
 
 			logger?.Log<ShaderDescriptorBuilder>(
 				$"BUILDING FINISHED");
@@ -69,75 +130,141 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		{
 			int currentLocation = 0;
 
-			for (int i = 0; i < attributes.Count; i++)
+			for (int i = 0; i < vertexAttributes.Count; i++)
 			{
-				if (attributes[i].Location != -1)
+				if (vertexAttributes[i].Location != -1)
 				{
-					currentLocation = attributes[i].Location;
+					currentLocation = vertexAttributes[i].Location;
 				}
 				else
 				{
-					var attribute = attributes[i];
+					var attribute = vertexAttributes[i];
 
 					attribute.Location = currentLocation;
 
-					attributes[i] = attribute;
+					vertexAttributes[i] = attribute;
 
 					currentLocation++;
 				}
 			}
 
-			attributes.Sort((a, b) => a.Location.CompareTo(b.Location));
+			vertexAttributes.Sort((a, b) => a.Location.CompareTo(b.Location));
 		}
 
 		private int CalculateStrideAndOffsets()
 		{
 			int stride = 0;
 
-			for (int i = 0; i < attributes.Count; i++)
+			for (int i = 0; i < vertexAttributes.Count; i++)
 			{
-				var attribute = attributes[i];
+				var attribute = vertexAttributes[i];
 
 				attribute.Offset = stride;
 
-				attributes[i] = attribute;
+				vertexAttributes[i] = attribute;
 
 
-				stride += attributes[i].ByteSize;
+				stride += vertexAttributes[i].ByteSize;
 			}
 
 			return stride;
 		}
 
+		public override object VisitFunction_definition(
+			GLSLParser.Function_definitionContext context)
+		{
+			insideFunctionDefinition = true;
+
+			base.VisitFunction_definition(context);
+
+			insideFunctionDefinition = false;
+
+			return null;
+		}
+
 		public override object VisitDeclaration(
 			GLSLParser.DeclarationContext context)
 		{
-			Clear();
+			ClearDeclarationVisitVariables();
 
 			var declaration = context.GetText();
 
+			//logger?.Log<ShaderDescriptorBuilder>(
+			//	$"DECLARATION: {declaration} INSIDE FUNCTION DEFINITION: {insideFunctionDefinition}");
+
 			base.VisitDeclaration(context);
 
-			if (inAttributeFound)
+			if (ParseVertexAttributes)
 			{
-				var attribute = new ShaderAttributeOpenGL
+				if (insideFunctionDefinition)
 				{
-					Name = attributeName,
-					Type = attributeType,
-					Location = locationIndex
-				};
+					ClearDeclarationVisitVariables();
 
-				ShaderFactory.TryFillAttributeValues(
-					ref attribute,
-					logger);
+					return null;
+				}
 
-				logger?.Log<ShaderDescriptorBuilder>(
-					$"PARSED ATTRIBUTE. NAME: {attribute.Name} TYPE: {attribute.Type} POINTER TYPE: {attribute.PointerType} INDEX: {attribute.Location} ATTRIBUTE SIZE: {attribute.AttributeSize} BYTE SIZE: {attribute.ByteSize} OFFSET: {attribute.Offset} COMMON: {attribute.CommonVertexAttribute}");
+				if (inAttributeFound)
+				{
+					var vertexAttribute = new ShaderVertexAttributeOpenGL
+					{
+						Name = attributeName,
+						Type = attributeType,
+						Location = locationIndex
+					};
 
-				attributes.Add(attribute);
+					ShaderFactory.TryFillVertexAttributeValues(
+						ref vertexAttribute,
+						logger);
+
+					logger?.Log<ShaderDescriptorBuilder>(
+						$"PARSED VERTEX ATTRIBUTE. NAME: {vertexAttribute.Name} TYPE: {vertexAttribute.Type} POINTER TYPE: {vertexAttribute.PointerType} INDEX: {vertexAttribute.Location} ATTRIBUTE SIZE: {vertexAttribute.AttributeSize} BYTE SIZE: {vertexAttribute.ByteSize} OFFSET: {vertexAttribute.Offset} KEYWORD: {vertexAttribute.KeywordVertexAttribute}");
+
+					vertexAttributes.Add(vertexAttribute);
+				}
 			}
 
-			Clear();
+			if (ParseUniformSamplers)
+			{
+				if (insideFunctionDefinition)
+				{
+					ClearDeclarationVisitVariables();
+
+					return null;
+				}
+
+				if (uniformFound && sampler2DFound)
+				{
+					string slotName = $"Texture{currentTextureIndex}";
+
+					if (!Enum.TryParse(
+						slotName,
+						out TextureUnit textureSlot))
+					{
+						logger?.ThrowException<ShaderDescriptorBuilder>(
+							$"COULD NOT PARSE TextureUnit: {slotName}");
+					}
+
+					var sampler2DArgument = new ShaderSampler2DArgumentOpenGL
+					{
+						Name = samplerName,
+
+						TextureSlot = textureSlot
+					};
+
+					ShaderFactory.TryFillSamplerArgumentValues(
+						ref sampler2DArgument,
+						logger);
+
+					currentTextureIndex++;
+
+					logger?.Log<ShaderDescriptorBuilder>(
+						$"PARSED UNIFORM SAMPLER. NAME: {sampler2DArgument.Name} TEXTURE SLOT: {sampler2DArgument.TextureSlot} TEXTURE TYPE: {sampler2DArgument.Type} KEYWORD: {sampler2DArgument.KeywordTexture}");
+
+					sampler2DArguments.Add(sampler2DArgument);
+				}
+			}
+
+			ClearDeclarationVisitVariables();
 
 			return null;
 		}
@@ -145,11 +272,24 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public override object VisitStorage_qualifier(
 			GLSLParser.Storage_qualifierContext context)
 		{
-			var storageQualifier = context.GetText().ToLower();
-
-			if (storageQualifier == "in")
+			if (ParseVertexAttributes)
 			{
-				inAttributeFound = true;
+				var storageQualifier = context.GetText().ToLower();
+
+				if (storageQualifier == "in")
+				{
+					inAttributeFound = true;
+				}
+			}
+
+			if (ParseUniformSamplers)
+			{
+				var storageQualifier = context.GetText().ToLower();
+
+				if (storageQualifier == "uniform")
+				{
+					uniformFound = true;
+				}
 			}
 
 			base.VisitStorage_qualifier(context);
@@ -160,7 +300,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public override object VisitLayout_qualifier(
 			GLSLParser.Layout_qualifierContext context)
 		{
-			layoutSpecified = true;
+			if (ParseVertexAttributes)
+			{
+				layoutSpecified = true;
+			}
 
 			base.VisitLayout_qualifier(context);
 
@@ -170,25 +313,28 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public override object VisitLayout_qualifier_id(
 			GLSLParser.Layout_qualifier_idContext context)
 		{
-			var identifier = context.IDENTIFIER().GetText().ToLower();
-
-			if (identifier == "location")
+			if (ParseVertexAttributes)
 			{
-				locationSpecified = true;
-			}
+				var identifier = context.IDENTIFIER().GetText().ToLower();
 
-			var constantExpression = context.constant_expression();
-
-			if (constantExpression != null)
-			{
-				var index = constantExpression.GetText();
-
-				if (!int.TryParse(
-					index,
-					out locationIndex))
+				if (identifier == "location")
 				{
-					logger?.LogError<ShaderDescriptorBuilder>(
-						$"COULD NOT PARSE INDEX: {index}");
+					locationSpecified = true;
+				}
+
+				var constantExpression = context.constant_expression();
+
+				if (constantExpression != null)
+				{
+					var index = constantExpression.GetText();
+
+					if (!int.TryParse(
+						index,
+						out locationIndex))
+					{
+						logger?.LogError<ShaderDescriptorBuilder>(
+							$"COULD NOT PARSE INDEX: {index}");
+					}
 				}
 			}
 
@@ -200,7 +346,20 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public override object VisitType_specifier(
 			GLSLParser.Type_specifierContext context)
 		{
-			attributeType = context.type_specifier_nonarray().GetText();
+			if (ParseVertexAttributes)
+			{
+				attributeType = context.type_specifier_nonarray().GetText();
+			}
+
+			if (ParseUniformSamplers)
+			{
+				var typeSpecifier = context.type_specifier_nonarray().GetText().ToLower();
+
+				if (typeSpecifier == "sampler2d")
+				{
+					sampler2DFound = true;
+				}
+			}
 
 			base.VisitType_specifier(context);
 
@@ -210,11 +369,24 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public override object VisitSingle_declaration(
 			GLSLParser.Single_declarationContext context)
 		{
-			var typelessDeclaration = context.typeless_declaration();
-
-			if (typelessDeclaration != null)
+			if (ParseVertexAttributes)
 			{
-				attributeName = typelessDeclaration.IDENTIFIER().GetText();
+				var typelessDeclaration = context.typeless_declaration();
+
+				if (typelessDeclaration != null)
+				{
+					attributeName = typelessDeclaration.IDENTIFIER().GetText();
+				}
+			}
+
+			if (ParseUniformSamplers)
+			{
+				var typelessDeclaration = context.typeless_declaration();
+
+				if (typelessDeclaration != null)
+				{
+					samplerName = typelessDeclaration.IDENTIFIER().GetText();
+				}
 			}
 
 			base.VisitSingle_declaration(context);
@@ -222,8 +394,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			return null;
 		}
 
-		private void Clear()
+		private void ClearDeclarationVisitVariables()
 		{
+			//Vertex attributes
 			inAttributeFound = false;
 
 			layoutSpecified = false;
@@ -235,6 +408,25 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			attributeName = string.Empty;
 
 			attributeType = string.Empty;
+
+
+			//Uniform samplers
+			uniformFound = false;
+
+			sampler2DFound = false;
+
+			samplerName = string.Empty;
+		}
+
+		private void ClearTranslationUnitVisitVariables()
+		{
+			insideFunctionDefinition = false;
+
+			currentTextureIndex = 0;
+
+			vertexAttributes.Clear();
+
+			sampler2DArguments.Clear();
 		}
 	}
 }

@@ -115,9 +115,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			for (int i = 0; i < shaderDescriptor.VertexAttributes.Length; i++)
 			{
-				if (shaderDescriptor.VertexAttributes[i].CommonVertexAttribute)
+				if (shaderDescriptor.VertexAttributes[i].KeywordVertexAttribute)
 				{
-					FillVBOWithAttribute(
+					FillVBOWithKeywordedAttribute(
 						vertices,
 						shaderDescriptor.VertexAttributes[i],
 						result,
@@ -129,28 +129,28 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			return result;
 		}
 
-		private static void FillVBOWithAttribute(
+		private static void FillVBOWithKeywordedAttribute(
 			Vertex[] vertices,
-			ShaderAttributeOpenGL attribute,
+			ShaderVertexAttributeOpenGL vertexAttribute,
 			float[] vbo,
 			int stride,
 			IFormatLogger logger)
 		{
 			int strideInFloat = (int)(stride / sizeof(float));
 
-			int offsetInFloat = (int)(attribute.Offset / sizeof(float));
+			int offsetInFloat = (int)(vertexAttribute.Offset / sizeof(float));
 
-			ECommonVertexAttributes vertexAttribute;
+			EVertexAttributeKeywords vertexAttributeKeyword;
 
 			if (Enum.TryParse(
-				attribute.Name,
-				out vertexAttribute))
+				vertexAttribute.Name,
+				out vertexAttributeKeyword))
 			{
-				attribute.CommonVertexAttribute = true;
+				vertexAttribute.KeywordVertexAttribute = true;
 
-				switch (vertexAttribute)
+				switch (vertexAttributeKeyword)
 				{
-					case ECommonVertexAttributes.VertexPosition:
+					case EVertexAttributeKeywords.VertexPosition:
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
@@ -163,7 +163,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						return;
 
-					case ECommonVertexAttributes.VertexNormal:
+					case EVertexAttributeKeywords.VertexNormal:
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
@@ -176,7 +176,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						return;
 
-					case ECommonVertexAttributes.VertexTangent:
+					case EVertexAttributeKeywords.VertexTangent:
 						
 						for (int i = 0; i < vertices.Length; i++)
 						{
@@ -189,7 +189,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						return;
 
-					case ECommonVertexAttributes.VertexBitangent:
+					case EVertexAttributeKeywords.VertexBitangent:
 						
 						for (int i = 0; i < vertices.Length; i++)
 						{
@@ -202,7 +202,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						return;
 
-					case ECommonVertexAttributes.VertexColor:
+					case EVertexAttributeKeywords.VertexColor:
 						
 						for (int i = 0; i < vertices.Length; i++)
 						{
@@ -217,7 +217,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						return;
 
-					case ECommonVertexAttributes.VertexUV0:
+					case EVertexAttributeKeywords.VertexUV0:
 						
 						for (int i = 0; i < vertices.Length; i++)
 						{
@@ -230,7 +230,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						return;
 
-					case ECommonVertexAttributes.VertexUV1:
+					case EVertexAttributeKeywords.VertexUV1:
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
@@ -243,7 +243,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 						return;
 
-					case ECommonVertexAttributes.VertexUV2:
+					case EVertexAttributeKeywords.VertexUV2:
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
@@ -256,7 +256,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						
 						return;
 
-					case ECommonVertexAttributes.VertexUV3:
+					case EVertexAttributeKeywords.VertexUV3:
 
 						for (int i = 0; i < vertices.Length; i++)
 						{
@@ -271,7 +271,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 					default:
 						logger?.LogWarning(
-							$"[GeometryFactory] CANNOT FILL VBO WITH VALUES OF ATTRIBUTE {attribute.Name}");
+							typeof(GeometryFactory),
+							$"CANNOT FILL VBO WITH VALUES OF ATTRIBUTE {vertexAttribute.Name}");
 
 						return;
 				}

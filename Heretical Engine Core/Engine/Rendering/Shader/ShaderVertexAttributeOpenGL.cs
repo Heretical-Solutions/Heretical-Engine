@@ -2,7 +2,7 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public struct ShaderAttributeOpenGL
+	public struct ShaderVertexAttributeOpenGL
 	{
 		public string Name;
 
@@ -18,6 +18,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public int Offset;
 
-		public bool CommonVertexAttribute;
+		public bool KeywordVertexAttribute;
 	}
 }
