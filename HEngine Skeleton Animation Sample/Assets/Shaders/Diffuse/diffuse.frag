@@ -1,5 +1,4 @@
 #version 330 core
-
 in vec2 fUv;
 
 uniform sampler2D TextureDiffuse;

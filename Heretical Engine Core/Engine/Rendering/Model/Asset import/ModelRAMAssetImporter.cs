@@ -387,7 +387,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			materialDTO.Name = materialName;
 
-			materialDTO.ShaderResourceID = "Default shader"; //"Default shader"; //TODO: Implement shader selection
+			materialDTO.ShaderResourceID = "Diffuse shader"; //"Default shader"; //TODO: Implement shader selection
 
 			materialDTO.TextureResourceIDs = new string[textureResourcesInMaterial.Count];
 
