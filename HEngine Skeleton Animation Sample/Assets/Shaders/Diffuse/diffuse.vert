@@ -1,7 +1,6 @@
 #version 330 core
 layout (location = 0) in vec3 VertexPosition;
-layout (location = 1) in vec3 VertexNormal; //FOR SOME REASON REMOVING THIS ATTRIBUTE FUCKS UP UV COORDS. PROBABLY HAS TO DO WITH SOMETHING HAPPENING IN THE BUILDER. TODO: FIX 
-layout (location = 2) in vec2 VertexUV0;
+layout (location = 1) in vec2 VertexUV0;
 
 uniform mat4 uModel;
 uniform mat4 uView;

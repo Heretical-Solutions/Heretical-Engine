@@ -79,7 +79,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				assetImporters.Add(
 					BuildGeometryAssetImporter(
 						modelDTO.GeometryResourcePaths[i],
-						"Default shader", //TODO: CHANGE. THIS IS ONLY TEMPORARY
+						"Diffuse shader", //"Default shader", //TODO: CHANGE. THIS IS ONLY TEMPORARY
 						ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID));
 			}
 

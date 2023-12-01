@@ -10,10 +10,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public static class GeometryFactory
 	{
-		//Courtesy of https://gamedev.stackexchange.com/questions/140789/texture-coordinates-seem-to-have-flipped-or-incorrect-position
-		//and https://www.puredevsoftware.com/blog/2018/03/17/texture-coordinates-d3d-vs-opengl/
-		private const bool FLIP_V_COORDINATES = true;
-
 		public static GeometryOpenGL BuildGeometryOpenGL(
 			GL gl,
 			Geometry ramGeometry,
@@ -223,9 +219,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						{
 							vbo[i * strideInFloat + offsetInFloat] = vertices[i].UV0.X;
 
-							vbo[i * strideInFloat + offsetInFloat + 1] = (FLIP_V_COORDINATES
-								? 1f - vertices[i].UV0.Y
-								: vertices[i].UV0.Y);
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].UV0.Y;
 						}
 
 						return;
@@ -236,9 +230,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						{
 							vbo[i * strideInFloat + offsetInFloat] = vertices[i].UV1.X;
 
-							vbo[i * strideInFloat + offsetInFloat + 1] = (FLIP_V_COORDINATES
-								? 1f - vertices[i].UV1.Y
-								: vertices[i].UV1.Y);
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].UV1.Y;
 						}
 
 						return;
@@ -249,9 +241,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						{
 							vbo[i * strideInFloat + offsetInFloat] = vertices[i].UV2.X;
 
-							vbo[i * strideInFloat + offsetInFloat + 1] = (FLIP_V_COORDINATES
-								? 1f - vertices[i].UV2.Y
-								: vertices[i].UV2.Y);
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].UV2.Y;
 						}
 						
 						return;
@@ -262,9 +252,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						{
 							vbo[i * strideInFloat + offsetInFloat] = vertices[i].UV3.X;
 
-							vbo[i * strideInFloat + offsetInFloat + 1] = (FLIP_V_COORDINATES
-								? 1f - vertices[i].UV3.Y
-								: vertices[i].UV3.Y);
+							vbo[i * strideInFloat + offsetInFloat + 1] = vertices[i].UV3.Y;
 						}
 
 						return;

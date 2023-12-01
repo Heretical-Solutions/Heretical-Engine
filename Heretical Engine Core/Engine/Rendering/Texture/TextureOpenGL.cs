@@ -6,6 +6,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureOpenGL
 	{
+		//Courtesy of https://gamedev.stackexchange.com/questions/140789/texture-coordinates-seem-to-have-flipped-or-incorrect-position
+		//and https://www.puredevsoftware.com/blog/2018/03/17/texture-coordinates-d3d-vs-opengl/
+		private const bool FLIP_TEXTURE_VERTICALLY = true;
+
 		private uint handle;
 
 		public uint Handle { get => handle; }
@@ -58,7 +62,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 							TextureTarget.Texture2D,
 							0,
 							0,
-							y,
+							(FLIP_TEXTURE_VERTICALLY
+								? accessor.Height - y - 1
+								: y),
 							(uint)accessor.Width,
 							1,
 							PixelFormat.Rgba,
@@ -73,6 +79,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				descriptor);
 		}
 
+		//WARNING! THIS OVERLOAD WON'T FLIP THE TEXTURE VERTICALLY!
+		//MARKING WITH Obsolete TO CAST WARNINGS
+		[Obsolete("This overload won't flip the texture vertically")]
 		public unsafe void Update(
 			GL gl,
 			Span<byte> data,
