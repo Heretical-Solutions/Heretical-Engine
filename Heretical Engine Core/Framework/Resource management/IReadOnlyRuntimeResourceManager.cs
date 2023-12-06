@@ -7,76 +7,76 @@ namespace HereticalSolutions.ResourceManagement
     {
         #region Has
 
-        bool HasRootResource(int resourceIDHash);
+        bool HasRootResource(int rootResourceIDHash);
 
-        bool HasRootResource(string resourceID);
+        bool HasRootResource(string rootResourceID);
 
-        bool HasResource(int[] resourceIDHashes);
+        bool HasResource(int[] resourcePathPartHashes);
 
-        bool HasResource(string[] resourceIDs);
+        bool HasResource(string[] resourcePathParts);
 
         #endregion
 
         #region Get
 
-        IReadOnlyResourceData GetRootResource(int resourceIDHash);
+        IReadOnlyResourceData GetRootResource(int rootResourceIDHash);
 
-        IReadOnlyResourceData GetRootResource(string resourceID);
+        IReadOnlyResourceData GetRootResource(string rootResourceID);
 
-        IReadOnlyResourceData GetResource(int[] resourceIDHashes);
+        IReadOnlyResourceData GetResource(int[] resourcePathPartHashes);
 
-        IReadOnlyResourceData GetResource(string[] resourceIDs);
+        IReadOnlyResourceData GetResource(string[] resourcePathParts);
 
         #endregion
 
         #region Try get
 
         bool TryGetRootResource(
-            int resourceIDHash,
+            int rootResourceIDHash,
             out IReadOnlyResourceData resource);
 
         bool TryGetRootResource(
-            string resourceID,
+            string rootResourceID,
             out IReadOnlyResourceData resource);
 
         bool TryGetResource(
-            int[] resourceIDHashes,
+            int[] resourcePathPartHashes,
             out IReadOnlyResourceData resource);
 
         bool TryGetResource(
-            string[] resourceIDs,
+            string[] resourcePathParts,
             out IReadOnlyResourceData resource);
 
         #endregion
 
         #region Get default
 
-        IResourceVariantData GetDefaultRootResource(int resourceIDHash);
+        IResourceVariantData GetDefaultRootResource(int rootResourceIDHash);
 
-        IResourceVariantData GetDefaultRootResource(string resourceID);
+        IResourceVariantData GetDefaultRootResource(string rootResourceID);
 
-        IResourceVariantData GetDefaultResource(int[] resourceIDHashes);
+        IResourceVariantData GetDefaultResource(int[] resourcePathPartHashes);
 
-        IResourceVariantData GetDefaultResource(string[] resourceIDs);
+        IResourceVariantData GetDefaultResource(string[] resourcePathParts);
 
         #endregion
 
         #region Try get default
 
         bool TryGetDefaultRootResource(
-            int resourceIDHash,
+            int rootResourceIDHash,
             out IResourceVariantData resource);
 
         bool TryGetDefaultRootResource(
-            string resourceID,
+            string rootResourceID,
             out IResourceVariantData resource);
 
         bool TryGetDefaultResource(
-            int[] resourceIDHashes,
+            int[] resourcePathPartHashes,
             out IResourceVariantData resource);
 
         bool TryGetDefaultResource(
-            string[] resourceIDs,
+            string[] resourcePathParts,
             out IResourceVariantData resource);
 
         #endregion

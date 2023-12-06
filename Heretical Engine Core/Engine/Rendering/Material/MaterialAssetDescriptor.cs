@@ -4,18 +4,10 @@
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	[Serializable]
-	public struct ModelDTO
+	public struct MaterialAssetDescriptor
 	{
 		public string Name;
 
-		public string[] MeshResourcePaths;
-
-		public string[] GeometryResourcePaths;
-
-		public string[] MaterialResourcePaths;
-
 		public string[] TextureResourcePaths;
-
-		public ModelNodeDTO RootNode;
 	}
 }

@@ -9,18 +9,18 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 {
 	public class DefaultReadWriteAssetImporter<TAsset> : AssetImporter
 	{
-		private readonly string resourceID;
+		private readonly string resourcePath;
 
 		private readonly TAsset readWriteAsset;
 
 		public DefaultReadWriteAssetImporter(
-			string resourceID,
+			string resourcePath,
 			TAsset readWriteAsset,
 			ApplicationContext context)
 			: base(
 				context)
 		{
-			this.resourceID = resourceID;
+			this.resourcePath = resourcePath;
 
 			this.readWriteAsset = readWriteAsset;
 		}
@@ -29,13 +29,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			IProgress<float> progress = null)
 		{
 			context.Logger?.Log<DefaultReadWriteAssetImporter<TAsset>>(
-				$"IMPORTING {resourceID} INITIATED");
+				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID)
+					resourcePath)
 					.ThrowExceptions<IResourceData, DefaultReadWriteAssetImporter<TAsset>>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
@@ -62,7 +62,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			progress?.Report(1f);
 
 			context.Logger?.Log<DefaultReadWriteAssetImporter<TAsset>>(
-				$"IMPORTING {resourceID} FINISHED");
+				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
 		}

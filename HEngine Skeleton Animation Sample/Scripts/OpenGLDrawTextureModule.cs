@@ -3,15 +3,16 @@ using HereticalSolutions.ResourceManagement;
 using HereticalSolutions.HereticalEngine.Application;
 
 using HereticalSolutions.HereticalEngine.Rendering;
-using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 using HereticalSolutions.HereticalEngine.Scenes;
+
+using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.Logging;
 
 using Silk.NET.OpenGL;
+
 using Silk.NET.Maths;
-using HereticalSolutions.HereticalEngine.AssetImport;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
@@ -222,27 +223,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			//RAM
 
-			MaterialDTO materialDTO = default;
-
-			materialDTO.Name = "Quad material";
-
-			materialDTO.ShaderResourceID = "Default shader";
-
-			materialDTO.TextureResourceIDs = new string[]
-			{
-				TEXTURE_PATH
-			};
-
-			string materialResourceID = "Quad/material";
-
-			var materialRAMImporter = new MaterialRAMAssetImporter(
-				materialResourceID,
-				materialDTO,
-				context);
-
-			assetImporters.Add(materialRAMImporter);
-
-
 			/*
 			Vertex[] vertices = new Vertex[4];
 
@@ -279,11 +259,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				};
 			}
 
-			string geometryResourceID = "Quad/geometry";
+			string geometryResourcePath = "Quad/geometry";
 
 			var geometryRAMImporter = new GeometryRAMAssetImporter(
-				geometryResourceID,
-				new Geometry
+				geometryResourcePath,
+				new GeometryRAM
 				{
 					Vertices = vertices,
 
@@ -294,47 +274,68 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			assetImporters.Add(geometryRAMImporter);
 
 
-			string meshResourceID = "Quad/mesh";
-
-			var meshRAMImporter = new MeshRAMAssetImporter(
-				meshResourceID,
-				new MeshDTO
-				{
-					GeometryResourceID = geometryResourceID,
-
-					MaterialResourceID = materialResourceID
-				},
-				context);
-
-			assetImporters.Add(meshRAMImporter);
-
-
 			//GL
 
 			var geometryOpenGLImporter = new GeometryOpenGLAssetImporter(
-				geometryResourceID,
+				geometryResourcePath,
 				"Default shader",
-				ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID,
-				geometryResourceID,
-				GeometryRAMAssetImporter.GEOMETRY_RAM_VARIANT_ID,
+				AssetImportConstants.ASSET_SHADER_OPENGL_VARIANT_ID,
+				geometryResourcePath,
+				AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
 				context);
 
 			assetImporters.Add(geometryOpenGLImporter);
 
 
+			MaterialPrototypeDescriptor materialPrototypeDescriptor = default;
+
+			materialPrototypeDescriptor.Name = "Quad material";
+
+			materialPrototypeDescriptor.ShaderResourcePath = "Default shader";
+
+			materialPrototypeDescriptor.TextureResourcePaths = new string[]
+			{
+				TEXTURE_PATH
+			};
+
+			string materialResourcePath = "Quad/material";
+
+			var materialPrototypeDescriptorImporter = new MaterialPrototypeDescriptorAssetImporter(
+				materialResourcePath,
+				materialPrototypeDescriptor,
+				context);
+
+			assetImporters.Add(materialPrototypeDescriptorImporter);
+
+
+			string meshResourcePath = "Quad/mesh";
+
+			var meshPrototypeDescriptorImporter = new MeshPrototypeDescriptorAssetImporter(
+				meshResourcePath,
+				new MeshPrototypeDescriptor
+				{
+					GeometryResourcePath = geometryResourcePath,
+
+					MaterialResourcePath = materialResourcePath
+				},
+				context);
+
+			assetImporters.Add(meshPrototypeDescriptorImporter);
+
+
 			var materialOpenGLImporter = new MaterialOpenGLAssetImporter(
-				materialResourceID,
-				materialResourceID,
-				MaterialRAMAssetImporter.MATERIAL_RAM_VARIANT_ID,
+				materialResourcePath,
+				materialResourcePath,
+				AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
 				context);
 
 			assetImporters.Add(materialOpenGLImporter);
 
 
 			var meshOpenGLImporter = new MeshOpenGLAssetImporter(
-				meshResourceID,
-				meshResourceID,
-				MeshRAMAssetImporter.MESH_RAM_VARIANT_ID,
+				meshResourcePath,
+				meshResourcePath,
+				AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
 				context);
 
 			assetImporters.Add(meshOpenGLImporter);
@@ -369,9 +370,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			meshOpenGL = context.RuntimeResourceManager
 				.GetResource(
-					meshResourceID.SplitAddressBySeparator())
+					meshResourcePath.SplitAddressBySeparator())
 				.GetVariant(
-					MeshOpenGLAssetImporter.MESH_OPENGL_VARIANT_ID)
+					AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID)
 				.StorageHandle
 				.GetResource<MeshOpenGL>();
 

@@ -46,7 +46,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentModelOpenGLStorageHandle>(context.Logger);
 
-			var modelDTO = modelRAMStorageHandle.GetResource<ModelDTO>();
+			var modelDTO = modelRAMStorageHandle.GetResource<ModelAssetDescriptor>();
 
 			MeshOpenGL[] meshes = new MeshOpenGL[modelDTO.MeshResourcePaths.Length];
 
@@ -259,7 +259,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		}
 
 		private async Task<ModelNodeOpenGL> BuildModelNodeOpenGL(
-			ModelNodeDTO dto)
+			ModelNodeDescriptor dto)
 		{
 			ModelNodeOpenGL[] children = new ModelNodeOpenGL[dto.Children.Length];
 

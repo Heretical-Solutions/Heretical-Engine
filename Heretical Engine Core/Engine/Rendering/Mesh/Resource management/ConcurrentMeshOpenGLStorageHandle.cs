@@ -4,6 +4,8 @@ using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Application;
 
+using HereticalSolutions.HereticalEngine.AssetImport;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ConcurrentMeshOpenGLStorageHandle
@@ -44,7 +46,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMeshOpenGLStorageHandle>(context.Logger);
 
-			var meshDTO = meshRAMStorageHandle.GetResource<MeshDTO>();
+			var meshDTO = meshRAMStorageHandle.GetResource<MeshAssetDescriptor>();
 
 			IReadOnlyResourceStorageHandle geometryOpenGLStorageHandle = null;
 
@@ -66,8 +68,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadGeometryOpenGL = async () =>
 			{
 				geometryOpenGLStorageHandle = await LoadDependency(
-					meshDTO.GeometryResourceID,
-					GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
+					meshDTO.GeometryResourcePath,
+					AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 					geometryOpenGLLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMeshOpenGLStorageHandle>(context.Logger);
 			};
@@ -83,8 +85,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadMaterialOpenGL = async () =>
 			{
 				materialOpenGLStorageHandle = await LoadDependency(
-					meshDTO.MaterialResourceID,
-					MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
+					meshDTO.MaterialResourcePath,
+					AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 					materialOpenGLLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMeshOpenGLStorageHandle>(context.Logger);
 			};
@@ -100,8 +102,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.666f);
 
 			geometryOpenGLStorageHandle = await LoadDependency(
-				meshDTO.GeometryResourceID,
-				GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
+				meshDTO.GeometryResourcePath,
+				AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMeshOpenGLStorageHandle>(context.Logger);
 
@@ -112,8 +114,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				1f);
 
 			materialOpenGLStorageHandle = await LoadDependency(
-				meshDTO.MaterialResourceID,
-				MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
+				meshDTO.MaterialResourcePath,
+				AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMeshOpenGLStorageHandle>(context.Logger);
 #endif

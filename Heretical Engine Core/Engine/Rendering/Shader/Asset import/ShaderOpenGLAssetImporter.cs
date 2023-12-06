@@ -14,11 +14,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ShaderOpenGLAssetImporter : AssetImporter
 	{
-		public const string SHADER_OPENGL_VARIANT_ID = "OpenGL shader";
-
-		public const int SHADER_OPENGL_PRIORITY = 0;
-
-		private readonly string fullResourceID;
+		private readonly string resourcePath;
 
 		private readonly ISerializer serializer;
 
@@ -27,7 +23,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private readonly ISerializationArgument fragmentShaderSerializationArgument;
 
 		public ShaderOpenGLAssetImporter(
-			string fullResourceID,
+			string resourcePath,
 			ISerializer serializer,
 			ISerializationArgument vertexShaderSerializationArgument,
 			ISerializationArgument fragmentShaderSerializationArgument,
@@ -35,7 +31,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			: base(
 				context)
 		{
-			this.fullResourceID = fullResourceID;
+			this.resourcePath = resourcePath;
 
 			this.serializer = serializer;
 
@@ -48,7 +44,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			IProgress<float> progress = null)
 		{
 			context.Logger?.Log<ShaderOpenGLAssetImporter>(
-				$"IMPORTING {fullResourceID} INITIATED");
+				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
 
@@ -61,13 +57,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				out var fragmentShaderSourceDTO);
 
 			var result = await AddAssetAsResourceVariant(
-				await GetOrCreateResourceData(fullResourceID)
+				await GetOrCreateResourceData(resourcePath)
 					.ThrowExceptions<IResourceData, ShaderOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor
 				{
-					VariantID = SHADER_OPENGL_VARIANT_ID,
-					VariantIDHash = SHADER_OPENGL_VARIANT_ID.AddressToHash(),
-					Priority = SHADER_OPENGL_PRIORITY,
+					VariantID = AssetImportConstants.ASSET_SHADER_OPENGL_VARIANT_ID,
+					VariantIDHash = AssetImportConstants.ASSET_SHADER_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = AssetImportConstants.DEFAULT_PRIORIITY,
 					Source = EResourceSources.LOCAL_STORAGE,
 					Storage = EResourceStorages.GPU,
 					ResourceType = typeof(ShaderOpenGL)
@@ -90,7 +86,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(1f);
 
 			context.Logger?.Log<ShaderOpenGLAssetImporter>(
-				$"IMPORTING {fullResourceID} FINISHED");
+				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
 		}

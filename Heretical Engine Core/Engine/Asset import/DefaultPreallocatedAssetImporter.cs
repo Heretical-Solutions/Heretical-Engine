@@ -9,18 +9,18 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 {
 	public class DefaultPreallocatedAssetImporter<TAsset> : AssetImporter
 	{
-		private readonly string resourceID;
+		private readonly string resourcePath;
 
 		private readonly TAsset preallocatedAsset;
 
 		public DefaultPreallocatedAssetImporter(
-			string resourceID,
+			string resourcePath,
 			TAsset preallocatedAsset,
 			ApplicationContext context)
 			: base(
 				context)
 		{
-			this.resourceID = resourceID;
+			this.resourcePath = resourcePath;
 
 			this.preallocatedAsset = preallocatedAsset;
 		}
@@ -29,13 +29,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			IProgress<float> progress = null)
 		{
 			context.Logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
-				$"IMPORTING {resourceID} INITIATED");
+				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID)
+					resourcePath)
 					.ThrowExceptions<IResourceData, DefaultPreallocatedAssetImporter<TAsset>>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
@@ -62,7 +62,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			progress?.Report(1f);
 
 			context.Logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
-				$"IMPORTING {resourceID} FINISHED");
+				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
 		}

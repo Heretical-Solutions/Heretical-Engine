@@ -1,19 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using HereticalSolutions.HereticalEngine.Scenes;
-
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	[Serializable]
-	public struct ModelNodeDTO
+	public struct MeshAssetDescriptor
 	{
-		public string Name;
+		public string GeometryResourcePath;
 
-		public ModelNodeDTO[] Children;
-
-		public TransformDTO Transform;
-
-		public string[] MeshResourcePaths;
+		public string MaterialResourcePath;
 	}
 }

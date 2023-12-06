@@ -35,84 +35,84 @@ namespace HereticalSolutions.ResourceManagement
 
         #region Has
 
-        public bool HasRootResource(int resourceIDHash)
+        public bool HasRootResource(int rootResourceIDHash)
         {
-            return rootResourcesRepository.Has(resourceIDHash);
+            return rootResourcesRepository.Has(rootResourceIDHash);
         }
 
-        public bool HasRootResource(string resourceID)
+        public bool HasRootResource(string rootResourceID)
         {
-            return HasRootResource(resourceID.AddressToHash());
+            return HasRootResource(rootResourceID.AddressToHash());
         }
 
-        public bool HasResource(int[] resourceIDHashes)
+        public bool HasResource(int[] resourcePathPartHashes)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDHashes[0],
+                resourcePathPartHashes[0],
                 out var currentData))
                 return false;
 
             return GetNestedResourceRecursive(
                 ref currentData,
-                resourceIDHashes);
+                resourcePathPartHashes);
         }
 
-        public bool HasResource(string[] resourceIDs)
+        public bool HasResource(string[] resourcePathParts)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDs[0].AddressToHash(),
+                resourcePathParts[0].AddressToHash(),
                 out var currentData))
                 return false;
 
             return GetNestedResourceRecursive(
                 ref currentData,
-                resourceIDs);
+                resourcePathParts);
         }
 
         #endregion
 
         #region Get
 
-        public IReadOnlyResourceData GetRootResource(int resourceIDHash)
+        public IReadOnlyResourceData GetRootResource(int rootResourceIDHash)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDHash,
+                rootResourceIDHash,
                 out var resource))
                 return null;
 
             return resource;
         }
 
-        public IReadOnlyResourceData GetRootResource(string resourceID)
+        public IReadOnlyResourceData GetRootResource(string rootResourceID)
         {
-            return GetRootResource(resourceID.AddressToHash());
+            return GetRootResource(rootResourceID.AddressToHash());
         }
 
-        public IReadOnlyResourceData GetResource(int[] resourceIDHashes)
+        public IReadOnlyResourceData GetResource(int[] resourcePathPartHashes)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDHashes[0],
+                resourcePathPartHashes[0],
                 out var currentResource))
                 return null;
 
             if (!GetNestedResourceRecursive(
                 ref currentResource,
-                resourceIDHashes))
+                resourcePathPartHashes))
                 return null;
 
             return currentResource;
         }
 
-        public IReadOnlyResourceData GetResource(string[] resourceIDs)
+        public IReadOnlyResourceData GetResource(string[] resourcePathParts)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDs[0].AddressToHash(),
+                resourcePathParts[0].AddressToHash(),
                 out var currentResource))
                 return null;
 
             if (!GetNestedResourceRecursive(
                 ref currentResource,
-                resourceIDs))
+                resourcePathParts))
                 return null;
 
             return currentResource;
@@ -123,95 +123,95 @@ namespace HereticalSolutions.ResourceManagement
         #region Try get
 
         public bool TryGetRootResource(
-            int resourceIDHash,
+            int rootResourceIDHash,
             out IReadOnlyResourceData resource)
         {
             return rootResourcesRepository.TryGet(
-                resourceIDHash,
+                rootResourceIDHash,
                 out resource);
         }
 
         public bool TryGetRootResource(
-            string resourceID,
+            string rootResourceID,
             out IReadOnlyResourceData resource)
         {
             return TryGetRootResource(
-                resourceID.AddressToHash(),
+                rootResourceID.AddressToHash(),
                 out resource);
         }
 
         public bool TryGetResource(
-            int[] resourceIDHashes,
+            int[] resourcePathPartHashes,
             out IReadOnlyResourceData resource)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDHashes[0],
+                resourcePathPartHashes[0],
                 out resource))
                 return false;
 
             return GetNestedResourceRecursive(
                 ref resource,
-                resourceIDHashes);
+                resourcePathPartHashes);
         }
 
         public bool TryGetResource(
-            string[] resourceIDs,
+            string[] resourcePathParts,
             out IReadOnlyResourceData resource)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDs[0].AddressToHash(),
+                resourcePathParts[0].AddressToHash(),
                 out resource))
                 return false;
 
             return GetNestedResourceRecursive(
                 ref resource,
-                resourceIDs);
+                resourcePathParts);
         }
 
         #endregion
 
         #region Get default
 
-        public IResourceVariantData GetDefaultRootResource(int resourceIDHash)
+        public IResourceVariantData GetDefaultRootResource(int rootResourceIDHash)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDHash,
+                rootResourceIDHash,
                 out var resource))
                 return null;
 
             return resource.DefaultVariant;
         }
 
-        public IResourceVariantData GetDefaultRootResource(string resourceID)
+        public IResourceVariantData GetDefaultRootResource(string rootResourceID)
         {
-            return GetDefaultRootResource(resourceID.AddressToHash());
+            return GetDefaultRootResource(rootResourceID.AddressToHash());
         }
 
-        public IResourceVariantData GetDefaultResource(int[] resourceIDHashes)
+        public IResourceVariantData GetDefaultResource(int[] resourcePathPartHashes)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDHashes[0],
+                resourcePathPartHashes[0],
                 out var currentResource))
                 return null;
 
             if (!GetNestedResourceRecursive(
                 ref currentResource,
-                resourceIDHashes))
+                resourcePathPartHashes))
                 return null;
 
             return currentResource.DefaultVariant;
         }
 
-        public IResourceVariantData GetDefaultResource(string[] resourceIDs)
+        public IResourceVariantData GetDefaultResource(string[] resourcePathParts)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDs[0].AddressToHash(),
+                resourcePathParts[0].AddressToHash(),
                 out var currentResource))
                 return null;
 
             if (!GetNestedResourceRecursive(
                 ref currentResource,
-                resourceIDs))
+                resourcePathParts))
                 return null;
 
             return currentResource.DefaultVariant;
@@ -222,11 +222,11 @@ namespace HereticalSolutions.ResourceManagement
         #region Try get default
 
         public bool TryGetDefaultRootResource(
-            int resourceIDHash,
+            int rootResourceIDHash,
             out IResourceVariantData resource)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDHash,
+                rootResourceIDHash,
                 out var rootResource))
             {
                 resource = null;
@@ -240,20 +240,20 @@ namespace HereticalSolutions.ResourceManagement
         }
 
         public bool TryGetDefaultRootResource(
-            string resourceID,
+            string rootResourceID,
             out IResourceVariantData resource)
         {
             return TryGetDefaultRootResource(
-                resourceID.AddressToHash(),
+                rootResourceID.AddressToHash(),
                 out resource);
         }
 
         public bool TryGetDefaultResource(
-            int[] resourceIDHashes,
+            int[] resourcePathPartHashes,
             out IResourceVariantData resource)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDHashes[0],
+                resourcePathPartHashes[0],
                 out var currentResource))
             {
                 resource = null;
@@ -263,7 +263,7 @@ namespace HereticalSolutions.ResourceManagement
 
             if (!GetNestedResourceRecursive(
                 ref currentResource,
-                resourceIDHashes))
+                resourcePathPartHashes))
             {
                 resource = null;
 
@@ -276,11 +276,11 @@ namespace HereticalSolutions.ResourceManagement
         }
 
         public bool TryGetDefaultResource(
-            string[] resourceIDs,
+            string[] resourcePathParts,
             out IResourceVariantData resource)
         {
             if (!rootResourcesRepository.TryGet(
-                resourceIDs[0].AddressToHash(),
+                resourcePathParts[0].AddressToHash(),
                 out var currentResource))
             {
                 resource = null;
@@ -290,7 +290,7 @@ namespace HereticalSolutions.ResourceManagement
 
             if (!GetNestedResourceRecursive(
                 ref currentResource,
-                resourceIDs))
+                resourcePathParts))
             {
                 resource = null;
 
@@ -317,38 +317,38 @@ namespace HereticalSolutions.ResourceManagement
         #endregion
 
         public async Task AddRootResource(
-            IReadOnlyResourceData resource,
+            IReadOnlyResourceData rootResource,
             IProgress<float> progress = null)
         {
             progress?.Report(0f);
 
             if (!rootResourcesRepository.TryAdd(
-                resource.Descriptor.IDHash,
-                resource))
+                rootResource.Descriptor.IDHash,
+                rootResource))
             {
                 progress?.Report(1f);
 
                 return;
             }
 
-            ((IResourceData)resource).ParentResource = null;
+            ((IResourceData)rootResource).ParentResource = null;
 
             rootResourceIDHashToID.AddOrUpdate(
-                resource.Descriptor.IDHash,
-                resource.Descriptor.ID);
+                rootResource.Descriptor.IDHash,
+                rootResource.Descriptor.ID);
 
             progress?.Report(1f);
         }
 
         public async Task RemoveRootResource(
-            int idHash = -1,
+            int rootResourceIDHash = -1,
             bool free = true,
             IProgress<float> progress = null)
         {
             progress?.Report(0f);
 
             if (!rootResourcesRepository.TryGet(
-                idHash,
+                rootResourceIDHash,
                 out var resource))
             {
                 progress?.Report(1f);
@@ -356,9 +356,9 @@ namespace HereticalSolutions.ResourceManagement
                 return;
             }
 
-            rootResourcesRepository.TryRemove(idHash);
+            rootResourcesRepository.TryRemove(rootResourceIDHash);
 
-            rootResourceIDHashToID.TryRemove(idHash);
+            rootResourceIDHashToID.TryRemove(rootResourceIDHash);
 
             if (free)
                 await ((IResourceData)resource)
@@ -371,12 +371,12 @@ namespace HereticalSolutions.ResourceManagement
         }
 
         public async Task RemoveRootResource(
-            string resourceID,
+            string rootResourceID,
             bool free = true,
             IProgress<float> progress = null)
         {
             await RemoveRootResource(
-                resourceID.AddressToHash(),
+                rootResourceID.AddressToHash(),
                 free,
                 progress)
                 .ThrowExceptions<RuntimeResourceManager>(logger);
@@ -481,12 +481,12 @@ namespace HereticalSolutions.ResourceManagement
 
         private bool GetNestedResourceRecursive(
             ref IReadOnlyResourceData currentData,
-            int[] resourceIDHashes)
+            int[] resourcePathPartHashes)
         {
-            for (int i = 1; i < resourceIDHashes.Length; i++)
+            for (int i = 1; i < resourcePathPartHashes.Length; i++)
             {
                 if (!currentData.TryGetNestedResource(
-                    resourceIDHashes[i],
+                    resourcePathPartHashes[i],
                     out var newCurrentData))
                     return false;
 
@@ -498,12 +498,12 @@ namespace HereticalSolutions.ResourceManagement
 
         private bool GetNestedResourceRecursive(
             ref IReadOnlyResourceData currentData,
-            string[] resourceIDs)
+            string[] resourcePathParts)
         {
-            for (int i = 1; i < resourceIDs.Length; i++)
+            for (int i = 1; i < resourcePathParts.Length; i++)
             {
                 if (!currentData.TryGetNestedResource(
-                    resourceIDs[i],
+                    resourcePathParts[i],
                     out var newCurrentData))
                     return false;
 

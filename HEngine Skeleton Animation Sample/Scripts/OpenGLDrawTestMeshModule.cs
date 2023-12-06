@@ -10,6 +10,8 @@ using HereticalSolutions.HereticalEngine.Rendering;
 
 using HereticalSolutions.HereticalEngine.Scenes;
 
+using HereticalSolutions.HereticalEngine.AssetImport;
+
 using HereticalSolutions.Logging;
 
 using Silk.NET.OpenGL;
@@ -488,7 +490,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			var modelOpenGLAssetImporter = new ModelOpenGLAssetImporter(
 				"Knight", //"Suzanne", //"Knight",
 				"Knight",
-				ModelRAMAssetImporter.MODEL_RAM_VARIANT_ID,
+				AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
 				context);
 
 			var modelOpenGLImportProgress = new Progress<float>();

@@ -14,12 +14,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ModelOpenGLAssetImporter : AssetImporter
 	{
-		public const string MODEL_OPENGL_VARIANT_ID = "OpenGL model";
 
-		public const int MODEL_OPENGL_PRIORITY = 1;
-
-
-		private readonly string resourceID;
+		private readonly string resourcePath;
 
 		private readonly string modelRAMPath;
 
@@ -27,14 +23,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		
 
 		public ModelOpenGLAssetImporter(
-			string resourceID,
+			string resourcePath,
 			string modelRAMPath,
 			string modelRAMVariantID,
 			ApplicationContext context)
 			: base(
 				context)
 		{
-			this.resourceID = resourceID;
+			this.resourcePath = resourcePath;
 
 			this.modelRAMPath = modelRAMPath;
 
@@ -45,7 +41,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			IProgress<float> progress = null)
 		{
 			context.Logger?.Log<ModelOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} INITIATED");
+				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
 
@@ -61,7 +57,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ModelOpenGLAssetImporter>(context.Logger);
 
-			var modelDTO = modelRAMStorageHandle.GetResource<ModelDTO>();
+			var modelDTO = modelRAMStorageHandle.GetResource<ModelAssetDescriptor>();
 
 			progress?.Report(0.25f);
 
@@ -79,7 +75,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				assetImporters.Add(
 					BuildGeometryAssetImporter(
 						modelDTO.GeometryResourcePaths[i],
-						"Diffuse shader", //"Default shader", //TODO: CHANGE. THIS IS ONLY TEMPORARY
+						//"Diffuse shader", //"Default shader", //TODO: CHANGE. THIS IS ONLY TEMPORARY
 						ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID));
 			}
 
@@ -150,7 +146,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID)
+					resourcePath)
 					.ThrowExceptions<IResourceData, ModelOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
@@ -179,7 +175,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(1f);
 
 			context.Logger?.Log<ModelOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} FINISHED");
+				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
 		}
@@ -190,7 +186,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var meshImporter = new MeshOpenGLAssetImporter(
 				resourcePath,
 				resourcePath,
-				MeshRAMAssetImporter.MESH_RAM_VARIANT_ID,
+				MeshAssetDescriptorAssetImporter.MESH_RAM_VARIANT_ID,
 				context);
 
 			return meshImporter;
@@ -218,7 +214,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var materialImporter = new MaterialOpenGLAssetImporter(
 				resourcePath,
 				resourcePath,
-				MaterialRAMAssetImporter.MATERIAL_RAM_VARIANT_ID,
+				MaterialPrototypeDescriptorAssetImporter.MATERIAL_RAM_VARIANT_ID,
 				context);
 
 			return materialImporter;
@@ -232,7 +228,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				resourcePath,
 				TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID,
 				resourcePath,
-				TextureDescriptorAssetImporter.TEXTURE_DESCRIPTOR_VARIANT_ID,
+				TextureAssetDescriptorAssetImporter.TEXTURE_DESCRIPTOR_VARIANT_ID,
 				context);
 
 			return textureImporter;

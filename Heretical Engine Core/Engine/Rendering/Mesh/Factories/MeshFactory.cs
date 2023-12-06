@@ -5,24 +5,24 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 	public static class MeshFactory
 	{
 		public static MeshOpenGLStorageHandle BuildMeshOpenGLStorageHandle(
-			string meshRAMPath,
-			string meshRAMVariantID,
+			string meshAssetDescriptorResourcePath,
+			string meshAssetDescriptorResourceVariantID,
 			ApplicationContext context)
 		{
 			return new MeshOpenGLStorageHandle(
-				meshRAMPath,
-				meshRAMVariantID,
+				meshAssetDescriptorResourcePath,
+				meshAssetDescriptorResourceVariantID,
 				context);
 		}
 
 		public static ConcurrentMeshOpenGLStorageHandle BuildConcurrentMeshOpenGLStorageHandle(
-			string meshRAMPath,
-			string meshRAMVariantID,
+			string meshAssetDescriptorResourcePath,
+			string meshAssetDescriptorResourceVariantID,
 			ApplicationContext context)
 		{
 			return new ConcurrentMeshOpenGLStorageHandle(
-				meshRAMPath,
-				meshRAMVariantID,
+				meshAssetDescriptorResourcePath,
+				meshAssetDescriptorResourceVariantID,
 				new SemaphoreSlim(1, 1),
 				context);
 		}

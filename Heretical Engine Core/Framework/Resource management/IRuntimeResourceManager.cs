@@ -4,16 +4,16 @@ namespace HereticalSolutions.ResourceManagement
         : IReadOnlyRuntimeResourceManager
     {
         Task AddRootResource(
-            IReadOnlyResourceData resource,
+            IReadOnlyResourceData rootResource,
             IProgress<float> progress = null);
 
         Task RemoveRootResource(
-            int idHash = -1,
+            int rootResourceIDHash = -1,
             bool free = true,
             IProgress<float> progress = null);
 
         Task RemoveRootResource(
-            string resourceID,
+            string rootResourceID,
             bool free = true,
             IProgress<float> progress = null);
 

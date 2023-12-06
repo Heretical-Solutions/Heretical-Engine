@@ -13,41 +13,44 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	public class ConcurrentTextureOpenGLStorageHandle
 		: AConcurrentReadOnlyResourceStorageHandle<TextureOpenGL>
 	{
-		private readonly string glPath;
+		private readonly string glResourcePath;
 
 
-		private readonly string textureRAMPath;
+		private readonly string textureRAMResourcePath;
 
-		private readonly string textureRAMVariantID;
+		private readonly string textureRAMResourceVariantID;
 
 
-		private readonly string textureDescriptorPath;
+		private readonly string textureDescriptorResourcePath;
 
-		private readonly string textureDescriptorVariantID;
+		private readonly string textureDescriptorResourceVariantID;
 
 		public ConcurrentTextureOpenGLStorageHandle(
-			string glPath,
-			string textureRAMPath,
-			string textureRAMVariantID,
-			string textureDescriptorPath,
-			string textureDescriptorVariantID,
+			string glResourcePath,
+
+			string textureRAMResourcePath,
+			string textureRAMResourceVariantID,
+
+			string textureDescriptorResourcePath,
+			string textureDescriptorResourceVariantID,
+
 			SemaphoreSlim semaphore,
 			ApplicationContext context)
 			: base(
 				semaphore,
 				context)
 		{
-			this.glPath = glPath;
+			this.glResourcePath = glResourcePath;
 
 
-			this.textureRAMPath = textureRAMPath;
+			this.textureRAMResourcePath = textureRAMResourcePath;
 
-			this.textureRAMVariantID = textureRAMVariantID;
+			this.textureRAMResourceVariantID = textureRAMResourceVariantID;
 
 
-			this.textureDescriptorPath = textureDescriptorPath;
+			this.textureDescriptorResourcePath = textureDescriptorResourcePath;
 
-			this.textureDescriptorVariantID = textureDescriptorVariantID;
+			this.textureDescriptorResourceVariantID = textureDescriptorResourceVariantID;
 		}
 
 		protected override async Task<TextureOpenGL> AllocateResource(
@@ -77,7 +80,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadGL = async () =>
 			{
 				glStorageHandle = await LoadDependency(
-					glPath,
+					glResourcePath,
 					string.Empty,
 					glLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
@@ -98,8 +101,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadTextureRAM = async () =>
 			{
 				textureRAMStorageHandle = await LoadDependency(
-					textureRAMPath,
-					textureRAMVariantID,
+					textureRAMResourcePath,
+					textureRAMResourceVariantID,
 					textureRAMLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 			};
@@ -119,8 +122,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadTextureDescriptor = async () =>
 			{
 				textureDescriptorStorageHandle = await LoadDependency(
-					textureDescriptorPath,
-					textureDescriptorVariantID,
+					textureDescriptorResourcePath,
+					textureDescriptorResourceVariantID,
 					textureDescriptorLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 			};
@@ -140,7 +143,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.25f);
 
 			glStorageHandle = await LoadDependency(
-				glPath,
+				glResourcePath,
 				string.Empty,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
@@ -156,8 +159,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.5f);
 
 			textureRAMStorageHandle = await LoadDependency(
-				textureRAMPath,
-				TextureRAMAssetImporter.TEXTURE_RAM_VARIANT_ID,
+				textureRAMResourcePath,
+				textureRAMResourceVariantID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 
@@ -172,8 +175,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.75f);
 
 			textureDescriptorStorageHandle = await LoadDependency(
-				textureDescriptorPath,
-				TextureDescriptorAssetImporter.TEXTURE_DESCRIPTOR_VARIANT_ID,
+				textureDescriptorResourcePath,
+				textureDescriptorResourceVariantID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);
 
@@ -186,7 +189,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			Image<Rgba32> textureRAM = textureRAMStorageHandle.GetResource<Image<Rgba32>>();
 
-			TextureDescriptorDTO descriptor = textureDescriptorStorageHandle.GetResource<TextureDescriptorDTO>();
+			TextureAssetDescriptor descriptor = textureDescriptorStorageHandle.GetResource<TextureAssetDescriptor>();
 
 			progress?.Report(0.75f);
 
@@ -197,7 +200,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				textureOpenGL = TextureFactory.BuildTextureOpenGL(
 					gl,
 					textureRAM,
-					descriptor);
+					descriptor,
+					context.Logger);
 			};
 
 			await ExecuteOnMainThread(
@@ -220,7 +224,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.5f);
 
 			var glStorageHandle = await LoadDependency(
-				glPath,
+				glResourcePath,
 				string.Empty,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentTextureOpenGLStorageHandle>(context.Logger);

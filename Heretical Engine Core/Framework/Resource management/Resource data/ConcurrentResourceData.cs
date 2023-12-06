@@ -520,7 +520,7 @@ namespace HereticalSolutions.ResourceManagement
 		}
 
 		public async Task RemoveVariant(
-			int variantHash = -1,
+			int variantIDHash = -1,
 			bool free = true,
 			IProgress<float> progress = null)
 		{
@@ -535,7 +535,7 @@ namespace HereticalSolutions.ResourceManagement
 			try
 			{
 				if (!variantsRepository.TryGet(
-					variantHash,
+					variantIDHash,
 					out variant))
 				{
 					progress?.Report(1f);
@@ -543,9 +543,9 @@ namespace HereticalSolutions.ResourceManagement
 					return;
 				}
 
-				variantIDHashToID.TryRemove(variantHash);
+				variantIDHashToID.TryRemove(variantIDHash);
 
-				variantsRepository.TryRemove(variantHash);
+				variantsRepository.TryRemove(variantIDHash);
 
 				UpdateDefaultVariant();
 			}
@@ -711,7 +711,7 @@ namespace HereticalSolutions.ResourceManagement
 		}
 
 		public async Task RemoveNestedResource(
-			int nestedResourceHash = -1,
+			int nestedResourceIDHash = -1,
 			bool free = true,
 			IProgress<float> progress = null)
 		{
@@ -726,7 +726,7 @@ namespace HereticalSolutions.ResourceManagement
 			try
 			{
 				if (!nestedResourcesRepository.TryGet(
-					nestedResourceHash,
+					nestedResourceIDHash,
 					out nestedResource))
 				{
 					progress?.Report(1f);
@@ -736,9 +736,9 @@ namespace HereticalSolutions.ResourceManagement
 
 				((IResourceData)nestedResource).ParentResource = null;
 
-				nestedResourceIDHashToID.TryRemove(nestedResourceHash);
+				nestedResourceIDHashToID.TryRemove(nestedResourceIDHash);
 
-				nestedResourcesRepository.TryRemove(nestedResourceHash);
+				nestedResourcesRepository.TryRemove(nestedResourceIDHash);
 			}
 			finally
 			{

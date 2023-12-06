@@ -12,75 +12,78 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class GeometryOpenGLAssetImporter : AssetImporter
 	{
-		public const string GEOMETRY_OPENGL_VARIANT_ID = "OpenGL geometry";
+		private readonly string resourcePath;
 
-		public const int GEOMETRY_OPENGL_PRIORITY = 1;
 
-		private readonly string resourceID;
+		private readonly string shaderOpenGLResourcePath;
 
-		private readonly string shaderOpenGLPath;
+		private readonly string shaderOpenGLResourceVariantID;
 
-		private readonly string shaderOpenGLVariantID;
 
-		private readonly string geometryRAMPath;
+		private readonly string geometryRAMResourcePath;
 
-		private readonly string geometryRAMVariantID;
+		private readonly string geometryRAMResourceVariantID;
 
 		public GeometryOpenGLAssetImporter(
-			string resourceID,
-			string shaderOpenGLPath,
-			string shaderOpenGLVariantID,
-			string geometryRAMPath,
-			string geometryRAMVariantID,
+			string resourcePath,
+
+			string shaderOpenGLResourcePath,
+			string shaderOpenGLResourceVariantID,
+
+			string geometryRAMResourcePath,
+			string geometryRAMResourceVariantID,
+			
 			ApplicationContext context)
 			: base(
 				context)
 		{
-			this.resourceID = resourceID;
+			this.resourcePath = resourcePath;
 			
-			this.shaderOpenGLPath = shaderOpenGLPath;
 
-			this.shaderOpenGLVariantID = shaderOpenGLVariantID;
+			this.shaderOpenGLResourcePath = shaderOpenGLResourcePath;
 
-			this.geometryRAMPath = geometryRAMPath;
+			this.shaderOpenGLResourceVariantID = shaderOpenGLResourceVariantID;
 
-			this.geometryRAMVariantID = geometryRAMVariantID;
+
+			this.geometryRAMResourcePath = geometryRAMResourcePath;
+
+			this.geometryRAMResourceVariantID = geometryRAMResourceVariantID;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
 			context.Logger?.Log<GeometryOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} INITIATED");
+				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID)
+					resourcePath)
 					.ThrowExceptions<IResourceData, GeometryOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = GEOMETRY_OPENGL_VARIANT_ID,
-					VariantIDHash = GEOMETRY_OPENGL_VARIANT_ID.AddressToHash(),
-					Priority = GEOMETRY_OPENGL_PRIORITY,
+					VariantID = AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
+					VariantIDHash = AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = AssetImportConstants.NORMAL_PRIORIITY,
 					Source = EResourceSources.RUNTIME_GENERATED,
 					Storage = EResourceStorages.GPU,
 					ResourceType = typeof(GeometryOpenGL),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				GeometryFactory.BuildConcurrentGeometryOpenGLStorageHandle(
-					shaderOpenGLPath,
-					shaderOpenGLVariantID,
-					geometryRAMPath,
-					geometryRAMVariantID,
+					shaderOpenGLResourcePath,
+					shaderOpenGLResourceVariantID,
+					geometryRAMResourcePath,
+					geometryRAMResourceVariantID,
 					context),
 #else
 				GeometryFactory.BuildGeometryOpenGLStorageHandle(
-					shaderOpenGLPath,
-					shaderOpenGLVariantID,
-					geometryRAMPath,
-					geometryRAMVariantID,
+					shaderOpenGLResourcePath,
+					shaderOpenGLResourceVariantID,
+					geometryRAMResourcePath,
+					geometryRAMResourceVariantID,
 					context),
 #endif
 				true,
@@ -90,7 +93,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(1f);
 
 			context.Logger?.Log<GeometryOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} FINISHED");
+				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
 		}

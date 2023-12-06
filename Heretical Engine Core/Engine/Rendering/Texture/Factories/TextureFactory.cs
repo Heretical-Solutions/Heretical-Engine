@@ -4,6 +4,8 @@ using HereticalSolutions.HereticalEngine.Application;
 
 using HereticalSolutions.HereticalEngine.Modules;
 
+using HereticalSolutions.Logging;
+
 using Silk.NET.OpenGL;
 
 using Silk.NET.Assimp;
@@ -12,26 +14,26 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public static class TextureFactory
 	{
-		public static TextureDescriptorDTO BuildTextureDescriptorDTO(
+		public static TextureAssetDescriptor BuildTextureAssetDescriptor(
 			string name,
 			TextureType type)
 		{
-			int wrapS = (int)GLEnum.ClampToEdge;
+			string wrapS = GLEnum.ClampToEdge.ToString();
 
-			int wrapT = (int)GLEnum.ClampToEdge;
+			string wrapT = GLEnum.ClampToEdge.ToString();
 
-			int minFilter = (int)GLEnum.LinearMipmapLinear;
+			string minFilter = GLEnum.LinearMipmapLinear.ToString();
 
-			int magFilter = (int)GLEnum.Linear;
+			string magFilter = GLEnum.Linear.ToString();
 
 			int baseLevel = 0;
 
 			int maxLevel = 8;
 
-			return new TextureDescriptorDTO
+			return new TextureAssetDescriptor
 			{
 				Name = name,
-				Type = type,
+				Type = type.ToString(),
 				WrapS = wrapS,
 				WrapT = wrapT,
 				MinFilter = minFilter,
@@ -44,13 +46,23 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		public static unsafe TextureOpenGL BuildTextureOpenGL(
 			GL gl,
 			Image<Rgba32> ramTexture,
-			TextureDescriptorDTO descriptor)
+			TextureAssetDescriptor descriptor,
+			IFormatLogger logger)
 		{
+			if (!Enum.TryParse(
+				descriptor.Type,
+				out TextureType textureType))
+			{
+				logger?.ThrowException(
+					typeof(TextureFactory),
+					$"COULD NOT PARSE TEXTURE TYPE: {descriptor.Type}");
+			}
+
 			var handle = gl.GenTexture();
 
 			var result = new TextureOpenGL(
 				handle,
-				descriptor.Type);
+				textureType);
 
 			result.Bind(
 				gl);
@@ -58,7 +70,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			result.Update(
 				gl,
 				ramTexture,
-				descriptor);
+				descriptor,
+				logger);
 
 			gl.BindTexture(
 				TextureTarget.Texture2D, 0);
@@ -71,13 +84,23 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			Span<byte> data,
 			uint width,
 			uint height,
-			TextureDescriptorDTO descriptor)
+			TextureAssetDescriptor descriptor,
+			IFormatLogger logger)
 		{
+			if (!Enum.TryParse(
+				descriptor.Type,
+				out TextureType textureType))
+			{
+				logger?.ThrowException(
+					typeof(TextureFactory),
+					$"COULD NOT PARSE TEXTURE TYPE: {descriptor.Type}");
+			}
+
 			var handle = gl.GenTexture();
 
 			var result = new TextureOpenGL(
 				handle,
-				descriptor.Type);
+				textureType);
 
 			result.Bind(
 				gl);
@@ -87,7 +110,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				data,
 				width,
 				height,
-				descriptor);
+				descriptor,
+				logger);
 
 			gl.BindTexture(
 				TextureTarget.Texture2D, 0);
@@ -115,34 +139,34 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		}
 
 		public static TextureOpenGLStorageHandle BuildTextureOpenGLStorageHandle(
-			string textureRAMPath,
-			string textureRAMVariantID,
-			string textureDescriptorPath,
-			string textureDescriptorVariantID,
+			string textureRAMResourcePath,
+			string textureRAMResourceVariantID,
+			string textureDescriptorResourcePath,
+			string textureDescriptorResourceVariantID,
 			ApplicationContext context)
 		{
 			return new TextureOpenGLStorageHandle(
 				OpenGLModule.GL_RESOURCE_PATH,
-				textureRAMPath,
-				textureRAMVariantID,
-				textureDescriptorPath,
-				textureDescriptorVariantID,
+				textureRAMResourcePath,
+				textureRAMResourceVariantID,
+				textureDescriptorResourcePath,
+				textureDescriptorResourceVariantID,
 				context);
 		}
 
 		public static ConcurrentTextureOpenGLStorageHandle BuildConcurrentTextureOpenGLStorageHandle(
-			string textureRAMPath,
-			string textureRAMVariantID,
-			string textureDescriptorPath,
-			string textureDescriptorVariantID,
+			string textureRAMResourcePath,
+			string textureRAMResourceVariantID,
+			string textureDescriptorResourcePath,
+			string textureDescriptorResourceVariantID,
 			ApplicationContext context)
 		{
 			return new ConcurrentTextureOpenGLStorageHandle(
 				OpenGLModule.GL_RESOURCE_PATH,
-				textureRAMPath,
-				textureRAMVariantID,
-				textureDescriptorPath,
-				textureDescriptorVariantID,
+				textureRAMResourcePath,
+				textureRAMResourceVariantID,
+				textureDescriptorResourcePath,
+				textureDescriptorResourceVariantID,
 				new SemaphoreSlim(1, 1),
 				context);
 		}

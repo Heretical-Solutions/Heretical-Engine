@@ -1,3 +1,5 @@
+using HereticalSolutions.Logging;
+
 using Silk.NET.Assimp;
 
 using Silk.NET.OpenGL;
@@ -39,7 +41,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public unsafe void Update(
 			GL gl,
 			Image<Rgba32> ramTexture,
-			TextureDescriptorDTO descriptor)
+			TextureAssetDescriptor descriptor,
+			IFormatLogger logger)
 		{
 			gl.TexImage2D(
 				TextureTarget.Texture2D,
@@ -76,7 +79,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			SetParameters(
 				gl,
-				descriptor);
+				descriptor,
+				logger);
 		}
 
 		//WARNING! THIS OVERLOAD WON'T FLIP THE TEXTURE VERTICALLY!
@@ -87,7 +91,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Span<byte> data,
 			uint width,
 			uint height,
-			TextureDescriptorDTO descriptor)
+			TextureAssetDescriptor descriptor,
+			IFormatLogger logger)
 		{
 			fixed (void* dataPointer = &data[0])
 			{
@@ -104,33 +109,67 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				SetParameters(
 					gl,
-					descriptor);
+					descriptor,
+					logger);
 			}
 		}
 
 		public void SetParameters(
 			GL gl,
-			TextureDescriptorDTO descriptor)
+			TextureAssetDescriptor descriptor,
+			IFormatLogger logger)
 		{
+			if (!Enum.TryParse(
+				descriptor.WrapS,
+				out GLEnum wrapS))
+			{
+				logger?.ThrowException<TextureOpenGL>(
+					$"COULD NOT PARSE WrapS: {descriptor.WrapS}");
+			}
+
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureWrapS,
-				descriptor.WrapS);
+				(int)wrapS);
+
+			if (!Enum.TryParse(
+				descriptor.WrapT,
+				out GLEnum wrapT))
+			{
+				logger?.ThrowException<TextureOpenGL>(
+					$"COULD NOT PARSE WrapT: {descriptor.WrapT}");
+			}
 
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureWrapT,
-				descriptor.WrapT);
+				(int)wrapT);
+
+			if (!Enum.TryParse(
+				descriptor.MinFilter,
+				out GLEnum minFilter))
+			{
+				logger?.ThrowException<TextureOpenGL>(
+					$"COULD NOT PARSE MinFilter: {descriptor.MinFilter}");
+			}
 
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureMinFilter,
-				descriptor.MinFilter);
+				(int)minFilter);
+
+			if (!Enum.TryParse(
+				descriptor.MagFilter,
+				out GLEnum magFilter))
+			{
+				logger?.ThrowException<TextureOpenGL>(
+					$"COULD NOT PARSE MinFilter: {descriptor.MagFilter}");
+			}
 
 			gl.TexParameter(
 				TextureTarget.Texture2D,
 				TextureParameterName.TextureMagFilter,
-				descriptor.MagFilter);
+				(int)magFilter);
 
 			gl.TexParameter(
 				TextureTarget.Texture2D,

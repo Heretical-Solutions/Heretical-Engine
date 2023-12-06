@@ -4,27 +4,29 @@ using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Application;
 
+using HereticalSolutions.HereticalEngine.AssetImport;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ConcurrentMaterialOpenGLStorageHandle
 		: AConcurrentReadOnlyResourceStorageHandle<MaterialOpenGL>
 	{
-		private readonly string materialRAMPath;
+		private readonly string materialPrototypeDescriptorResourcePath;
 
-		private readonly string materialRAMVariantID;
+		private readonly string materialPrototypeDescriptorResourceVariantID;
 
 		public ConcurrentMaterialOpenGLStorageHandle(
-			string materialRAMPath,
-			string materialRAMVariantID,
+			string materialPrototypeDescriptorResourcePath,
+			string materialPrototypeDescriptorResourceVariantID,
 			SemaphoreSlim semaphore,
 			ApplicationContext context)
 			: base(
 				semaphore,
 				context)
 		{
-			this.materialRAMPath = materialRAMPath;
+			this.materialPrototypeDescriptorResourcePath = materialPrototypeDescriptorResourcePath;
 
-			this.materialRAMVariantID = materialRAMVariantID;
+			this.materialPrototypeDescriptorResourceVariantID = materialPrototypeDescriptorResourceVariantID;
 		}
 
 		protected override async Task<MaterialOpenGL> AllocateResource(
@@ -33,23 +35,23 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(0f);
 
 
-			IReadOnlyResourceStorageHandle materialRAMStorageHandle = null;
+			IReadOnlyResourceStorageHandle materialPrototypeDescriptorStorageHandle = null;
 
 			IProgress<float> localProgress = progress.CreateLocalProgress(
 				0f,
 				0.333f);
 
-			materialRAMStorageHandle = await LoadDependency(
-				materialRAMPath,
-				materialRAMVariantID,
+			materialPrototypeDescriptorStorageHandle = await LoadDependency(
+				materialPrototypeDescriptorResourcePath,
+				materialPrototypeDescriptorResourceVariantID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
 
-			var materialDTO = materialRAMStorageHandle.GetResource<MaterialDTO>();
+			var materialDTO = materialPrototypeDescriptorStorageHandle.GetResource<MaterialPrototypeDescriptor>();
 
 			IReadOnlyResourceStorageHandle shaderOpenGLStorageHandle = null;
 
-			IReadOnlyResourceStorageHandle[] textureOpenGLStorageHandles = new IReadOnlyResourceStorageHandle[materialDTO.TextureResourceIDs.Length];
+			IReadOnlyResourceStorageHandle[] textureOpenGLStorageHandles = new IReadOnlyResourceStorageHandle[materialDTO.TextureResourcePaths.Length];
 
 			progress?.Report(0.333f);
 
@@ -68,8 +70,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadShaderOpenGL = async () =>
 			{
 				shaderOpenGLStorageHandle = await LoadDependency(
-					materialDTO.ShaderResourceID,
-					ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID,
+					materialDTO.ShaderResourcePath,
+					AssetImportConstants.ASSET_SHADER_OPENGL_VARIANT_ID,
 					shaderLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
 			};
@@ -89,8 +91,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				Func<Task> loadTextureOpenGL = async () =>
 				{
 					textureOpenGLStorageHandles[iClosure] = await LoadDependency(
-						materialDTO.TextureResourceIDs[iClosure],
-						TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID,
+						materialDTO.TextureResourcePaths[iClosure],
+						AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 						textureLoadProgress)
 						.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
 				};
@@ -107,8 +109,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.666f);
 
 			shaderOpenGLStorageHandle = await LoadDependency(
-				materialDTO.ShaderResourceID,
-				ShaderOpenGLAssetImporter.SHADER_OPENGL_VARIANT_ID,
+				materialDTO.ShaderResourcePath,
+				AssetImportConstants.ASSET_SHADER_OPENGL_VARIANT_ID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
 
@@ -123,8 +125,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					textureOpenGLStorageHandles.Length);
 
 				textureOpenGLStorageHandles[i] = await LoadDependency(
-					materialDTO.TextureResourceIDs[i],
-					TextureOpenGLAssetImporter.TEXTURE_OPENGL_VARIANT_ID,
+					materialDTO.TextureResourcePaths[i],
+					AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 					textureLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentMaterialOpenGLStorageHandle>(context.Logger);
 			}
@@ -132,7 +134,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var shader = shaderOpenGLStorageHandle.GetResource<ShaderOpenGL>();
 
-			var textures = new TextureOpenGL[materialDTO.TextureResourceIDs.Length];
+			var textures = new TextureOpenGL[materialDTO.TextureResourcePaths.Length];
 
 			for (int i = 0; i < textures.Length; i++)
 			{

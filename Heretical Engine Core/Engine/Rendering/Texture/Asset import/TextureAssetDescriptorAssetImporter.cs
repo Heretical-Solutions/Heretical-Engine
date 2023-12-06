@@ -13,27 +13,23 @@ using Silk.NET.Assimp;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class TextureDescriptorAssetImporter : AssetImporter
+	public class TextureAssetDescriptorAssetImporter : AssetImporter
 	{
-		public const string TEXTURE_DESCRIPTOR_VARIANT_ID = "Descriptor DTO";
-
-		public const int TEXTURE_DESCRIPTOR_PRIORITY = 0;
-
-		private readonly string resourceID;
+		private readonly string resourcePath;
 
 		private readonly string textureName;
 
 		private readonly TextureType textureType;
 
-		public TextureDescriptorAssetImporter(
-			string resourceID,
+		public TextureAssetDescriptorAssetImporter(
+			string resourcePath,
 			string textureName,
 			TextureType textureType,
 			ApplicationContext context)
 			: base(
 				context)
 		{
-			this.resourceID = resourceID;
+			this.resourcePath = resourcePath;
 
 			this.textureName = textureName;
 
@@ -43,45 +39,45 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			context.Logger?.Log<TextureDescriptorAssetImporter>(
-				$"IMPORTING {resourceID} INITIATED");
+			context.Logger?.Log<TextureAssetDescriptorAssetImporter>(
+				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID)
-					.ThrowExceptions<IResourceData, TextureDescriptorAssetImporter>(context.Logger),
+					resourcePath)
+					.ThrowExceptions<IResourceData, TextureAssetDescriptorAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = TEXTURE_DESCRIPTOR_VARIANT_ID,
-					VariantIDHash = TEXTURE_DESCRIPTOR_VARIANT_ID.AddressToHash(),
-					Priority = TEXTURE_DESCRIPTOR_PRIORITY,
+					VariantID = AssetImportConstants.ASSET_3D_MODEL_ASSET_DESCRIPTOR_VARIANT_ID,
+					VariantIDHash = AssetImportConstants.ASSET_3D_MODEL_ASSET_DESCRIPTOR_VARIANT_ID.AddressToHash(),
+					Priority = AssetImportConstants.DEFAULT_PRIORIITY,
 					Source = EResourceSources.LOCAL_STORAGE,
 					Storage = EResourceStorages.RAM,
-					ResourceType = typeof(TextureDescriptorDTO),
+					ResourceType = typeof(TextureAssetDescriptor),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<TextureDescriptorDTO>(
-					TextureFactory.BuildTextureDescriptorDTO(
+				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<TextureAssetDescriptor>(
+					TextureFactory.BuildTextureAssetDescriptor(
 						textureName,
 						textureType),
 					context),
 #else
-				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<TextureDescriptorDTO>(
-					TextureFactory.BuildTextureDescriptorDTO(
+				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<TextureAssetDescriptor>(
+					TextureFactory.BuildTextureAssetDescriptor(
 						textureName,
 						textureType),
 					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, TextureDescriptorAssetImporter>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, TextureAssetDescriptorAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			context.Logger?.Log<TextureDescriptorAssetImporter>(
-				$"IMPORTING {resourceID} FINISHED");
+			context.Logger?.Log<TextureAssetDescriptorAssetImporter>(
+				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
 		}

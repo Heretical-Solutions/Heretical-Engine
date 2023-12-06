@@ -13,37 +13,44 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	public class ConcurrentGeometryOpenGLStorageHandle
 		: AConcurrentReadOnlyResourceStorageHandle<GeometryOpenGL>
 	{
-		private readonly string glPath;
+		private readonly string glResourcePath;
 
-		private readonly string shaderOpenGLPath;
 
-		private readonly string shaderOpenGLVariantID;
+		private readonly string shaderOpenGLResourcePath;
 
-		private readonly string geometryRAMPath;
+		private readonly string shaderOpenGLResourceVariantID;
 
-		private readonly string geometryRAMVariantID;
+
+		private readonly string geometryRAMResourcePath;
+
+		private readonly string geometryRAMResourceVariantID;
 
 		public ConcurrentGeometryOpenGLStorageHandle(
-			string glPath,
-			string shaderOpenGLPath,
-			string shaderOpenGLVariantID,
-			string geometryRAMPath,
-			string geometryRAMVariantID,
+			string glResourcePath,
+
+			string shaderOpenGLResourcePath,
+			string shaderOpenGLResourceVariantID,
+
+			string geometryRAMResourcePath,
+			string geometryRAMResourceVariantID,
+
 			SemaphoreSlim semaphore,
 			ApplicationContext context)
 			: base(
 				semaphore,
 				context)
 		{
-			this.glPath = glPath;
+			this.glResourcePath = glResourcePath;
 
-			this.shaderOpenGLPath = shaderOpenGLPath;
 
-			this.shaderOpenGLVariantID = shaderOpenGLVariantID;
+			this.shaderOpenGLResourcePath = shaderOpenGLResourcePath;
 
-			this.geometryRAMPath = geometryRAMPath;
+			this.shaderOpenGLResourceVariantID = shaderOpenGLResourceVariantID;
 
-			this.geometryRAMVariantID = geometryRAMVariantID;
+
+			this.geometryRAMResourcePath = geometryRAMResourcePath;
+
+			this.geometryRAMResourceVariantID = geometryRAMResourceVariantID;
 		}
 
 		protected override async Task<GeometryOpenGL> AllocateResource(
@@ -71,7 +78,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadGL = async () =>
 			{
 				glStorageHandle = await LoadDependency(
-					glPath,
+					glResourcePath,
 					string.Empty,
 					glLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
@@ -88,8 +95,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadShaderOpenGL = async () =>
 			{
 				shaderOpenGLStorageHandle = await LoadDependency(
-					shaderOpenGLPath,
-					shaderOpenGLVariantID,
+					shaderOpenGLResourcePath,
+					shaderOpenGLResourceVariantID,
 					shaderOpenGLLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
 			};
@@ -105,8 +112,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadGeometryRAM = async () =>
 			{
 				geometryRAMStorageHandle = await LoadDependency(
-					geometryRAMPath,
-					geometryRAMVariantID,
+					geometryRAMResourcePath,
+					geometryRAMResourceVariantID,
 					geometryRAMLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
 			};
@@ -123,7 +130,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.25f);
 
 			glStorageHandle = await LoadDependency(
-				glPath,
+				glResourcePath,
 				string.Empty,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
@@ -135,8 +142,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.5f);
 
 			shaderOpenGLStorageHandle = await LoadDependency(
-				shaderOpenGLPath,
-				shaderOpenGLVariantID,
+				shaderOpenGLResourcePath,
+				shaderOpenGLResourceVariantID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
 
@@ -147,8 +154,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.75f);
 
 			geometryRAMStorageHandle = await LoadDependency(
-				geometryRAMPath,
-				geometryRAMVariantID,
+				geometryRAMResourcePath,
+				geometryRAMResourceVariantID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);
 #endif
@@ -157,7 +164,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			ShaderOpenGL shaderOpenGL = shaderOpenGLStorageHandle.GetResource<ShaderOpenGL>();
 
-			Geometry geometryRAM = geometryRAMStorageHandle.GetResource<Geometry>();
+			GeometryRAM geometryRAM = geometryRAMStorageHandle.GetResource<GeometryRAM>();
 
 			progress?.Report(0.75f);
 
@@ -167,7 +174,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			{
 				geometryOpenGL = GeometryFactory.BuildGeometryOpenGL(
 					gl,
-					geometryRAMStorageHandle.GetResource<Geometry>(),
+					geometryRAMStorageHandle.GetResource<GeometryRAM>(),
 					shaderOpenGLStorageHandle.GetResource<ShaderOpenGL>().Descriptor,
 					context.Logger);
 			};
@@ -192,7 +199,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.5f);
 
 			var glStorageHandle = await LoadDependency(
-				glPath,
+				glResourcePath,
 				string.Empty,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, ConcurrentGeometryOpenGLStorageHandle>(context.Logger);

@@ -3,10 +3,13 @@
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public struct Geometry
+	[Serializable]
+	public struct MaterialPrototypeDescriptor
 	{
-		public Vertex[] Vertices;
+		public string Name;
 
-		public uint[] Indices;
+		public string ShaderResourcePath;
+
+		public string[] TextureResourcePaths;
 	}
 }

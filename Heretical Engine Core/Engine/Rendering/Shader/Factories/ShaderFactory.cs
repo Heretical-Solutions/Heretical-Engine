@@ -1,6 +1,7 @@
 using HereticalSolutions.Logging;
 
 using HereticalSolutions.HereticalEngine.Modules;
+
 using HereticalSolutions.HereticalEngine.Application;
 
 using Antlr4.Runtime;

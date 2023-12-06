@@ -5,24 +5,24 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 	public static class MaterialFactory
 	{
 		public static MaterialOpenGLStorageHandle BuildMaterialOpenGLStorageHandle(
-			string materialRAMPath,
-			string materialRAMVariantID,
+			string materialPrototypeDescriptorResourcePath,
+			string materialPrototypeDescriptorResourceVariantID,
 			ApplicationContext context)
 		{
 			return new MaterialOpenGLStorageHandle(
-				materialRAMPath,
-				materialRAMVariantID,
+				materialPrototypeDescriptorResourcePath,
+				materialPrototypeDescriptorResourceVariantID,
 				context);
 		}
 
 		public static ConcurrentMaterialOpenGLStorageHandle BuildConcurrentMaterialOpenGLStorageHandle(
-			string materialRAMPath,
-			string materialRAMVariantID,
+			string materialPrototypeDescriptorResourcePath,
+			string materialPrototypeDescriptorResourceVariantID,
 			ApplicationContext context)
 		{
 			return new ConcurrentMaterialOpenGLStorageHandle(
-				materialRAMPath,
-				materialRAMVariantID,
+				materialPrototypeDescriptorResourcePath,
+				materialPrototypeDescriptorResourceVariantID,
 				new SemaphoreSlim(1, 1),
 				context);
 		}

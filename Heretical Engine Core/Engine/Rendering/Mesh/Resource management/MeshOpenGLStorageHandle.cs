@@ -4,25 +4,27 @@ using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Application;
 
+using HereticalSolutions.HereticalEngine.AssetImport;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MeshOpenGLStorageHandle
 		: AReadOnlyResourceStorageHandle<MeshOpenGL>
 	{
-		private readonly string meshRAMPath;
+		private readonly string meshPrototypeDescriptorResourcePath;
 
-		private readonly string meshRAMVariantID;
+		private readonly string meshPrototypeDescriptorResourceVariantID;
 
 		public MeshOpenGLStorageHandle(
-			string meshRAMPath,
-			string meshRAMVariantID,
+			string meshPrototypeDescriptorResourcePath,
+			string meshPrototypeDescriptorResourceVariantID,
 			ApplicationContext context)
 			: base(
 				context)
 		{
-			this.meshRAMPath = meshRAMPath;
+			this.meshPrototypeDescriptorResourcePath = meshPrototypeDescriptorResourcePath;
 
-			this.meshRAMVariantID = meshRAMVariantID;
+			this.meshPrototypeDescriptorResourceVariantID = meshPrototypeDescriptorResourceVariantID;
 		}
 
 		protected override async Task<MeshOpenGL> AllocateResource(
@@ -30,19 +32,19 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			progress?.Report(0f);
 
-			IReadOnlyResourceStorageHandle meshRAMStorageHandle = null;
+			IReadOnlyResourceStorageHandle meshPrototypeResourceStorageHandle = null;
 
 			IProgress<float> localProgress = progress.CreateLocalProgress(
 				0f,
 				0.333f);
 
-			meshRAMStorageHandle = await LoadDependency(
-				meshRAMPath,
-				meshRAMVariantID,
+			meshPrototypeResourceStorageHandle = await LoadDependency(
+				meshPrototypeDescriptorResourcePath,
+				meshPrototypeDescriptorResourceVariantID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
 
-			var meshDTO = meshRAMStorageHandle.GetResource<MeshDTO>();
+			var meshPrototypeDescriptor = meshPrototypeResourceStorageHandle.GetResource<MeshPrototypeDescriptor>();
 
 			IReadOnlyResourceStorageHandle geometryOpenGLStorageHandle = null;
 
@@ -64,8 +66,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadGeometryOpenGL = async () =>
 			{
 				geometryOpenGLStorageHandle = await LoadDependency(
-					meshDTO.GeometryResourceID,
-					GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
+					meshPrototypeDescriptor.GeometryResourcePath,
+					AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 					geometryOpenGLLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
 			};
@@ -81,8 +83,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Func<Task> loadMaterialOpenGL = async () =>
 			{
 				materialOpenGLStorageHandle = await LoadDependency(
-					meshDTO.MaterialResourceID,
-					MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
+					meshPrototypeDescriptor.MaterialResourcePath,
+					AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 					materialOpenGLLoadProgress)
 					.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
 			};
@@ -98,8 +100,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				0.666f);
 
 			geometryOpenGLStorageHandle = await LoadDependency(
-				meshDTO.GeometryResourceID,
-				GeometryOpenGLAssetImporter.GEOMETRY_OPENGL_VARIANT_ID,
+				meshPrototypeDescriptor.GeometryResourcePath,
+				AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
 
@@ -110,8 +112,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				1f);
 
 			materialOpenGLStorageHandle = await LoadDependency(
-				meshDTO.MaterialResourceID,
-				MaterialOpenGLAssetImporter.MATERIAL_OPENGL_VARIANT_ID,
+				meshPrototypeDescriptor.MaterialResourcePath,
+				AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
 				localProgress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle, MeshOpenGLStorageHandle>(context.Logger);
 #endif

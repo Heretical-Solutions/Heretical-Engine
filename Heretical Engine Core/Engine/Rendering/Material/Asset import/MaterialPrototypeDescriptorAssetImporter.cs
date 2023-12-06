@@ -9,28 +9,28 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class GeometryRAMAssetImporter : AssetImporter
+	public class MaterialPrototypeDescriptorAssetImporter : AssetImporter
 	{
 		private readonly string resourcePath;
 
-		private readonly GeometryRAM geometry;
+		private readonly MaterialPrototypeDescriptor descriptor;
 
-		public GeometryRAMAssetImporter(
+		public MaterialPrototypeDescriptorAssetImporter(
 			string resourcePath,
-			GeometryRAM geometry,
+			MaterialPrototypeDescriptor descriptor,
 			ApplicationContext context)
 			: base(
 				context)
 		{
 			this.resourcePath = resourcePath;
 
-			this.geometry = geometry;
+			this.descriptor = descriptor;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			context.Logger?.Log<GeometryRAMAssetImporter>(
+			context.Logger?.Log<MaterialPrototypeDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
@@ -38,32 +38,32 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourcePath)
-					.ThrowExceptions<IResourceData, GeometryRAMAssetImporter>(context.Logger),
+					.ThrowExceptions<IResourceData, MaterialPrototypeDescriptorAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
-					VariantIDHash = AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID.AddressToHash(),
+					VariantID = AssetImportConstants.ASSET_3D_MODEL_PROTOTYPE_DESCRIPTOR_VARIANT_ID,
+					VariantIDHash = AssetImportConstants.ASSET_3D_MODEL_PROTOTYPE_DESCRIPTOR_VARIANT_ID.AddressToHash(),
 					Priority = AssetImportConstants.DEFAULT_PRIORIITY,
 					Source = EResourceSources.LOCAL_STORAGE,
 					Storage = EResourceStorages.RAM,
-					ResourceType = typeof(GeometryRAM),
+					ResourceType = typeof(MaterialPrototypeDescriptor),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<GeometryRAM>(
-					geometry,
+				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<MaterialPrototypeDescriptor>(
+					descriptor,
 					context),
 #else
-				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<GeometryRAM>(
-					geometry,
+				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<MaterialPrototypeDescriptor>(
+					descriptor,
 					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, GeometryRAMAssetImporter>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, MaterialPrototypeDescriptorAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			context.Logger?.Log<GeometryRAMAssetImporter>(
+			context.Logger?.Log<MaterialPrototypeDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;

@@ -12,7 +12,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 	{
 		public static GeometryOpenGL BuildGeometryOpenGL(
 			GL gl,
-			Geometry ramGeometry,
+			GeometryRAM ramGeometry,
 			ShaderDescriptorOpenGL shaderDescriptor,
 			IFormatLogger logger)
 		{
@@ -96,7 +96,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
 
 			return new GeometryOpenGL(
-				ramGeometry,
+				//ramGeometry,
 				vao,
 				vbo,
 				ebo);
@@ -299,18 +299,18 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		}
 
 		public static ConcurrentGeometryOpenGLStorageHandle BuildConcurrentGeometryOpenGLStorageHandle(
-			string shaderOpenGLPath,
-			string shaderOpenGLVariantID,
-			string geometryRAMPath,
-			string geometryRAMVariantID,
+			string shaderOpenGLResourcePath,
+			string shaderOpenGLResourceVariantID,
+			string geometryRAMResourcePath,
+			string geometryRAMResourceVariantID,
 			ApplicationContext context)
 		{
 			return new ConcurrentGeometryOpenGLStorageHandle(
 				OpenGLModule.GL_RESOURCE_PATH,
-				shaderOpenGLPath,
-				shaderOpenGLVariantID,
-				geometryRAMPath,
-				geometryRAMVariantID,
+				shaderOpenGLResourcePath,
+				shaderOpenGLResourceVariantID,
+				geometryRAMResourcePath,
+				geometryRAMResourceVariantID,
 				new SemaphoreSlim(1, 1),
 				context);
 		}

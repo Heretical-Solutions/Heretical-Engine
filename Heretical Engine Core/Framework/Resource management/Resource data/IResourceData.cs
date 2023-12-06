@@ -12,7 +12,7 @@ namespace HereticalSolutions.ResourceManagement
             IProgress<float> progress = null);
 
         Task RemoveVariant(
-            int variantHash,
+            int variantIDHash,
             bool free = true,
             IProgress<float> progress = null);
 
@@ -32,7 +32,7 @@ namespace HereticalSolutions.ResourceManagement
             IProgress<float> progress = null);
 
         Task RemoveNestedResource(
-            int nestedResourceHash,
+            int nestedResourceIDHash,
             bool free = true,
             IProgress<float> progress = null);
 

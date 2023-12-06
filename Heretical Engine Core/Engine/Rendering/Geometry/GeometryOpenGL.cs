@@ -7,7 +7,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class GeometryOpenGL
 	{
-		public Geometry Geometry { get; private set; }
+		//public GeometryRAM Geometry { get; private set; }
 
 		public VertexArrayObjectOpenGL VertexArrayObject { get; set; }
 
@@ -16,12 +16,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public BufferObjectOpenGL<uint> ElementBufferObject { get; set; }
 
 		public GeometryOpenGL(
-			Geometry geometry,
+			//GeometryRAM geometry,
 			VertexArrayObjectOpenGL vertexArrayObject,
 			BufferObjectOpenGL<float> vertexBufferObject,
 			BufferObjectOpenGL<uint> elementBufferObject)
 		{
-			Geometry = geometry;
+			//Geometry = geometry;
 
 			VertexArrayObject = vertexArrayObject;
 

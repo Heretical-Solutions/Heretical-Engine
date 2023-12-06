@@ -12,79 +12,78 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class TextureOpenGLAssetImporter : AssetImporter
 	{
-		public const string TEXTURE_OPENGL_VARIANT_ID = "OpenGL texture";
-
-		public const int TEXTURE_OPENGL_PRIORITY = 1;
+		private readonly string resourcePath;
 
 
-		private readonly string resourceID;
+		private readonly string textureRAMResourcePath;
+
+		private readonly string textureRAMResourceVariantID;
 
 
-		private readonly string textureRAMPath;
+		private readonly string textureDescriptorResourcePath;
 
-		private readonly string textureRAMVariantID;
-
-
-		private readonly string textureDescriptorPath;
-
-		private readonly string textureDescriptorVariantID;
+		private readonly string textureDescriptorResourceVariantID;
 
 
 		public TextureOpenGLAssetImporter(
-			string resourceID,
-			string textureRAMPath,
-			string textureRAMVariantID,
-			string textureDescriptorPath,
-			string textureDescriptorVariantID,
+			string resourcePath,
+
+			string textureRAMResourcePath,
+			string textureRAMResourceVariantID,
+			
+			string textureDescriptorResourcePath,
+			string textureDescriptorResourceVariantID,
 			ApplicationContext context)
 			: base(
 				context)
 		{
-			this.resourceID = resourceID;
+			this.resourcePath = resourcePath;
 
-			this.textureRAMPath = textureRAMPath;
 
-			this.textureRAMVariantID = textureRAMVariantID;
+			this.textureRAMResourcePath = textureRAMResourcePath;
 
-			this.textureDescriptorPath = textureDescriptorPath;
+			this.textureRAMResourceVariantID = textureRAMResourceVariantID;
 
-			this.textureDescriptorVariantID = textureDescriptorVariantID;
+
+			this.textureDescriptorResourcePath = textureDescriptorResourcePath;
+
+			this.textureDescriptorResourceVariantID = textureDescriptorResourceVariantID;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
 			context.Logger?.Log<TextureOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} INITIATED");
+				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID)
+					resourcePath)
 					.ThrowExceptions<IResourceData, TextureOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = TEXTURE_OPENGL_VARIANT_ID,
-					VariantIDHash = TEXTURE_OPENGL_VARIANT_ID.AddressToHash(),
-					Priority = TEXTURE_OPENGL_PRIORITY,
+					VariantID = AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
+					VariantIDHash = AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = AssetImportConstants.NORMAL_PRIORIITY,
 					Source = EResourceSources.RUNTIME_GENERATED,
 					Storage = EResourceStorages.GPU,
 					ResourceType = typeof(TextureOpenGL),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				TextureFactory.BuildConcurrentTextureOpenGLStorageHandle(
-					textureRAMPath,
-					textureRAMVariantID,
-					textureDescriptorPath,
-					textureDescriptorVariantID,
+					textureRAMResourcePath,
+					textureRAMResourceVariantID,
+					textureDescriptorResourcePath,
+					textureDescriptorResourceVariantID,
 					context),
 #else
 				TextureFactory.BuildTextureOpenGLStorageHandle(
-					textureRAMPath,
-					textureRAMVariantID,
-					textureDescriptorPath,
-					textureDescriptorVariantID,
+					textureRAMResourcePath,
+					textureRAMResourceVariantID,
+					textureDescriptorResourcePath,
+					textureDescriptorResourceVariantID,
 					context),
 #endif
 				true,
@@ -94,7 +93,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(1f);
 
 			context.Logger?.Log<TextureOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} FINISHED");
+				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
 		}

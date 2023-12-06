@@ -1,39 +1,36 @@
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
 using HereticalSolutions.ResourceManagement;
+using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
-
-using HereticalSolutions.Persistence.IO;
-
-using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class TextureRAMAssetImporter : AssetImporter
+	public class MeshPrototypeDescriptorAssetImporter : AssetImporter
 	{
 		private readonly string resourcePath;
 
-		private readonly FilePathSettings filePathSettings;
+		private readonly MeshPrototypeDescriptor descriptor;
 
-		public TextureRAMAssetImporter(
+		public MeshPrototypeDescriptorAssetImporter(
 			string resourcePath,
-			FilePathSettings filePathSettings,
+			MeshPrototypeDescriptor descriptor,
 			ApplicationContext context)
 			: base(
 				context)
 		{
 			this.resourcePath = resourcePath;
 
-			this.filePathSettings = filePathSettings;
+			this.descriptor = descriptor;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			context.Logger?.Log<TextureRAMAssetImporter>(
+			context.Logger?.Log<MeshPrototypeDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
@@ -41,7 +38,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourcePath)
-					.ThrowExceptions<IResourceData, TextureRAMAssetImporter>(context.Logger),
+					.ThrowExceptions<IResourceData, MeshPrototypeDescriptorAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
@@ -49,24 +46,24 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					Priority = AssetImportConstants.DEFAULT_PRIORIITY,
 					Source = EResourceSources.LOCAL_STORAGE,
 					Storage = EResourceStorages.RAM,
-					ResourceType = typeof(Image<Rgba32>),
+					ResourceType = typeof(MeshPrototypeDescriptor),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-				TextureFactory.BuildConcurrentTextureRAMStorageHandle(
-					filePathSettings,
+				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<MeshPrototypeDescriptor>(
+					descriptor,
 					context),
 #else
-				TextureFactory.BuildTextureRAMStorageHandle(
-					filePathSettings,
+				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<MeshPrototypeDescriptor>(
+					descriptor,
 					context),
-#endif					
+#endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, TextureRAMAssetImporter>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, MeshPrototypeDescriptorAssetImporter>(context.Logger);
 
 			progress?.Report(1f);
 
-			context.Logger?.Log<TextureRAMAssetImporter>(
+			context.Logger?.Log<MeshPrototypeDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;

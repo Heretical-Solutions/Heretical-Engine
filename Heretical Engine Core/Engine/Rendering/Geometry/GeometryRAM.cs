@@ -3,11 +3,10 @@
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	[Serializable]
-	public struct MeshDTO
+	public struct GeometryRAM
 	{
-		public string GeometryResourceID;
+		public Vertex[] Vertices;
 
-		public string MaterialResourceID;
+		public uint[] Indices;
 	}
 }

@@ -24,21 +24,21 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		}
 
 		protected virtual async Task<IResourceData> GetOrCreateResourceData(
-			string fullResourceID)
+			string fullResourcePath)
 		{
-			string[] resourceIDs = fullResourceID.SplitAddressBySeparator();
+			string[] resourcePathParts = fullResourcePath.SplitAddressBySeparator();
 
 			IReadOnlyResourceData currentData = null;
 
 			if (!context.RuntimeResourceManager.TryGetRootResource(
-				resourceIDs[0],
+				resourcePathParts[0],
 				out currentData))
 			{
 				var descriptor = new ResourceDescriptor()
 				{
-					ID = resourceIDs[0],
+					ID = resourcePathParts[0],
 
-					IDHash = resourceIDs[0].AddressToHash()
+					IDHash = resourcePathParts[0].AddressToHash()
 				};
 
 				currentData =
@@ -49,7 +49,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #else
 					ResourceManagementFactory.BuildResourceData(
 						descriptor,
-						logger);
+						context.Logger);
 #endif
 
 				await context.RuntimeResourceManager.AddRootResource(
@@ -59,12 +59,12 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 						context.Logger);
 			}
 
-			for (int i = 1; i < resourceIDs.Length; i++)
+			for (int i = 1; i < resourcePathParts.Length; i++)
 			{
 				IReadOnlyResourceData newCurrentData;
 
 				if (currentData.TryGetNestedResource(
-					resourceIDs[i],
+					resourcePathParts[i],
 					out newCurrentData))
 				{
 					currentData = newCurrentData;
@@ -73,9 +73,9 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				{
 					var descriptor = new ResourceDescriptor()
 					{
-						ID = resourceIDs[i],
+						ID = resourcePathParts[i],
 
-						IDHash = resourceIDs[i].AddressToHash()
+						IDHash = resourcePathParts[i].AddressToHash()
 					};
 
 					newCurrentData =
@@ -86,7 +86,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #else						
 						ResourceManagementFactory.BuildResourceData(
 							descriptor,
-							logger);
+							context.Logger);
 #endif
 
 					await ((IResourceData)currentData)
@@ -104,11 +104,11 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		}
 
 		protected virtual async Task<IResourceData> GetOrCreateNestedResourceData(
-			string fullResourceID,
+			string parentResourcePath,
 			string nestedResourceID)
 		{
 			var parent = await GetOrCreateResourceData(
-				fullResourceID)
+				parentResourcePath)
 				.ThrowExceptions(
 					GetType(),
 					context.Logger);
@@ -128,7 +128,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #else				
 				ResourceManagementFactory.BuildResourceData(
 					descriptor,
-					logger);
+					context.Logger);
 #endif
 
 			await parent

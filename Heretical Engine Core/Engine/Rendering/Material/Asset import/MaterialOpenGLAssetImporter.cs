@@ -12,61 +12,59 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MaterialOpenGLAssetImporter : AssetImporter
 	{
-		public const string MATERIAL_OPENGL_VARIANT_ID = "OpenGL material";
+		private readonly string resourcePath;
 
-		public const int MATERIAL_OPENGL_PRIORITY = 1;
 
-		private readonly string resourceID;
+		private readonly string materialPrototypeDescriptorResourcePath;
 
-		private readonly string materialRAMPath;
-
-		private readonly string materialRAMVariantID;
+		private readonly string materialPrototypeDescriptorResourceVariantID;
 
 		public MaterialOpenGLAssetImporter(
-			string resourceID,
-			string materialRAMPath,
-			string materialRAMVariantID,
+			string resourcePath,
+			string materialPrototypeDescriptorResourcePath,
+			string materialPrototypeDescriptorResourceVariantID,
 			ApplicationContext context)
 			: base(
 				context)
 		{
-			this.resourceID = resourceID;
+			this.resourcePath = resourcePath;
 
-			this.materialRAMPath = materialRAMPath;
 
-			this.materialRAMVariantID = materialRAMVariantID;
+			this.materialPrototypeDescriptorResourcePath = materialPrototypeDescriptorResourcePath;
+
+			this.materialPrototypeDescriptorResourceVariantID = materialPrototypeDescriptorResourceVariantID;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
 			context.Logger?.Log<MaterialOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} INITIATED");
+				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID)
+					resourcePath)
 					.ThrowExceptions<IResourceData, MaterialOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = MATERIAL_OPENGL_VARIANT_ID,
-					VariantIDHash = MATERIAL_OPENGL_VARIANT_ID.AddressToHash(),
-					Priority = MATERIAL_OPENGL_PRIORITY,
+					VariantID = AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
+					VariantIDHash = AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = AssetImportConstants.NORMAL_PRIORIITY,
 					Source = EResourceSources.RUNTIME_GENERATED,
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(MaterialOpenGL),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				MaterialFactory.BuildConcurrentMaterialOpenGLStorageHandle(
-					materialRAMPath,
-					materialRAMVariantID,
+					materialPrototypeDescriptorResourcePath,
+					materialPrototypeDescriptorResourceVariantID,
 					context),
 #else
 				MaterialFactory.BuildMaterialOpenGLStorageHandle(
-					materialRAMPath,
-					materialRAMVariantID,
+					materialPrototypeDescriptorResourcePath,
+					materialPrototypeDescriptorResourceVariantID,
 					context),
 #endif
 				true,
@@ -76,7 +74,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(1f);
 
 			context.Logger?.Log<MaterialOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} FINISHED");
+				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
 		}

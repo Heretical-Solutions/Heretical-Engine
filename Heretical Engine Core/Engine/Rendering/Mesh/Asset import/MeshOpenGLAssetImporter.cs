@@ -12,61 +12,59 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MeshOpenGLAssetImporter : AssetImporter
 	{
-		public const string MESH_OPENGL_VARIANT_ID = "OpenGL mesh";
+		private readonly string resourcePath;
 
-		public const int MESH_OPENGL_PRIORITY = 1;
 
-		private readonly string resourceID;
+		private readonly string meshAssetDescriptorResourcePath;
 
-		private readonly string meshRAMPath;
-
-		private readonly string meshRAMVariantID;
+		private readonly string meshAssetDescriptorResourceVariantID;
 
 		public MeshOpenGLAssetImporter(
-			string resourceID,
-			string meshRAMPath,
-			string meshRAMVariantID,
+			string resourcePath,
+			string meshRAMResourcePath,
+			string meshRAMResourceVariantID,
 			ApplicationContext context)
 			: base(
 				context)
 		{
-			this.resourceID = resourceID;
+			this.resourcePath = resourcePath;
 
-			this.meshRAMPath = meshRAMPath;
 
-			this.meshRAMVariantID = meshRAMVariantID;
+			this.meshAssetDescriptorResourcePath = meshRAMResourcePath;
+
+			this.meshAssetDescriptorResourceVariantID = meshRAMResourceVariantID;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
 			context.Logger?.Log<MeshOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} INITIATED");
+				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
-					resourceID)
+					resourcePath)
 					.ThrowExceptions<IResourceData, MeshOpenGLAssetImporter>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
-					VariantID = MESH_OPENGL_VARIANT_ID,
-					VariantIDHash = MESH_OPENGL_VARIANT_ID.AddressToHash(),
-					Priority = MESH_OPENGL_PRIORITY,
+					VariantID = AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID,
+					VariantIDHash = AssetImportConstants.ASSET_3D_MODEL_OPENGL_VARIANT_ID.AddressToHash(),
+					Priority = AssetImportConstants.NORMAL_PRIORIITY,
 					Source = EResourceSources.RUNTIME_GENERATED,
 					Storage = EResourceStorages.RAM,
 					ResourceType = typeof(MeshOpenGL),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				MeshFactory.BuildConcurrentMeshOpenGLStorageHandle(
-					meshRAMPath,
-					meshRAMVariantID,
+					meshAssetDescriptorResourcePath,
+					meshAssetDescriptorResourceVariantID,
 					context),
 #else
 				MeshFactory.BuildMeshOpenGLStorageHandle(
-					meshRAMPath,
-					meshRAMVariantID,
+					meshAssetDescriptorResourcePath,
+					meshAssetDescriptorResourceVariantID,
 					context),
 #endif
 				true,
@@ -76,7 +74,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(1f);
 
 			context.Logger?.Log<MeshOpenGLAssetImporter>(
-				$"IMPORTING {resourceID} FINISHED");
+				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
 		}

@@ -12,7 +12,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 	public abstract class DefaultAssetImporterFromFile<TAsset, TDTO>
 		: AssetImporter
 	{
-		protected readonly string fullResourceID;
+		protected readonly string resourcePath;
 
 		protected readonly ISerializer serializer;
 
@@ -21,7 +21,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		protected readonly ILoadVisitorGeneric<TAsset, TDTO> visitor;
 
 		public DefaultAssetImporterFromFile(
-			string fullResourceID,
+			string resourcePath,
 			ISerializer serializer,
 			ISerializationArgument serializationArgument,
 			ILoadVisitorGeneric<TAsset, TDTO> visitor,
@@ -29,7 +29,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			: base(
 				context)
 		{
-			this.fullResourceID = fullResourceID;
+			this.resourcePath = resourcePath;
 
 			this.serializer = serializer;
 
@@ -72,7 +72,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			progress?.Report(0f);
 
 			var result = await AddAssetAsResourceVariant(
-				await GetOrCreateResourceData(fullResourceID)
+				await GetOrCreateResourceData(resourcePath)
 					.ThrowExceptions<IResourceData>(
 						GetType(),
 						context.Logger),
