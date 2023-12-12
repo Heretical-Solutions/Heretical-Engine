@@ -12,18 +12,22 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class TextureRAMAssetImporter : AssetImporter
+	public class TextureRAMAssetImporter : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
-		private readonly FilePathSettings filePathSettings;
+		private FilePathSettings filePathSettings;
 
 		public TextureRAMAssetImporter(
-			string resourcePath,
-			FilePathSettings filePathSettings,
 			ApplicationContext context)
 			: base(
 				context)
+		{
+		}
+
+		public void Initialize(
+			string resourcePath,
+			FilePathSettings filePathSettings)
 		{
 			this.resourcePath = resourcePath;
 
@@ -70,6 +74,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+			filePathSettings = null;
 		}
 	}
 }

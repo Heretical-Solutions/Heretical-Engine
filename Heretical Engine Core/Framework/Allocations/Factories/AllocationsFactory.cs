@@ -87,5 +87,20 @@ namespace HereticalSolutions.Allocations.Factories
         {
             return Activator.CreateInstance(valueType);
         }
+
+        public static T ActivatorAllocationDelegate<T>(object[] arguments)
+        {
+            return (T)Activator.CreateInstance(typeof(T), arguments);
+        }
+        
+        public static TResult ActivatorAllocationDelegate<TResult, TValue>(object[] arguments)
+        {
+            return (TResult)Activator.CreateInstance(typeof(TValue), arguments);
+        }
+        
+        public static object ActivatorAllocationDelegate(Type valueType, object[] arguments)
+        {
+            return Activator.CreateInstance(valueType, arguments);
+        }
     }
 }

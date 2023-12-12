@@ -13,21 +13,25 @@ using Silk.NET.Assimp;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class TextureAssetDescriptorAssetImporter : AssetImporter
+	public class TextureAssetDescriptorAssetImporter : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
-		private readonly string textureName;
+		private string textureName;
 
-		private readonly TextureType textureType;
+		private TextureType textureType;
 
 		public TextureAssetDescriptorAssetImporter(
-			string resourcePath,
-			string textureName,
-			TextureType textureType,
 			ApplicationContext context)
 			: base(
 				context)
+		{
+		}
+
+		public void Initialize(
+			string resourcePath,
+			string textureName,
+			TextureType textureType)
 		{
 			this.resourcePath = resourcePath;
 
@@ -80,6 +84,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+			textureName = null;
+
+			textureType = default;
 		}
 	}
 }

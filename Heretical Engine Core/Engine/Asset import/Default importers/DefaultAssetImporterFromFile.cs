@@ -10,24 +10,28 @@ using HereticalSolutions.ResourceManagement.Factories;
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
 	public abstract class DefaultAssetImporterFromFile<TAsset, TDTO>
-		: AssetImporter
+		: AAssetImporter
 	{
-		protected readonly string resourcePath;
+		protected string resourcePath;
 
-		protected readonly ISerializer serializer;
+		protected ISerializer serializer;
 
-		protected readonly ISerializationArgument serializationArgument;
+		protected ISerializationArgument serializationArgument;
 
-		protected readonly ILoadVisitorGeneric<TAsset, TDTO> visitor;
+		protected ILoadVisitorGeneric<TAsset, TDTO> visitor;
 
 		public DefaultAssetImporterFromFile(
-			string resourcePath,
-			ISerializer serializer,
-			ISerializationArgument serializationArgument,
-			ILoadVisitorGeneric<TAsset, TDTO> visitor,
 			ApplicationContext context)
 			: base(
 				context)
+		{
+		}
+
+		public void Initialize(
+			string resourcePath,
+			ISerializer serializer,
+			ISerializationArgument serializationArgument,
+			ILoadVisitorGeneric<TAsset, TDTO> visitor)
 		{
 			this.resourcePath = resourcePath;
 
@@ -62,6 +66,17 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			progress?.Report(1f);
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+			serializer = null;
+
+			serializationArgument = null;
+
+			visitor = null;
 		}
 
 		protected virtual async Task<IResourceVariantData> AddAssetAsResourceToManager(

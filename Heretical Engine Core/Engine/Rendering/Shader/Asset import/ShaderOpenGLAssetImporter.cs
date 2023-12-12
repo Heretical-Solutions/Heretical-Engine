@@ -12,24 +12,28 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class ShaderOpenGLAssetImporter : AssetImporter
+	public class ShaderOpenGLAssetImporter : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
-		private readonly ISerializer serializer;
+		private ISerializer serializer;
 
-		private readonly ISerializationArgument vertexShaderSerializationArgument;
+		private ISerializationArgument vertexShaderSerializationArgument;
 
-		private readonly ISerializationArgument fragmentShaderSerializationArgument;
+		private ISerializationArgument fragmentShaderSerializationArgument;
 
 		public ShaderOpenGLAssetImporter(
-			string resourcePath,
-			ISerializer serializer,
-			ISerializationArgument vertexShaderSerializationArgument,
-			ISerializationArgument fragmentShaderSerializationArgument,
 			ApplicationContext context)
 			: base(
 				context)
+		{
+		}
+
+		public void Initialize(
+			string resourcePath,
+			ISerializer serializer,
+			ISerializationArgument vertexShaderSerializationArgument,
+			ISerializationArgument fragmentShaderSerializationArgument)
 		{
 			this.resourcePath = resourcePath;
 
@@ -89,6 +93,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+			serializer = null;
+
+			vertexShaderSerializationArgument = null;
+
+			fragmentShaderSerializationArgument = null;
 		}
 	}
 }

@@ -9,18 +9,22 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class GeometryRAMAssetImporter : AssetImporter
+	public class GeometryRAMAssetImporter : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
-		private readonly GeometryRAM geometry;
+		private GeometryRAM geometry;
 
 		public GeometryRAMAssetImporter(
-			string resourcePath,
-			GeometryRAM geometry,
 			ApplicationContext context)
 			: base(
 				context)
+		{
+		}
+
+		public void Initialize(
+			string resourcePath,
+			GeometryRAM geometry)
 		{
 			this.resourcePath = resourcePath;
 
@@ -67,6 +71,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+			geometry = default;
 		}
 	}
 }

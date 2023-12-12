@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using HereticalSolutions.Allocations;
 
 using HereticalSolutions.Pools.Allocations;
@@ -70,17 +67,34 @@ namespace HereticalSolutions.Pools.Factories
 
             #region Allocation callbacks initialization
 
-            IAllocationCallback<T> callback = PoolsFactory.BuildCompositeCallback(
-                callbacks);
+            IAllocationCallback<T> callback = null;
+
+            if (callbacks != null)
+            {
+                callback = PoolsFactory.BuildCompositeCallback(callbacks);
+            }
 
             #endregion
 
-            INonAllocDecoratedPool<T> result = PoolsFactory.BuildResizableNonAllocPoolWithAllocationCallback(
-                valueAllocationDelegate,
-                metadataDescriptors,
-                initialAllocation,
-                additionalAllocation,
-                callback);
+            INonAllocDecoratedPool<T> result;
+
+            if (callback == null)
+            {
+                result = PoolsFactory.BuildResizableNonAllocPool(
+                    valueAllocationDelegate,
+                    metadataDescriptors,
+                    initialAllocation,
+                    additionalAllocation);
+            }
+            else
+            {
+                result = PoolsFactory.BuildResizableNonAllocPoolWithAllocationCallback(
+                    valueAllocationDelegate,
+                    metadataDescriptors,
+                    initialAllocation,
+                    additionalAllocation,
+                    callback);
+            }
 
             valueAllocationDelegate = null;
             metadataDescriptorBuilders = null;
@@ -116,17 +130,34 @@ namespace HereticalSolutions.Pools.Factories
 
             #region Allocation callbacks initialization
 
-            IAllocationCallback<T> callback = PoolsFactory.BuildCompositeCallback(
-                callbacks);
+            IAllocationCallback<T> callback = null;
+
+            if (callbacks != null)
+            {
+                callback = PoolsFactory.BuildCompositeCallback(callbacks);
+            }
 
             #endregion
 
-            INonAllocDecoratedPool<T> result = PoolsFactory.BuildSupplyAndMergePoolWithAllocationCallback(
-                valueAllocationDelegate,
-                metadataDescriptors,
-                initialAllocation,
-                additionalAllocation,
-                callback);
+            INonAllocDecoratedPool<T> result;
+
+            if (callback == null)
+            {
+                result = PoolsFactory.BuildSupplyAndMergePool(
+                    valueAllocationDelegate,
+                    metadataDescriptors,
+                    initialAllocation,
+                    additionalAllocation);
+            }
+            else
+            {
+                result = PoolsFactory.BuildSupplyAndMergePoolWithAllocationCallback(
+                    valueAllocationDelegate,
+                    metadataDescriptors,
+                    initialAllocation,
+                    additionalAllocation,
+                    callback);
+            }
 
             valueAllocationDelegate = null;
             metadataDescriptorBuilders = null;

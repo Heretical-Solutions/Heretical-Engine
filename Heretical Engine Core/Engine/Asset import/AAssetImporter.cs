@@ -7,11 +7,11 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
-	public abstract class AssetImporter
+	public abstract class AAssetImporter
 	{
 		protected readonly ApplicationContext context;
 
-		public AssetImporter(
+		public AAssetImporter(
 			ApplicationContext context)
 		{
 			this.context = context;
@@ -21,6 +21,10 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			IProgress<float> progress = null)
 		{
 			throw new NotImplementedException();
+		}
+
+		public virtual void Cleanup()
+		{
 		}
 
 		protected virtual async Task<IResourceData> GetOrCreateResourceData(

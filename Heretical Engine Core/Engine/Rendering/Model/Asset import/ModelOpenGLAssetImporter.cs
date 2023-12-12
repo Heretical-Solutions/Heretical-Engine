@@ -12,7 +12,7 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class ModelOpenGLAssetImporter : AssetImporter
+	public class ModelOpenGLAssetImporter : AAssetImporter
 	{
 
 		private readonly string resourcePath;
@@ -61,7 +61,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			progress?.Report(0.25f);
 
-			List<AssetImporter> assetImporters = new List<AssetImporter>();
+			List<AAssetImporter> assetImporters = new List<AAssetImporter>();
 
 			for (int i = 0; i < modelDTO.TextureResourcePaths.Length; i++)
 			{

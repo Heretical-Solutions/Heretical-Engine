@@ -204,7 +204,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			logger?.Log<OpenGLDrawTestCubeModule>("IMPORT STARTED");
 
-			List<AssetImporter> assetImporters = new List<AssetImporter>();
+			List<Task> assetImportTasks = new List<Task>();
 
 
 			//RAM
@@ -231,29 +231,37 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			string geometryResourcePath = "Test cube/geometry";
 
-			var geometryRAMImporter = new GeometryRAMAssetImporter(
-				geometryResourcePath,
-				new GeometryRAM
+			var importGeometryRAMTask = context.AssetImportManager.Import<GeometryRAMAssetImporter>(
+				(importer) =>
 				{
-					Vertices = vertices,
+					importer.Initialize(
+						geometryResourcePath,
+						new GeometryRAM
+						{
+							Vertices = vertices,
 
-					Indices = indices
-				},
-				context);
+							Indices = indices
+						});
+				}
+			);
 
-			assetImporters.Add(geometryRAMImporter);
+			assetImportTasks.Add(importGeometryRAMTask);
 
 			//GL
 
-			var geometryOpenGLImporter = new GeometryOpenGLAssetImporter(
-				geometryResourcePath,
-				"Default shader",
-				AssetImportConstants.ASSET_SHADER_OPENGL_VARIANT_ID,
-				geometryResourcePath,
-				AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
-				context);
+			var importGeometryOpenGLTask = context.AssetImportManager.Import<GeometryOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						geometryResourcePath,
+						"Default shader",
+						AssetImportConstants.ASSET_SHADER_OPENGL_VARIANT_ID,
+						geometryResourcePath,
+						AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID);
+				}
+			);
 
-			assetImporters.Add(geometryOpenGLImporter);
+			assetImportTasks.Add(importGeometryOpenGLTask);
 
 
 			MaterialPrototypeDescriptor materialPrototypeDescriptor = default;
@@ -266,72 +274,67 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			string materialResourcePath = "Test cube/material";
 
-			var materialPrototypeDescriptorImporter = new MaterialPrototypeDescriptorAssetImporter(
-				materialResourcePath,
-				materialPrototypeDescriptor,
-				context);
+			var importMaterialPrototypeDescriptorTask = context.AssetImportManager.Import<MaterialPrototypeDescriptorAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						materialResourcePath,
+						materialPrototypeDescriptor);
+				}
+			);
 
-			assetImporters.Add(materialPrototypeDescriptorImporter);
+			assetImportTasks.Add(importMaterialPrototypeDescriptorTask);
 
 
 			string meshResourcePath = "Test cube/mesh";
 
-			var meshPrototypeDescriptorImporter = new MeshPrototypeDescriptorAssetImporter(
-				meshResourcePath,
-				new MeshPrototypeDescriptor
+			var importMeshPrototypeDescriptorTask = context.AssetImportManager.Import<MeshPrototypeDescriptorAssetImporter>(
+				(importer) =>
 				{
-					GeometryResourcePath = geometryResourcePath,
+					importer.Initialize(
+						meshResourcePath,
+						new MeshPrototypeDescriptor
+						{
+							GeometryResourcePath = geometryResourcePath,
 
-					MaterialResourcePath = materialResourcePath
-				},
-				context);
-
-			assetImporters.Add(meshPrototypeDescriptorImporter);
-
-
-			var materialOpenGLImporter = new MaterialOpenGLAssetImporter(
-				materialResourcePath,
-				materialResourcePath,
-				AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
-				context);
-
-			assetImporters.Add(materialOpenGLImporter);
+							MaterialResourcePath = materialResourcePath
+						});
+				}
+			);
+			
+			assetImportTasks.Add(importMeshPrototypeDescriptorTask);
 
 
-			var meshOpenGLImporter = new MeshOpenGLAssetImporter(
-				meshResourcePath,
-				meshResourcePath,
-				AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
-				context);
+			var importMaterialOpenGLTask = context.AssetImportManager.Import<MaterialOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						materialResourcePath,
+						materialResourcePath,
+						AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID);
+				}
+			);
 
-			assetImporters.Add(meshOpenGLImporter);
+			assetImportTasks.Add(importMaterialOpenGLTask);
+
+
+			var importMeshOpenGLTask = context.AssetImportManager.Import<MeshOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						meshResourcePath,
+						meshResourcePath,
+						AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID);
+				}
+			);
+
+			assetImportTasks.Add(importMeshOpenGLTask);
 
 
 			//Load
 
-			List<Task> assetImportersTasks = new List<Task>();
-
-			foreach (var assetImporter in assetImporters)
-			{
-				Func<Task> load = async () =>
-					{
-						logger?.Log<OpenGLDrawTestCubeModule>($"IMPORTING {assetImporter.GetType().Name} INITIATED");
-
-						await assetImporter
-							.Import()
-							.ThrowExceptions<IResourceVariantData, OpenGLDrawTestCubeModule>(context.Logger);
-
-						logger?.Log<OpenGLDrawTestCubeModule>($"IMPORTING {assetImporter.GetType().Name} FINISHED");
-					};
-
-				assetImportersTasks.Add(load());
-
-				//assetImportersTasks.Add(assetImporter
-				//	.Import());
-			}
-
 			await Task
-				.WhenAll(assetImportersTasks)
+				.WhenAll(assetImportTasks)
 				.ThrowExceptions<OpenGLDrawTestCubeModule>(context.Logger);
 
 			meshOpenGL = context.RuntimeResourceManager

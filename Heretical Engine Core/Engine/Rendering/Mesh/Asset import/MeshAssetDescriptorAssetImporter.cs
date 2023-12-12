@@ -9,18 +9,22 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class MeshAssetDescriptorAssetImporter : AssetImporter
+	public class MeshAssetDescriptorAssetImporter : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
-		private readonly MeshAssetDescriptor descriptor;
+		private MeshAssetDescriptor descriptor;
 
 		public MeshAssetDescriptorAssetImporter(
-			string resourcePath,
-			MeshAssetDescriptor descriptor,
 			ApplicationContext context)
 			: base(
 				context)
+		{
+		}
+
+		public void Initialize(
+			string resourcePath,
+			MeshAssetDescriptor descriptor)
 		{
 			this.resourcePath = resourcePath;
 
@@ -67,6 +71,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+			descriptor = default;
 		}
 	}
 }

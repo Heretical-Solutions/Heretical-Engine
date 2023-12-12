@@ -27,26 +27,29 @@ using AssimpAPI = Silk.NET.Assimp.Assimp;
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ModelRAMAssetImporter
-		: AssetImporter
+		: AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
-		private readonly FilePathSettings filePathSettings;
+		private FilePathSettings filePathSettings;
 
-		private readonly AssimpAPI assimp;
+		private AssimpAPI assimp;
 
 		public ModelRAMAssetImporter(
-			string resourcePath,
-			FilePathSettings filePathSettings,
 			ApplicationContext context)
 			: base(
 				context)
 		{
+			assimp = AssimpAPI.GetApi();
+		}
+
+		public void Initialize(
+			string resourcePath,
+			FilePathSettings filePathSettings)
+		{
 			this.resourcePath = resourcePath;
 
 			this.filePathSettings = filePathSettings;
-
-			assimp = AssimpAPI.GetApi();
 		}
 
 		public override async Task<IResourceVariantData> Import(
@@ -70,61 +73,43 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			return result;
 		}
 
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+			filePathSettings = null;
+		}
+
 		private async Task<IResourceVariantData> ImportModel(
 			FilePathSettings filePathSettings,
 			IProgress<float> progress = null)
 		{
 			progress?.Report(0f);
 
-			List<AssetImporter> assetImporters = new List<AssetImporter>();
+			//TODO: cache
+			List<Task> assetImportTasks = new List<Task>();
 
 			var modelAssetDescriptor = ImportModelAtPath(
 				filePathSettings,
-				assetImporters);
+				assetImportTasks);
 
 			progress?.Report(0.333f);
 
 #if PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
-			int totalAssetImporters = assetImporters.Count;
-
-			List<Task> assetImportersTasks = new List<Task>();
+			int totalAssetImportTasks = assetImportTasks.Count;
 
 			List<float> assetImportProgresses = new List<float>();
 
-			foreach (var assetImporter in assetImporters)
-			{
-				IProgress<float> localImportProgress = progress.CreateLocalProgress(
-					0.333f,
-					0.666f,
-					assetImportProgresses,
-					totalAssetImporters);
-
-				assetImportersTasks.Add(assetImporter
-					.Import(
-						localImportProgress));
-					//.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger));
-			}
-
 			await Task
-				.WhenAll(assetImportersTasks)
+				.WhenAll(assetImportTasks)
 				.ThrowExceptions<ModelRAMAssetImporter>(context.Logger);
 #else
-			int totalAssetImporters = assetImporters.Count;
-
 			int current = 0;
 
-			foreach (var assetImporter in assetImporters)
+			foreach (var assetImportTask in assetImportTasks)
 			{
-				IProgress<float> localImportProgress = progress.CreateLocalProgress(
-					0.333f,
-					0.666f,
-					current,
-					totalAssetImporters);
-
-				await assetImporter
-					.Import(
-						localImportProgress)
-					.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger);
+				await assetImportTask
+					.ThrowExceptions<ModelRAMAssetImporter>(context.Logger);
 
 				current++;
 			}
@@ -169,7 +154,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private unsafe ModelAssetDescriptor ImportModelAtPath(
 			FilePathSettings filePathSettings,
-			List<AssetImporter> assetImporters)
+			List<Task> assetImportTasks)
 		{
 			ModelAssetDescriptor result = default;
 
@@ -228,6 +213,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			result.RootNode = default;
 
+			//TODO: cache
 			List<string> meshResourcesInAsset = new List<string>();
 
 			Dictionary<string, string> textureResourcesInAsset = new Dictionary<string, string>();
@@ -240,7 +226,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ref result,
 				textureResourcesInAsset,
 				materialResourcesInAsset,
-				assetImporters);
+				assetImportTasks);
 
 			ImportMeshes(
 				resourcePath,
@@ -248,7 +234,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ref result,
 				meshResourcesInAsset,
 				materialResourcesInAsset,
-				assetImporters);
+				assetImportTasks);
 
 			ImportNodeRecursive(
 				scene->MRootNode,
@@ -257,7 +243,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ref result.RootNode,
 				meshResourcesInAsset,
 				materialResourcesInAsset,
-				assetImporters);
+				assetImportTasks);
 
 			assimp.ReleaseImport(scene);
 
@@ -270,7 +256,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			ref ModelAssetDescriptor modelAssetDescriptor,
 			Dictionary<string, string> textureResourcesInAsset,
 			Dictionary<uint, string> materialResourcesInAsset,
-			List<AssetImporter> assetImporters)
+			List<Task> assetImportTasks)
 		{
 			modelAssetDescriptor.MaterialResourcePaths = new string[scene->MNumMaterials];
 
@@ -278,16 +264,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			{
 				Material* material = scene->MMaterials[i];
 
-				var materialImporter = BuildMaterialAssetImporter(
+				BuildMaterialAssetImporter(
 					resourcePath,
 					material,
 					(uint)i,
 					textureResourcesInAsset,
 					materialResourcesInAsset,
-					assetImporters,
+					assetImportTasks,
 					out string materialResourcePath);
-
-				assetImporters.Add(materialImporter);
 
 				modelAssetDescriptor.MaterialResourcePaths[i] = materialResourcePath;
 			}
@@ -302,13 +286,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		#region Material and texture asset importers
 
-		private unsafe MaterialAssetDescriptorAssetImporter BuildMaterialAssetImporter(
+		private unsafe void BuildMaterialAssetImporter(
 			string resourcePath,
 			Material* material,
 			uint materialIndex,
 			Dictionary<string, string> textureResourcesInAsset,
 			Dictionary<uint, string> materialResourcesInAsset,
-			List<AssetImporter> assetImporters,
+			List<Task> assetImportTasks,
 			out string materialResourcePath)
 		{
 			MaterialAssetDescriptor materialAssetDescriptor = default;
@@ -338,7 +322,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				TextureType.BaseColor,
 				textureResourcesInAsset,
 				textureResourcesInMaterial,
-				assetImporters);
+				assetImportTasks);
 
 			// 1. diffuse maps
 			LoadMaterialTextures(
@@ -346,7 +330,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				TextureType.Diffuse,
 				textureResourcesInAsset,
 				textureResourcesInMaterial,
-				assetImporters);
+				assetImportTasks);
 
 			// 2. specular maps
 			LoadMaterialTextures(
@@ -354,7 +338,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				TextureType.Specular,
 				textureResourcesInAsset,
 				textureResourcesInMaterial,
-				assetImporters);
+				assetImportTasks);
 
 			// 3. normal maps
 			LoadMaterialTextures(
@@ -362,7 +346,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				TextureType.Normals, //TextureType.Height,
 				textureResourcesInAsset,
 				textureResourcesInMaterial,
-				assetImporters);
+				assetImportTasks);
 
 			// 4. height maps
 			LoadMaterialTextures(
@@ -370,7 +354,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				TextureType.Ambient,
 				textureResourcesInAsset,
 				textureResourcesInMaterial,
-				assetImporters);
+				assetImportTasks);
 
 			materialAssetDescriptor.Name = materialName;
 
@@ -383,10 +367,18 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			materialResourcePath = $"{resourcePath}/{AssetImportConstants.ASSET_3D_MODEL_MATERIALS_NESTED_RESOURCE_ID}/{materialResourceName}";
 
-			return new MaterialAssetDescriptorAssetImporter(
-				materialResourcePath,
-				materialAssetDescriptor,
-				context);
+			var materialResourcePathClosure = materialResourcePath;
+
+			var importMaterialAssetDescriptorTask = context.AssetImportManager.Import<MaterialAssetDescriptorAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						materialResourcePathClosure,
+						materialAssetDescriptor);
+				}
+			);
+
+			assetImportTasks.Add(importMaterialAssetDescriptorTask);
 		}
 
 		private unsafe void GenerateMaterialResourceName(
@@ -423,7 +415,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			TextureType type,
 			Dictionary<string, string> textureResourcesInAsset,
 			List<string> textureResourcesInMaterial,
-			List<AssetImporter> assetImporters)
+			List<Task> assetImportTasks)
 		{
 			var textureCount = assimp.GetMaterialTextureCount(
 				mat,
@@ -458,34 +450,33 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				}
 				else
 				{
-					var textureRAMImporter = BuildTextureRAMAssetImporter(
+					BuildTextureRAMAssetImporter(
 						resourcePath,
 						path.AsString,
 						filePathSettings,
 						textureResourcesInAsset,
+						assetImportTasks,
 						out string textureResourceName,
 						out string textureResourcePath);
 
-					assetImporters.Add(textureRAMImporter);
 
-
-					var textureDescriptorImporter = BuildTextureDescriptorAssetImporter(
+					BuildTextureDescriptorAssetImporter(
 						textureResourcePath,
 						textureResourceName,
-						type);
-
-					assetImporters.Add(textureDescriptorImporter);
+						type,
+						assetImportTasks);
 
 					textureResourcesInMaterial.Add(textureResourceName);
 				}
 			}
 		}
 
-		private unsafe TextureRAMAssetImporter BuildTextureRAMAssetImporter(
+		private unsafe void BuildTextureRAMAssetImporter(
 			string resourcePath,
 			string textureRelativePathFromSource,
 			FilePathSettings filePathSettings,
 			Dictionary<string, string> textureResourcesInAsset,
+			List<Task> assetImportTasks,
 			out string textureResourceName,
 			out string textureResourcePath)
 		{
@@ -505,12 +496,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			textureResourcePath = $"{resourcePath}/{AssetImportConstants.ASSET_3D_MODEL_TEXTURES_NESTED_RESOURCE_ID}/{textureResourceName}";
 
-			var textureImporter = new TextureRAMAssetImporter(
-				textureResourcePath,
-				textureFilePathSettings,
-				context);
+			string textureResourcePathClosure = textureResourcePath;
 
-			return textureImporter;
+			var importTextureRAMTask = context.AssetImportManager.Import<TextureRAMAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						textureResourcePathClosure,
+						textureFilePathSettings);
+				});
+
+			assetImportTasks.Add(importTextureRAMTask);
 		}
 
 		private FilePathSettings FindTexture(
@@ -575,18 +571,23 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			}
 		}
 
-		private unsafe TextureAssetDescriptorAssetImporter BuildTextureDescriptorAssetImporter(
+		private unsafe void BuildTextureDescriptorAssetImporter(
 			string textureResourcePath,
 			string textureName,
-			TextureType textureType)
+			TextureType textureType,
+			List<Task> assetImportTasks)
 		{
-			var textureDescriptorImporter = new TextureAssetDescriptorAssetImporter(
-				textureResourcePath,
-				textureName,
-				textureType,
-				context);
+			var importTextureAssetDescriptorTask = context.AssetImportManager.Import<TextureAssetDescriptorAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						textureResourcePath,
+						textureName,
+						textureType);
+				}
+			);
 
-			return textureDescriptorImporter;
+			assetImportTasks.Add(importTextureAssetDescriptorTask);
 		}
 
 		#endregion
@@ -597,7 +598,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			ref ModelAssetDescriptor modelAssetDescriptor,
 			List<string> meshResourcesInAsset,
 			Dictionary<uint, string> materialResourcesInAsset,
-			List<AssetImporter> assetImporters)
+			List<Task> assetImportTasks)
 		{
 			modelAssetDescriptor.MeshResourcePaths = new string[scene->MNumMeshes];
 
@@ -607,16 +608,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			{
 				Mesh* mesh = scene->MMeshes[i];
 
-				var meshImporter = BuildMeshAssetImporter(
+				BuildMeshAssetImporter(
 					resourcePath,
 					mesh,
 					meshResourcesInAsset,
 					materialResourcesInAsset,
-					assetImporters,
+					assetImportTasks,
 					out string meshResourcePath,
 					out string geometryResourcePath);
-
-				assetImporters.Add(meshImporter);
 
 				modelAssetDescriptor.MeshResourcePaths[i] = meshResourcePath;
 
@@ -626,12 +625,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		#region Mesh and geometry asset importers
 
-		private unsafe MeshAssetDescriptorAssetImporter BuildMeshAssetImporter(
+		private unsafe void BuildMeshAssetImporter(
 			string resourcePath,
 			Mesh* mesh,
 			List<string> meshResourcesInAsset,
 			Dictionary<uint, string> materialResourcesInAsset,
-			List<AssetImporter> assetImporters,
+			List<Task> assetImportTasks,
 			out string meshResourcePath,
 			out string geometryResourcePath)
 		{
@@ -642,27 +641,35 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			meshResourcesInAsset.Add(meshResourceName);
 
-			var geometryImporter = BuildGeometryAssetImporter(
+			BuildGeometryAssetImporter(
 				resourcePath,
 				meshResourceName,
 				mesh,
+				assetImportTasks,
 				out geometryResourcePath);
-
-			assetImporters.Add(geometryImporter);
 
 			meshResourcePath = $"{resourcePath}/{AssetImportConstants.ASSET_3D_MODEL_MESHES_NESTED_RESOURCE_ID}/{meshResourceName}";
 
 			var materialResourcePath = $"{resourcePath}/{AssetImportConstants.ASSET_3D_MODEL_MATERIALS_NESTED_RESOURCE_ID}/{materialResourcesInAsset[mesh->MMaterialIndex]}";
 
-			return new MeshAssetDescriptorAssetImporter(
-				meshResourcePath,
-				new MeshAssetDescriptor
-				{
-					GeometryResourcePath = geometryResourcePath,
+			var meshResourcePathClosure = meshResourcePath;
 
-					MaterialResourcePath = materialResourcePath
-				},
-				context);
+			var geometryResourcePathClosure = geometryResourcePath;
+
+			var importMeshAssetDescriptorTask = context.AssetImportManager.Import<MeshAssetDescriptorAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						meshResourcePathClosure,
+						new MeshAssetDescriptor
+						{
+							GeometryResourcePath = geometryResourcePathClosure,
+
+							MaterialResourcePath = materialResourcePath
+						});
+				});
+
+			assetImportTasks.Add(importMeshAssetDescriptorTask);
 		}
 
 		private unsafe void GenerateMeshResourceName(
@@ -684,10 +691,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			}
 		}
 
-		private unsafe GeometryRAMAssetImporter BuildGeometryAssetImporter(
+		private unsafe void BuildGeometryAssetImporter(
 			string resourcePath,
 			string meshResourceName,
 			Mesh* mesh,
+			List<Task> assetImportTasks,
 			out string geometryResourcePath)
 		{
 			Vertex[] vertices;
@@ -704,15 +712,22 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			geometryResourcePath = $"{resourcePath}/{AssetImportConstants.ASSET_3D_MODEL_GEOMETRIES_NESTED_RESOURCE_ID}/{meshResourceName}";
 
-			return new GeometryRAMAssetImporter(
-				geometryResourcePath,
-				new GeometryRAM
-				{
-					Vertices = vertices,
+			var geometryResourcePathClosure = geometryResourcePath;
 
-					Indices = indices
-				},
-				context);
+			var importGeometryRAMTask = context.AssetImportManager.Import<GeometryRAMAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						geometryResourcePathClosure,
+						new GeometryRAM
+						{
+							Vertices = vertices,
+
+							Indices = indices
+						});
+				});
+
+			assetImportTasks.Add(importGeometryRAMTask);
 		}
 
 		private unsafe void ParseVertices(
@@ -902,7 +917,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			ref ModelNodeDescriptor currentNodeDescriptor,
 			List<string> meshResourcesInAsset,
 			Dictionary<uint, string> materials,
-			List<AssetImporter> assetImporters)
+			List<Task> assetImportTasks)
 		{
 			currentNodeDescriptor.Name = node->MName.AsString;
 
@@ -947,7 +962,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					ref currentNodeDescriptor.Children[i],
 					meshResourcesInAsset,
 					materials,
-					assetImporters);
+					assetImportTasks);
 			}
 		}
 	}

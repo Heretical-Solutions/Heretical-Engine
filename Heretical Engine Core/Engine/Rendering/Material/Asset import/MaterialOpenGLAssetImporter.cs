@@ -10,22 +10,26 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class MaterialOpenGLAssetImporter : AssetImporter
+	public class MaterialOpenGLAssetImporter : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
 
-		private readonly string materialPrototypeDescriptorResourcePath;
+		private string materialPrototypeDescriptorResourcePath;
 
-		private readonly string materialPrototypeDescriptorResourceVariantID;
+		private string materialPrototypeDescriptorResourceVariantID;
 
 		public MaterialOpenGLAssetImporter(
-			string resourcePath,
-			string materialPrototypeDescriptorResourcePath,
-			string materialPrototypeDescriptorResourceVariantID,
 			ApplicationContext context)
 			: base(
 				context)
+		{
+		}
+
+		public void Initialize(
+			string resourcePath,
+			string materialPrototypeDescriptorResourcePath,
+			string materialPrototypeDescriptorResourceVariantID)
 		{
 			this.resourcePath = resourcePath;
 
@@ -77,6 +81,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+
+			materialPrototypeDescriptorResourcePath = null;
+
+			materialPrototypeDescriptorResourceVariantID = null;
 		}
 	}
 }

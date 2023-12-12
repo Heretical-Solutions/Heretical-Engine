@@ -10,29 +10,33 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class MeshOpenGLAssetImporter : AssetImporter
+	public class MeshOpenGLAssetImporter : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
 
-		private readonly string meshAssetDescriptorResourcePath;
+		private string meshAssetDescriptorResourcePath;
 
-		private readonly string meshAssetDescriptorResourceVariantID;
+		private string meshAssetDescriptorResourceVariantID;
 
 		public MeshOpenGLAssetImporter(
-			string resourcePath,
-			string meshRAMResourcePath,
-			string meshRAMResourceVariantID,
 			ApplicationContext context)
 			: base(
 				context)
 		{
+		}
+
+		public void Initialize(
+			string resourcePath,
+			string meshAssetDescriptorResourcePath,
+			string meshAssetDescriptorResourceVariantID)
+		{
 			this.resourcePath = resourcePath;
 
 
-			this.meshAssetDescriptorResourcePath = meshRAMResourcePath;
+			this.meshAssetDescriptorResourcePath = meshAssetDescriptorResourcePath;
 
-			this.meshAssetDescriptorResourceVariantID = meshRAMResourceVariantID;
+			this.meshAssetDescriptorResourceVariantID = meshAssetDescriptorResourceVariantID;
 		}
 
 		public override async Task<IResourceVariantData> Import(

@@ -10,32 +10,35 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class GeometryOpenGLAssetImporter : AssetImporter
+	public class GeometryOpenGLAssetImporter : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
 
-		private readonly string shaderOpenGLResourcePath;
+		private string shaderOpenGLResourcePath;
 
-		private readonly string shaderOpenGLResourceVariantID;
+		private string shaderOpenGLResourceVariantID;
 
 
-		private readonly string geometryRAMResourcePath;
+		private string geometryRAMResourcePath;
 
-		private readonly string geometryRAMResourceVariantID;
+		private string geometryRAMResourceVariantID;
 
 		public GeometryOpenGLAssetImporter(
+			ApplicationContext context)
+			: base(
+				context)
+		{
+		}
+
+		public void Initialize(
 			string resourcePath,
 
 			string shaderOpenGLResourcePath,
 			string shaderOpenGLResourceVariantID,
 
 			string geometryRAMResourcePath,
-			string geometryRAMResourceVariantID,
-			
-			ApplicationContext context)
-			: base(
-				context)
+			string geometryRAMResourceVariantID)
 		{
 			this.resourcePath = resourcePath;
 			
@@ -96,6 +99,21 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+
+			shaderOpenGLResourcePath = null;
+
+			shaderOpenGLResourceVariantID = null;
+
+
+			geometryRAMResourcePath = null;
+
+			geometryRAMResourceVariantID = null;
 		}
 	}
 }

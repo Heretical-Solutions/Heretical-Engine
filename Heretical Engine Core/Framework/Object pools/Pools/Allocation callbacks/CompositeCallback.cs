@@ -23,8 +23,9 @@ namespace HereticalSolutions.Pools.AllocationCallbacks
         /// <param name="element">The allocated pool element.</param>
         public void OnAllocated(IPoolElement<T> element)
         {
-            foreach (var processor in callbacks)
-                processor.OnAllocated(element);
+            if (callbacks != null)
+                foreach (var processor in callbacks)
+                    processor.OnAllocated(element);
         }
     }
 }

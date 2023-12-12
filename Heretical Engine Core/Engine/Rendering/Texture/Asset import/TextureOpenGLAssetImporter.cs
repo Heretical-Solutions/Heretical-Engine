@@ -10,32 +10,35 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class TextureOpenGLAssetImporter : AssetImporter
+	public class TextureOpenGLAssetImporter : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
 
-		private readonly string textureRAMResourcePath;
+		private string textureRAMResourcePath;
 
-		private readonly string textureRAMResourceVariantID;
+		private string textureRAMResourceVariantID;
 
 
-		private readonly string textureDescriptorResourcePath;
+		private string textureDescriptorResourcePath;
 
-		private readonly string textureDescriptorResourceVariantID;
-
+		private string textureDescriptorResourceVariantID;
 
 		public TextureOpenGLAssetImporter(
+			ApplicationContext context)
+			: base(
+				context)
+		{
+		}
+
+		public void Initialize(
 			string resourcePath,
 
 			string textureRAMResourcePath,
 			string textureRAMResourceVariantID,
 			
 			string textureDescriptorResourcePath,
-			string textureDescriptorResourceVariantID,
-			ApplicationContext context)
-			: base(
-				context)
+			string textureDescriptorResourceVariantID)
 		{
 			this.resourcePath = resourcePath;
 
@@ -96,6 +99,21 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+
+			textureRAMResourcePath = null;
+
+			textureRAMResourceVariantID = null;
+
+
+			textureDescriptorResourcePath = null;
+
+			textureDescriptorResourceVariantID = null;
 		}
 	}
 }

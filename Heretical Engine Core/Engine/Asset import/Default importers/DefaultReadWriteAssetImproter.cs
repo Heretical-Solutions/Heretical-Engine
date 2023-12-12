@@ -7,28 +7,32 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
-	public class DefaultPreallocatedAssetImporter<TAsset> : AssetImporter
+	public class DefaultReadWriteAssetImporter<TAsset> : AAssetImporter
 	{
-		private readonly string resourcePath;
+		private string resourcePath;
 
-		private readonly TAsset preallocatedAsset;
+		private TAsset readWriteAsset;
 
-		public DefaultPreallocatedAssetImporter(
-			string resourcePath,
-			TAsset preallocatedAsset,
+		public DefaultReadWriteAssetImporter(
 			ApplicationContext context)
 			: base(
 				context)
 		{
+		}
+
+		public void Initialize(
+			string resourcePath,
+			TAsset readWriteAsset)
+		{
 			this.resourcePath = resourcePath;
 
-			this.preallocatedAsset = preallocatedAsset;
+			this.readWriteAsset = readWriteAsset;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			context.Logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
+			context.Logger?.Log<DefaultReadWriteAssetImporter<TAsset>>(
 				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
@@ -36,7 +40,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourcePath)
-					.ThrowExceptions<IResourceData, DefaultPreallocatedAssetImporter<TAsset>>(context.Logger),
+					.ThrowExceptions<IResourceData, DefaultReadWriteAssetImporter<TAsset>>(context.Logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = string.Empty,
@@ -47,24 +51,31 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					ResourceType = typeof(TAsset),
 				},
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<TAsset>(
-					preallocatedAsset,
+				ResourceManagementFactory.BuildConcurrentReadWriteResourceStorageHandle<TAsset>(
+					readWriteAsset,
 					context),
 #else
-				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<TAsset>(
+				ResourceManagementFactory.BuildReadWriteResourceStorageHandle<TAsset>(
 					preallocatedAsset,
 					context),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, DefaultPreallocatedAssetImporter<TAsset>>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, DefaultReadWriteAssetImporter<TAsset>>(context.Logger);
 
 			progress?.Report(1f);
 
-			context.Logger?.Log<DefaultPreallocatedAssetImporter<TAsset>>(
+			context.Logger?.Log<DefaultReadWriteAssetImporter<TAsset>>(
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
+		}
+
+		public override void Cleanup()
+		{
+			resourcePath = null;
+
+			readWriteAsset = default;
 		}
 	}
 }
