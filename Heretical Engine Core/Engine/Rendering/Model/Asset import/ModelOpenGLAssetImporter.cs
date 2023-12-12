@@ -15,11 +15,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	public class ModelOpenGLAssetImporter : AAssetImporter
 	{
 
-		private readonly string resourcePath;
+		private string resourcePath;
 
-		private readonly string modelRAMPath;
+		private string modelRAMPath;
 
-		private readonly string modelRAMVariantID;
+		private string modelRAMVariantID;
 		
 
 		public ModelOpenGLAssetImporter(

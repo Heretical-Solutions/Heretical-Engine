@@ -71,11 +71,13 @@ namespace HereticalSolutions.ResourceManagement.Factories
         /// <returns>A new instance of the <see cref="ResourceVariantData"/> class.</returns>
         public static ResourceVariantData BuildResourceVariantData(
             ResourceVariantDescriptor descriptor,
-            IReadOnlyResourceStorageHandle storageHandle)
+            IReadOnlyResourceStorageHandle storageHandle,
+            IReadOnlyResourceData resource)
         {
             return new ResourceVariantData(
                 descriptor,
-                storageHandle);
+                storageHandle,
+                resource);
         }
 
         public static PreallocatedResourceStorageHandle<TResource> BuildPreallocatedResourceStorageHandle<TResource>(

@@ -8,17 +8,14 @@ namespace HereticalSolutions
 	/// </summary>
 	public static class AddressExtensions
 	{
-		/// <summary>
-		/// Splits the address using the '/' separator.
-		/// </summary>
-		/// <param name="address">The address to split.</param>
-		/// <returns>An array of strings representing the individual parts of the address.</returns>
+		private const char ADDRESS_SEPARATOR = '/';
+
 		public static string[] SplitAddressBySeparator(this string address)
 		{
 			if (string.IsNullOrEmpty(address))
 				return new string[0];
 
-			string[] localAddresses = address.Split('/');
+			string[] localAddresses = address.Split(ADDRESS_SEPARATOR);
 
 			return localAddresses;
 		}
@@ -43,7 +40,7 @@ namespace HereticalSolutions
 			if (string.IsNullOrEmpty(address))
 				return new int[0];
 
-			string[] localAddresses = address.Split('/');
+			string[] localAddresses = address.Split(ADDRESS_SEPARATOR);
 
 			int[] result = new int[localAddresses.Length];
 
@@ -99,10 +96,22 @@ namespace HereticalSolutions
 				stringBuilder.Append(addressParts[i]);
 
 				if (i + 1 < effectiveDepth)
-					stringBuilder.Append('/');
+					stringBuilder.Append(ADDRESS_SEPARATOR);
 			}
 
 			return stringBuilder.ToString();
+		}
+
+		public static string ReplaceLast(this string address, string postfix)
+		{
+			if (string.IsNullOrEmpty(address))
+				return string.Empty;
+
+			string[] parts = address.Split(ADDRESS_SEPARATOR);
+
+			parts[parts.Length - 1] = postfix;
+
+			return string.Join(ADDRESS_SEPARATOR.ToString(), parts);
 		}
 	}
 }

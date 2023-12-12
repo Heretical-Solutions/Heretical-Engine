@@ -4,7 +4,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 {
 	public abstract class AAssetImportPostProcessor
 	{
-		public virtual async Task<IResourceVariantData> OnImport(
+		public virtual async Task OnImport(
 			IResourceVariantData variantData,
 			IProgress<float> progress = null)
 		{

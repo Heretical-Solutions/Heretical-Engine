@@ -12,5 +12,7 @@ namespace HereticalSolutions.ResourceManagement
         ResourceVariantDescriptor Descriptor { get; }
 
         IReadOnlyResourceStorageHandle StorageHandle { get; }
+
+        IReadOnlyResourceData Resource { get; }
     }
 }

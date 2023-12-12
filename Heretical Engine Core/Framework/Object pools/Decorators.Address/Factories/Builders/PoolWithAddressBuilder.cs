@@ -107,6 +107,7 @@ namespace HereticalSolutions.Pools.Factories
             {
                 CurrentAddress = addressParts.AddressAtDepth(currentNodeLevel),
 
+                //TODO: check if works correctly
                 FullAddress = addressParts.PartialAddress(currentNodeLevel),
 
                 CurrentAddressHash = targetAddressHash,

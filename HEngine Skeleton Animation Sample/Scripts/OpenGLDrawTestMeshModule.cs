@@ -224,13 +224,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var defaultShaderAssetImporter = new ShaderOpenGLAssetImporter(
-				"Default shader",
-				PersistenceFactory.BuildSimplePlainTextSerializer(),
-				defaultVertexShaderArgument,
-				defaultFragmentShaderArgument,
-				context);
-
 			var defaultShaderImportProgress = new Progress<float>();
 
 			defaultShaderImportProgress.ProgressChanged += (sender, value) =>
@@ -239,8 +232,18 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			tasks.Add(
-				defaultShaderAssetImporter.Import());
+			var importDefaultShaderTask = context.AssetImportManager.Import<ShaderOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						$"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Default shader",
+						PersistenceFactory.BuildSimplePlainTextSerializer(),
+						defaultVertexShaderArgument,
+						defaultFragmentShaderArgument);
+				}
+			);
+
+			tasks.Add(importDefaultShaderTask);
 
 			#endregion
 
@@ -262,13 +265,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var colorShaderAssetImporter = new ShaderOpenGLAssetImporter(
-				"Color shader",
-				PersistenceFactory.BuildSimplePlainTextSerializer(),
-				colorVertexShaderArgument,
-				colorFragmentShaderArgument,
-				context);
-
 			var colorShaderImportProgress = new Progress<float>();
 
 			colorShaderImportProgress.ProgressChanged += (sender, value) =>
@@ -277,8 +273,18 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			tasks.Add(
-				colorShaderAssetImporter.Import());
+			var importColorShaderTask = context.AssetImportManager.Import<ShaderOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						$"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Color shader",
+						PersistenceFactory.BuildSimplePlainTextSerializer(),
+						colorVertexShaderArgument,
+						colorFragmentShaderArgument);
+				}
+			);
+
+			tasks.Add(importColorShaderTask);
 
 			#endregion
 
@@ -300,13 +306,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var depthShaderAssetImporter = new ShaderOpenGLAssetImporter(
-				"Depth shader",
-				PersistenceFactory.BuildSimplePlainTextSerializer(),
-				depthVertexShaderArgument,
-				depthFragmentShaderArgument,
-				context);
-
 			var depthShaderImportProgress = new Progress<float>();
 
 			depthShaderImportProgress.ProgressChanged += (sender, value) =>
@@ -315,8 +314,18 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			tasks.Add(
-				depthShaderAssetImporter.Import());
+			var importDepthShaderTask = context.AssetImportManager.Import<ShaderOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						$"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Depth shader",
+						PersistenceFactory.BuildSimplePlainTextSerializer(),
+						depthVertexShaderArgument,
+						depthFragmentShaderArgument);
+				}
+			);
+
+			tasks.Add(importDepthShaderTask);
 
 			#endregion
 
@@ -338,13 +347,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var diffuseShaderAssetImporter = new ShaderOpenGLAssetImporter(
-				"Diffuse shader",
-				PersistenceFactory.BuildSimplePlainTextSerializer(),
-				diffuseVertexShaderArgument,
-				diffuseFragmentShaderArgument,
-				context);
-
 			var diffuseShaderImportProgress = new Progress<float>();
 
 			diffuseShaderImportProgress.ProgressChanged += (sender, value) =>
@@ -353,8 +355,18 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			tasks.Add(
-				diffuseShaderAssetImporter.Import());
+			var importDiffuseShaderTask = context.AssetImportManager.Import<ShaderOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						$"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Diffuse shader",
+						PersistenceFactory.BuildSimplePlainTextSerializer(),
+						diffuseVertexShaderArgument,
+						diffuseFragmentShaderArgument);
+				}
+			);
+
+			tasks.Add(importDiffuseShaderTask);
 
 			#endregion
 
@@ -376,13 +388,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var errorCheckerUVShaderAssetImporter = new ShaderOpenGLAssetImporter(
-				"Error checker UV shader",
-				PersistenceFactory.BuildSimplePlainTextSerializer(),
-				errorCheckerUVVertexShaderArgument,
-				errorCheckerUVFragmentShaderArgument,
-				context);
-
 			var errorCheckerUVShaderImportProgress = new Progress<float>();
 
 			errorCheckerUVShaderImportProgress.ProgressChanged += (sender, value) =>
@@ -391,8 +396,18 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			tasks.Add(
-				errorCheckerUVShaderAssetImporter.Import());
+			var importErrorCheckerUVShaderTask = context.AssetImportManager.Import<ShaderOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						$"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Error checker UV shader",
+						PersistenceFactory.BuildSimplePlainTextSerializer(),
+						errorCheckerUVVertexShaderArgument,
+						errorCheckerUVFragmentShaderArgument);
+				}
+			);
+
+			tasks.Add(importErrorCheckerUVShaderTask);
 
 			#endregion
 
@@ -414,13 +429,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				ApplicationDataFolder = pathToAssets
 			};
 
-			var errorCheckerScreenspaceShaderAssetImporter = new ShaderOpenGLAssetImporter(
-				"Error checker screenspace shader",
-				PersistenceFactory.BuildSimplePlainTextSerializer(),
-				errorCheckerScreenspaceVertexShaderArgument,
-				errorCheckerScreenspaceFragmentShaderArgument,
-				context);
-
 			var errorCheckerScreenspaceShaderImportProgress = new Progress<float>();
 
 			errorCheckerScreenspaceShaderImportProgress.ProgressChanged += (sender, value) =>
@@ -429,25 +437,44 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					($"SHADER IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			tasks.Add(
-				errorCheckerScreenspaceShaderAssetImporter.Import());
+			var importErrorCheckerScreenspaceShaderTask = context.AssetImportManager.Import<ShaderOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						$"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Error checker screenspace shader",
+						PersistenceFactory.BuildSimplePlainTextSerializer(),
+						errorCheckerScreenspaceVertexShaderArgument,
+						errorCheckerScreenspaceFragmentShaderArgument);
+				}
+			);
+
+			tasks.Add(importErrorCheckerScreenspaceShaderTask);
+
+			#endregion
+
+			#region Import post processors
+
+			//TODO: separate list of tasks for post processors
+			await context
+				.AssetImportManager
+				.RegisterPostProcessor<MaterialAssetDescriptorAssetImporter, CreateMaterialPrototypeDescriptorPostProcessor>(
+					new CreateMaterialPrototypeDescriptorPostProcessor(
+						$"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Error checker UV shader",
+						context));
+
+			await context
+				.AssetImportManager
+				.RegisterPostProcessor<MaterialAssetDescriptorAssetImporter, CreateMaterialPrototypeDescriptorPostProcessor>(
+					new CreateMaterialPrototypeDescriptorPostProcessor(
+					$"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Diffuse shader",
+					context));
+
 
 			#endregion
 
 			#endregion
 
 			#region Model import
-
-			var modelAssetImporter = new ModelRAMAssetImporter(
-				"Knight", //"Suzanne", //"Knight",
-				new FilePathSettings
-				{
-					RelativePath = "3D/Characters/Knight/Models/strongknight.fbx", // "3D/Characters/Suzanne/Models/suzanne_triangulated.fbx", //"3D/Characters/Knight/Models/strongknight.fbx",
-					ApplicationDataFolder = pathToAssets
-				},
-				context);
-
-			IResourceVariantData modelRAMData = null;
 
 			var modelImportProgress = new Progress<float>();
 
@@ -457,41 +484,24 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					($"MODEL IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			/*
-			modelRAMData = await modelAssetImporter
-				.Import(
-					modelImportProgress)
-				.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
+			var importModelRAMTask = context.AssetImportManager.Import<ModelRAMAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						"Knight", //"Suzanne", //"Knight",
+						new FilePathSettings
+						{
+							RelativePath = "3D/Characters/Knight/Models/strongknight.fbx", // "3D/Characters/Suzanne/Models/suzanne_triangulated.fbx", //"3D/Characters/Knight/Models/strongknight.fbx",
+							ApplicationDataFolder = pathToAssets
+						});
+				}
+			);
 
-			var modelRAMStorageHandle = modelRAMData.StorageHandle;
-			*/
-
-			Func<Task> importModelIntoRAM = async () =>
-			{
-				modelRAMData = await modelAssetImporter
-					.Import()
-					.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
-			};
-
-			tasks.Add(importModelIntoRAM());
-
-			//async delegate{ modelRAMData = await modelAssetImporter.Import(modelImportProgress).ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger); }));
+			tasks.Add(importModelRAMTask);
 
 			#endregion
 
-			/*
-			await Task
-				.WhenAll(tasks)
-				.ThrowExceptions<OpenGLDrawTestMeshModule>(logger);
-			*/
-
 			#region Model OpenGL import
-
-			var modelOpenGLAssetImporter = new ModelOpenGLAssetImporter(
-				"Knight", //"Suzanne", //"Knight",
-				"Knight",
-				AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
-				context);
 
 			var modelOpenGLImportProgress = new Progress<float>();
 
@@ -501,34 +511,28 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					($"MODEL OPENGL IMPORT PROGRESS: {(int)(value * 100f)} %");
 			};
 
-			/*
-			var modelOpenGLData = await modelOpenGLAssetImporter
-				.Import()
-				//modelOpenGLImportProgress)
-				.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
-			*/
+			var importModelOpenGLTask = context.AssetImportManager.Import<ModelOpenGLAssetImporter>(
+				(importer) =>
+				{
+					importer.Initialize(
+						"Knight", //"Suzanne", //"Knight",
+						"Knight",
+						AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID);
+				}
+			);
 
-			IResourceVariantData modelOpenGLData = null;
+			tasks.Add(importModelOpenGLTask);
 
-			Func<Task> importModelIntoGPU = async () =>
-			{
-				modelOpenGLData = await modelOpenGLAssetImporter
-					.Import()
-					//modelOpenGLImportProgress)
-					.ThrowExceptions<IResourceVariantData, OpenGLDrawTestMeshModule>(logger);
-			};
-
-			tasks.Add(importModelIntoGPU());
+			#endregion
 
 			await Task
 				.WhenAll(tasks)
 				.ThrowExceptions<OpenGLDrawTestMeshModule>(logger);
 
-			modelOpenGL = modelOpenGLData
+			modelOpenGL = importModelOpenGLTask
+				.Result
 				.StorageHandle
 				.GetResource<ModelOpenGL>();
-
-			#endregion
 
 			logger?.Log<OpenGLDrawTestMeshModule>("IMPORT FINISHED");
 		}

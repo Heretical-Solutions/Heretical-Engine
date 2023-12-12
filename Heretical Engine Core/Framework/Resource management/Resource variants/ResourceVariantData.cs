@@ -13,11 +13,14 @@ namespace HereticalSolutions.ResourceManagement
         /// <param name="storageHandle">The storage handle for the resource variant.</param>
         public ResourceVariantData(
             ResourceVariantDescriptor descriptor,
-            IReadOnlyResourceStorageHandle storageHandle)
+            IReadOnlyResourceStorageHandle storageHandle,
+            IReadOnlyResourceData resource)
         {
             Descriptor = descriptor;
             
             StorageHandle = storageHandle;
+
+            Resource = resource;
         }
         
         #region IResourceVariantData
@@ -29,7 +32,9 @@ namespace HereticalSolutions.ResourceManagement
         public ResourceVariantDescriptor Descriptor { get; private set; }
         
         public IReadOnlyResourceStorageHandle StorageHandle { get; private set; }
-        
+
+        public IReadOnlyResourceData Resource { get; private set; }
+
         #endregion
     }
 }

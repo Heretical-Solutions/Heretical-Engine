@@ -42,7 +42,9 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				{
 					ID = resourcePathParts[0],
 
-					IDHash = resourcePathParts[0].AddressToHash()
+					IDHash = resourcePathParts[0].AddressToHash(),
+
+					FullPath = resourcePathParts[0]
 				};
 
 				currentData =
@@ -79,7 +81,10 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					{
 						ID = resourcePathParts[i],
 
-						IDHash = resourcePathParts[i].AddressToHash()
+						IDHash = resourcePathParts[i].AddressToHash(),
+
+						//TODO: check if works correctly
+						FullPath = resourcePathParts.PartialAddress(i)
 					};
 
 					newCurrentData =
@@ -121,7 +126,9 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			{
 				ID = nestedResourceID,
 
-				IDHash = nestedResourceID.AddressToHash()
+				IDHash = nestedResourceID.AddressToHash(),
+
+				FullPath = $"{parentResourcePath}/{nestedResourceID}"
 			};
 
 			IReadOnlyResourceData child =
@@ -156,7 +163,8 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 			var variantData = ResourceManagementFactory.BuildResourceVariantData(
 				variantDescriptor,
-				resourceStorageHandle);
+				resourceStorageHandle,
+				resourceData);
 
 			await resourceData
 				.AddVariant(

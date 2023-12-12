@@ -14,5 +14,7 @@ namespace HereticalSolutions.ResourceManagement
         /// The hash value of the resource ID.
         /// </summary>
         public int IDHash;
+
+        public string FullPath;
     }
 }

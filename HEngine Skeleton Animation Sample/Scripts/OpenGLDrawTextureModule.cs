@@ -285,7 +285,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				{
 					importer.Initialize(
 						geometryResourcePath,
-						"Default shader",
+						$"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Default shader",
 						AssetImportConstants.ASSET_SHADER_OPENGL_VARIANT_ID,
 						geometryResourcePath,
 						AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID);
@@ -299,7 +299,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			materialPrototypeDescriptor.Name = "Quad material";
 
-			materialPrototypeDescriptor.ShaderResourcePath = "Default shader";
+			materialPrototypeDescriptor.ShaderResourcePath = $"{AssetImportConstants.ASSET_SHADER_ROOT_RESOURCE_ID}/Default shader";
 
 			materialPrototypeDescriptor.TextureResourcePaths = new string[]
 			{
