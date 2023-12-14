@@ -5,9 +5,15 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine Silk.NET Sample", "HEngine SilkNET Sample\Heretical Engine SilkNet Sample.csproj", "{E3FB0217-AA80-4D2E-8AC1-05890FC3E3C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine Android MAUI Sample", "HEngine Android MAUI Sample\Heretical Engine Android MAUI Sample.csproj", "{EACDC0F2-7F50-4A61-8000-0548650E3A32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine SilkNET OpenGL Sample", "HEngine SilkNET OpenGL Sample\Heretical Engine SilkNET OpenGL Sample.csproj", "{37EB0FB0-5D6D-493B-BD25-AFCD03ACF5D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine SilkNET Vulkan Sample", "HEngine SilkNET Vulkan Sample\Heretical Engine SilkNET Vulkan Sample.csproj", "{B356E27A-260B-4B78-97A6-751EB930BF6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine SilkNET SDL2 Sample", "HEngine SilkNET SDL2 Sample\Heretical Engine SilkNET SDL2 Sample.csproj", "{A6A32D15-1C9D-4C18-9236-DEC6A01A44D1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine Android Silk.NET Sample", "HEngine Android SilkNET Sample\Heretical Engine Android SilkNET Sample.csproj", "{81D3111A-6D1C-4AE3-843A-562169618100}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine Android MAUI Sample", "HEngine Android MAUI Sample\Heretical Engine Android MAUI Sample.csproj", "{EACDC0F2-7F50-4A61-8000-0548650E3A32}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heretical Engine Skeleton Animation Sample", "HEngine Skeleton Animation Sample\Heretical Engine Skeleton Animation Sample.csproj", "{7480DCB9-4CFF-4246-A7A0-51C3889D50B7}"
 EndProject
@@ -50,5 +56,17 @@ Global
 		{AEB6934F-F5B0-4110-9392-676E7E4020E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEB6934F-F5B0-4110-9392-676E7E4020E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEB6934F-F5B0-4110-9392-676E7E4020E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37EB0FB0-5D6D-493B-BD25-AFCD03ACF5D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37EB0FB0-5D6D-493B-BD25-AFCD03ACF5D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37EB0FB0-5D6D-493B-BD25-AFCD03ACF5D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37EB0FB0-5D6D-493B-BD25-AFCD03ACF5D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B356E27A-260B-4B78-97A6-751EB930BF6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B356E27A-260B-4B78-97A6-751EB930BF6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B356E27A-260B-4B78-97A6-751EB930BF6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B356E27A-260B-4B78-97A6-751EB930BF6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6A32D15-1C9D-4C18-9236-DEC6A01A44D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6A32D15-1C9D-4C18-9236-DEC6A01A44D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6A32D15-1C9D-4C18-9236-DEC6A01A44D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6A32D15-1C9D-4C18-9236-DEC6A01A44D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
