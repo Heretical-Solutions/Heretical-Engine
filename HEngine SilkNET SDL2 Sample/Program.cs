@@ -1,6 +1,10 @@
-﻿using Silk.NET.SDL;
+﻿using Silk.NET.Maths;
+
+using Silk.NET.SDL;
+
 using SDLWindow = Silk.NET.SDL.Window;
 using SDLRenderer = Silk.NET.SDL.Renderer;
+using SDLTexture = Silk.NET.SDL.Texture;
 using SDLEvent = Silk.NET.SDL.Event;
 
 namespace HereticalSolutions.HereticalEngine.Samples
@@ -43,6 +47,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			SDLWindow* window;
 
 			SDLRenderer* renderer;
+
+			//SDLTexture* texture;
 
 			bool running = true;
 
@@ -98,6 +104,30 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				{
 					Console.WriteLine($"There was an issue creating the renderer. {SDL.GetErrorS()}");
 				}
+
+				//Texture loading
+
+				//Hello comments section rants, my old friend. I've come to talk with you again after planting my face on another bunch
+				//of rakes hidden on my rocky path to create this GLORIOUS engine
+				//Turns out that
+				//1. A task as simple as loading a fucking texture in SDL2 is a huge pain in the ass
+				//2. There is a SEPARATE c lib for that (SDL2_image)
+				//3. Silk.NET have NOT added bindings to it (yet?)
+				//4. There is only one github repo that does c# bindings of SDL2_image but it also contains bindings to
+				//SDL2 itself, along with ANOTHER half a dozen of SEPARATE fucking libs 
+				//(https://github.com/flibitijibibo/SDL2-CS/blob/master/src/SDL2_image.cs)
+				//5. There is a nuget package with the same name that is authored by entirely different people
+				//6. Even after being imported said nuget package is not fucking working
+				//7. A tutorial (https://jsayers.dev/c-sharp-sdl-tutorial-part-1-setup/) is generously suggesting to download native
+				//libs together with the wrapper repo mentioned above, compile libs and use the wrapper code for all your SDL needs
+				//But guess what? That means I have to cross compile said library for all potential platforms and enjoy the headache
+				//of ensuring that all bindings are properly working on target devices (and they may not, especially with shared libs),
+				//the marshalling is not fucked up due to the fact that I use two different binding libs (Silk and SDL2-CS) and recompile
+				//the libs with fresh changes from the original c lib repo every time the silk is updated
+				//And here's a punchline: all of this mumbo jumbo, only to be able to use png textures in SDL2.
+				//This seems like a lot of work for a sample project and something I'd rather leave to somebody else to do. For instance,
+				//to Silk.NET creators. Otherwise I'd rather find a more simple way to load textures but that is not my priority atm
+				//TODO: implement
 			}
 
 			/// <summary>
@@ -130,6 +160,29 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				// Clears the current render surface.
 				SDL.RenderClear(renderer);
 
+				/*
+				//Let's try this first
+				SDL.RenderCopy(
+					renderer,
+					texture,
+					null,
+					null);
+
+				SDL.RenderCopy(
+					renderer,
+					texture,
+					new Rectangle<int>(
+						0,
+						0,
+						640,
+						480),
+					new Rectangle<int>(
+						0,
+						0,
+						640,
+						480));
+				*/
+
 				// Switches out the currently presented render surface with the one we just did work on.
 				SDL.RenderPresent(renderer);
 			}
@@ -139,6 +192,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			/// </summary>
 			void CleanUp()
 			{
+				//SDL.DestroyTexture(texture);
 				SDL.DestroyRenderer(renderer);
 				SDL.DestroyWindow(window);
 				SDL.Quit();
