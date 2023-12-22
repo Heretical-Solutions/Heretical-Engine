@@ -63,10 +63,7 @@ namespace HereticalSolutions.MVVM.View
             IsSetUp = true;
         }
 
-        /// <summary>
-        /// Initializes the view.
-        /// </summary>
-        public virtual void Initialize()
+        public virtual void Initialize(object[] args)
         {
             if (!IsSetUp)
             {

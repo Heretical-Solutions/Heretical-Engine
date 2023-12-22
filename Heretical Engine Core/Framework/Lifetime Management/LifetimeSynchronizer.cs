@@ -4,37 +4,17 @@ namespace HereticalSolutions.LifetimeManagement
 {
     public static class LifetimeSynchronizer
     {
-        /// <summary>
-        /// Attach target's OnInitialized to parent's OnInitialized, 
-        /// target's OnCleanedUp to parent's OnCleanedUp 
-        /// and target's TearDown to parent's OnTornDown
-        /// </summary>
-        /// <param name="target">The target lifetimable</param>
-        /// <param name="parent">The target's parent lifetimeable</param>
         public static void SyncLifetimes(
             ILifetimeable target,
-            ILifetimeable parent)
+            ILifetimeable parent,
+            object[] initializationArgs)
         {
             if (parent == null)
                 return;
-            
-            parent.OnInitialized += target.Initialize;
-            parent.OnCleanedUp += target.Cleanup;
 
-            Action desyncDelegate = null;
+            Action initializationDelegate = () => target.Initialize(initializationArgs);
 
-            // Event handler for parent's OnTornDown event
-            desyncDelegate = () =>
-            {
-                parent.OnInitialized -= target.Initialize;
-                parent.OnCleanedUp -= target.Cleanup;
-
-                parent.OnTornDown -= desyncDelegate;
-
-                target.TearDown();
-            };
-
-            parent.OnTornDown += desyncDelegate;
+            SyncLifetimes(target, parent, initializationDelegate);
         }
 
         /// <summary>
