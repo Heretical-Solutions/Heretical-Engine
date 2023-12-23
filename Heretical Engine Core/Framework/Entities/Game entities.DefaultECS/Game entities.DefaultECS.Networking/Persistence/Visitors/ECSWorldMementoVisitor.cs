@@ -16,7 +16,7 @@ namespace HereticalSolutions.GameEntities
     public class ECSWorldMementoVisitor :
         ISaveVisitorGeneric<World, ECSWorldMemento>
     {
-        private readonly IEntityManager entityManager;
+        private readonly IEntityManager<World, Entity> entityManager;
         
         
         private readonly IReadOnlyRepository<int, Type> hashToType;
@@ -45,7 +45,7 @@ namespace HereticalSolutions.GameEntities
         
 
         public ECSWorldMementoVisitor(
-            IEntityManager entityManager,
+            IEntityManager<World, Entity> entityManager,
             
             IReadOnlyRepository<int, Type> hashToType,
             IReadOnlyRepository<Type, int> typeToHash,
@@ -128,7 +128,7 @@ namespace HereticalSolutions.GameEntities
                 
                 var guid = gameEntityComponent.GUID;
 
-                var registryEntity = entityManager.GetEntity(guid);
+                var registryEntity = entityManager.GetRegistryEntity(guid);
                 
                 var registryEntityComponent = registryEntity.Get<RegistryEntityComponent>();
 

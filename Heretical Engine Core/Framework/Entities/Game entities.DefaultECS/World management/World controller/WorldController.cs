@@ -7,6 +7,7 @@ namespace HereticalSolutions.GameEntities
 {
     public class WorldController<TEntityIdentityComponent, TResolveComponent>
         : IWorldController<World, ISystem<Entity>, Entity>,
+          IPrototypeCompliantWorldController<World, Entity>,
           IGUIDCompliantWorldController<Entity>,
           IRegistryCompliantWorldController<Entity>
     {
@@ -22,7 +23,7 @@ namespace HereticalSolutions.GameEntities
 
         #endregion
 
-        private readonly IPrototypesRepository<Entity> prototypeRepository;
+        private readonly IPrototypesRepository<World, Entity> prototypeRepository;
 
         #region Systems
 
@@ -43,7 +44,7 @@ namespace HereticalSolutions.GameEntities
             Func<TEntityIdentityComponent, string> getPrototypeIDFromIdentityComponentDelegate,
             Func<string, Entity, TEntityIdentityComponent> setIdentityComponentValuesDelegate,
             Func<object, TResolveComponent> createResolveComponentDelegate,
-            IPrototypesRepository<Entity> prototypeRepository,
+            IPrototypesRepository<World, Entity> prototypeRepository,
             IFormatLogger logger)
         {
             World = world;
@@ -85,9 +86,6 @@ namespace HereticalSolutions.GameEntities
         public World World { get; private set; }
 
 
-        public IPrototypesRepository<Entity> PrototypeRepository { get; }
-
-
         //Entity systems
         public ISystem<Entity> EntityResolveSystems { get => resolveSystems; }
 
@@ -96,16 +94,10 @@ namespace HereticalSolutions.GameEntities
         public ISystem<Entity> EntityDeinitializationSystems { get => deinitializationSystems; }
 
 
-        public bool TrySpawnEntityFromPrototype(
-            string prototypeID,
+        public bool TrySpawnEntity(
             out Entity entity)
         {
-            if (!TrySpawnEntity(
-                prototypeID,
-                out entity))
-            {
-                return false;
-            }
+            entity = World.CreateEntity();
 
             //Process freshly spawned entity with initialization systems
             initializationSystems?.Update(entity);
@@ -113,17 +105,11 @@ namespace HereticalSolutions.GameEntities
             return true;
         }
 
-        public bool TrySpawnAndResolveEntityFromPrototype(
-            string prototypeID,
+        public bool TrySpawnAndResolveEntity(
             object source,
             out Entity entity)
         {
-            if (!TrySpawnEntity(
-                prototypeID,
-                out entity))
-            {
-                return false;
-            }
+            entity = World.CreateEntity();
 
             //Mark entity as in need of resolving and provide a source as a payload to the component
             entity.Set<TResolveComponent>(
@@ -159,6 +145,57 @@ namespace HereticalSolutions.GameEntities
 
             //Process the entity on its way to be despawned with deinitialization systems
             deinitializationSystems?.Update(entity);
+        }
+
+        #endregion
+
+        #region IPrototypeCompliantWorldController
+
+        public IPrototypesRepository<World, Entity> PrototypeRepository { get => prototypeRepository; }
+
+        public bool TrySpawnEntityFromPrototype(
+            string prototypeID,
+            out Entity entity)
+        {
+            if (!TryClonePrototypeEntityToWorld(
+                prototypeID,
+                out entity))
+            {
+                return false;
+            }
+
+            //Process freshly spawned entity with initialization systems
+            initializationSystems?.Update(entity);
+
+            return true;
+        }
+
+        public bool TrySpawnAndResolveEntityFromPrototype(
+            string prototypeID,
+            object source,
+            out Entity entity)
+        {
+            if (!TryClonePrototypeEntityToWorld(
+                prototypeID,
+                out entity))
+            {
+                return false;
+            }
+
+            //Mark entity as in need of resolving and provide a source as a payload to the component
+            entity.Set<TResolveComponent>(
+                createResolveComponentDelegate.Invoke(source));
+
+            //Process freshly spawned entity with resolve systems
+            resolveSystems?.Update(entity);
+
+            //Don't need it anymore. Bye!
+            entity.Remove<TResolveComponent>();
+
+            //Process freshly resolved entity with initialization systems
+            initializationSystems?.Update(entity);
+
+            return true;
         }
 
         #endregion
@@ -454,7 +491,7 @@ namespace HereticalSolutions.GameEntities
 
         #endregion
 
-        private bool TrySpawnEntity(
+        private bool TryClonePrototypeEntityToWorld(
             string prototypeID,
             out Entity entity)
         {

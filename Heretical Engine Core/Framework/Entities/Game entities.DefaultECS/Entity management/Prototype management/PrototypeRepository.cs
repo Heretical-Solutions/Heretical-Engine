@@ -1,21 +1,28 @@
 using HereticalSolutions.Repositories;
 
+using World = DefaultEcs.World;
+
 using Entity = DefaultEcs.Entity;
 
 namespace HereticalSolutions.GameEntities
 {
 	public class PrototypesRepository
-		: IPrototypesRepository<Entity>
+		: IPrototypesRepository<World, Entity>
 	{
 		private readonly IRepository<string, Entity> prototypesRepository;
 
 		public PrototypesRepository(
+			World prototypeWorld,
 			IRepository<string, Entity> prototypesRepository)
 		{
+			PrototypeWorld = prototypeWorld;
+
 			this.prototypesRepository = prototypesRepository;
 		}
 
 		#region IPrototypesRepository
+
+		public World PrototypeWorld { get; private set; }
 
 		public bool HasPrototype(string prototypeID)
 		{
@@ -31,13 +38,22 @@ namespace HereticalSolutions.GameEntities
 				out prototypeEntity);
 		}
 
-		public void AddPrototype(
+		public bool TryAllocatePrototype(
 			string prototypeID,
-			Entity prototypeEntity)
+			out Entity prototypeEntity)
 		{
-			prototypesRepository.TryAdd(
+			prototypeEntity = PrototypeWorld.CreateEntity();
+
+			if (!prototypesRepository.TryAdd(
 				prototypeID,
-				prototypeEntity);
+				prototypeEntity))
+			{
+				prototypeEntity.Dispose();
+
+				return false;
+			}
+
+			return true;
 		}
 
 		public void RemovePrototype(string prototypeID)

@@ -19,6 +19,7 @@ namespace HereticalSolutions.GameEntities
 
         private readonly IReadOnlyEntityWorldsRepository<World, ISystem<Entity>, Entity> entityWorldsRepository;
 
+        //TODO: ensure that it's what this class needs
         private readonly IReadOnlyList<World> childEntityWorlds;
 
         private readonly IFormatLogger logger;
@@ -117,7 +118,8 @@ namespace HereticalSolutions.GameEntities
             string prototypeID,
             string worldID)
         {
-            var worldController = entityWorldsRepository.GetWorldController(worldID);
+            var worldController = (IPrototypeCompliantWorldController<World, Entity>)
+                entityWorldsRepository.GetWorldController(worldID);
 
             if (worldController == null)
                 return default;
@@ -133,7 +135,8 @@ namespace HereticalSolutions.GameEntities
             string prototypeID,
             World world)
         {
-            var worldController = entityWorldsRepository.GetWorldController(world);
+            var worldController = (IPrototypeCompliantWorldController<World, Entity>)
+                entityWorldsRepository.GetWorldController(world);
 
             if (worldController == null)
                 return default;
@@ -183,7 +186,8 @@ namespace HereticalSolutions.GameEntities
             object source,
             string worldID)
         {
-            var worldController = entityWorldsRepository.GetWorldController(worldID);
+            var worldController = (IPrototypeCompliantWorldController<World, Entity>)
+                entityWorldsRepository.GetWorldController(worldID);
 
             if (worldController == null)
                 return default;
@@ -201,7 +205,8 @@ namespace HereticalSolutions.GameEntities
             object source,
             World world)
         {
-            var worldController = entityWorldsRepository.GetWorldController(world);
+            var worldController = (IPrototypeCompliantWorldController<World, Entity>)
+                entityWorldsRepository.GetWorldController(world);
 
             if (worldController == null)
                 return default;

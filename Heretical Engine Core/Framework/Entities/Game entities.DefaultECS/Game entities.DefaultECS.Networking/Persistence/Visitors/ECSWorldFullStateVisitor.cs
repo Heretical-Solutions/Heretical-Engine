@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-
-using DefaultEcs;
-
 using HereticalSolutions.Logging;
 
 using HereticalSolutions.Persistence;
 
 using HereticalSolutions.Repositories;
+
+using DefaultEcs;
 
 namespace HereticalSolutions.GameEntities
 {
@@ -18,7 +15,7 @@ namespace HereticalSolutions.GameEntities
         ISaveVisitorGeneric<World, ECSWorldDTO>,
         ISaveVisitor
     {
-        private readonly IEntityManager entityManager;
+        private readonly IEntityManager<World, Entity> entityManager;
         
         private readonly IReadOnlyRepository<int, Type> hashToType;
         
@@ -45,7 +42,7 @@ namespace HereticalSolutions.GameEntities
         /// <param name="componentReaders">The array of delegates used to read component data.</param>
         /// <param name="componentWriters">The repository that maps types to delegates used to write component data.</param>
         public ECSWorldFullStateVisitor(
-            IEntityManager entityManager,
+            IEntityManager<World, Entity> entityManager,
             IReadOnlyRepository<int, Type> hashToType,
             IReadOnlyRepository<Type, int> typeToHash,
             VisitorReadComponentDelegate[] componentReaders,
@@ -120,7 +117,7 @@ namespace HereticalSolutions.GameEntities
                 
                 var guid = gameEntityComponent.GUID;
                 
-                var registryEntity = entityManager.GetEntity(guid);
+                var registryEntity = entityManager.GetRegistryEntity(guid);
                 
                 var registryEntityComponent = registryEntity.Get<RegistryEntityComponent>();
 

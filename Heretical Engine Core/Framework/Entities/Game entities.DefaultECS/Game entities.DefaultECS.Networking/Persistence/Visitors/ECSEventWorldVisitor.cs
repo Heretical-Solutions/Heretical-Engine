@@ -1,10 +1,10 @@
-using DefaultEcs;
-
 using HereticalSolutions.Logging;
 
 using HereticalSolutions.Persistence;
 
 using HereticalSolutions.Repositories;
+
+using DefaultEcs;
 
 namespace HereticalSolutions.GameEntities
 {
@@ -14,8 +14,10 @@ namespace HereticalSolutions.GameEntities
         ISaveVisitorGeneric<World, ECSEventsBufferDTO>,
         ISaveVisitor
     {
-        private readonly IEntityManager entityManager;
+        private readonly IEntityManager<World, Entity> entityManager;
         
+        private readonly IEventEntityBuilder<Entity> eventEntityBuilder;
+
         private readonly IReadOnlyRepository<int, Type> hashToType;
         
         private readonly IReadOnlyRepository<Type, int> typeToHash;
@@ -38,7 +40,8 @@ namespace HereticalSolutions.GameEntities
         
 
         public ECSEventWorldVisitor(
-            IEntityManager entityManager,
+            IEntityManager<World, Entity> entityManager,
+            IEventEntityBuilder<Entity> eventEntityBuilder,
             IReadOnlyRepository<int, Type> hashToType,
             IReadOnlyRepository<Type, int> typeToHash,
             VisitorReadComponentDelegate[] componentReaders,
@@ -47,6 +50,8 @@ namespace HereticalSolutions.GameEntities
             IFormatLogger logger)
         {
             this.entityManager = entityManager;
+
+            this.eventEntityBuilder = eventEntityBuilder;
             
             this.hashToType = hashToType;
             
@@ -109,7 +114,7 @@ namespace HereticalSolutions.GameEntities
         private void ParseEventEntity(
             ECSEventEntityDTO eventEntityDTO)
         {
-            entityManager.EventEntityBuilder.NewEvent(out var eventEntity);
+            eventEntityBuilder.NewEvent(out var eventEntity);
 
             for (int i = 0; i < eventEntityDTO.Components.Length; i++)
             {

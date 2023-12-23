@@ -2,12 +2,7 @@
 {
     public interface IWorldController<TWorld, TSystem, TEntity>
     {
-        //World
         TWorld World { get; }
-
-
-        //Prototypes
-        IPrototypesRepository<TEntity> PrototypeRepository { get; }
 
 
         //Entity systems
@@ -18,12 +13,10 @@
         TSystem EntityDeinitializationSystems { get; }
 
 
-        bool TrySpawnEntityFromPrototype(
-            string prototypeID,
+        bool TrySpawnEntity(
             out TEntity entity);
 
-        bool TrySpawnAndResolveEntityFromPrototype(
-            string prototypeID,
+        bool TrySpawnAndResolveEntity(
             object source,
             out TEntity entity);
 

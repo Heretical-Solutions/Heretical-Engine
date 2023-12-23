@@ -1,16 +1,18 @@
 namespace HereticalSolutions.GameEntities
 {
-    public interface IPrototypesRepository<TEntity>
+    public interface IPrototypesRepository<TWorld, TEntity>
     {
+        TWorld PrototypeWorld { get; }
+
         bool HasPrototype(string prototypeID);
 
         bool TryGetPrototype(
             string prototypeID,
             out TEntity prototypeEntity);
 
-        void AddPrototype(
+        bool TryAllocatePrototype(
             string prototypeID,
-            TEntity prototypeEntity);
+            out TEntity prototypeEntity);
 
         void RemovePrototype(string prototypeID);
     }
