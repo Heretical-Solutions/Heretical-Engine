@@ -66,7 +66,7 @@ namespace HereticalSolutions.GameEntities.Factories
 					logger));
 
 			entityWorldsRepository.AddWorld(
-				NetworkingWorldConstants.NETWORKING_SERVER_DATA_WORLD_ID,
+				NetworkWorldConstants.NETWORKING_SERVER_DATA_WORLD_ID,
 				EntitiesFactory.BuildWorldController<ServerDataEntityComponent, ResolveServerDataComponent>(
 					(component) => { return component.ServerDataEntity; },
 					(component) => { return component.PrototypeID; },
@@ -83,7 +83,7 @@ namespace HereticalSolutions.GameEntities.Factories
 					logger));
 
 			entityWorldsRepository.AddWorld(
-				NetworkingWorldConstants.NETWORKING_PREDICTION_WORLD_ID,
+				NetworkWorldConstants.NETWORKING_PREDICTION_WORLD_ID,
 				EntitiesFactory.BuildWorldController<PredictionEntityComponent, ResolvePredictionComponent>(
 					(component) => { return component.PredictionEntity; },
 					(component) => { return component.PrototypeID; },
@@ -103,14 +103,20 @@ namespace HereticalSolutions.GameEntities.Factories
 
 			childEntityWorlds.Add(entityWorldsRepository.GetWorld(WorldConstants.SIMULATION_WORLD_ID));
 			childEntityWorlds.Add(entityWorldsRepository.GetWorld(WorldConstants.VIEW_WORLD_ID));
-			childEntityWorlds.Add(entityWorldsRepository.GetWorld(NetworkingWorldConstants.NETWORKING_SERVER_DATA_WORLD_ID));
-			childEntityWorlds.Add(entityWorldsRepository.GetWorld(NetworkingWorldConstants.NETWORKING_PREDICTION_WORLD_ID));
+			childEntityWorlds.Add(entityWorldsRepository.GetWorld(NetworkWorldConstants.NETWORKING_SERVER_DATA_WORLD_ID));
+			childEntityWorlds.Add(entityWorldsRepository.GetWorld(NetworkWorldConstants.NETWORKING_PREDICTION_WORLD_ID));
 
 			return new EntityManager(
 				registryEntityRepository,
 				entityWorldsRepository,
 				childEntityWorlds,
 				logger);
+		}
+
+		public static NetworkEventEntityBuilder BuildEventEntityBuilder(
+			World world)
+		{
+			return new NetworkEventEntityBuilder(world);
 		}
 
 		/// <summary>

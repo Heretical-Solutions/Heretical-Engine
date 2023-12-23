@@ -171,6 +171,12 @@ namespace HereticalSolutions.GameEntities.Factories
                 logger);
         }
 
+        public static EventEntityBuilder BuildEventEntityBuilder(
+            World world)
+        {
+            return new EventEntityBuilder(world);
+        }
+
         /// <summary>
         /// Builds a list of component types with the specified attribute.
         /// </summary>
