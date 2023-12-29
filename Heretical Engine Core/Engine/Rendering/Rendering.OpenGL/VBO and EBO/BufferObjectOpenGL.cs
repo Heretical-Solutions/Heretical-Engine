@@ -2,38 +2,33 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class BufferObjectOpenGL<TValue>
+	public struct BufferObjectOpenGL<TValue>
 		where TValue : unmanaged
 	{
-		private uint handle;
+		public uint Handle;
 
-		public uint Handle => handle;
+		public int Length;
 
-		private int length;
-
-		public int Length => length;
-
-		private BufferTargetARB bufferType;
-
-		public BufferTargetARB BufferType => bufferType;
+		public BufferTargetARB BufferType;
 
 		public unsafe BufferObjectOpenGL(
 			uint handle,
+			int length,
 			BufferTargetARB bufferType)
 		{
-			this.handle = handle;
+			Handle = handle;
 
-			this.bufferType = bufferType;
+			Length = length;
 
-			length = 0;
+			BufferType = bufferType;
 		}
 
 		public void Bind(
 			GL gl)
 		{
 			gl.BindBuffer(
-				bufferType,
-				handle);
+				BufferType,
+				Handle);
 		}
 
 		public unsafe void Update(
@@ -45,12 +40,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			fixed (void* dataPointer = data)
 			{
 				gl.BufferData(
-					bufferType,
+					BufferType,
 					(nuint)(data.Length * sizeof(TValue)),
 					dataPointer,
 					BufferUsageARB.StaticDraw);
 
-				length = data.Length;
+				Length = data.Length;
 			}
 		}
 
@@ -58,25 +53,27 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			GL gl,
 			TValue[] data)
 		{
-			Console.WriteLine($"Updating buffer {handle} with {data.Length} elements of type {typeof(TValue).Name}. Element size: {sizeof(TValue)} Total size: {((nuint)(data.Length * sizeof(TValue))).ToString()}");
+			/*
+			Console.WriteLine($"Updating buffer {Handle} with {data.Length} elements of type {typeof(TValue).Name}. Element size: {sizeof(TValue)} Total size: {((nuint)(data.Length * sizeof(TValue))).ToString()}");
+			*/
 
 			fixed (void* dataPointer = &data[0])
 			{
 
 				gl.BufferData(
-					bufferType,
+					BufferType,
 					(nuint)(data.Length * sizeof(TValue)),
 					dataPointer,
 					BufferUsageARB.StaticDraw);
 
-				length = data.Length;
+				Length = data.Length;
 			}
 		}
 
 		public void Dispose(
 			GL gl)
 		{
-			gl.DeleteBuffer(handle);
+			gl.DeleteBuffer(Handle);
 		}
 	}
 }

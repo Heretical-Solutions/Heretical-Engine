@@ -1,0 +1,68 @@
+{
+  "PrototypeID": "Camera",
+  "Components": [
+    {
+      "$type": "HereticalSolutions.GameEntities.HierarchyComponent, Heretical Engine Core",
+      "Parent": {
+        "World": null,
+        "IsAlive": false
+      },
+      "ChildrenListID": -1
+    },
+    {
+      "$type": "HereticalSolutions.HereticalEngine.GameEntities.TransformComponent, Heretical Engine Core",
+      "Transform": {
+        "Position": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 3.0
+        },
+        "Rotation": {
+          "X": 0.0,
+          "Y": -1.5707964,
+          "Z": 0.0,
+          "W": 0.0
+        },
+        "Scale": {
+          "X": 1.0,
+          "Y": 1.0,
+          "Z": 1.0
+        }
+      }
+    },
+    {
+      "$type": "HereticalSolutions.HereticalEngine.GameEntities.WorldTransformComponent, Heretical Engine Core",
+      "Transform": {
+        "Position": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Z": 3.0
+        },
+        "Rotation": {
+          "X": 0.0,
+          "Y": -1.5707964,
+          "Z": 0.0,
+          "W": 0.0
+        },
+        "Scale": {
+          "X": 1.0,
+          "Y": 1.0,
+          "Z": 1.0
+        }
+      }
+    },
+    {
+      "$type": "HereticalSolutions.HereticalEngine.Rendering.CameraComponent, Heretical Engine Core",
+      "Camera": {
+        "FOV": 0.7853982,
+        "AspectRatio": 1.7777778,
+        "NearPlane": 0.1,
+        "FarPlane": 1000.0
+      }
+    },
+    {
+      "$type": "HereticalSolutions.HereticalEngine.Rendering.CameraPoseComponent, Heretical Engine Core",
+      "Pose": {}
+    }
+  ]
+}

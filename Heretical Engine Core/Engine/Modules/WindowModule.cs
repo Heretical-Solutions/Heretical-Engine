@@ -8,6 +8,8 @@ using Silk.NET.Windowing;
 
 using Silk.NET.Input;
 
+using Autofac;
+
 namespace HereticalSolutions.HereticalEngine.Modules
 {
 	public class WindowModule
@@ -19,6 +21,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		public const string PRIMARY_KEYBOARD_RESOURCE_PATH = "Application/Primary keyboard";
 
+		private readonly ContainerBuilder iocBuilder = null;
+
 		private IWindow window = null;
 
 		private IKeyboard primaryKeyboard = null;
@@ -27,9 +31,17 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		private IFormatLogger logger = null;
 
+		public WindowModule(
+			ContainerBuilder iocBuilder)
+		{
+			this.iocBuilder = iocBuilder;
+		}
+
 		#region ICoreModule
 
 		#region IModule
+
+		public string Name => "Window module";
 
 		#region IGenericLifetimeable<ApplicationContext>
 
@@ -101,9 +113,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 
 			var windowImporter = new DefaultPreallocatedAssetImporter<IWindow>(
-				WINDOW_RESOURCE_PATH,
-				window,
 				context);
+
+			windowImporter.Initialize(
+				WINDOW_RESOURCE_PATH,
+				window);
 
 			var task = windowImporter.Import();
 
@@ -154,9 +168,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 
 			var inputContextImporter = new DefaultPreallocatedAssetImporter<IInputContext>(
-				INPUT_CONTEXT_RESOURCE_PATH,
-				inputContext,
 				context);
+
+			inputContextImporter.Initialize(
+				INPUT_CONTEXT_RESOURCE_PATH,
+				inputContext);
 
 			var task = inputContextImporter.Import();
 
@@ -164,9 +180,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 
 			var primaryKeyboardImporter = new DefaultPreallocatedAssetImporter<IKeyboard>(
-				PRIMARY_KEYBOARD_RESOURCE_PATH,
-				primaryKeyboard,
 				context);
+
+			primaryKeyboardImporter.Initialize(
+				PRIMARY_KEYBOARD_RESOURCE_PATH,
+				primaryKeyboard);
 
 			task = primaryKeyboardImporter.Import();
 

@@ -12,9 +12,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		//and https://www.puredevsoftware.com/blog/2018/03/17/texture-coordinates-d3d-vs-opengl/
 		private const bool FLIP_TEXTURE_VERTICALLY = true;
 
-		private uint handle;
-
-		public uint Handle { get => handle; }
+		public uint Handle;
 
 		public TextureType Type { get; private set; }
 
@@ -22,7 +20,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			uint handle,
 			TextureType type = TextureType.None)
 		{
-			this.handle = handle;
+			Handle = handle;
 
 			Type = type;
 		}
@@ -35,7 +33,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			gl.BindTexture(
 				TextureTarget.Texture2D,
-				handle);
+				Handle);
 		}
 
 		public unsafe void Update(

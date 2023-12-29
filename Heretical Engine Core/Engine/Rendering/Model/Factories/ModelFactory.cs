@@ -2,6 +2,8 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
+	#if FIXME
+
 	public static class ModelFactory
 	{
 		public static ModelOpenGLStorageHandle BuildModelOpenGLStorageHandle(
@@ -27,4 +29,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				context);
 		}
 	}
+
+	#endif
 }

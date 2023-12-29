@@ -10,6 +10,8 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
+	#if FIXME
+
 	public class GeometryOpenGLAssetImporter : AAssetImporter
 	{
 		private string resourcePath;
@@ -116,4 +118,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			geometryRAMResourceVariantID = null;
 		}
 	}
+
+	#endif
 }

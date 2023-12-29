@@ -9,8 +9,6 @@ using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Application;
 
-using HereticalSolutions.Logging;
-
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
 	public class AssetImportManager
@@ -36,21 +34,16 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 		private readonly IRepository<Type, INonAllocDecoratedPool<AAssetImporter>> importerPoolRepository;
 
-		private readonly IFormatLogger logger;
-
 		public AssetImportManager(
 			ApplicationContext context,
 			IRepository<Type, List<AAssetImportPostProcessor>> postProcessorRepository,
-			IRepository<Type, INonAllocDecoratedPool<AAssetImporter>> importerPoolRepository,
-			IFormatLogger logger)
+			IRepository<Type, INonAllocDecoratedPool<AAssetImporter>> importerPoolRepository)
 		{
 			this.context = context;
 
 			this.postProcessorRepository = postProcessorRepository;
 
 			this.importerPoolRepository = importerPoolRepository;
-
-			this.logger = logger;
 		}
 
 		#region IAssetImportManager
@@ -60,7 +53,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			IProgress<float> progress = null)
 			where TImporter : AAssetImporter
 		{
-			logger?.Log<AssetImportManager>($"IMPORTING {typeof(TImporter).Name} INITIATED");
+			context.Logger?.Log<AssetImportManager>($"IMPORTING {typeof(TImporter).Name} INITIATED");
 
 			var pooledImporter = PopImporterSync<TImporter>();
 
@@ -95,7 +88,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 			pooledImporter.Push();
 
-			logger?.Log<AssetImportManager>($"IMPORTING {typeof(TImporter).Name} FINISHED");
+			context.Logger?.Log<AssetImportManager>($"IMPORTING {typeof(TImporter).Name} FINISHED");
 
 			return result;
 		}

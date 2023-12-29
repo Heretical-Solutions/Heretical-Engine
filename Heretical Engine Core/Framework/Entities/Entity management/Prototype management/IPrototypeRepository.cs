@@ -15,5 +15,7 @@ namespace HereticalSolutions.GameEntities
             out TEntity prototypeEntity);
 
         void RemovePrototype(string prototypeID);
+
+        IEnumerable<string> AllPrototypeIDs { get; }
     }
 }

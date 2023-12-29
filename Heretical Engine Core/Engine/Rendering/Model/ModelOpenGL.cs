@@ -3,6 +3,8 @@
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
+	#if FIXME
+
 	public class ModelOpenGL
 	{
 		public MeshOpenGL[] Meshes { get; private set; }
@@ -33,4 +35,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			RootNode = rootNode;
 		}
 	}
+
+	#endif
 }

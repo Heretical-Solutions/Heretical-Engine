@@ -7,6 +7,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	public interface IModule
 		: IGenericLifetimeable<ApplicationContext>
 	{
+		string Name { get; }
+
 		void Update(
 			ApplicationContext context,
 			float timeDelta);

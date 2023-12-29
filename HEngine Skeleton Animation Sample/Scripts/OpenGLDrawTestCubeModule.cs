@@ -4,8 +4,6 @@ using HereticalSolutions.HereticalEngine.Application;
 
 using HereticalSolutions.HereticalEngine.Rendering;
 
-using HereticalSolutions.HereticalEngine.Scenes;
-
 using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.Logging;
@@ -16,6 +14,8 @@ using Silk.NET.Maths;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
+	#if FIXME
+
 	public class OpenGLDrawTestCubeModule
 		: IModule
 	{
@@ -363,7 +363,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			if (meshOpenGL == null)
 				return;
 
-			var camera = cameraStorageHandle.GetResource<Camera>();
+			var camera = cameraStorageHandle.GetResource<CameraPose>();
 
 			var modelMatrix = Matrix4X4<float>.Identity;
 
@@ -420,4 +420,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		#endregion
 	}
+
+	#endif
 }

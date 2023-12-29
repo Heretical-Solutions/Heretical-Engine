@@ -61,6 +61,8 @@ namespace HereticalSolutions.GameEntities
 			prototypesRepository.Remove(prototypeID);
 		}
 
+		public IEnumerable<string> AllPrototypeIDs { get => prototypesRepository.Keys; }
+
 		#endregion
 	}
 }

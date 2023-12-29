@@ -9,8 +9,6 @@ using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Application;
 
-using HereticalSolutions.Logging;
-
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
 	public class ConcurrentAssetImportManager
@@ -40,15 +38,12 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 		private readonly SemaphoreSlim postProcessorsSemaphore;
 
-		private readonly IFormatLogger logger;
-
 		public ConcurrentAssetImportManager(
 			ApplicationContext context,
 			IRepository<Type, List<AAssetImportPostProcessor>> postProcessorRepository,
 			IRepository<Type, INonAllocDecoratedPool<AAssetImporter>> importerPoolRepository,
 			SemaphoreSlim importerPoolSemaphore,
-			SemaphoreSlim postProcessorsSemaphore,
-			IFormatLogger logger)
+			SemaphoreSlim postProcessorsSemaphore)
 		{
 			this.context = context;
 
@@ -59,8 +54,6 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			this.importerPoolSemaphore = importerPoolSemaphore;
 
 			this.postProcessorsSemaphore = postProcessorsSemaphore;
-
-			this.logger = logger;
 		}
 
 		#region IAssetImportManager
@@ -70,7 +63,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			IProgress<float> progress = null)
 			where TImporter : AAssetImporter
 		{
-			logger?.Log<ConcurrentAssetImportManager>($"IMPORTING {typeof(TImporter).Name} INITIATED");
+			context.Logger?.Log<ConcurrentAssetImportManager>($"IMPORTING {typeof(TImporter).Name} INITIATED");
 
 			var importer = await PopImporter<TImporter>()
 				.ThrowExceptions< IPoolElement<AAssetImporter>, AssetImportManager>(
@@ -121,7 +114,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 			await PushImporter(importer);
 
-			logger?.Log<ConcurrentAssetImportManager>($"IMPORTING {typeof(TImporter).Name} FINISHED");
+			context.Logger?.Log<ConcurrentAssetImportManager>($"IMPORTING {typeof(TImporter).Name} FINISHED");
 
 			return result;
 		}

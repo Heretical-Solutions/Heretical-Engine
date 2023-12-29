@@ -1,5 +1,5 @@
-using System;
 using HereticalSolutions.Persistence;
+
 using HereticalSolutions.Time.Factories;
 
 namespace HereticalSolutions.Time.Visitors

@@ -1,4 +1,3 @@
-using System;
 using HereticalSolutions.Persistence;
 
 using HereticalSolutions.Time.Factories;
@@ -8,7 +7,11 @@ namespace HereticalSolutions.Time.Visitors
     /// <summary>
     /// Visitor for loading and saving runtime timers.
     /// </summary>
-    public class RuntimeTimerVisitor : ILoadVisitorGeneric<IRuntimeTimer, RuntimeTimerDTO>, ILoadVisitor, ISaveVisitorGeneric<IRuntimeTimer, RuntimeTimerDTO>, ISaveVisitor
+    public class RuntimeTimerVisitor
+        : ILoadVisitorGeneric<IRuntimeTimer, RuntimeTimerDTO>,
+          ILoadVisitor,
+          ISaveVisitorGeneric<IRuntimeTimer, RuntimeTimerDTO>,
+          ISaveVisitor
     {
         #region ILoadVisitorGeneric
 

@@ -7,7 +7,6 @@ using HereticalSolutions.HereticalEngine.Messaging;
 using HereticalSolutions.HereticalEngine.Modules;
 
 using HereticalSolutions.Logging;
-using HereticalSolutions.HereticalEngine.AssetImport;
 
 namespace HereticalSolutions.HereticalEngine.Application
 {
@@ -16,23 +15,22 @@ namespace HereticalSolutions.HereticalEngine.Application
 		//Modules
 		public IModule[] Modules { get; private set; }
 
+		//TODO: remove
 		public ICoreModule RootModule { get; private set; }
 
-
+		//TODO: replace with DI injections
 		public IRuntimeResourceManager RuntimeResourceManager { get; private set; }
 
-		public IAssetImportManager AssetImportManager { get; private set; }
-		
-
+		//TODO: replace with DI injections
 		public ConcurrentGenericCircularBuffer<MainThreadCommand> MainThreadCommandBuffer { get; private set; }
 
+		//TODO: replace with DI injections
 		public IFormatLogger Logger { get; private set; }
 
 		public ApplicationContext(
 			IModule[] modules,
 			ICoreModule rootModule,
 			IRuntimeResourceManager runtimeResourceManager,
-			IAssetImportManager assetImportManager,
 			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IFormatLogger logger)
 		{
@@ -42,8 +40,6 @@ namespace HereticalSolutions.HereticalEngine.Application
 
 
 			RuntimeResourceManager = runtimeResourceManager;
-
-			AssetImportManager = assetImportManager;
 
 
 			MainThreadCommandBuffer = mainThreadCommandBuffer;

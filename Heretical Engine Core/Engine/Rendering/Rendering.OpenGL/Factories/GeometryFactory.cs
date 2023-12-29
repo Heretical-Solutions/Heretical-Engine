@@ -282,6 +282,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 					descriptor.VertexAttributes[i].Offset);
 		}
 
+		#if FIXME
+
 		public static GeometryOpenGLStorageHandle BuildGeometryOpenGLStorageHandle(
 			string shaderOpenGLPath,
 			string shaderOpenGLVariantID,
@@ -314,5 +316,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				new SemaphoreSlim(1, 1),
 				context);
 		}
+
+		#endif
 	}
 }

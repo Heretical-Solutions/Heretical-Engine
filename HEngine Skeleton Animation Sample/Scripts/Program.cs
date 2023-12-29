@@ -16,6 +16,9 @@ using HereticalSolutions.HereticalEngine.Modules;
 using HereticalSolutions.Logging;
 using HereticalSolutions.Logging.Factories;
 
+using Autofac;
+using Autofac.Features.AttributeFilters;
+
 namespace HereticalSolutions.HereticalEngine.Samples
 {
 	public class Program
@@ -25,6 +28,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		unsafe static void Main(string[] args)
 		{
 			//var program = new Program();
+
+			var iocBuilder = new ContainerBuilder();
 
 			var pathToExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
 
@@ -51,16 +56,21 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				applicationDataFolder,
 				$"Runtime logs/{logFileName}.log");
 
+			iocBuilder.RegisterInstance(logger).As<IFormatLogger>();
+
 			#endregion
 
-			var windowModule = new WindowModule();
+			var windowModule = new WindowModule(iocBuilder);
 
 			IModule[] modules = new IModule[]
 			{
 				windowModule,
-				new OpenGLModule(),
-				new MainCameraModule(),
-				new OpenGLDrawTestMeshModule(),
+				new OpenGLModule(iocBuilder),
+				new MainCameraModule(iocBuilder),
+				//new OpenGLDrawTestMeshModule(),
+
+				new TempModule()
+
 				//new OpenGLDrawTestCubeModule(),
 				//new OpenGLDrawTextureModule(),
 				//new ImGuiModule()
@@ -85,6 +95,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					logger?.Log<Program>(
 						$"MODULE {module.GetType().Name} TORN DOWN");
 				};
+
+				iocBuilder.RegisterInstance(module).Keyed<IModule>(module.Name); //.WithAttributeFiltering(); //FOR SOME REASON THIS IS NOT WORKING
 			}
 
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
@@ -93,17 +105,25 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildRuntimeResourceManager(logger);
 #endif
 
+			iocBuilder.RegisterInstance(runtimeResourceManager).As<IRuntimeResourceManager>();
+
 			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer =
 				new ConcurrentGenericCircularBuffer<MainThreadCommand>(
 					new MainThreadCommand[1024],
 					new int[1024]);
 
+			iocBuilder.RegisterInstance(mainThreadCommandBuffer).As<ConcurrentGenericCircularBuffer<MainThreadCommand>>();
+
 			ApplicationContext context = new ApplicationContext(
 				modules,
 				(ICoreModule)windowModule,
 				runtimeResourceManager,
+				
 				mainThreadCommandBuffer,
 				logger);
+
+			//TODO: replace ApplicationContext dependencies whereever needed with direct dependencies
+			iocBuilder.RegisterInstance(context).As<ApplicationContext>();
 
 			for (int i = 0; i < context.Modules.Length; i++)
 			{

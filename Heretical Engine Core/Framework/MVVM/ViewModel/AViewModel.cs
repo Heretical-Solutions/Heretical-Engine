@@ -61,10 +61,7 @@ namespace HereticalSolutions.MVVM.ViewModel
             IsSetUp = true;
         }
 
-        /// <summary>
-        /// Initializes the view model
-        /// </summary>
-        public virtual void Initialize()
+        public virtual void Initialize(object[] args)
         {
             if (!IsSetUp)
             {

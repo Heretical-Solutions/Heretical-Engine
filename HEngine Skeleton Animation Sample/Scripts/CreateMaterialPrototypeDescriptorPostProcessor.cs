@@ -6,6 +6,8 @@ using HereticalSolutions.ResourceManagement;
 
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
+	#if FIXME
+
 	public class CreateMaterialPrototypeDescriptorPostProcessor
 		: AAssetImportPostProcessor
 	{
@@ -45,7 +47,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				TextureResourcePaths = materialAssetDescriptor.TextureResourcePaths
 			};
 
-			var importMaterialPrototypeDescriptorTask = context.AssetImportManager.Import<MaterialPrototypeDescriptorAssetImporter>(
+			var importMaterialPrototypeDescriptorTask = assetImportManager.Import<MaterialPrototypeDescriptorAssetImporter>(
 				(importer) =>
 				{
 					importer.Initialize(
@@ -56,4 +58,6 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			await importMaterialPrototypeDescriptorTask;
 		}
 	}
+
+	#endif
 }

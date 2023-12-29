@@ -10,6 +10,8 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
+	#if FIXME
+
 	public class ConcurrentGeometryOpenGLStorageHandle
 		: AConcurrentReadOnlyResourceStorageHandle<GeometryOpenGL>
 	{
@@ -222,4 +224,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(1f);
 		}
 	}
+
+	#endif
 }

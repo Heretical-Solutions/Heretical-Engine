@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace HereticalSolutions.HereticalEngine.Scenes
+namespace HereticalSolutions.HereticalEngine.GameEntities
 {
 	[Serializable]
 	public struct TransformDTO

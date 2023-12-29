@@ -25,7 +25,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		private IFormatLogger logger = null;
 
 		#region IModule
-
+		
+		public string Name => "ImGui module";
+		
 		#region IGenericLifetimeable<ApplicationContext>
 
 		public void SetUp(

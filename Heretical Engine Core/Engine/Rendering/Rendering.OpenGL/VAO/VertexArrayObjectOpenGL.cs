@@ -2,16 +2,14 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class VertexArrayObjectOpenGL
+	public struct VertexArrayObjectOpenGL
 	{
-		private uint handle;
-
-		public uint Handle => handle;
+		public uint Handle;
 
 		public VertexArrayObjectOpenGL(
 			uint handle)
 		{
-            this.handle = handle;
+            Handle = handle;
 		}
 
 		public unsafe void VertexAttributePointer(
@@ -38,13 +36,13 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public void Bind(
 			GL gl)
 		{
-			gl.BindVertexArray(handle);
+			gl.BindVertexArray(Handle);
 		}
 
 		public void Dispose(
 			GL gl)
 		{
-			gl.DeleteVertexArray(handle);
+			gl.DeleteVertexArray(Handle);
 		}
 	}
 }

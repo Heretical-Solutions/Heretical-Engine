@@ -2,14 +2,14 @@
 
 using HereticalSolutions.ResourceManagement;
 
-using HereticalSolutions.HereticalEngine.Scenes;
-
 using HereticalSolutions.HereticalEngine.Math;
 
 using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
+	#if FIXME
+
 	public class ModelOpenGLStorageHandle
 		: AReadOnlyResourceStorageHandle<ModelOpenGL>
 	{
@@ -275,7 +275,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				Scale = dto.Transform.Scale.ToSilkNetVector3D()
 			};
 
-			transform.RecalculateTRSMatrix();
+			//transform.RecalculateTRSMatrix();
 
 			MeshOpenGL[] meshes = new MeshOpenGL[dto.MeshResourcePaths.Length];
 
@@ -309,4 +309,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			progress?.Report(1f);
 		}
 	}
+
+	#endif
 }

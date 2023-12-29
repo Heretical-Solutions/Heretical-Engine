@@ -1,11 +1,13 @@
-using Silk.NET.Maths;
-
-namespace HereticalSolutions.HereticalEngine.Scenes
+namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public struct Camera
 	{
-		public Matrix4X4<float> ProjectionMatrix;
+		public float FOV;
 
-		public Matrix4X4<float> ViewMatrix;
+		public float AspectRatio;
+
+		public float NearPlane;
+
+		public float FarPlane;
 	}
 }

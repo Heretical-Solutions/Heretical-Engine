@@ -16,7 +16,7 @@ using HereticalSolutions.HereticalEngine.Math;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
-using HereticalSolutions.HereticalEngine.Scenes;
+using HereticalSolutions.HereticalEngine.GameEntities;
 
 using HereticalSolutions.HereticalEngine.Application;
 
@@ -33,6 +33,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private FilePathSettings filePathSettings;
 
+		private IAssetImportManager assetImportManager;
+
 		private AssimpAPI assimp;
 
 		public ModelRAMAssetImporter(
@@ -45,11 +47,14 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public void Initialize(
 			string resourcePath,
-			FilePathSettings filePathSettings)
+			FilePathSettings filePathSettings,
+			IAssetImportManager assetImportManager)
 		{
 			this.resourcePath = resourcePath;
 
 			this.filePathSettings = filePathSettings;
+
+			this.assetImportManager = assetImportManager;
 		}
 
 		public override async Task<IResourceVariantData> Import(
@@ -369,7 +374,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var materialResourcePathClosure = materialResourcePath;
 
-			var importMaterialAssetDescriptorTask = context.AssetImportManager.Import<MaterialAssetDescriptorAssetImporter>(
+			var importMaterialAssetDescriptorTask = assetImportManager.Import<MaterialAssetDescriptorAssetImporter>(
 				(importer) =>
 				{
 					importer.Initialize(
@@ -498,7 +503,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			string textureResourcePathClosure = textureResourcePath;
 
-			var importTextureRAMTask = context.AssetImportManager.Import<TextureRAMAssetImporter>(
+			var importTextureRAMTask = assetImportManager.Import<TextureRAMAssetImporter>(
 				(importer) =>
 				{
 					importer.Initialize(
@@ -577,7 +582,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			TextureType textureType,
 			List<Task> assetImportTasks)
 		{
-			var importTextureAssetDescriptorTask = context.AssetImportManager.Import<TextureAssetDescriptorAssetImporter>(
+			var importTextureAssetDescriptorTask = assetImportManager.Import<TextureAssetDescriptorAssetImporter>(
 				(importer) =>
 				{
 					importer.Initialize(
@@ -656,7 +661,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var geometryResourcePathClosure = geometryResourcePath;
 
-			var importMeshAssetDescriptorTask = context.AssetImportManager.Import<MeshAssetDescriptorAssetImporter>(
+			var importMeshAssetDescriptorTask = assetImportManager.Import<MeshAssetDescriptorAssetImporter>(
 				(importer) =>
 				{
 					importer.Initialize(
@@ -714,7 +719,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			var geometryResourcePathClosure = geometryResourcePath;
 
-			var importGeometryRAMTask = context.AssetImportManager.Import<GeometryRAMAssetImporter>(
+			var importGeometryRAMTask = assetImportManager.Import<GeometryRAMAssetImporter>(
 				(importer) =>
 				{
 					importer.Initialize(
@@ -926,9 +931,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			Transform transform = default;
 
-			transform.TRSMatrix = node->MTransformation.ToSilkNetMatrix4X4();
+			//transform.TRSMatrix = node->MTransformation.ToSilkNetMatrix4X4();
 
-			transform.DecomposeTRSMatrix();
+			//transform.DecomposeTRSMatrix();
+
+			transform.DecomposeTRSMatrix(node->MTransformation.ToSilkNetMatrix4X4());
 
 			TransformDTO transformDTO = new TransformDTO
 			{

@@ -13,6 +13,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 			var result = new BufferObjectOpenGL<TValue>(
 				handle,
+				0,
 				bufferType);
 
 			return result;

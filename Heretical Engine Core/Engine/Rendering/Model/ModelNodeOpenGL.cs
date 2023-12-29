@@ -1,10 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using HereticalSolutions.HereticalEngine.Scenes;
-
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
+	#if FIXME
+
 	public class ModelNodeOpenGL
 	{
 		public string Name { get; private set; }
@@ -38,4 +38,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Parent = parent;
 		}
 	}
+
+	#endif
 }

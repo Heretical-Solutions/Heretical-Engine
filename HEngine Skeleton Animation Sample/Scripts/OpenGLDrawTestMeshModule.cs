@@ -8,8 +8,6 @@ using HereticalSolutions.HereticalEngine.Application;
 
 using HereticalSolutions.HereticalEngine.Rendering;
 
-using HereticalSolutions.HereticalEngine.Scenes;
-
 using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.Logging;
@@ -20,6 +18,8 @@ using Silk.NET.Maths;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
+	#if FIXME
+
 	public class OpenGLDrawTestMeshModule
 		: IModule
 	{
@@ -192,6 +192,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				pathToExe.IndexOf("/bin/"))
 				+ "/Assets/";
 
+			var pathToEngineAssets = pathToExe.Substring(
+				0,
+				pathToExe.IndexOf("/bin/"))
+				+ "/Engine assets/";
+
 			/*
 			var progress = new Progress<float>();
 
@@ -213,7 +218,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			defaultVertexShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Default/default.vert",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var defaultFragmentShaderArgument = new TextFileArgument();
@@ -221,7 +226,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			defaultFragmentShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Default/default.frag",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var defaultShaderImportProgress = new Progress<float>();
@@ -254,7 +259,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			colorVertexShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Color/color.vert",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var colorFragmentShaderArgument = new TextFileArgument();
@@ -262,7 +267,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			colorFragmentShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Color/color.frag",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var colorShaderImportProgress = new Progress<float>();
@@ -295,7 +300,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			depthVertexShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Depth/depth.vert",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var depthFragmentShaderArgument = new TextFileArgument();
@@ -303,7 +308,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			depthFragmentShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Depth/depth.frag",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var depthShaderImportProgress = new Progress<float>();
@@ -336,7 +341,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			diffuseVertexShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Diffuse/diffuse.vert",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var diffuseFragmentShaderArgument = new TextFileArgument();
@@ -344,7 +349,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			diffuseFragmentShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Diffuse/diffuse.frag",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var diffuseShaderImportProgress = new Progress<float>();
@@ -377,7 +382,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			errorCheckerUVVertexShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Error checker UV/errorCheckerUV.vert",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var errorCheckerUVFragmentShaderArgument = new TextFileArgument();
@@ -385,7 +390,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			errorCheckerUVFragmentShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Error checker UV/errorCheckerUV.frag",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var errorCheckerUVShaderImportProgress = new Progress<float>();
@@ -418,7 +423,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			errorCheckerScreenspaceVertexShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Error checker screenspace/errorCheckerScreenspace.vert",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var errorCheckerScreenspaceFragmentShaderArgument = new TextFileArgument();
@@ -426,7 +431,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			errorCheckerScreenspaceFragmentShaderArgument.Settings = new FilePathSettings
 			{
 				RelativePath = $"{PATH_TO_SHADERS}Error checker screenspace/errorCheckerScreenspace.frag",
-				ApplicationDataFolder = pathToAssets
+				ApplicationDataFolder = pathToEngineAssets
 			};
 
 			var errorCheckerScreenspaceShaderImportProgress = new Progress<float>();
@@ -541,7 +546,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			GL gl,
 			ModelOpenGL modelOpenGL)
 		{
-			var camera = cameraStorageHandle.GetResource<Camera>();
+			var camera = cameraStorageHandle.GetResource<CameraPose>();
 
 			var modelMatrix = Matrix4X4<float>.Identity;
 
@@ -718,4 +723,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			gl.BindVertexArray(0);
 		}
 	}
+
+	#endif
 }

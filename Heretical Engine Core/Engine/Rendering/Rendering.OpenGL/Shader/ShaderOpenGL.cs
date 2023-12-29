@@ -8,9 +8,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class ShaderOpenGL
 	{
-		private uint handle = default;
-
-		public uint Handle { get => handle; }
+		public uint Handle;
 
 		public ShaderDescriptorOpenGL Descriptor { get; private set; }
 
@@ -18,7 +16,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			uint handle,
 			ShaderDescriptorOpenGL descriptor)
 		{
-			this.handle = handle;
+			Handle = handle;
 
 			Descriptor = descriptor;
 		}
@@ -26,7 +24,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public void Use(
 			GL gl)
 		{
-			gl.UseProgram(handle);
+			gl.UseProgram(Handle);
 		}
 
 		public void SetUniform(
@@ -35,7 +33,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			int value)
 		{
 			int location = gl.GetUniformLocation(
-				handle,
+				Handle,
 				name);
 
 			if (location == -1)
@@ -54,7 +52,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Vector3D<float> value)
 		{
 			int location = gl.GetUniformLocation(
-				handle,
+				Handle,
 				name);
 
 			if (location == -1)
@@ -75,7 +73,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Vector3 value)
 		{
 			int location = gl.GetUniformLocation(
-				handle,
+				Handle,
 				name);
 
 			if (location == -1)
@@ -97,7 +95,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			//A new overload has been created for setting a uniform so we can use the transform in our shader.
 			int location = gl.GetUniformLocation(
-				handle,
+				Handle,
 				name);
 			
 			if (location == -1)
@@ -118,7 +116,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			Matrix4X4<float> value)
 		{
 			int location = gl.GetUniformLocation(
-				handle,
+				Handle,
 				name);
 
 			if (location == -1)
@@ -139,7 +137,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			float value)
 		{
 			int location = gl.GetUniformLocation(
-				handle,
+				Handle,
 				name);
 
 			if (location == -1)

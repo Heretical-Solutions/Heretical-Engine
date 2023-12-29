@@ -12,6 +12,8 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
+	#if FIXME
+
 	public class ModelOpenGLAssetImporter : AAssetImporter
 	{
 
@@ -234,4 +236,5 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			return textureImporter;
 		}
 	}
+	#endif
 }

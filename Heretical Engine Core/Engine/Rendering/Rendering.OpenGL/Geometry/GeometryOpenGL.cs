@@ -5,24 +5,19 @@ using Silk.NET.OpenGL;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class GeometryOpenGL
+	public struct GeometryOpenGL
 	{
-		//public GeometryRAM Geometry { get; private set; }
+		public VertexArrayObjectOpenGL VertexArrayObject;
 
-		public VertexArrayObjectOpenGL VertexArrayObject { get; set; }
+		public BufferObjectOpenGL<float> VertexBufferObject;
 
-		public BufferObjectOpenGL<float> VertexBufferObject { get; set; }
-
-		public BufferObjectOpenGL<uint> ElementBufferObject { get; set; }
+		public BufferObjectOpenGL<uint> ElementBufferObject;
 
 		public GeometryOpenGL(
-			//GeometryRAM geometry,
 			VertexArrayObjectOpenGL vertexArrayObject,
 			BufferObjectOpenGL<float> vertexBufferObject,
 			BufferObjectOpenGL<uint> elementBufferObject)
 		{
-			//Geometry = geometry;
-
 			VertexArrayObject = vertexArrayObject;
 
 			VertexBufferObject = vertexBufferObject;

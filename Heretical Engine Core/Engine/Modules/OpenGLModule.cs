@@ -10,6 +10,8 @@ using Silk.NET.OpenGL;
 
 using Silk.NET.Maths;
 
+using Autofac;
+
 namespace HereticalSolutions.HereticalEngine.Modules
 {
 	public class OpenGLModule
@@ -17,13 +19,23 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	{
 		public const string GL_RESOURCE_PATH = "Application/GL";
 
+		private readonly ContainerBuilder iocBuilder = null;
+
 		private IWindow window = null;
 
 		private GL gl = null;
 
 		private IFormatLogger logger = null;
 
+		public OpenGLModule(
+			ContainerBuilder iocBuilder)
+		{
+			this.iocBuilder = iocBuilder;
+		}
+
 		#region IModule
+
+		public string Name => "OpenGL module";
 
 		#region IGenericLifetimeable<ApplicationContext>
 
@@ -79,9 +91,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			gl = window.CreateOpenGL();
 
 			var glImporter = new DefaultPreallocatedAssetImporter<GL>(
-				GL_RESOURCE_PATH,
-				gl,
 				context);
+
+			glImporter.Initialize(
+				GL_RESOURCE_PATH,
+				gl);
 
 			task = glImporter.Import();
 

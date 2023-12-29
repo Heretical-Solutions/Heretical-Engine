@@ -6,9 +6,9 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Application;
 
-using HereticalSolutions.HereticalEngine.Scenes;
-
 using HereticalSolutions.ResourceManagement;
+
+using HereticalSolutions.HereticalEngine.Rendering;
 
 using HereticalSolutions.Logging;
 
@@ -18,6 +18,8 @@ using Silk.NET.Windowing;
 
 using Silk.NET.Input;
 
+using Autofac;
+
 namespace HereticalSolutions.HereticalEngine.Modules
 {
 	public class MainCameraModule
@@ -25,13 +27,15 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	{
 		public const string MAIN_CAMERA_RESOURCE_PATH = "Application/Main camera";
 
+		private readonly ContainerBuilder iocBuilder = null;
+
 		private IWindow window = null;
 
 		private IKeyboard primaryKeyboard = null;
 
 		private IInputContext inputContext = null;
 
-		private Camera camera;
+		private CameraPose camera;
 
 		private IResourceStorageHandle cameraStorageHandle;
 
@@ -61,7 +65,15 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		private IFormatLogger logger;
 
+		public MainCameraModule(
+			ContainerBuilder iocBuilder)
+		{
+			this.iocBuilder = iocBuilder;
+		}
+
 		#region IModule
+
+		public string Name => "Main camera module";
 
 		#region IGenericLifetimeable<ApplicationContext>
 
@@ -163,10 +175,12 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			camera = default;
 
-			var cameraImporter = new DefaultReadWriteAssetImporter<Camera>(
-				MAIN_CAMERA_RESOURCE_PATH,
-				camera,
+			var cameraImporter = new DefaultReadWriteAssetImporter<CameraPose>(
 				context);
+
+			cameraImporter.Initialize(
+				MAIN_CAMERA_RESOURCE_PATH,
+				camera);
 
 			cameraStorageHandle = (IResourceStorageHandle)
 				Task.Run(
@@ -297,7 +311,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				0.1f,
 				1000.0f);
 
-			cameraStorageHandle.SetResource<Camera>(camera);
+			cameraStorageHandle.SetResource<CameraPose>(camera);
 		}
 
 		#endregion

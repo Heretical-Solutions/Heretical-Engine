@@ -20,6 +20,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		#region IModule
 
+		public string Name => "Gizmo module";
+
 		#region IGenericLifetimeable<ApplicationContext>
 
 		public void SetUp(
