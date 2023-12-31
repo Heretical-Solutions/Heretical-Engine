@@ -12,7 +12,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 	{
 		public static GeometryOpenGL BuildGeometryOpenGL(
 			GL gl,
-			GeometryRAM ramGeometry,
+			Geometry ramGeometry,
 			ShaderDescriptorOpenGL shaderDescriptor,
 			IFormatLogger logger)
 		{

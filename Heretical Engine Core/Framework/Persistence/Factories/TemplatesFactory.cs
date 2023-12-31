@@ -1,129 +1,159 @@
-using System;
 using HereticalSolutions.Persistence.Serializers;
 using HereticalSolutions.Persistence.Arguments;
+
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Factories
 {
-    /// <summary>
-    /// A factory class for building different serializers.
-    /// </summary>
     public static partial class PersistenceFactory
     {
-        /// <summary>
-        /// Builds a simple binary serializer.
-        /// </summary>
-        /// <returns>The built binary serializer.</returns>
-        public static BinarySerializer BuildSimpleBinarySerializer()
+        public static BinarySerializer BuildSimpleBinarySerializer(
+            IFormatLogger logger)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StreamArgument), new SerializeBinaryIntoStreamStrategy());
+            database.Add(
+                typeof(StreamArgument),
+                new SerializeBinaryIntoStreamStrategy(logger));
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new BinarySerializer(strategyRepository);
+            return new BinarySerializer(
+                strategyRepository,
+                logger);
         }
         
-        /// <summary>
-        /// Builds a simple protobuf serializer.
-        /// </summary>
-        /// <returns>The built protobuf serializer.</returns>
-        public static ProtobufSerializer BuildSimpleProtobufSerializer()
+        public static ProtobufSerializer BuildSimpleProtobufSerializer(
+            IFormatLogger logger)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StreamArgument), new SerializeProtobufIntoStreamStrategy());
+            database.Add(
+                typeof(StreamArgument),
+                new SerializeProtobufIntoStreamStrategy(logger));
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new ProtobufSerializer(strategyRepository);
+            return new ProtobufSerializer(
+                strategyRepository,
+                logger);
         }
         
-        /// <summary>
-        /// Builds a simple JSON serializer.
-        /// </summary>
-        /// <returns>The built JSON serializer.</returns>
-        public static JSONSerializer BuildSimpleJSONSerializer()
+        public static JSONSerializer BuildSimpleJSONSerializer(
+            IFormatLogger logger)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StringArgument), new SerializeJsonIntoStringStrategy());
+            database.Add(
+                typeof(StringArgument),
+                new SerializeJsonIntoStringStrategy(logger));
             
-            database.Add(typeof(StreamArgument), new SerializeJsonIntoStreamStrategy());
-            database.Add(typeof(TextFileArgument), new SerializeJsonIntoTextFileStrategy());
+            database.Add(
+                typeof(StreamArgument),
+                new SerializeJsonIntoStreamStrategy(logger));
+            database.Add(
+                typeof(TextFileArgument),
+                new SerializeJsonIntoTextFileStrategy(logger));
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new JSONSerializer(strategyRepository);
+            return new JSONSerializer(
+                strategyRepository,
+                logger);
         }
 
-        /// <summary>
-        /// Builds a simple XML serializer.
-        /// </summary>
-        /// <returns>The built XML serializer.</returns>
-        public static XMLSerializer BuildSimpleXMLSerializer()
+        public static XMLSerializer BuildSimpleXMLSerializer(
+            IFormatLogger logger)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StringArgument), new SerializeXmlIntoStringStrategy());
+            database.Add(
+                typeof(StringArgument),
+                new SerializeXmlIntoStringStrategy(logger));
             
-            database.Add(typeof(StreamArgument), new SerializeXmlIntoStreamStrategy());
-            database.Add(typeof(TextFileArgument), new SerializeXmlIntoTextFileStrategy());
-            
-            IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
-            
-            return new XMLSerializer(strategyRepository);
-        }
-        
-        /// <summary>
-        /// Builds a simple YAML serializer.
-        /// </summary>
-        /// <returns>The built YAML serializer.</returns>
-        public static YAMLSerializer BuildSimpleYAMLSerializer()
-        {
-            IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
-            
-            database.Add(typeof(StringArgument), new SerializeYamlIntoStringStrategy());
-            
-            database.Add(typeof(StreamArgument), new SerializeYamlIntoStreamStrategy());
-            database.Add(typeof(TextFileArgument), new SerializeYamlIntoTextFileStrategy());
+            database.Add(
+                typeof(StreamArgument),
+                new SerializeXmlIntoStreamStrategy(logger));
+            database.Add(
+                typeof(TextFileArgument),
+                new SerializeXmlIntoTextFileStrategy(logger));
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new YAMLSerializer(strategyRepository);
+            return new XMLSerializer(
+                strategyRepository,
+                logger);
         }
         
-        /// <summary>
-        /// Builds a simple CSV serializer.
-        /// </summary>
-        /// <returns>The built CSV serializer.</returns>
-        public static CSVSerializer BuildSimpleCSVSerializer()
+        public static YAMLSerializer BuildSimpleYAMLSerializer(
+            IFormatLogger logger)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StringArgument), new SerializeCsvIntoStringStrategy());
+            database.Add(
+                typeof(StringArgument),
+                new SerializeYamlIntoStringStrategy(logger));
             
-            database.Add(typeof(StreamArgument), new SerializeCsvIntoStreamStrategy());
-            database.Add(typeof(TextFileArgument), new SerializeCsvIntoTextFileStrategy());
+            database.Add(
+                typeof(StreamArgument),
+                new SerializeYamlIntoStreamStrategy(logger));
+            database.Add(
+                typeof(TextFileArgument),
+                new SerializeYamlIntoTextFileStrategy(logger));
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new CSVSerializer(strategyRepository);
+            return new YAMLSerializer(
+                strategyRepository,
+                logger);
+        }
+        
+        public static CSVSerializer BuildSimpleCSVSerializer(
+            IFormatLogger logger)
+        {
+            IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
+            
+            database.Add(
+                typeof(StringArgument),
+                new SerializeCsvIntoStringStrategy(logger));
+            
+            database.Add(
+                typeof(StreamArgument),
+                new SerializeCsvIntoStreamStrategy(logger));
+            database.Add(
+                typeof(TextFileArgument),
+                new SerializeCsvIntoTextFileStrategy(logger));
+            
+            IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
+            
+            return new CSVSerializer(
+                strategyRepository,
+                logger);
         }
 
-        public static PlainTextSerializer BuildSimplePlainTextSerializer()
+        public static PlainTextSerializer BuildSimplePlainTextSerializer(
+            IFormatLogger logger)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
 
-            database.Add(typeof(StringArgument), new SerializePlainTextIntoStringStrategy());
-            database.Add(typeof(StreamArgument), new SerializePlainTextIntoStreamStrategy());
-            database.Add(typeof(TextFileArgument), new SerializePlainTextIntoTextFileStrategy());
+            database.Add(
+                typeof(StringArgument),
+                new SerializePlainTextIntoStringStrategy(logger));
+            database.Add(
+                typeof(StreamArgument),
+                new SerializePlainTextIntoStreamStrategy(logger));
+            database.Add(
+                typeof(TextFileArgument),
+                new SerializePlainTextIntoTextFileStrategy(logger));
 
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
 
-            return new PlainTextSerializer(strategyRepository);
+            return new PlainTextSerializer(
+                strategyRepository,
+                logger);
         }
     }
 }

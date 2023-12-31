@@ -1,76 +1,49 @@
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Pools;
 
 namespace HereticalSolutions.Delegates.Pinging
 {
-    /// <summary>
-    /// Represents a class that can publish events without arguments and can have non-allocating subscribers.
-    /// </summary>
-    public class NonAllocPinger : IPublisherNoArgs, INonAllocSubscribableNoArgs
+    public class NonAllocPinger
+        : IPublisherNoArgs,
+          INonAllocSubscribableNoArgs
     {
         #region Subscriptions
 
-        /// <summary>
-        /// The pool of subscriptions.
-        /// </summary>
-        private readonly INonAllocDecoratedPool<IInvokableNoArgs> subscriptionsPool;
+        private readonly INonAllocDecoratedPool<ISubscription> subscriptionsPool;
 
-        /// <summary>
-        /// The subscriptions as an indexable for fast access.
-        /// </summary>
-        private readonly IIndexable<IPoolElement<IInvokableNoArgs>> subscriptionsAsIndexable;
+        private readonly IIndexable<IPoolElement<ISubscription>> subscriptionsAsIndexable;
 
-        /// <summary>
-        /// The subscriptions with capacity for tracking the count.
-        /// </summary>
-        private readonly IFixedSizeCollection<IPoolElement<IInvokableNoArgs>> subscriptionsWithCapacity;
+        private readonly IFixedSizeCollection<IPoolElement<ISubscription>> subscriptionsWithCapacity;
 
         #endregion
 
         #region Buffer
 
-        /// <summary>
-        /// The buffer to store current subscriptions.
-        /// </summary>
-        private IInvokableNoArgs[] currentSubscriptionsBuffer;
+        private ISubscription[] currentSubscriptionsBuffer;
 
-        /// <summary>
-        /// The count of elements in the buffer.
-        /// </summary>
         private int currentSubscriptionsBufferCount = -1;
 
         #endregion
 
-        /// <summary>
-        /// Flag that indicates if a ping is in progress.
-        /// </summary>
         private bool pingInProgress = false;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NonAllocPinger"/> class.
-        /// </summary>
-        /// <param name="subscriptionsPool">The pool of subscriptions.</param>
-        /// <param name="subscriptionsContents">The contents of the subscriptions.</param>
         public NonAllocPinger(
-            INonAllocDecoratedPool<IInvokableNoArgs> subscriptionsPool,
-            INonAllocPool<IInvokableNoArgs> subscriptionsContents)
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool,
+            INonAllocPool<ISubscription> subscriptionsContents)
         {
             this.subscriptionsPool = subscriptionsPool;
 
-            subscriptionsAsIndexable = (IIndexable<IPoolElement<IInvokableNoArgs>>)subscriptionsContents;
+            subscriptionsAsIndexable = (IIndexable<IPoolElement<ISubscription>>)subscriptionsContents;
 
             subscriptionsWithCapacity =
-                (IFixedSizeCollection<IPoolElement<IInvokableNoArgs>>)subscriptionsContents;
+                (IFixedSizeCollection<IPoolElement<ISubscription>>)subscriptionsContents;
 
-            currentSubscriptionsBuffer = new IInvokableNoArgs[subscriptionsWithCapacity.Capacity];
+            currentSubscriptionsBuffer = new ISubscription[subscriptionsWithCapacity.Capacity];
         }
 
         #region INonAllocSubscribableNoArgs
 
-        /// <summary>
-        /// Subscribes to the event.
-        /// </summary>
-        /// <param name="subscription">The subscription to be added.</param>
         public void Subscribe(ISubscription subscription)
         {
             var subscriptionHandler = (ISubscriptionHandler<INonAllocSubscribableNoArgs, IInvokableNoArgs>)subscription;
@@ -78,17 +51,13 @@ namespace HereticalSolutions.Delegates.Pinging
             if (!subscriptionHandler.ValidateActivation(this))
                 return;
 
-            var subscriptionElement = subscriptionsPool.Pop(null);
+            var subscriptionElement = subscriptionsPool.Pop();
 
-            subscriptionElement.Value = ((ISubscriptionState<IInvokableNoArgs>)subscription).Invokable;
+            subscriptionElement.Value = subscription;
 
             subscriptionHandler.Activate(this, subscriptionElement);
         }
 
-        /// <summary>
-        /// Unsubscribes from the event.
-        /// </summary>
-        /// <param name="subscription">The subscription to be removed.</param>
         public void Unsubscribe(ISubscription subscription)
         {
             var subscriptionHandler = (ISubscriptionHandler<INonAllocSubscribableNoArgs, IInvokableNoArgs>)subscription;
@@ -107,11 +76,7 @@ namespace HereticalSolutions.Delegates.Pinging
             subscriptionHandler.Terminate();
         }
 
-        /// <summary>
-        /// Unsubscribes from the event.
-        /// </summary>
-        /// <param name="subscription">The subscription to be removed.</param>
-        public void Unsubscribe(IPoolElement<IInvokableNoArgs> subscription)
+        public void Unsubscribe(IPoolElement<ISubscription> subscription)
         {
             TryRemoveFromBuffer(subscription);
 
@@ -120,11 +85,32 @@ namespace HereticalSolutions.Delegates.Pinging
             subscriptionsPool.Push(subscription);
         }
 
-        /// <summary>
-        /// Tries to remove a subscription from the buffer if a ping is in progress.
-        /// </summary>
-        /// <param name="subscriptionElement">The subscription element to be removed.</param>
-        private void TryRemoveFromBuffer(IPoolElement<IInvokableNoArgs> subscriptionElement)
+        #region INonAllocSubscribable
+
+        public IEnumerable<ISubscription> AllSubscriptions
+        {
+            get
+            {
+                ISubscription[] allSubscriptions = new ISubscription[subscriptionsAsIndexable.Count];
+
+                for (int i = 0; i < allSubscriptions.Length; i++)
+                    allSubscriptions[i] = subscriptionsAsIndexable[i].Value;
+
+                return allSubscriptions;
+            }
+        }
+
+        public void UnsubscribeAll()
+        {
+            while (subscriptionsAsIndexable.Count > 0)
+                Unsubscribe(subscriptionsAsIndexable[0]);
+        }
+
+        #endregion
+
+        #endregion
+
+        private void TryRemoveFromBuffer(IPoolElement<ISubscription> subscriptionElement)
         {
             if (!pingInProgress)
                 return;
@@ -138,15 +124,14 @@ namespace HereticalSolutions.Delegates.Pinging
                 }
         }
 
-        #endregion
-
         #region IPublisherNoArgs
 
-        /// <summary>
-        /// Publishes the event to all subscribers.
-        /// </summary>
         public void Publish()
         {
+            //If any delegate that is invoked attempts to unsubscribe itself, it would produce an error because the collection
+            //should NOT be changed during the invokation
+            //That's why we'll copy the subscriptions array to buffer and invoke it from there
+
             ValidateBufferSize();
 
             currentSubscriptionsBufferCount = subscriptionsAsIndexable.Count;
@@ -158,27 +143,20 @@ namespace HereticalSolutions.Delegates.Pinging
             EmptyBuffer();
         }
 
-        /// <summary>
-        /// Validates the size of the buffer and resizes if necessary.
-        /// </summary>
+        #endregion
+
         private void ValidateBufferSize()
         {
             if (currentSubscriptionsBuffer.Length < subscriptionsWithCapacity.Capacity)
-                currentSubscriptionsBuffer = new IInvokableNoArgs[subscriptionsWithCapacity.Capacity];
+                currentSubscriptionsBuffer = new ISubscription[subscriptionsWithCapacity.Capacity];
         }
 
-        /// <summary>
-        /// Copies the subscriptions to the buffer.
-        /// </summary>
         private void CopySubscriptionsToBuffer()
         {
             for (int i = 0; i < currentSubscriptionsBufferCount; i++)
                 currentSubscriptionsBuffer[i] = subscriptionsAsIndexable[i].Value;
         }
 
-        /// <summary>
-        /// Invokes the subscriptions in the buffer.
-        /// </summary>
         private void InvokeSubscriptions()
         {
             pingInProgress = true;
@@ -186,21 +164,20 @@ namespace HereticalSolutions.Delegates.Pinging
             for (int i = 0; i < currentSubscriptionsBufferCount; i++)
             {
                 if (currentSubscriptionsBuffer[i] != null)
-                    currentSubscriptionsBuffer[i].Invoke();
+                {
+                    var subscriptionState = (ISubscriptionState<IInvokableNoArgs>)currentSubscriptionsBuffer[i];
+
+                    subscriptionState.Invokable.Invoke();
+                }
             }
 
             pingInProgress = false;
         }
 
-        /// <summary>
-        /// Empties the subscription buffer.
-        /// </summary>
         private void EmptyBuffer()
         {
             for (int i = 0; i < currentSubscriptionsBufferCount; i++)
                 currentSubscriptionsBuffer[i] = null;
         }
-
-        #endregion
     }
 }

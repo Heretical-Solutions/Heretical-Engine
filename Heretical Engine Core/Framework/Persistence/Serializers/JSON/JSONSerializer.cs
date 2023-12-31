@@ -1,31 +1,24 @@
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.Logging;
+
 using Newtonsoft.Json;
 
 namespace HereticalSolutions.Persistence.Serializers
 {
-    /// <summary>
-    /// Implements the ISerializer interface for JSON serialization.
-    /// </summary>
     public class JSONSerializer : ISerializer
     {
-        /// <summary>
-        /// JSON.Net serialization settings for writing.
-        /// </summary>
         private readonly JsonSerializerSettings writeSerializerSettings;
 
-        /// <summary>
-        /// JSON.Net serialization settings for reading.
-        /// </summary>
         private readonly JsonSerializerSettings readSerializerSettings;
 
         private readonly IReadOnlyObjectRepository strategyRepository;
 
-        /// <summary>
-        /// Initializes a new instance of the JSONSerializer class with the specified strategy repository.
-        /// </summary>
-        /// <param name="strategyRepository">The strategy repository to use.</param>
-        public JSONSerializer(IReadOnlyObjectRepository strategyRepository)
+        private readonly IFormatLogger logger;
+
+        public JSONSerializer(
+            IReadOnlyObjectRepository strategyRepository,
+            IFormatLogger logger)
         {
             writeSerializerSettings = new JsonSerializerSettings
             {
@@ -47,17 +40,12 @@ namespace HereticalSolutions.Persistence.Serializers
             };
 
             this.strategyRepository = strategyRepository;
+
+            this.logger = logger;
         }
 
         #region ISerializer
 
-        /// <summary>
-        /// Serializes the specified DTO using the given argument.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the DTO.</typeparam>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="DTO">The DTO to serialize.</param>
-        /// <returns>true if serialization succeeds, false otherwise.</returns>
         public bool Serialize<TValue>(ISerializationArgument argument, TValue DTO)
         {
             string json = JsonConvert.SerializeObject(
@@ -65,30 +53,32 @@ namespace HereticalSolutions.Persistence.Serializers
                 Formatting.Indented,
                 writeSerializerSettings);
 
-            if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-                throw new Exception($"[JSONSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                logger?.ThrowException<JSONSerializer>(
+                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
             var concreteStrategy = (IJsonSerializationStrategy)strategyObject;
 
             return concreteStrategy.Serialize(argument, json);
         }
 
-        /// <summary>
-        /// Serializes the specified DTO object using the given argument and DTO type.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="DTOType">The type of the DTO.</param>
-        /// <param name="DTO">The DTO object to serialize.</param>
-        /// <returns>true if serialization succeeds, false otherwise.</returns>
-        public bool Serialize(ISerializationArgument argument, Type DTOType, object DTO)
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type DTOType,
+            object DTO)
         {
             string json = JsonConvert.SerializeObject(
                 DTO,
                 Formatting.Indented,
                 writeSerializerSettings);
 
-            if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-                throw new Exception($"[JSONSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                logger?.ThrowException<JSONSerializer>(
+                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
             var concreteStrategy = (IJsonSerializationStrategy)strategyObject;
 
@@ -108,15 +98,23 @@ namespace HereticalSolutions.Persistence.Serializers
         {
             DTO = (TValue)Activator.CreateInstance(typeof(TValue));
 
-            if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-                throw new Exception($"[JSONSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                logger?.ThrowException<JSONSerializer>(
+                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
             var concreteStrategy = (IJsonSerializationStrategy)strategyObject;
 
-            if (!concreteStrategy.Deserialize(argument, out var json))
+            if (!concreteStrategy.Deserialize(
+                argument,
+                out var json))
                 return false;
 
-            JsonConvert.PopulateObject(json, DTO, readSerializerSettings);
+            JsonConvert.PopulateObject(
+                json,
+                DTO,
+                readSerializerSettings);
 
             return true;
         }
@@ -133,27 +131,34 @@ namespace HereticalSolutions.Persistence.Serializers
         {
             DTO = Activator.CreateInstance(DTOType);
 
-            if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-                throw new Exception($"[JSONSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                logger?.ThrowException<JSONSerializer>(
+                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
             var concreteStrategy = (IJsonSerializationStrategy)strategyObject;
 
-            if (!concreteStrategy.Deserialize(argument, out var json))
+            if (!concreteStrategy.Deserialize(
+                argument,
+                out var json))
                 return false;
 
-            JsonConvert.PopulateObject(json, DTO, readSerializerSettings);
+            JsonConvert.PopulateObject(
+                json,
+                DTO,
+                readSerializerSettings);
 
             return true;
         }
 
-        /// <summary>
-        /// Erases the serialized data associated with the given argument.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
         public void Erase(ISerializationArgument argument)
         {
-            if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-                throw new Exception($"[JSONSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                logger?.ThrowException<JSONSerializer>(
+                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
             var concreteStrategy = (IJsonSerializationStrategy)strategyObject;
 

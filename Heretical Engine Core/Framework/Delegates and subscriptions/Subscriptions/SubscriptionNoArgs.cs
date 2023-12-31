@@ -1,8 +1,8 @@
-using System;
-
 using HereticalSolutions.Delegates.Factories;
 
 using HereticalSolutions.Pools;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Delegates.Subscriptions
 {
@@ -15,19 +15,24 @@ namespace HereticalSolutions.Delegates.Subscriptions
           ISubscriptionHandler<INonAllocSubscribableNoArgs, IInvokableNoArgs>
     {
         private readonly IInvokableNoArgs invokable;
+
+        private readonly IFormatLogger logger;
         
         private INonAllocSubscribableNoArgs publisher;
 
-        private IPoolElement<IInvokableNoArgs> poolElement;
+        private IPoolElement<ISubscription> poolElement;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="SubscriptionNoArgs"/> class.
         /// </summary>
         /// <param name="delegate">The action delegate.</param>
         public SubscriptionNoArgs(
-            Action @delegate)
+            Action @delegate,
+            IFormatLogger logger)
         {
             invokable = DelegatesFactory.BuildDelegateWrapperNoArgs(@delegate);
+
+            this.logger = logger;
 
             Active = false;
 
@@ -58,7 +63,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
         /// <summary>
         /// Gets the pool element.
         /// </summary>
-        public IPoolElement<IInvokableNoArgs> PoolElement
+        public IPoolElement<ISubscription> PoolElement
         {
             get => poolElement;
         }
@@ -76,16 +81,16 @@ namespace HereticalSolutions.Delegates.Subscriptions
         public bool ValidateActivation(INonAllocSubscribableNoArgs publisher)
         {
             if (Active)
-                throw new Exception("[SubscriptionNoArgs] ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
+                logger?.ThrowException<SubscriptionNoArgs>("ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
 			
             if (this.publisher != null)
-                throw new Exception("[SubscriptionNoArgs] SUBSCRIPTION ALREADY HAS A PUBLISHER");
+                logger?.ThrowException<SubscriptionNoArgs>("SUBSCRIPTION ALREADY HAS A PUBLISHER");
 			
             if (poolElement != null)
-                throw new Exception("[SubscriptionNoArgs] SUBSCRIPTION ALREADY HAS A POOL ELEMENT");
+                logger?.ThrowException<SubscriptionNoArgs>("SUBSCRIPTION ALREADY HAS A POOL ELEMENT");
 			
             if (invokable == null)
-                throw new Exception("[SubscriptionNoArgs] INVALID DELEGATE");
+                logger?.ThrowException<SubscriptionNoArgs>("INVALID DELEGATE");
 
             return true;
         }
@@ -97,7 +102,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
         /// <param name="poolElement">The pool element to assign.</param>
         public void Activate(
             INonAllocSubscribableNoArgs publisher,
-            IPoolElement<IInvokableNoArgs> poolElement)
+            IPoolElement<ISubscription> poolElement)
         {
             this.poolElement = poolElement;
 
@@ -115,13 +120,13 @@ namespace HereticalSolutions.Delegates.Subscriptions
         public bool ValidateTermination(INonAllocSubscribableNoArgs publisher)
         {
             if (!Active)
-                throw new Exception("[SubscriptionNoArgs] ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
+                logger?.ThrowException<SubscriptionNoArgs>("ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
 			
             if (this.publisher != publisher)
-                throw new Exception("[SubscriptionNoArgs] INVALID PUBLISHER");
+                logger?.ThrowException<SubscriptionNoArgs>("INVALID PUBLISHER");
 			
             if (poolElement == null)
-                throw new Exception("[SubscriptionNoArgs] INVALID POOL ELEMENT");
+                logger?.ThrowException<SubscriptionNoArgs>("INVALID POOL ELEMENT");
 
             return true;
         }

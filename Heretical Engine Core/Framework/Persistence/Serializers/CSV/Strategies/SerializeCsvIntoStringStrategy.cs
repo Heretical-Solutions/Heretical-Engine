@@ -1,27 +1,27 @@
-using System;
 using System.Collections;
 using System.Globalization;
-using System.IO;
 
 using HereticalSolutions.Persistence.Arguments;
+
+using HereticalSolutions.Logging;
 
 using CsvHelper;
 
 namespace HereticalSolutions.Persistence.Serializers
 {
-    /// <summary>
-    /// Represents a serialization strategy that serializes objects to CSV format and deserializes CSV strings into objects.
-    /// </summary>
     public class SerializeCsvIntoStringStrategy : ICsvSerializationStrategy
     {
-        /// <summary>
-        /// Serializes the specified value into a CSV string.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="valueType">The type of the value to be serialized.</param>
-        /// <param name="value">The value to be serialized.</param>
-        /// <returns>True if the serialization is successful, false otherwise.</returns>
-        public bool Serialize(ISerializationArgument argument, Type valueType, object value)
+        private readonly IFormatLogger logger;
+
+        public SerializeCsvIntoStringStrategy(IFormatLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type valueType,
+            object value)
         {
             using (StringWriter stringWriter = new StringWriter())
             {
@@ -47,14 +47,10 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        /// <summary>
-        /// Deserializes a CSV string into an object of the specified type.
-        /// </summary>
-        /// <param name="argument">The deserialization argument.</param>
-        /// <param name="valueType">The type of the object to be deserialized into.</param>
-        /// <param name="value">When this method returns, contains the deserialized object. If deserialization fails, contains null.</param>
-        /// <returns>True if the deserialization is successful, false otherwise.</returns>
-        public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            Type valueType,
+            out object value)
         {
             using (StringReader stringReader = new StringReader(((StringArgument)argument).Value))
             {
@@ -88,10 +84,7 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
         
-        /// <summary>
-        /// Erases the value stored in the serialization argument.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
+
         public void Erase(ISerializationArgument argument)
         {
             ((StringArgument)argument).Value = string.Empty;

@@ -1,21 +1,13 @@
 using HereticalSolutions.Pools.Decorators;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Factories
 {
-    /// <summary>
-    /// Factory class for creating decorator pools with ID.
-    /// </summary>
     public static class IDDecoratorsPoolsFactory
     {
         #region Decorator pools
 
-        /// <summary>
-        /// Builds a decorator pool with ID.
-        /// </summary>
-        /// <typeparam name="T">The type of objects in the pool.</typeparam>
-        /// <param name="innerPool">The inner pool to be decorated.</param>
-        /// <param name="id">The ID of the pool.</param>
-        /// <returns>A new instance of PoolWithID&lt;T&gt;.</returns>
         public static PoolWithID<T> BuildPoolWithID<T>(
             IDecoratedPool<T> innerPool,
             string id)
@@ -36,9 +28,13 @@ namespace HereticalSolutions.Pools.Factories
         /// <returns>A new instance of NonAllocPoolWithID&lt;T&gt;.</returns>
         public static NonAllocPoolWithID<T> BuildNonAllocPoolWithID<T>(
             INonAllocDecoratedPool<T> innerPool,
-            string id)
+            string id,
+            IFormatLogger logger)
         {
-            return new NonAllocPoolWithID<T>(innerPool, id);
+            return new NonAllocPoolWithID<T>(
+                innerPool,
+                id,
+                logger);
         }
 
         #endregion

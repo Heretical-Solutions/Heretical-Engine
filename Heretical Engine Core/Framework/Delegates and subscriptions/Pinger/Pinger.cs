@@ -1,11 +1,11 @@
-using System;
-
 namespace HereticalSolutions.Delegates.Pinging
 {
     /// <summary>
     /// Represents a class that can publish events with no arguments.
     /// </summary>
-    public class Pinger : IPublisherNoArgs, ISubscribableNoArgs
+    public class Pinger
+        : IPublisherNoArgs,
+          ISubscribableNoArgs
     {
         private Action multicastDelegate;
 
@@ -16,7 +16,16 @@ namespace HereticalSolutions.Delegates.Pinging
         /// </summary>
         public void Publish()
         {
-            multicastDelegate?.Invoke();
+            //If any delegate that is invoked attempts to unsubscribe itself, it would produce an error because the collection
+            //should NOT be changed during the invokation
+            //That's why we'll copy the multicast delegate to a local variable and invoke it from there
+            //multicastDelegate?.Invoke();
+
+            var multicastDelegateCopy = multicastDelegate;
+
+            multicastDelegateCopy?.Invoke();
+
+            multicastDelegateCopy = null;
         }
 
         #endregion
@@ -40,6 +49,33 @@ namespace HereticalSolutions.Delegates.Pinging
         {
             multicastDelegate -= @delegate;
         }
+
+        IEnumerable<Action> ISubscribableNoArgs.AllSubscriptions
+        {
+            get
+            {
+                //Kudos to Copilot for Cast() and the part after the ?? operator
+                return multicastDelegate?.GetInvocationList().Cast<Action>() ?? Enumerable.Empty<Action>();
+            }
+        }
+
+        #region ISubscribable
+
+        IEnumerable<object> ISubscribable.AllSubscriptions
+        {
+            get
+            {
+                //Kudos to Copilot for Cast() and the part after the ?? operator
+                return multicastDelegate?.GetInvocationList().Cast<object>() ?? Enumerable.Empty<object>();
+            }
+        }
+
+        public void UnsubscribeAll()
+        {
+            multicastDelegate = null;
+        }
+
+        #endregion
 
         #endregion
     }

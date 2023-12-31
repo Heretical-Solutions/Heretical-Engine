@@ -49,7 +49,22 @@ namespace HereticalSolutions.ResourceManagement
 					return false;
 				}
 
-				this.resource = (TResource)(object)resource; //DO NOT REPEAT
+				switch (resource)
+				{
+					case TResource targetTypeResource:
+
+						this.resource = targetTypeResource;
+
+						break;
+
+					default:
+
+						context.Logger?.ThrowException(
+							GetType(),
+							$"CANNOT SET RESOURCE OF TYPE {typeof(TValue).Name} TO RESOURCE OF TYPE {typeof(TResource).Name}");
+
+						break;
+				}
 
 				return true;
 			}

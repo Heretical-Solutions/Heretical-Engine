@@ -3,6 +3,8 @@ using HereticalSolutions.Allocations.Factories;
 
 using HereticalSolutions.Pools.Allocations;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Factories
 {
 	public static partial class PoolsFactory
@@ -10,11 +12,12 @@ namespace HereticalSolutions.Pools.Factories
 		public static INonAllocDecoratedPool<TValue> BuildSimpleResizableObjectPool<TValue>(
 			AllocationCommandDescriptor initialAllocation,
 			AllocationCommandDescriptor additionalAllocation,
+			IFormatLogger logger,
 			object[] valueAllocationArguments = null)
 		{
 			#region Builders
 
-			var resizablePoolBuilder = new ResizablePoolBuilder<TValue>();
+			var resizablePoolBuilder = new ResizablePoolBuilder<TValue>(logger);
 
 			#endregion
 
@@ -57,11 +60,12 @@ namespace HereticalSolutions.Pools.Factories
 		public static INonAllocDecoratedPool<TAbstractValue> BuildSimpleResizableObjectPool<TAbstractValue, TConcreteValue>(
 			AllocationCommandDescriptor initialAllocation,
 			AllocationCommandDescriptor additionalAllocation,
+			IFormatLogger logger,
 			object[] valueAllocationArguments = null)
 		{
 			#region Builders
 
-			var resizablePoolBuilder = new ResizablePoolBuilder<TAbstractValue>();
+			var resizablePoolBuilder = new ResizablePoolBuilder<TAbstractValue>(logger);
 
 			#endregion
 

@@ -1,6 +1,5 @@
-using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-
+using HereticalSolutions.Logging;
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 
@@ -10,23 +9,26 @@ using HereticalSolutions.Persistence.IO;
 
 namespace HereticalSolutions.Persistence.Serializers
 {
-    /// <summary>
-    /// Implements the <see cref="IBinarySerializationStrategy"/> interface and provides a strategy for serializing and deserializing binary data into and from a stream.
-    /// </summary>
     public class SerializeBinaryIntoStreamStrategy : IBinarySerializationStrategy
     {
-        /// <summary>
-        /// Serializes the specified value into the stream using the given binary formatter and serialization argument.
-        /// </summary>
-        /// <param name="argument">The serialization argument representing the stream.</param>
-        /// <param name="formatter">The binary formatter used for serialization.</param>
-        /// <param name="value">The object to be serialized.</param>
-        /// <returns><c>true</c> if serialization was successful; otherwise, <c>false</c>.</returns>
-        public bool Serialize(ISerializationArgument argument, BinaryFormatter formatter, object value)
+        private readonly IFormatLogger logger;
+
+        public SerializeBinaryIntoStreamStrategy(IFormatLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            BinaryFormatter formatter,
+            object value)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(filePathSettings, out FileStream fileStream))
+            if (!StreamIO.OpenWriteStream(
+                filePathSettings,
+                out FileStream fileStream,
+                logger))
                 return false;
             
             formatter.Serialize(fileStream, value);
@@ -36,20 +38,19 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        /// <summary>
-        /// Deserializes the value from the stream using the given binary formatter and serialization argument.
-        /// </summary>
-        /// <param name="argument">The serialization argument representing the stream.</param>
-        /// <param name="formatter">The binary formatter used for deserialization.</param>
-        /// <param name="value">When this method returns, contains the deserialized object if deserialization was successful; otherwise, the default value for <see cref="object"/>.</param>
-        /// <returns><c>true</c> if deserialization was successful; otherwise, <c>false</c>.</returns>
-        public bool Deserialize(ISerializationArgument argument, BinaryFormatter formatter, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            BinaryFormatter formatter,
+            out object value)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenReadStream(filePathSettings, out FileStream fileStream))
+            if (!StreamIO.OpenReadStream(
+                filePathSettings,
+                out FileStream fileStream,
+                logger))
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }
@@ -61,10 +62,6 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        /// <summary>
-        /// Erases the data in the stream using the given serialization argument.
-        /// </summary>
-        /// <param name="argument">The serialization argument representing the stream.</param>
         public void Erase(ISerializationArgument argument)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;

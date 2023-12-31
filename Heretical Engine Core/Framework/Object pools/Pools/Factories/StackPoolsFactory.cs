@@ -5,6 +5,7 @@ using HereticalSolutions.Collections;
 using HereticalSolutions.Allocations;
 
 using HereticalSolutions.Pools.Generic;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Factories
 {
@@ -15,16 +16,10 @@ namespace HereticalSolutions.Pools.Factories
     {
         #region Stack pool
 
-        /// <summary>
-        /// Builds a stack pool with the specified initial allocation command and additional allocation command.
-        /// </summary>
-        /// <typeparam name="T">The type of objects to be stored in the pool.</typeparam>
-        /// <param name="initialAllocationCommand">The initial allocation command for the pool.</param>
-        /// <param name="additionalAllocationCommand">The additional allocation command for the pool.</param>
-        /// <returns>A stack pool with the specified allocation commands.</returns>
         public static StackPool<T> BuildStackPool<T>(
             AllocationCommand<T> initialAllocationCommand,
-            AllocationCommand<T> additionalAllocationCommand)
+            AllocationCommand<T> additionalAllocationCommand,
+            IFormatLogger logger)
         {
             var stack = new Stack<T>();
 
@@ -33,7 +28,8 @@ namespace HereticalSolutions.Pools.Factories
             return new StackPool<T>(
                 stack,
                 ResizeStackPool,
-                additionalAllocationCommand);
+                additionalAllocationCommand,
+                logger);
         }
 
         /// <summary>

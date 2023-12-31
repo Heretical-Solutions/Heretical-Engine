@@ -220,7 +220,7 @@ namespace HereticalSolutions.Quests.Factories
 
                     foreach (var tracker in activeQuest.QuestProgressTracker.AllActiveObjectives)
                     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR //TODO: remove
                         int desiredValueClosure = tracker.Objective.Descriptor.ExpectedValue;
 
                         string trackerIDClosure = tracker.Objective.Descriptor.ObjectiveID;
@@ -228,7 +228,7 @@ namespace HereticalSolutions.Quests.Factories
 
                         Action<int> onValueChanged = (value) =>
                         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR //TODO: remove
                             Debug.Log($"[QuestStageFactory] TRACKER VALUE MODIFIED: {trackerIDClosure} {value} / {desiredValueClosure}");
 #endif
 

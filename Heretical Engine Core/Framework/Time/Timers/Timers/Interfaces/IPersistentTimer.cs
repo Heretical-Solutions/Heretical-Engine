@@ -7,7 +7,8 @@ namespace HereticalSolutions.Time
     /// <summary>
     /// Represents a persistent timer that can start and reset based on a given duration.
     /// </summary>
-    public interface IPersistentTimer : ITimer
+    public interface IPersistentTimer
+        : ITimer
     {
         #region Timer state
 

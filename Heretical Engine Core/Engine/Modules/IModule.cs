@@ -5,7 +5,7 @@ using HereticalSolutions.HereticalEngine.Application;
 namespace HereticalSolutions.HereticalEngine.Modules
 {
 	public interface IModule
-		: IGenericLifetimeable<ApplicationContext>
+		: IGenericLifetimeable<ApplicationContext> //TODO: replace with regular ILifetimeable
 	{
 		string Name { get; }
 

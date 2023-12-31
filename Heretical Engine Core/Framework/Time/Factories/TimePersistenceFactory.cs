@@ -1,5 +1,3 @@
-using System;
-
 using HereticalSolutions.Persistence.Visitors;
 
 using HereticalSolutions.Repositories;
@@ -8,18 +6,14 @@ using HereticalSolutions.Repositories.Factories;
 using HereticalSolutions.Time;
 using HereticalSolutions.Time.Visitors;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Factories
 {
-    /// <summary>
-    /// Represents a factory for creating time-related composite visitors.
-    /// </summary>
     public static partial class TimeFactory
     {
-        /// <summary>
-        /// Builds a composite visitor with timer visitors for loading and saving objects.
-        /// </summary>
-        /// <returns>A composite visitor with timer visitors.</returns>
-        public static CompositeVisitor BuildSimpleCompositeVisitorWithTimerVisitors()
+        public static CompositeVisitor BuildSimpleCompositeVisitorWithTimerVisitors(
+            IFormatLogger logger)
         {
             #region Load visitors repository
             
@@ -27,10 +21,14 @@ namespace HereticalSolutions.Persistence.Factories
             IRepository<Type, object> loadVisitorsDatabase = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
             // Add a persistent timer visitor to the load visitors repository
-            loadVisitorsDatabase.Add(typeof(IPersistentTimer), new PersistentTimerVisitor());
+            loadVisitorsDatabase.Add(
+                typeof(IPersistentTimer),
+                new PersistentTimerVisitor(logger));
             
             // Add a runtime timer visitor to the load visitors repository
-            loadVisitorsDatabase.Add(typeof(IRuntimeTimer), new RuntimeTimerVisitor());
+            loadVisitorsDatabase.Add(
+                typeof(IRuntimeTimer),
+                new RuntimeTimerVisitor(logger));
             
             // Create an immutable object repository for the load visitors
             IReadOnlyObjectRepository loadVisitorsRepository = RepositoriesFactory.BuildDictionaryObjectRepository(loadVisitorsDatabase);
@@ -43,10 +41,14 @@ namespace HereticalSolutions.Persistence.Factories
             IRepository<Type, object> saveVisitorsDatabase = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
             // Add a persistent timer visitor to the save visitors repository
-            saveVisitorsDatabase.Add(typeof(IPersistentTimer), new PersistentTimerVisitor());
+            saveVisitorsDatabase.Add(
+                typeof(IPersistentTimer),
+                new PersistentTimerVisitor(logger));
             
             // Add a runtime timer visitor to the save visitors repository
-            saveVisitorsDatabase.Add(typeof(IRuntimeTimer), new RuntimeTimerVisitor());
+            saveVisitorsDatabase.Add(
+                typeof(IRuntimeTimer),
+                new RuntimeTimerVisitor(logger));
             
             // Create an immutable object repository for the save visitors
             IReadOnlyObjectRepository saveVisitorsRepository = RepositoriesFactory.BuildDictionaryObjectRepository(saveVisitorsDatabase);
@@ -56,7 +58,8 @@ namespace HereticalSolutions.Persistence.Factories
             // Build and return a composite visitor using the load and save visitors repositories
             return PersistenceFactory.BuildCompositeVisitor(
                 loadVisitorsRepository,
-                saveVisitorsRepository);
+                saveVisitorsRepository,
+                logger);
         }
     }
 }

@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-
 using HereticalSolutions.Delegates.Broadcasting;
 
 using HereticalSolutions.Pools;
 
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.Logging;
+using Antlr4.Build.Tasks;
+
 namespace HereticalSolutions.Messaging
 {
-    /// <summary>
-    /// Class for sending and receiving messages through a message bus.
-    /// </summary>
     public class MessageBus
         : IMessageSender,
           IMessageReceiver
@@ -22,38 +19,36 @@ namespace HereticalSolutions.Messaging
 
         private readonly Queue<IMessage> mailbox;
 
-        /// <summary>
-        /// Constructor for the MessageBus class.
-        /// </summary>
-        /// <param name="broadcaster">The broadcaster used to send messages.</param>
-        /// <param name="messageRepository">The repository of message pools.</param>
-        /// <param name="mailbox">The mailbox for storing messages before delivery.</param>
+        private readonly IFormatLogger logger;
+
         public MessageBus(
             BroadcasterWithRepository broadcaster,
             IReadOnlyObjectRepository messageRepository,
-            Queue<IMessage> mailbox)
+            Queue<IMessage> mailbox,
+            IFormatLogger logger)
         {
             this.broadcaster = broadcaster;
+
             this.messageRepository = messageRepository;
+
             this.mailbox = mailbox;
+
+            this.logger = logger;
         }
 
         #region IMessageSender
 
         #region Pop
 
-        /// <summary>
-        /// Pops a message of the specified type from the message pool and assigns it to the out parameter.
-        /// </summary>
-        /// <param name="messageType">The type of the message to pop.</param>
-        /// <param name="message">The popped message.</param>
-        /// <returns>The current instance of the MessageBus class.</returns>
-        public IMessageSender PopMessage(Type messageType, out IMessage message)
+        public IMessageSender PopMessage(
+            Type messageType,
+            out IMessage message)
         {
             if (!messageRepository.TryGet(
                     messageType,
                     out object messagePoolObject))
-                throw new Exception($"[MessageBus] INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.ToString()}");
+                logger?.ThrowException<MessageBus>(
+                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}");
 
             IPool<IMessage> messagePool = (IPool<IMessage>)messagePoolObject;
 
@@ -62,18 +57,13 @@ namespace HereticalSolutions.Messaging
             return this;
         }
 
-        /// <summary>
-        /// Pops a message of the specified type from the message pool and assigns it to the out parameter.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message to pop.</typeparam>
-        /// <param name="message">The popped message.</param>
-        /// <returns>The current instance of the MessageBus class.</returns>
         public IMessageSender PopMessage<TMessage>(out TMessage message) where TMessage : IMessage
         {
             if (!messageRepository.TryGet(
                     typeof(TMessage),
                     out object messagePoolObject))
-                throw new Exception($"[MessageBus] INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).ToString()}");
+                logger?.ThrowException<MessageBus>(
+                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}");
 
             IPool<IMessage> messagePool = (IPool<IMessage>)messagePoolObject;
 
@@ -86,33 +76,24 @@ namespace HereticalSolutions.Messaging
 
         #region Write
 
-        /// <summary>
-        /// Writes the specified arguments to the message.
-        /// </summary>
-        /// <param name="message">The message to write to.</param>
-        /// <param name="args">The arguments to write.</param>
-        /// <returns>The current instance of the MessageBus class.</returns>
         public IMessageSender Write(IMessage message, object[] args)
         {
             if (message == null)
-                throw new Exception($"[MessageBus] INVALID MESSAGE");
+                logger?.ThrowException<MessageBus>(
+                    $"INVALID MESSAGE");
 
             message.Write(args);
 
             return this;
         }
 
-        /// <summary>
-        /// Writes the specified arguments to the message.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message to write to.</typeparam>
-        /// <param name="message">The message to write to.</param>
-        /// <param name="args">The arguments to write.</param>
-        /// <returns>The current instance of the MessageBus class.</returns>
-        public IMessageSender Write<TMessage>(TMessage message, object[] args) where TMessage : IMessage
+        public IMessageSender Write<TMessage>(
+            TMessage message,
+            object[] args) where TMessage : IMessage
         {
             if (message == null)
-                throw new Exception($"[MessageBus] INVALID MESSAGE");
+                logger?.ThrowException<MessageBus>(
+                    $"INVALID MESSAGE");
 
             message.Write(args);
 
@@ -193,7 +174,8 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                     messageType,
                     out object messagePoolObject))
-                throw new Exception($"[MessageBus] INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.ToString()}");
+                logger?.ThrowException<MessageBus>(
+                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}");
 
             IPool<IMessage> messagePool = (IPool<IMessage>)messagePoolObject;
 
@@ -207,7 +189,8 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                     messageType,
                     out object messagePoolObject))
-                throw new Exception($"[MessageBus] INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).ToString()}");
+                logger?.ThrowException<MessageBus>(
+                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}");
 
             IPool<IMessage> messagePool = (IPool<IMessage>)messagePoolObject;
 

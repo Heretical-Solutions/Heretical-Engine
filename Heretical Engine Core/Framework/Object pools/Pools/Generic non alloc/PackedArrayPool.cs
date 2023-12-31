@@ -1,33 +1,29 @@
-using System;
 
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Pools.Behaviours;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.GenericNonAlloc
 {
-    /// <summary>
-    /// The container that combines the functions of a memory pool and a list with an increased performance
-    /// Basic concept is:
-    /// 1. The contents are pre-allocated
-    /// 2. Popping a new item is actually retrieving the first unused item and increasing the last used item index
-    /// 3. Pushing an item is taking the last used item, swapping it with the removed item and decreasing the last used item index
-    /// </summary>
-    /// <typeparam name="T">Type of the objects stored in the container</typeparam>
     public class PackedArrayPool<T>: IFixedSizeCollection<IPoolElement<T>>, INonAllocPool<T>, IIndexable<IPoolElement<T>>, IModifiable<IPoolElement<T>[]>, ICountUpdateable
     {
+        private readonly IFormatLogger logger;
+
         private IPoolElement<T>[] contents;
         
         private int count;
 
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PackedArrayPool{T}"/> class.
-        /// </summary>
-        /// <param name="contents">The pre-allocated contents of the pool.</param>
-        public PackedArrayPool(IPoolElement<T>[] contents)
+        public PackedArrayPool(
+            IPoolElement<T>[] contents,
+            IFormatLogger logger)
         {
             this.contents = contents;
+
+            this.logger = logger;
             
             count = 0;
 
@@ -87,45 +83,23 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 		/// </summary>
 		public int Count { get { return count; } }
 		
-		/// <summary>
-		/// Gets or sets the element at the specified index in the pool.
-		/// </summary>
-		/// <param name="index">The index of the element.</param>
-		/// <returns>The element at the specified index.</returns>
-		/// <exception cref="System.Exception">Thrown if the index is invalid.</exception>
 		public IPoolElement<T> this[int index]
 		{
 			get
 			{
                 if (index >= count || index < 0)
-					throw new Exception(
-                        string.Format(
-							"[PackedArrayPool<{0}>] INVALID INDEX: {1} COUNT:{2} CAPACITY:{3}",
-                            typeof(T).ToString(),
-                            index,
-                            Count,
-                            Capacity));
+					logger?.ThrowException<PackedArrayPool<T>>(
+						$"INVALID INDEX: {index} COUNT: {Count} CAPACITY: {Capacity}");
 
 				return contents[index];
 			}
 		}
 		
-		/// <summary>
-		/// Gets the element at the specified index in the pool.
-		/// </summary>
-		/// <param name="index">The index of the element.</param>
-		/// <returns>The element at the specified index.</returns>
-		/// <exception cref="System.Exception">Thrown if the index is invalid.</exception>
 		public IPoolElement<T> Get(int index)
 		{
 			if (index >= count || index < 0)
-				throw new Exception(
-					string.Format(
-						"[PackedArrayPool<{0}>] INVALID INDEX: {1} COUNT:{2} CAPACITY:{3}",
-						typeof(T).ToString(),
-						index,
-						Count,
-						Capacity));
+				logger?.ThrowException<PackedArrayPool<T>>(
+					$"INVALID INDEX: {index} COUNT: {count} CAPACITY: {Capacity}");
 
 			return contents[index];
 		}
@@ -162,17 +136,12 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
             return result;
         }
 
-		/// <summary>
-		/// Pops an item from the pool at the specified index.
-		/// </summary>
-		/// <param name="index">The index of the item.</param>
-		/// <returns>The popped item.</returns>
-		/// <exception cref="System.Exception">Thrown if the index is invalid.</exception>
 		public IPoolElement<T> Pop(int index)
 		{
             if (index < count)
             {
-                throw new Exception($"[PackedArrayPool] ELEMENT AT INDEX {index} IS ALREADY POPPED");
+                logger?.ThrowException<PackedArrayPool<T>>(
+                    $"ELEMENT AT INDEX {index} IS ALREADY POPPED");
 			}
 
 

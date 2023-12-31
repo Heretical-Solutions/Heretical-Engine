@@ -4,86 +4,63 @@ using HereticalSolutions.Pools;
 
 namespace HereticalSolutions.Delegates.Broadcasting
 {
-    /// <summary>
-    /// A class that implements the IPublisherMultipleArgs and INonAllocSubscribableMultipleArgs interfaces.
-    /// </summary>
-    public class NonAllocBroadcasterMultipleArgs : IPublisherMultipleArgs, INonAllocSubscribableMultipleArgs
+    public class NonAllocBroadcasterMultipleArgs
+        : IPublisherMultipleArgs,
+          INonAllocSubscribableMultipleArgs
     {
         #region Subscriptions
 
-        /// <summary>
-        /// The pool of subscriptions.
-        /// </summary>
-        private readonly INonAllocDecoratedPool<IInvokableMultipleArgs> subscriptionsPool;
+        private readonly INonAllocDecoratedPool<ISubscription> subscriptionsPool;
 
-        /// <summary>
-        /// The subscriptions stored as an indexable collection.
-        /// </summary>
-        private readonly IIndexable<IPoolElement<IInvokableMultipleArgs>> subscriptionsAsIndexable;
+        private readonly IIndexable<IPoolElement<ISubscription>> subscriptionsAsIndexable;
 
-        /// <summary>
-        /// The subscriptions stored in a fixed-size collection.
-        /// </summary>
-        private readonly IFixedSizeCollection<IPoolElement<IInvokableMultipleArgs>> subscriptionsWithCapacity;
+        private readonly IFixedSizeCollection<IPoolElement<ISubscription>> subscriptionsWithCapacity;
 
         #endregion
 
         #region Buffer
 
-        /// <summary>
-        /// The buffer that holds the current subscriptions.
-        /// </summary>
-        private IInvokableMultipleArgs[] currentSubscriptionsBuffer;
+        private ISubscription[] currentSubscriptionsBuffer;
 
-        /// <summary>
-        /// The count of valid entries in the current subscriptions buffer.
-        /// </summary>
         private int currentSubscriptionsBufferCount = -1;
 
         #endregion
 
-        /// <summary>
-        /// A flag that indicates if a broadcast is currently in progress.
-        /// </summary>
         private bool broadcastInProgress = false;
 
-        /// <summary>
-        /// Initializes a new instance of the NonAllocBroadcasterMultipleArgs class.
-        /// </summary>
-        /// <param name="subscriptionsPool">The pool of subscriptions.</param>
-        /// <param name="subscriptionsContents">The contents of the subscriptions pool.</param>
-        public NonAllocBroadcasterMultipleArgs(INonAllocDecoratedPool<IInvokableMultipleArgs> subscriptionsPool,
-            INonAllocPool<IInvokableMultipleArgs> subscriptionsContents)
+        public NonAllocBroadcasterMultipleArgs(
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool,
+            INonAllocPool<ISubscription> subscriptionsContents)
         {
             this.subscriptionsPool = subscriptionsPool;
-            subscriptionsAsIndexable = (IIndexable<IPoolElement<IInvokableMultipleArgs>>)subscriptionsContents;
-            subscriptionsWithCapacity = (IFixedSizeCollection<IPoolElement<IInvokableMultipleArgs>>)subscriptionsContents;
-            currentSubscriptionsBuffer = new IInvokableMultipleArgs[subscriptionsWithCapacity.Capacity];
+            subscriptionsAsIndexable = (IIndexable<IPoolElement<ISubscription>>)subscriptionsContents;
+            subscriptionsWithCapacity = (IFixedSizeCollection<IPoolElement<ISubscription>>)subscriptionsContents;
+            currentSubscriptionsBuffer = new ISubscription[subscriptionsWithCapacity.Capacity];
         }
 
-        #region IPublisherMultipleArgs
+        #region INonAllocSubscribableMultipleArgs
 
-        /// <summary>
-        /// Subscribes to the broadcaster.
-        /// </summary>
-        /// <param name="subscription">The subscription handler.</param>
-        public void Subscribe(ISubscriptionHandler<INonAllocSubscribableMultipleArgs, IInvokableMultipleArgs> subscription)
+        public void Subscribe(
+            ISubscriptionHandler<
+                INonAllocSubscribableMultipleArgs,
+                IInvokableMultipleArgs>
+                subscription)
         {
             if (!subscription.ValidateActivation(this))
                 return;
 
-            var subscriptionElement = subscriptionsPool.Pop(null);
+            var subscriptionElement = subscriptionsPool.Pop();
 
-            subscriptionElement.Value = ((ISubscriptionState<IInvokableMultipleArgs>)subscription).Invokable;
+            subscriptionElement.Value = ((ISubscriptionState<ISubscription>)subscription).Invokable;
 
             subscription.Activate(this, subscriptionElement);
         }
 
-        /// <summary>
-        /// Unsubscribes from the broadcaster.
-        /// </summary>
-        /// <param name="subscription">The subscription handler.</param>
-        public void Unsubscribe(ISubscriptionHandler<INonAllocSubscribableMultipleArgs, IInvokableMultipleArgs> subscription)
+        public void Unsubscribe(
+            ISubscriptionHandler<
+                INonAllocSubscribableMultipleArgs,
+                IInvokableMultipleArgs>
+                subscription)
         {
             if (!subscription.ValidateTermination(this))
                 return;
@@ -99,21 +76,83 @@ namespace HereticalSolutions.Delegates.Broadcasting
             subscription.Terminate();
         }
 
-        /// <summary>
-        /// Unsubscribes from the broadcaster.
-        /// </summary>
-        /// <param name="subscription">The subscription to unsubscribe.</param>
-        public void Unsubscribe(IPoolElement<IInvokableMultipleArgs> subscription)
+        IEnumerable<
+            ISubscriptionHandler<
+                INonAllocSubscribableMultipleArgs,
+                IInvokableMultipleArgs>>
+                INonAllocSubscribableMultipleArgs.AllSubscriptions
         {
-            TryRemoveFromBuffer(subscription);
+            get
+            {
+                var allSubscriptions = new ISubscriptionHandler<
+                    INonAllocSubscribableMultipleArgs,
+                    IInvokableMultipleArgs>
+                    [subscriptionsAsIndexable.Count];
 
-            subscription.Value = null;
+                for (int i = 0; i < allSubscriptions.Length; i++)
+                    allSubscriptions[i] = (ISubscriptionHandler<
+                        INonAllocSubscribableMultipleArgs,
+                        IInvokableMultipleArgs>)
+                        subscriptionsAsIndexable[i].Value;
 
-            subscriptionsPool.Push(subscription);
+                return allSubscriptions;
+            }
         }
 
-        // A private method used to remove a subscription from the current subscriptions buffer.
-        private void TryRemoveFromBuffer(IPoolElement<IInvokableMultipleArgs> subscriptionElement)
+        #region INonAllocSubscribable
+
+        IEnumerable<ISubscription> INonAllocSubscribable.AllSubscriptions
+        {
+            get
+            {
+                ISubscription[] allSubscriptions = new ISubscription[subscriptionsAsIndexable.Count];
+
+                for (int i = 0; i < allSubscriptions.Length; i++)
+                    allSubscriptions[i] = subscriptionsAsIndexable[i].Value;
+
+                return allSubscriptions;
+            }
+        }
+
+        public void UnsubscribeAll()
+        {
+            while (subscriptionsAsIndexable.Count > 0)
+            {
+                var subscription = (ISubscriptionHandler<
+                    INonAllocSubscribableMultipleArgs,
+                    IInvokableMultipleArgs>)
+                    subscriptionsAsIndexable[0];
+
+                Unsubscribe(subscription);
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region IPublisherMultipleArgs
+
+        public void Publish(object[] value)
+        {
+            //If any delegate that is invoked attempts to unsubscribe itself, it would produce an error because the collection
+            //should NOT be changed during the invokation
+            //That's why we'll copy the subscriptions array to buffer and invoke it from there
+
+            ValidateBufferSize();
+
+            currentSubscriptionsBufferCount = subscriptionsAsIndexable.Count;
+
+            CopySubscriptionsToBuffer();
+
+            InvokeSubscriptions(value);
+
+            EmptyBuffer();
+        }
+
+        #endregion
+
+        private void TryRemoveFromBuffer(IPoolElement<ISubscription> subscriptionElement)
         {
             if (!broadcastInProgress)
                 return;
@@ -128,42 +167,18 @@ namespace HereticalSolutions.Delegates.Broadcasting
             }
         }
 
-        #endregion
-
-        #region IPublisherMultipleArgs
-
-        /// <summary>
-        /// Publishes an event with the specified value.
-        /// </summary>
-        /// <param name="value">The value to publish.</param>
-        public void Publish(object[] value)
-        {
-            ValidateBufferSize();
-
-            currentSubscriptionsBufferCount = subscriptionsAsIndexable.Count;
-
-            CopySubscriptionsToBuffer();
-
-            InvokeSubscriptions(value);
-
-            EmptyBuffer();
-        }
-
-        // A private method used to validate and resize the buffer if necessary.
         private void ValidateBufferSize()
         {
             if (currentSubscriptionsBuffer.Length < subscriptionsWithCapacity.Capacity)
-                currentSubscriptionsBuffer = new IInvokableMultipleArgs[subscriptionsWithCapacity.Capacity];
+                currentSubscriptionsBuffer = new ISubscription[subscriptionsWithCapacity.Capacity];
         }
 
-        // A private method used to copy the subscriptions to the buffer.
         private void CopySubscriptionsToBuffer()
         {
             for (int i = 0; i < currentSubscriptionsBufferCount; i++)
                 currentSubscriptionsBuffer[i] = subscriptionsAsIndexable[i].Value;
         }
 
-        // A private method used to invoke the subscriptions in the buffer.
         private void InvokeSubscriptions(object[] value)
         {
             broadcastInProgress = true;
@@ -171,19 +186,20 @@ namespace HereticalSolutions.Delegates.Broadcasting
             for (int i = 0; i < currentSubscriptionsBufferCount; i++)
             {
                 if (currentSubscriptionsBuffer[i] != null)
-                    currentSubscriptionsBuffer[i].Invoke(value);
+                {
+                    var subscriptionState = (ISubscriptionState<IInvokableMultipleArgs>)currentSubscriptionsBuffer[i];
+
+                    subscriptionState.Invokable.Invoke(value);
+                }
             }
 
             broadcastInProgress = false;
         }
 
-        // A private method used to empty the buffer.
         private void EmptyBuffer()
         {
             for (int i = 0; i < currentSubscriptionsBufferCount; i++)
                 currentSubscriptionsBuffer[i] = null;
         }
-
-        #endregion
     }
 }

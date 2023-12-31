@@ -5,6 +5,8 @@ namespace HereticalSolutions
     /// </summary>
     public static class MathHelpers
     {
+        //TODO: add stuff from OpenTK
+
         /// <summary>
         /// Defines a small constant value used for floating-point comparisons.
         /// </summary>

@@ -1,16 +1,12 @@
-using System;
-
 using HereticalSolutions.Delegates.Factories;
 
 using HereticalSolutions.Time;
 using HereticalSolutions.Time.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.AllocationCallbacks
 {
-    /// <summary>
-    /// Represents an allocation callback that sets a runtime timer for each allocated item in a pool.
-    /// </summary>
-    /// <typeparam name="T">The type of the pool elements.</typeparam>
     public class SetRuntimeTimerCallback<T> : IAllocationCallback<T>
     {
         /// <summary>
@@ -23,6 +19,8 @@ namespace HereticalSolutions.Pools.AllocationCallbacks
         /// </summary>
         public float DefaultDuration { get; set; }
 
+        private IFormatLogger logger;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SetRuntimeTimerCallback{T}"/> class with the specified ID and default duration.
         /// </summary>
@@ -30,16 +28,16 @@ namespace HereticalSolutions.Pools.AllocationCallbacks
         /// <param name="defaultDuration">The default duration for the runtime timer.</param>
         public SetRuntimeTimerCallback(
             string id = "Anonymous Timer",
-            float defaultDuration = 0f)
+            float defaultDuration = 0f,
+            IFormatLogger logger = null)
         {
             ID = id;
+
             DefaultDuration = defaultDuration;
+
+            this.logger = logger;
         }
 
-        /// <summary>
-        /// Sets the runtime timer for the allocated item in the pool when it is allocated.
-        /// </summary>
-        /// <param name="currentElement">The currently allocated element in the pool.</param>
         public void OnAllocated(IPoolElement<T> currentElement)
         {
             //SUPPLY AND MERGE POOLS DO NOT PRODUCE ELEMENTS WITH VALUES
@@ -51,16 +49,21 @@ namespace HereticalSolutions.Pools.AllocationCallbacks
             // Set the runtime timer
             metadata.RuntimeTimer = TimeFactory.BuildRuntimeTimer(
                 ID,
-                DefaultDuration);
+                DefaultDuration,
+                logger);
 
             metadata.RuntimeTimerAsTickable = (ITickable)metadata.RuntimeTimer;
 
             // Subscribe to the runtime timer's tick event
-            metadata.UpdateSubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<float>(metadata.RuntimeTimerAsTickable.Tick);
+            metadata.UpdateSubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<float>(
+                metadata.RuntimeTimerAsTickable.Tick,
+                logger);
 
             Action<IRuntimeTimer> pushDelegate = (timer) => { currentElement.Push(); };
 
-            metadata.PushSubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<IRuntimeTimer>(pushDelegate);
+            metadata.PushSubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<IRuntimeTimer>(
+                pushDelegate,
+                logger);
         }
     }
 }

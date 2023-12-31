@@ -1,30 +1,32 @@
-using System;
-
 using HereticalSolutions.Collections;
 
 using HereticalSolutions.Pools;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Delegates.Broadcasting
 {
-    /// <summary>
-    /// Represents a non-allocating generic broadcaster for single-argument events.
-    /// </summary>
-    /// <typeparam name="TValue">The type of the event argument.</typeparam>
-    public class NonAllocBroadcasterGeneric<TValue> : IPublisherSingleArgGeneric<TValue>, IPublisherSingleArg, INonAllocSubscribableSingleArgGeneric<TValue>, INonAllocSubscribableSingleArg
+    public class NonAllocBroadcasterGeneric<TValue>
+        : IPublisherSingleArgGeneric<TValue>,
+          IPublisherSingleArg,
+          INonAllocSubscribableSingleArgGeneric<TValue>,
+          INonAllocSubscribableSingleArg
     {
         #region Subscriptions
 
-        private readonly INonAllocDecoratedPool<IInvokableSingleArgGeneric<TValue>> subscriptionsPool;
+        private readonly INonAllocDecoratedPool<ISubscription> subscriptionsPool;
 
-        private readonly IIndexable<IPoolElement<IInvokableSingleArgGeneric<TValue>>> subscriptionsAsIndexable;
+        private readonly IIndexable<IPoolElement<ISubscription>> subscriptionsAsIndexable;
 
-        private readonly IFixedSizeCollection<IPoolElement<IInvokableSingleArgGeneric<TValue>>> subscriptionsWithCapacity;
+        private readonly IFixedSizeCollection<IPoolElement<ISubscription>> subscriptionsWithCapacity;
 
         #endregion
 
+        private readonly IFormatLogger logger;
+
         #region Buffer
 
-        private IInvokableSingleArgGeneric<TValue>[] currentSubscriptionsBuffer;
+        private ISubscription[] currentSubscriptionsBuffer;
 
         private int currentSubscriptionsBufferCount = -1;
 
@@ -32,47 +34,45 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
         private bool broadcastInProgress = false;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NonAllocBroadcasterGeneric{TValue}"/> class.
-        /// </summary>
-        /// <param name="subscriptionsPool">The pool for managing subscriptions.</param>
-        /// <param name="subscriptionsContents">The pool for managing subscription contents.</param>
         public NonAllocBroadcasterGeneric(
-            INonAllocDecoratedPool<IInvokableSingleArgGeneric<TValue>> subscriptionsPool,
-            INonAllocPool<IInvokableSingleArgGeneric<TValue>> subscriptionsContents)
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool,
+            INonAllocPool<ISubscription> subscriptionsContents,
+            IFormatLogger logger)
         {
             this.subscriptionsPool = subscriptionsPool;
 
-            subscriptionsAsIndexable = (IIndexable<IPoolElement<IInvokableSingleArgGeneric<TValue>>>)subscriptionsContents;
+            this.logger = logger;
 
-            subscriptionsWithCapacity = (IFixedSizeCollection<IPoolElement<IInvokableSingleArgGeneric<TValue>>>)subscriptionsContents;
+            subscriptionsAsIndexable = (IIndexable<IPoolElement<ISubscription>>)subscriptionsContents;
 
-            currentSubscriptionsBuffer = new IInvokableSingleArgGeneric<TValue>[subscriptionsWithCapacity.Capacity];
+            subscriptionsWithCapacity = (IFixedSizeCollection<IPoolElement<ISubscription>>)subscriptionsContents;
+
+            currentSubscriptionsBuffer = new ISubscription[subscriptionsWithCapacity.Capacity];
         }
 
         #region INonAllocSubscribableSingleArgGeneric
 
-        /// <summary>
-        /// Subscribes a subscription handler to the broadcaster.
-        /// </summary>
-        /// <param name="subscription">The subscription handler to subscribe.</param>
-        public void Subscribe(ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TValue>, IInvokableSingleArgGeneric<TValue>> subscription)
+        public void Subscribe(
+            ISubscriptionHandler<
+                INonAllocSubscribableSingleArgGeneric<TValue>,
+                IInvokableSingleArgGeneric<TValue>>
+                subscription)
         {
             if (!subscription.ValidateActivation(this))
                 return;
 
-            var subscriptionElement = subscriptionsPool.Pop(null);
+            var subscriptionElement = subscriptionsPool.Pop();
 
-            subscriptionElement.Value = ((ISubscriptionState<IInvokableSingleArgGeneric<TValue>>)subscription).Invokable;
+            subscriptionElement.Value = ((ISubscriptionState<ISubscription>)subscription).Invokable;
 
             subscription.Activate(this, subscriptionElement);
         }
 
-        /// <summary>
-        /// Unsubscribes a subscription handler from the broadcaster.
-        /// </summary>
-        /// <param name="subscription">The subscription handler to unsubscribe.</param>
-        public void Unsubscribe(ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TValue>, IInvokableSingleArgGeneric<TValue>> subscription)
+        public void Unsubscribe(
+            ISubscriptionHandler<
+                INonAllocSubscribableSingleArgGeneric<TValue>,
+                IInvokableSingleArgGeneric<TValue>>
+                subscription)
         {
             if (!subscription.ValidateTermination(this))
                 return;
@@ -88,7 +88,294 @@ namespace HereticalSolutions.Delegates.Broadcasting
             subscription.Terminate();
         }
 
-        private void TryRemoveFromBuffer(IPoolElement<IInvokableSingleArgGeneric<TValue>> subscriptionElement)
+        IEnumerable<
+            ISubscriptionHandler<
+                INonAllocSubscribableSingleArgGeneric<TValue>,
+                IInvokableSingleArgGeneric<TValue>>>
+                INonAllocSubscribableSingleArgGeneric<TValue>.AllSubscriptions
+        {
+            get
+            {
+                var allSubscriptions = new ISubscriptionHandler<
+                    INonAllocSubscribableSingleArgGeneric<TValue>,
+                    IInvokableSingleArgGeneric<TValue>>
+                    [subscriptionsAsIndexable.Count];
+
+                for (int i = 0; i < allSubscriptions.Length; i++)
+                    allSubscriptions[i] = (ISubscriptionHandler<
+                        INonAllocSubscribableSingleArgGeneric<TValue>,
+                        IInvokableSingleArgGeneric<TValue>>)
+                        subscriptionsAsIndexable[i].Value;
+
+                return allSubscriptions;
+            }
+        }
+
+        #endregion
+
+        #region INonAllocSubscribableSingleArg
+
+        public void Subscribe<TArgument>(
+            ISubscriptionHandler<
+                INonAllocSubscribableSingleArgGeneric<TArgument>,
+                IInvokableSingleArgGeneric<TArgument>>
+                subscription)
+        {
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (subscription)
+            {
+                case ISubscriptionHandler<
+                    INonAllocSubscribableSingleArgGeneric<TValue>,
+                    IInvokableSingleArgGeneric<TValue>> tValueSubscription:
+
+                    Subscribe(tValueSubscription);
+
+                    break;
+
+                default:
+
+                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
+                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
+
+                    break;
+            }
+        }
+
+        public void Subscribe(
+            Type valueType,
+            ISubscriptionHandler<
+                INonAllocSubscribableSingleArg,
+                IInvokableSingleArg>
+                subscription)
+        {
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (subscription)
+            {
+                case ISubscriptionHandler<
+                    INonAllocSubscribableSingleArgGeneric<TValue>,
+                    IInvokableSingleArgGeneric<TValue>>
+                    tValueSubscription:
+
+                    Subscribe(tValueSubscription);
+
+                    break;
+
+                default:
+
+                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
+                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
+
+                    break;
+            }
+        }
+
+        /// <param name="subscription">The subscription handler to unsubscribe.</param>
+        public void Unsubscribe<TArgument>(
+            ISubscriptionHandler<
+                INonAllocSubscribableSingleArgGeneric<TArgument>,
+                IInvokableSingleArgGeneric<TArgument>>
+                subscription)
+        {
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (subscription)
+            {
+                case ISubscriptionHandler<
+                    INonAllocSubscribableSingleArgGeneric<TValue>,
+                    IInvokableSingleArgGeneric<TValue>>
+                    tValueSubscription:
+
+                    Unsubscribe(tValueSubscription);
+
+                    break;
+
+                default:
+
+                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
+                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
+
+                    break;
+            }
+        }
+
+        public void Unsubscribe(
+            Type valueType,
+            ISubscriptionHandler<
+                INonAllocSubscribableSingleArg,
+                IInvokableSingleArg>
+                subscription)
+        {
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (subscription)
+            {
+                case ISubscriptionHandler<
+                    INonAllocSubscribableSingleArgGeneric<TValue>,
+                    IInvokableSingleArgGeneric<TValue>>
+                    tValueSubscription:
+
+                    Unsubscribe(tValueSubscription);
+
+                    break;
+
+                default:
+
+                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
+                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
+
+                    break;
+            }
+        }
+
+        IEnumerable<
+            ISubscriptionHandler<
+                INonAllocSubscribableSingleArgGeneric<TValue>,
+                IInvokableSingleArgGeneric<TValue>>>
+                INonAllocSubscribableSingleArg.GetAllSubscriptions<TValue>()
+        {
+            var allSubscriptions = new ISubscriptionHandler<
+                INonAllocSubscribableSingleArgGeneric<TValue>,
+                IInvokableSingleArgGeneric<TValue>>
+                [subscriptionsAsIndexable.Count];
+
+            for (int i = 0; i < allSubscriptions.Length; i++)
+                allSubscriptions[i] = (ISubscriptionHandler<
+                    INonAllocSubscribableSingleArgGeneric<TValue>,
+                    IInvokableSingleArgGeneric<TValue>>)
+                    subscriptionsAsIndexable[i].Value;
+
+            return allSubscriptions;
+        }
+
+        public IEnumerable<ISubscription> GetAllSubscriptions(Type valueType)
+        {
+            ISubscription[] allSubscriptions = new ISubscription[subscriptionsAsIndexable.Count];
+
+            for (int i = 0; i < allSubscriptions.Length; i++)
+                allSubscriptions[i] = subscriptionsAsIndexable[i].Value;
+
+            return allSubscriptions;
+        }
+
+        IEnumerable<
+            ISubscriptionHandler<
+                INonAllocSubscribableSingleArg,
+                IInvokableSingleArg>>
+                INonAllocSubscribableSingleArg.AllSubscriptions
+        {
+            get
+            {
+                var allSubscriptions = new ISubscriptionHandler<
+                    INonAllocSubscribableSingleArg,
+                    IInvokableSingleArg>
+                    [subscriptionsAsIndexable.Count];
+
+                for (int i = 0; i < allSubscriptions.Length; i++)
+                    allSubscriptions[i] = (ISubscriptionHandler<
+                        INonAllocSubscribableSingleArg,
+                        IInvokableSingleArg>)
+                        subscriptionsAsIndexable[i].Value;
+
+                return allSubscriptions;
+            }
+        }
+
+        #endregion
+
+        #region INonAllocSubscribable
+
+        public IEnumerable<ISubscription> AllSubscriptions
+        {
+            get
+            {
+                ISubscription[] allSubscriptions = new ISubscription[subscriptionsAsIndexable.Count];
+
+                for (int i = 0; i < allSubscriptions.Length; i++)
+                    allSubscriptions[i] = subscriptionsAsIndexable[i].Value;
+
+                return allSubscriptions;
+            }
+        }
+
+        public void UnsubscribeAll()
+        {
+            while (subscriptionsAsIndexable.Count > 0)
+            {
+                var subscription = (ISubscriptionHandler<
+                    INonAllocSubscribableSingleArgGeneric<TValue>,
+                    IInvokableSingleArgGeneric<TValue>>)
+                    subscriptionsAsIndexable[0];
+
+                Unsubscribe(subscription);
+            }
+        }
+
+        #endregion
+
+        #region IPublisherSingleArgGeneric
+
+        public void Publish(TValue value)
+        {
+            //If any delegate that is invoked attempts to unsubscribe itself, it would produce an error because the collection
+            //should NOT be changed during the invokation
+            //That's why we'll copy the subscriptions array to buffer and invoke it from there
+
+            ValidateBufferSize();
+
+            currentSubscriptionsBufferCount = subscriptionsAsIndexable.Count;
+
+            CopySubscriptionsToBuffer();
+
+            InvokeSubscriptions(value);
+
+            EmptyBuffer();
+        }
+
+        #endregion
+
+        #region IPublisherSingleArg
+
+        public void Publish<TArgument>(TArgument value)
+        {
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (value)
+            {
+                case TValue tValue:
+
+                    Publish(tValue);
+
+                    break;
+
+                default:
+
+                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
+                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
+
+                    break;
+            }
+        }
+
+        public void Publish(Type valueType, object value)
+        {
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (value)
+            {
+                case TValue tValue:
+
+                    Publish(tValue);
+
+                    break;
+
+                default:
+
+                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
+                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
+
+                    break;
+            }
+        }
+
+        #endregion
+
+        private void TryRemoveFromBuffer(IPoolElement<ISubscription> subscriptionElement)
         {
             if (!broadcastInProgress)
                 return;
@@ -103,87 +390,10 @@ namespace HereticalSolutions.Delegates.Broadcasting
             }
         }
 
-        #endregion
-
-        #region INonAllocSubscribableSingleArg
-
-        /// <summary>
-        /// Subscribes a subscription handler to the broadcaster.
-        /// </summary>
-        /// <typeparam name="TArgument">The type of the event argument.</typeparam>
-        /// <param name="subscription">The subscription handler to subscribe.</param>
-        public void Subscribe<TArgument>(ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TArgument>, IInvokableSingleArgGeneric<TArgument>> subscription)
-        {
-            if (!typeof(TArgument).Equals(typeof(TValue)))
-                throw new Exception($"[NonAllocBroadcasterGeneric] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).ToString()}\" RECEIVED: \"{typeof(TArgument).ToString()}\"");
-
-            Subscribe((ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TValue>, IInvokableSingleArgGeneric<TValue>>)subscription);
-        }
-
-        /// <summary>
-        /// Subscribes a subscription handler to the broadcaster.
-        /// </summary>
-        /// <param name="valueType">The type of the event argument.</param>
-        /// <param name="subscription">The subscription handler to subscribe.</param>
-        public void Subscribe(Type valueType, ISubscriptionHandler<INonAllocSubscribableSingleArg, IInvokableSingleArg> subscription)
-        {
-            if (!valueType.Equals(typeof(TValue)))
-                throw new Exception($"[NonAllocBroadcasterGeneric] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).ToString()}\" RECEIVED: \"{valueType.ToString()}\"");
-
-            Subscribe((ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TValue>, IInvokableSingleArgGeneric<TValue>>)subscription);
-        }
-
-        /// <summary>
-        /// Unsubscribes a subscription handler from the broadcaster.
-        /// </summary>
-        /// <typeparam name="TArgument">The type of the event argument.</typeparam>
-        /// <param name="subscription">The subscription handler to unsubscribe.</param>
-        public void Unsubscribe<TArgument>(ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TArgument>, IInvokableSingleArgGeneric<TArgument>> subscription)
-        {
-            if (!typeof(TArgument).Equals(typeof(TValue)))
-                throw new Exception($"[NonAllocBroadcasterGeneric] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).ToString()}\" RECEIVED: \"{typeof(TArgument).ToString()}\"");
-
-            Unsubscribe((ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TValue>, IInvokableSingleArgGeneric<TValue>>)subscription);
-        }
-
-        /// <summary>
-        /// Unsubscribes a subscription handler from the broadcaster.
-        /// </summary>
-        /// <param name="valueType">The type of the event argument.</param>
-        /// <param name="subscription">The subscription handler to unsubscribe.</param>
-        public void Unsubscribe(Type valueType, ISubscriptionHandler<INonAllocSubscribableSingleArg, IInvokableSingleArg> subscription)
-        {
-            if (!valueType.Equals(typeof(TValue)))
-                throw new Exception($"[NonAllocBroadcasterGeneric] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).ToString()}\" RECEIVED: \"{valueType.ToString()}\"");
-
-            Unsubscribe((ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TValue>, IInvokableSingleArgGeneric<TValue>>)subscription);
-        }
-
-        #endregion
-
-        #region IPublisherSingleArgGeneric
-
-        /// <summary>
-        /// Publishes an event with the specified value to all subscribers.
-        /// </summary>
-        /// <param name="value">The value of the event argument.</param>
-        public void Publish(TValue value)
-        {
-            ValidateBufferSize();
-
-            currentSubscriptionsBufferCount = subscriptionsAsIndexable.Count;
-
-            CopySubscriptionsToBuffer();
-
-            InvokeSubscriptions(value);
-
-            EmptyBuffer();
-        }
-
         private void ValidateBufferSize()
         {
             if (currentSubscriptionsBuffer.Length < subscriptionsWithCapacity.Capacity)
-                currentSubscriptionsBuffer = new IInvokableSingleArgGeneric<TValue>[subscriptionsWithCapacity.Capacity];
+                currentSubscriptionsBuffer = new ISubscription[subscriptionsWithCapacity.Capacity];
         }
 
         private void CopySubscriptionsToBuffer()
@@ -199,7 +409,11 @@ namespace HereticalSolutions.Delegates.Broadcasting
             for (int i = 0; i < currentSubscriptionsBufferCount; i++)
             {
                 if (currentSubscriptionsBuffer[i] != null)
-                    currentSubscriptionsBuffer[i].Invoke(value);
+                {
+                    var subscriptionState = (ISubscriptionState<IInvokableSingleArgGeneric<TValue>>)currentSubscriptionsBuffer[i];
+
+                    subscriptionState.Invokable.Invoke(value);
+                }
             }
 
             broadcastInProgress = false;
@@ -210,40 +424,5 @@ namespace HereticalSolutions.Delegates.Broadcasting
             for (int i = 0; i < currentSubscriptionsBufferCount; i++)
                 currentSubscriptionsBuffer[i] = null;
         }
-
-        #endregion
-
-        #region IPublisherSingleArg
-
-        /// <summary>
-        /// Publishes an event with the specified value to all subscribers.
-        /// </summary>
-        /// <typeparam name="TArgument">The type of the event argument.</typeparam>
-        /// <param name="value">The value of the event argument.</param>
-        public void Publish<TArgument>(TArgument value)
-        {
-            if (!typeof(TArgument).Equals(typeof(TValue)))
-                throw new Exception($"[NonAllocBroadcasterGeneric] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).ToString()}\" RECEIVED: \"{typeof(TArgument).ToString()}\"");
-
-            // DIRTY HACKS DO NOT REPEAT
-            object valueObject = (object)value;
-
-            Publish((TValue)valueObject); // It doesn't want to convert TArgument into TValue. Bastard
-        }
-
-        /// <summary>
-        /// Publishes an event with the specified value to all subscribers.
-        /// </summary>
-        /// <param name="valueType">The type of the event argument.</param>
-        /// <param name="value">The value of the event argument.</param>
-        public void Publish(Type valueType, object value)
-        {
-            if (!valueType.Equals(typeof(TValue)))
-                throw new Exception($"[NonAllocBroadcasterGeneric] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).ToString()}\" RECEIVED: \"{valueType.ToString()}\"");
-
-            Publish((TValue)value);
-        }
-
-        #endregion
     }
 }

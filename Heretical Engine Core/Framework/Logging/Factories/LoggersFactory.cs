@@ -1,5 +1,7 @@
 using HereticalSolutions.Persistence.Arguments;
+
 using HereticalSolutions.Persistence.IO;
+
 using HereticalSolutions.Persistence.Factories;
 
 namespace HereticalSolutions.Logging.Factories
@@ -30,10 +32,14 @@ namespace HereticalSolutions.Logging.Factories
                 ApplicationDataFolder = applicationDataFolder
             };
 
-            return new ConsoleLoggerWithFileDump(
-                serializationArgument,
-                PersistenceFactory.BuildSimplePlainTextSerializer(),
+            var result = new ConsoleLoggerWithFileDump(
                 new List<string>());
+
+            result.Initialize(
+                serializationArgument,
+                PersistenceFactory.BuildSimplePlainTextSerializer(result));
+
+            return result;
         }
     }
 }

@@ -1,5 +1,3 @@
-using System;
-
 namespace HereticalSolutions.Pools.Allocations
 {
     /// <summary>
@@ -7,14 +5,8 @@ namespace HereticalSolutions.Pools.Allocations
     /// </summary>
     public class MetadataAllocationDescriptor
     {
-        /// <summary>
-        /// Gets or sets the type used for binding.
-        /// </summary>
         public Type BindingType;
 
-        /// <summary>
-        /// Gets or sets the concrete type to be allocated.
-        /// </summary>
         public Type ConcreteType;
     }
 }

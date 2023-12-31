@@ -1,5 +1,3 @@
-using System;
-
 using HereticalSolutions.Collections;
 
 using HereticalSolutions.Allocations;
@@ -7,43 +5,32 @@ using HereticalSolutions.Allocations.Factories;
 
 using HereticalSolutions.Delegates.Broadcasting;
 
-using HereticalSolutions.Logging;
-
 using HereticalSolutions.Pools;
 using HereticalSolutions.Pools.Factories;
 
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Delegates.Factories
 {
-    /// <summary>
-    /// Factory class for creating delegates.
-    /// </summary>
     public static partial class DelegatesFactory
     {
         #region Broadcaster multiple args
 
-        /// <summary>
-        /// Builds a broadcaster with multiple arguments.
-        /// </summary>
-        /// <returns>The built broadcaster with multiple arguments.</returns>
-        public static BroadcasterMultipleArgs BuildBroadcasterMultipleArgs()
+        public static BroadcasterMultipleArgs BuildBroadcasterMultipleArgs(
+            IFormatLogger logger)
         {
             return new BroadcasterMultipleArgs(
-                BuildBroadcasterGeneric<object[]>());
+                BuildBroadcasterGeneric<object[]>(
+                    logger));
         }
 
         #endregion
         
         #region Broadcaster with repository
 
-        /// <summary>
-        /// Builds a broadcaster with a repository.
-        /// </summary>
-        /// <param name="broadcastersRepository">The repository for the broadcasters.</param>
-        /// <param name="logger">The logger to use for logging.</param>
-        /// <returns>The built broadcaster with a repository.</returns>
         public static BroadcasterWithRepository BuildBroadcasterWithRepository(
             IRepository<Type, object> broadcastersRepository,
             IFormatLogger logger)
@@ -54,12 +41,6 @@ namespace HereticalSolutions.Delegates.Factories
                 logger);
         }
         
-        /// <summary>
-        /// Builds a broadcaster with a repository.
-        /// </summary>
-        /// <param name="repository">The repository for the broadcasters.</param>
-        /// <param name="logger">The logger to use for logging.</param>
-        /// <returns>The built broadcaster with a repository.</returns>
         public static BroadcasterWithRepository BuildBroadcasterWithRepository(
             IReadOnlyObjectRepository repository,
             IFormatLogger logger)
@@ -78,24 +59,22 @@ namespace HereticalSolutions.Delegates.Factories
         /// </summary>
         /// <typeparam name="T">The type of the broadcast argument.</typeparam>
         /// <returns>The built generic broadcaster.</returns>
-        public static BroadcasterGeneric<T> BuildBroadcasterGeneric<T>()
+        public static BroadcasterGeneric<T> BuildBroadcasterGeneric<T>(
+            IFormatLogger logger)
         {
-            return new BroadcasterGeneric<T>();
+            return new BroadcasterGeneric<T>(logger);
         }
 
         #endregion
         
         #region Non alloc broadcaster multiple args
         
-        /// <summary>
-        /// Builds a non-allocating broadcaster with multiple arguments.
-        /// </summary>
-        /// <returns>The built non-allocating broadcaster with multiple arguments.</returns>
-        public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs()
+        public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
+            IFormatLogger logger)
         {
-            Func<IInvokableMultipleArgs> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableMultipleArgs>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableMultipleArgs>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
@@ -108,44 +87,38 @@ namespace HereticalSolutions.Delegates.Factories
                 new AllocationCommandDescriptor
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
-                });
+                },
+                logger);
 
-            return BuildNonAllocBroadcasterMultipleArgs(subscriptionsPool);
+            return BuildNonAllocBroadcasterMultipleArgs(
+                subscriptionsPool);
         }
 
-        /// <summary>
-        /// Builds a non-allocating broadcaster with multiple arguments.
-        /// </summary>
-        /// <param name="initial">The allocation command descriptor for the initial allocation.</param>
-        /// <param name="additional">The allocation command descriptor for the additional allocation.</param>
-        /// <returns>The built non-allocating broadcaster with multiple arguments.</returns>
         public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
             AllocationCommandDescriptor initial,
-            AllocationCommandDescriptor additional)
+            AllocationCommandDescriptor additional,
+            IFormatLogger logger)
         {
-            Func<IInvokableMultipleArgs> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableMultipleArgs>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableMultipleArgs>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()
                 },
                 initial,
-                additional);
+                additional,
+                logger);
 
-            return BuildNonAllocBroadcasterMultipleArgs(subscriptionsPool);
+            return BuildNonAllocBroadcasterMultipleArgs(
+                subscriptionsPool);
         }
         
-        /// <summary>
-        /// Builds a non-allocating broadcaster with multiple arguments.
-        /// </summary>
-        /// <param name="subscriptionsPool">The pool of subscriptions for the broadcaster.</param>
-        /// <returns>The built non-allocating broadcaster with multiple arguments.</returns>
         public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
-            INonAllocDecoratedPool<IInvokableMultipleArgs> subscriptionsPool)
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool)
         {
-            var contents = ((IModifiable<INonAllocPool<IInvokableMultipleArgs>>)subscriptionsPool).Contents;
+            var contents = ((IModifiable<INonAllocPool<ISubscription>>)subscriptionsPool).Contents;
 			
             return new NonAllocBroadcasterMultipleArgs(
                 subscriptionsPool,
@@ -196,11 +169,12 @@ namespace HereticalSolutions.Delegates.Factories
         /// </summary>
         /// <typeparam name="T">The type of the broadcast argument.</typeparam>
         /// <returns>The built non-allocating generic broadcaster.</returns>
-        public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>()
+        public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>(
+            IFormatLogger logger)
         {
-            Func<IInvokableSingleArgGeneric<T>> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableSingleArgGeneric<T>>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableSingleArgGeneric<T>>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
@@ -213,50 +187,46 @@ namespace HereticalSolutions.Delegates.Factories
                 new AllocationCommandDescriptor
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
-                });
+                },
+                logger);
 
-            return BuildNonAllocBroadcasterGeneric(subscriptionsPool);
+            return BuildNonAllocBroadcasterGeneric<T>(
+                subscriptionsPool,
+                logger);
         }
 
-        /// <summary>
-        /// Builds a non-allocating generic broadcaster.
-        /// </summary>
-        /// <typeparam name="T">The type of the broadcast argument.</typeparam>
-        /// <param name="initial">The allocation command descriptor for the initial allocation.</param>
-        /// <param name="additional">The allocation command descriptor for the additional allocation.</param>
-        /// <returns>The built non-allocating generic broadcaster.</returns>
         public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>(
             AllocationCommandDescriptor initial,
-            AllocationCommandDescriptor additional)
+            AllocationCommandDescriptor additional,
+            IFormatLogger logger)
         {
-            Func<IInvokableSingleArgGeneric<T>> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableSingleArgGeneric<T>>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableSingleArgGeneric<T>>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()
                 },
                 initial,
-                additional);
+                additional,
+                logger);
 
-            return BuildNonAllocBroadcasterGeneric(subscriptionsPool);
+            return BuildNonAllocBroadcasterGeneric<T>(
+                subscriptionsPool,
+                logger);
         }
         
-        /// <summary>
-        /// Builds a non-allocating generic broadcaster.
-        /// </summary>
-        /// <typeparam name="T">The type of the broadcast argument.</typeparam>
-        /// <param name="subscriptionsPool">The pool of subscriptions for the broadcaster.</param>
-        /// <returns>The built non-allocating generic broadcaster.</returns>
         public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>(
-            INonAllocDecoratedPool<IInvokableSingleArgGeneric<T>> subscriptionsPool)
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool,
+            IFormatLogger logger)
         {
-            var contents = ((IModifiable<INonAllocPool<IInvokableSingleArgGeneric<T>>>)subscriptionsPool).Contents;
+            var contents = ((IModifiable<INonAllocPool<ISubscription>>)subscriptionsPool).Contents;
 			
             return new NonAllocBroadcasterGeneric<T>(
                 subscriptionsPool,
-                contents);
+                contents,
+                logger);
         }
         
         #endregion

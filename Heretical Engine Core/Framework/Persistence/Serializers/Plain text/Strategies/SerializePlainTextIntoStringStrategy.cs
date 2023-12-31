@@ -1,9 +1,18 @@
 using HereticalSolutions.Persistence.Arguments;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
 	public class SerializePlainTextIntoStringStrategy : IPlainTextSerializationStrategy
 	{
+		private readonly IFormatLogger logger;
+
+		public SerializePlainTextIntoStringStrategy(IFormatLogger logger)
+		{
+			this.logger = logger;
+		}
+
 		public bool Serialize(ISerializationArgument argument, string text)
 		{
 			((StringArgument)argument).Value = text;

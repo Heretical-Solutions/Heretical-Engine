@@ -1,65 +1,109 @@
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.Synchronization;
+
 namespace HereticalSolutions.Time
 {
     public class TimeManager
+        : ITimeManager,
+          ISynchronizablesRepository,
+          ISynchronizationProvidersRepository,
+          ITickable
     {
-        private readonly IRepository<string, ISynchronizable> contextsRepository;
+        private readonly IRepository<string, ISynchronizableGeneric<float>> chronoRepository;
 
-        /// <summary>
-        /// Initializes a new instance of the TimeManager class.
-        /// </summary>
-        /// <param name="contextsRepository">The repository to store the synchronizable contexts.</param>
-        public TimeManager(IRepository<string, ISynchronizable> contextsRepository)
+        private readonly IRuntimeTimer applicationActiveTimer;
+
+        private readonly IPersistentTimer applicationPersistentTimer;
+
+        public TimeManager(
+            IRepository<string, ISynchronizableGeneric<float>> chronoRepository,
+            IRuntimeTimer applicationActiveTimer,
+            IPersistentTimer applicationPersistentTimer)
         {
-            this.contextsRepository = contextsRepository;
+            this.chronoRepository = chronoRepository;
+
+            this.applicationActiveTimer = applicationActiveTimer;
+
+            this.applicationPersistentTimer = applicationPersistentTimer;
         }
 
-        /// <summary>
-        /// Retrieves the synchronizable context by the specified id.
-        /// </summary>
-        /// <param name="id">The id of the synchronizable context.</param>
-        /// <returns>The synchronizable context with the specified id if found; otherwise, null.</returns>
-        public ISynchronizable GetSynchronizable(string id)
-        {
-            // There may not be the synchronizable by the given id therefore TryGet
-            if (!contextsRepository.TryGet(id, out var synchronizable))
-                return null;
+        #region ITimeManager
 
-            return synchronizable;
-        }
-        
-        /// <summary>
-        /// Retrieves the synchronization provider by the specified id.
-        /// </summary>
-        /// <param name="id">The id of the synchronization provider.</param>
-        /// <returns>The synchronization provider with the specified id if found; otherwise, null.</returns>
-        public ISynchronizationProvider GetProvider(string id)
+        public IRuntimeTimer ApplicationActiveTimer { get => applicationActiveTimer; }
+
+        public IPersistentTimer ApplicationPersistentTimer { get => applicationPersistentTimer; }
+
+        #endregion
+
+        #region ISynchronizablesRepository
+
+        public bool TryGetSynchronizable(
+            string id,
+            out ISynchronizableGeneric<float> synchronizable)
         {
-            // There may not be the synchronizable by the given id therefore TryGet
-            if (!contextsRepository.TryGet(id, out var synchronizable))
-                return null;
-            
-            return (ISynchronizationProvider)synchronizable;
-        }
-        
-        /// <summary>
-        /// Adds a synchronizable context to the repository with the specified id.
-        /// </summary>
-        /// <param name="id">The id of the synchronizable context.</param>
-        /// <param name="context">The synchronizable context to add.</param>
-        public void AddSynchronizable(string id, ISynchronizable context)
-        {
-            contextsRepository.Add(id, context);
+            return chronoRepository.TryGet(
+                id,
+                out synchronizable);
         }
 
-        /// <summary>
-        /// Removes the synchronizable context with the specified id from the repository.
-        /// </summary>
-        /// <param name="id">The id of the synchronizable context to remove.</param>
+        public void AddSynchronizable(ISynchronizableGeneric<float> synchronizable)
+        {
+            chronoRepository.TryAdd(
+                synchronizable.Descriptor.ID,
+                synchronizable);
+        }
+
         public void RemoveSynchronizable(string id)
         {
-            contextsRepository.Remove(id);
+            chronoRepository.TryRemove(id);
         }
+
+        public void RemoveSynchronizable(ISynchronizableGeneric<float> synchronizable)
+        {
+            chronoRepository.TryRemove(synchronizable.Descriptor.ID);
+        }
+
+        #endregion
+
+        #region ISynchronizationProvidersRepository
+
+        public bool TryGetProvider(
+            string id,
+            out ISynchronizationProvider provider)
+        {
+            provider = default;
+
+            var result = chronoRepository.TryGet(
+                id,
+                out var synchronizable);
+
+            if (result)
+            {
+                provider = (ISynchronizationProvider)synchronizable;
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region ITickable
+
+        public void Tick(float delta)
+        {
+            ((ITickable)applicationActiveTimer).Tick(delta);
+
+            ((ITickable)applicationPersistentTimer).Tick(delta);
+
+            foreach (var key in chronoRepository.Keys)
+            {
+                var synchronizable = chronoRepository.Get(key);
+
+                synchronizable.Synchronize(delta);
+            }
+        }
+
+        #endregion
     }
 }

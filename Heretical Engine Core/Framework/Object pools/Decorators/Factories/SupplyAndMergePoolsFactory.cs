@@ -1,5 +1,3 @@
-using System;
-
 using HereticalSolutions.Allocations;
 using HereticalSolutions.Allocations.Factories;
 
@@ -7,28 +5,21 @@ using HereticalSolutions.Pools.Allocations;
 using HereticalSolutions.Pools.Decorators;
 using HereticalSolutions.Pools.GenericNonAlloc;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Factories
 {
     public static partial class PoolsFactory
     {
         #region Supply and merge pool
 
-        /// <summary>
-        /// Builds a supply and merge pool with allocation callback.
-        /// </summary>
-        /// <typeparam name="T">The type of the objects in the pool.</typeparam>
-        /// <param name="valueAllocationDelegate">The delegate used to allocate new objects.</param>
-        /// <param name="metadataDescriptors">An array of metadata descriptors.</param>
-        /// <param name="initialAllocation">The allocation descriptor for the initial allocation.</param>
-        /// <param name="additionalAllocation">The allocation descriptor for additional allocations.</param>
-        /// <param name="callback">The allocation callback.</param>
-        /// <returns>A supply and merge pool.</returns>
         public static SupplyAndMergePool<T> BuildSupplyAndMergePoolWithAllocationCallback<T>(
             Func<T> valueAllocationDelegate,
             MetadataAllocationDescriptor[] metadataDescriptors,
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
-            IAllocationCallback<T> callback)
+            IAllocationCallback<T> callback,
+            IFormatLogger logger)
         {
             Func<T> nullAllocation = AllocationsFactory.NullAllocationDelegate<T>;
 
@@ -43,25 +34,18 @@ namespace HereticalSolutions.Pools.Factories
                     nullAllocation,
                     metadataDescriptors,
                     callback),
-                valueAllocationDelegate);
+                valueAllocationDelegate,
+                logger);
 
             return supplyAndMergePool;
         }
 
-        /// <summary>
-        /// Builds a supply and merge pool.
-        /// </summary>
-        /// <typeparam name="T">The type of the objects in the pool.</typeparam>
-        /// <param name="valueAllocationDelegate">The delegate used to allocate new objects.</param>
-        /// <param name="metadataDescriptors">An array of metadata descriptors.</param>
-        /// <param name="initialAllocation">The allocation descriptor for the initial allocation.</param>
-        /// <param name="additionalAllocation">The allocation descriptor for additional allocations.</param>
-        /// <returns>A supply and merge pool.</returns>
         public static SupplyAndMergePool<T> BuildSupplyAndMergePool<T>(
             Func<T> valueAllocationDelegate,
             MetadataAllocationDescriptor[] metadataDescriptors,
             AllocationCommandDescriptor initialAllocation,
-            AllocationCommandDescriptor additionalAllocation)
+            AllocationCommandDescriptor additionalAllocation,
+            IFormatLogger logger)
         {
             Func<T> nullAllocation = AllocationsFactory.NullAllocationDelegate<T>;
 
@@ -74,26 +58,25 @@ namespace HereticalSolutions.Pools.Factories
                     additionalAllocation,
                     nullAllocation,
                     metadataDescriptors),
-                valueAllocationDelegate);
+                valueAllocationDelegate,
+                logger);
 
             return supplyAndMergePool;
         }
 
-        /// <summary>
-        /// Builds a supply and merge pool.
-        /// </summary>
-        /// <typeparam name="T">The type of the objects in the pool.</typeparam>
-        /// <param name="initialAllocationCommand">The allocation command for the initial allocation.</param>
-        /// <param name="appendAllocationCommand">The allocation command for additional allocations.</param>
-        /// <param name="topUpAllocationDelegate">The delegate used to top up allocations.</param>
-        /// <returns>A supply and merge pool.</returns>
         public static SupplyAndMergePool<T> BuildSupplyAndMergePool<T>(
             AllocationCommand<IPoolElement<T>> initialAllocationCommand,
             AllocationCommand<IPoolElement<T>> appendAllocationCommand,
-            Func<T> topUpAllocationDelegate)
+            Func<T> topUpAllocationDelegate,
+            IFormatLogger logger)
         {
-            var basePool = BuildPackedArrayPool<T>(initialAllocationCommand);
-            var supplyPool = BuildPackedArrayPool<T>(appendAllocationCommand);
+            var basePool = BuildPackedArrayPool<T>(
+                initialAllocationCommand,
+                logger);
+
+            var supplyPool = BuildPackedArrayPool<T>(
+                appendAllocationCommand,
+                logger);
 
             return new SupplyAndMergePool<T>(
                 basePool,
@@ -105,13 +88,6 @@ namespace HereticalSolutions.Pools.Factories
                 topUpAllocationDelegate);
         }
 
-        /// <summary>
-        /// Merges pools.
-        /// </summary>
-        /// <typeparam name="T">The type of the objects in the pool.</typeparam>
-        /// <param name="receiverArray">The receiving pool.</param>
-        /// <param name="donorArray">The donor pool.</param>
-        /// <param name="donorAllocationCommand">The allocation command for the donor pool.</param>
         public static void MergePools<T>(
             INonAllocPool<T> receiverArray,
             INonAllocPool<T> donorArray,

@@ -156,7 +156,20 @@ namespace HereticalSolutions.ResourceManagement
 						GetType(),
 						"RESOURCE IS NOT ALLOCATED");
 
-				return (TValue)(object)resource;
+				switch (resource)
+				{
+					case TValue value:
+
+						return value;
+
+					default:
+
+						context.Logger?.ThrowException(
+							GetType(),
+							$"RESOURCE IS NOT OF TYPE {typeof(TValue).Name}");
+
+						return default;
+				}
 			}
 			finally
 			{

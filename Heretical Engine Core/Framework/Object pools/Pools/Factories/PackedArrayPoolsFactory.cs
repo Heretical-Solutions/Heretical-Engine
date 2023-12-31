@@ -1,10 +1,9 @@
-using System;
-
 using HereticalSolutions.Collections;
 
 using HereticalSolutions.Allocations;
 
 using HereticalSolutions.Pools.GenericNonAlloc;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Factories
 {
@@ -14,14 +13,9 @@ namespace HereticalSolutions.Pools.Factories
 
         #region Build
 
-        /// <summary>
-        /// Builds a packed array pool.
-        /// </summary>
-        /// <typeparam name="T">Type of elements in the pool.</typeparam>
-        /// <param name="allocationCommand">Allocation command specifying how to allocate elements in the pool.</param>
-        /// <returns>The built packed array pool.</returns>
         public static PackedArrayPool<T> BuildPackedArrayPool<T>(
-            AllocationCommand<IPoolElement<T>> allocationCommand)
+            AllocationCommand<IPoolElement<T>> allocationCommand,
+            IFormatLogger logger)
         {
             int initialAmount = CountInitialAllocationAmount<T>(allocationCommand);
 
@@ -29,7 +23,9 @@ namespace HereticalSolutions.Pools.Factories
 
             PerformAllocation(initialAmount, contents, allocationCommand);
 
-            return new PackedArrayPool<T>(contents);
+            return new PackedArrayPool<T>(
+                contents,
+                logger);
         }
 
         private static int CountInitialAllocationAmount<T>(AllocationCommand<IPoolElement<T>> allocationCommand)

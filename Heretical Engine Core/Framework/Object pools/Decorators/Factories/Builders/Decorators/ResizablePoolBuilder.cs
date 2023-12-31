@@ -2,14 +2,14 @@ using HereticalSolutions.Allocations;
 
 using HereticalSolutions.Pools.Allocations;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Factories
 {
-    /// <summary>
-    /// Represents a builder for resizable pools.
-    /// </summary>
-    /// <typeparam name="T">The type of objects to store in the pool.</typeparam>
     public class ResizablePoolBuilder<T>
     {
+        private readonly IFormatLogger logger;
+
         private Func<T> valueAllocationDelegate;
 
         private Func<MetadataAllocationDescriptor>[] metadataDescriptorBuilders;
@@ -20,14 +20,11 @@ namespace HereticalSolutions.Pools.Factories
 
         private IAllocationCallback<T>[] callbacks;
 
-        /// <summary>
-        /// Initializes the pool builder.
-        /// </summary>
-        /// <param name="valueAllocationDelegate">The delegate used to allocate new objects.</param>
-        /// <param name="metadataDescriptorBuilders">An array of delegates that build metadata allocation descriptors.</param>
-        /// <param name="initialAllocation">The allocation command descriptor for the initial allocation.</param>
-        /// <param name="additionalAllocation">The allocation command descriptor for additional allocations.</param>
-        /// <param name="callbacks">An array of allocation callbacks.</param>
+        public ResizablePoolBuilder(IFormatLogger logger)
+        {
+            this.logger = logger;
+        }
+
         public void Initialize(
             Func<T> valueAllocationDelegate,
             Func<MetadataAllocationDescriptor>[] metadataDescriptorBuilders,
@@ -49,7 +46,8 @@ namespace HereticalSolutions.Pools.Factories
         public INonAllocDecoratedPool<T> BuildResizablePool()
         {
             if (valueAllocationDelegate == null)
-                throw new Exception("[ResizablePoolBuilder] BUILDER NOT INITIALIZED");
+                logger?.ThrowException<ResizablePoolBuilder<T>>(
+                    "BUILDER NOT INITIALIZED");
 
             #region Metadata initialization
 
@@ -84,7 +82,8 @@ namespace HereticalSolutions.Pools.Factories
                     valueAllocationDelegate,
                     metadataDescriptors,
                     initialAllocation,
-                    additionalAllocation);
+                    additionalAllocation,
+                    logger);
             }
             else
             {
@@ -93,7 +92,8 @@ namespace HereticalSolutions.Pools.Factories
                     metadataDescriptors,
                     initialAllocation,
                     additionalAllocation,
-                    callback);
+                    callback,
+                    logger);
             }
 
             valueAllocationDelegate = null;
@@ -112,7 +112,8 @@ namespace HereticalSolutions.Pools.Factories
         public INonAllocDecoratedPool<T> BuildSupplyAndMergePool()
         {
             if (valueAllocationDelegate == null)
-                throw new Exception("[ResizablePoolBuilder] BUILDER NOT INITIALIZED");
+                logger?.ThrowException<ResizablePoolBuilder<T>>(
+                    "BUILDER NOT INITIALIZED");
 
             #region Metadata initialization
 
@@ -147,7 +148,8 @@ namespace HereticalSolutions.Pools.Factories
                     valueAllocationDelegate,
                     metadataDescriptors,
                     initialAllocation,
-                    additionalAllocation);
+                    additionalAllocation,
+                    logger);
             }
             else
             {
@@ -156,7 +158,8 @@ namespace HereticalSolutions.Pools.Factories
                     metadataDescriptors,
                     initialAllocation,
                     additionalAllocation,
-                    callback);
+                    callback,
+                    logger);
             }
 
             valueAllocationDelegate = null;

@@ -1,45 +1,62 @@
-using System;
 using HereticalSolutions.Delegates;
+
 using HereticalSolutions.Persistence;
+
 using HereticalSolutions.Repositories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Time.Timers
 {
-    /// <summary>
-    /// Represents a runtime timer that can be used for tracking time and executing actions based on the elapsed time.
-    /// </summary>
-    public class RuntimeTimer : ITimer, IRuntimeTimer, IRuntimeTimerContext, ITimerWithState, ITickable, IVisitable
+    public class RuntimeTimer
+        : ITimer,
+          IRuntimeTimer,
+          IRuntimeTimerContext,
+          ITimerWithState,
+          ITickable,
+          IVisitable
     {
-        private ITimerStrategy<IRuntimeTimerContext, float> currentStrategy;
         private readonly IReadOnlyRepository<ETimerState, ITimerStrategy<IRuntimeTimerContext, float>> strategyRepository;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RuntimeTimer"/> class.
-        /// </summary>
-        /// <param name="id">The ID of the timer.</param>
-        /// <param name="defaultDuration">The default duration of the timer.</param>
-        /// <param name="onStartAsPublisher">The publisher for the OnStart event.</param>
-        /// <param name="onStartAsSubscribable">The subscribable for the OnStart event.</param>
-        /// <param name="onFinishAsPublisher">The publisher for the OnFinish event.</param>
-        /// <param name="onFinishAsSubscribable">The subscribable for the OnFinish event.</param>
-        /// <param name="strategyRepository">The repository containing the timer strategies.</param>
+        private readonly IFormatLogger logger;
+
+        private ITimerStrategy<IRuntimeTimerContext, float> currentStrategy;
+        
+
         public RuntimeTimer(
             string id,
             float defaultDuration,
+
             IPublisherSingleArgGeneric<IRuntimeTimer> onStartAsPublisher,
             INonAllocSubscribableSingleArgGeneric<IRuntimeTimer> onStartAsSubscribable,
+
             IPublisherSingleArgGeneric<IRuntimeTimer> onFinishAsPublisher,
             INonAllocSubscribableSingleArgGeneric<IRuntimeTimer> onFinishAsSubscribable,
-            IReadOnlyRepository<ETimerState, ITimerStrategy<IRuntimeTimerContext, float>> strategyRepository)
+
+            IReadOnlyRepository<ETimerState, ITimerStrategy<IRuntimeTimerContext, float>> strategyRepository,
+
+            IFormatLogger logger)
         {
             ID = id;
+
             CurrentTimeElapsed = 0f;
+
             CurrentDuration = DefaultDuration = defaultDuration;
+
+
             OnStartAsPublisher = onStartAsPublisher;
+
             OnStart = onStartAsSubscribable;
+
             OnFinishAsPublisher = onFinishAsPublisher;
+
             OnFinish = onFinishAsSubscribable;
+
+
             this.strategyRepository = strategyRepository;
+
+            this.logger = logger;
+
             SetState(ETimerState.INACTIVE);
         }
 
@@ -228,24 +245,33 @@ namespace HereticalSolutions.Time.Timers
         /// </summary>
         public Type DTOType => typeof(RuntimeTimerDTO);
 
-        /// <summary>
-        /// Accepts a save visitor and converts the timer to a DTO object.
-        /// </summary>
-        /// <typeparam name="TDTO">The type of the DTO object.</typeparam>
-        /// <param name="visitor">The save visitor to accept.</param>
-        /// <param name="DTO">The converted DTO object.</param>
-        /// <returns>A value indicating whether the conversion was successful.</returns>
-        public bool Accept<TDTO>(ISaveVisitor visitor, out TDTO DTO)
+        public bool Accept<TDTO>(
+            ISaveVisitor visitor,
+            out TDTO DTO)
         {
-            if (!(typeof(TDTO).Equals(typeof(RuntimeTimerDTO))))
-                throw new Exception($"[RuntimeTimer] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(RuntimeTimerDTO).ToString()}\" RECEIVED: \"{typeof(TDTO).ToString()}\"");
+            var result = visitor
+                .Save<IRuntimeTimer, RuntimeTimerDTO>(
+                    this,
+                    out RuntimeTimerDTO runtimeTimerDTO);
 
-            var result = visitor.Save<IRuntimeTimer, RuntimeTimerDTO>(this, out RuntimeTimerDTO runtimeTimerDTO);
+            DTO = default;
 
-            // DIRTY HACKS DO NOT REPEAT
-            var dtoObject = (object)runtimeTimerDTO;
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (runtimeTimerDTO)
+            {
+                case TDTO targetTypeDTO:
 
-            DTO = (TDTO)dtoObject;
+                    DTO = targetTypeDTO;
+
+                    break;
+
+                default:
+
+                    logger?.ThrowException<RuntimeTimer>(
+                        $"CANNOT CAST RETURN VALUE TYPE \"{typeof(RuntimeTimerDTO).Name}\" TO TYPE \"{typeof(TDTO).GetType().Name}\"");
+
+                    break;
+            }
 
             return result;
         }
@@ -265,22 +291,27 @@ namespace HereticalSolutions.Time.Timers
             return result;
         }
 
-        /// <summary>
-        /// Accepts a load visitor and applies the values from the DTO object to the timer.
-        /// </summary>
-        /// <typeparam name="TDTO">The type of the DTO object.</typeparam>
-        /// <param name="visitor">The load visitor to accept.</param>
-        /// <param name="DTO">The DTO object containing the values to apply.</param>
-        /// <returns>A value indicating whether the application of values was successful.</returns>
-        public bool Accept<TDTO>(ILoadVisitor visitor, TDTO DTO)
+        public bool Accept<TDTO>(
+            ILoadVisitor visitor,
+            TDTO DTO)
         {
-            if (!(typeof(TDTO).Equals(typeof(RuntimeTimerDTO))))
-                throw new Exception($"[RuntimeTimer] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(RuntimeTimerDTO).ToString()}\" RECEIVED: \"{typeof(TDTO).ToString()}\"");
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (DTO)
+            {
+                case RuntimeTimerDTO targetTypeDTO:
 
-            // DIRTY HACKS DO NOT REPEAT
-            var dtoObject = (object)DTO;
+                    return visitor
+                        .Load<IRuntimeTimer, RuntimeTimerDTO>(
+                            targetTypeDTO,
+                            this);
 
-            return visitor.Load<IRuntimeTimer, RuntimeTimerDTO>((RuntimeTimerDTO)dtoObject, this);
+                default:
+
+                    logger?.ThrowException<RuntimeTimer>(
+                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(RuntimeTimerDTO).Name}\" RECEIVED: \"{typeof(TDTO).GetType().Name}\"");
+
+                    return false;
+            }
         }
 
         /// <summary>

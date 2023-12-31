@@ -1,34 +1,35 @@
-using System;
 using System.Collections;
 using System.Globalization;
-using System.IO;
 
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
+
+using HereticalSolutions.Logging;
 
 using CsvHelper;
 
 namespace HereticalSolutions.Persistence.Serializers
 {
-    /// <summary>
-    /// Represents a strategy for serializing and deserializing data into/from a CSV format.
-    /// </summary>
     public class SerializeCsvIntoStreamStrategy : ICsvSerializationStrategy
     {
-        /// <summary>
-        /// Serializes the specified value into a CSV format and writes it to a stream.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="valueType">The type of the value being serialized.</param>
-        /// <param name="value">The value to be serialized.</param>
-        /// <returns>
-        ///   <c>true</c> if the serialization is successful; otherwise, <c>false</c>.
-        /// </returns>
-        public bool Serialize(ISerializationArgument argument, Type valueType, object value)
+        private readonly IFormatLogger logger;
+
+        public SerializeCsvIntoStreamStrategy(IFormatLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type valueType,
+            object value)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(filePathSettings, out StreamWriter streamWriter))
+            if (!StreamIO.OpenWriteStream(
+                filePathSettings,
+                out StreamWriter streamWriter,
+                logger))
                 return false;
             
             using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
@@ -52,27 +53,23 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        /// <summary>
-        /// Deserializes the CSV data from a stream into an object of the specified type.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="valueType">The type of the value being deserialized.</param>
-        /// <param name="value">The deserialized value.</param>
-        /// <returns>
-        ///   <c>true</c> if the deserialization is successful; otherwise, <c>false</c>.
-        /// </returns>
         public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
-            if (!StreamIO.OpenReadStream(filePathSettings, out StreamReader streamReader))
+            if (!StreamIO.OpenReadStream(
+                filePathSettings,
+                out StreamReader streamReader,
+                logger))
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }
 
-            using (var csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+            using (var csvReader = new CsvReader(
+                streamReader,
+                CultureInfo.InvariantCulture))
             {
                 csvReader.Read();
                 
@@ -103,10 +100,6 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        /// <summary>
-        /// Erases the data from the underlying stream.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
         public void Erase(ISerializationArgument argument)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;

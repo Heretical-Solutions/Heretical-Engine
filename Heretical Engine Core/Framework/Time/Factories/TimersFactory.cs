@@ -1,4 +1,3 @@
-using System;
 using HereticalSolutions.Delegates.Factories;
 
 using HereticalSolutions.Repositories;
@@ -7,28 +6,22 @@ using HereticalSolutions.Repositories.Factories;
 using HereticalSolutions.Time.Strategies;
 using HereticalSolutions.Time.Timers;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Time.Factories
 {
-    /// <summary>
-    /// Factory class for creating different types of timers.
-    /// </summary>
     public static partial class TimeFactory
     {
         #region Persistent timer
 
-        /// <summary>
-        /// Builds a persistent timer with the specified ID and default duration.
-        /// </summary>
-        /// <param name="id">The ID of the timer.</param>
-        /// <param name="defaultDurationSpan">The default duration of the timer.</param>
-        /// <returns>The built persistent timer.</returns>
         public static PersistentTimer BuildPersistentTimer(
             string id,
-            TimeSpan defaultDurationSpan)
+            TimeSpan defaultDurationSpan,
+            IFormatLogger logger)
         {
-            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>();
+            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>(logger);
             
-            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>();
+            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>(logger);
             
             return new PersistentTimer(
                 id,
@@ -40,7 +33,9 @@ namespace HereticalSolutions.Time.Factories
                 onFinish,
                 onFinish,
                 
-                BuildPersistentStrategyRepository());
+                BuildPersistentStrategyRepository(),
+                
+                logger);
         }
 
         /// <summary>
@@ -68,19 +63,14 @@ namespace HereticalSolutions.Time.Factories
         
         #region Runtime timer
         
-        /// <summary>
-        /// Builds a runtime timer with the specified ID and default duration.
-        /// </summary>
-        /// <param name="id">The ID of the timer.</param>
-        /// <param name="defaultDuration">The default duration of the timer.</param>
-        /// <returns>The built runtime timer.</returns>
         public static RuntimeTimer BuildRuntimeTimer(
             string id,
-            float defaultDuration)
+            float defaultDuration,
+            IFormatLogger logger)
         {
-            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>();
+            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>(logger);
             
-            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>();
+            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>(logger);
             
             return new RuntimeTimer(
                 id,
@@ -92,7 +82,9 @@ namespace HereticalSolutions.Time.Factories
                 onFinish,
                 onFinish,
                 
-                BuildRuntimeStrategyRepository());
+                BuildRuntimeStrategyRepository(),
+                
+                logger);
         }
 
         /// <summary>

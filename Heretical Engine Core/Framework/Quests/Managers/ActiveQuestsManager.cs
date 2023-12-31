@@ -110,14 +110,14 @@ namespace HereticalSolutions.Quests
 
         private void OnQuestStarted(ActiveQuest activeQuest)
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR //TODO: remove
             Debug.Log($"[ActiveQuestsManager] QUEST \"{activeQuest.Quest.Descriptor.ID}\": STARTED");
 #endif
         }
 
         private void OnQuestStageStarted(ActiveQuest activeQuest)
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR //TODO: remove
             Debug.Log($"[ActiveQuestsManager] QUEST \"{activeQuest.Quest.Descriptor.ID}\": STAGE {activeQuest.CurrentStageIndex} STARTED");
 #endif
 
@@ -130,17 +130,17 @@ namespace HereticalSolutions.Quests
 
         private void OnQuestStageCompleted(ActiveQuest activeQuest)
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR //TODO: remove
             Debug.Log($"[ActiveQuestsManager] QUEST \"{activeQuest.Quest.Descriptor.ID}\": STAGE {activeQuest.CurrentStageIndex} COMPLETED");
 #endif
         }
 
         private void OnQuestCompleted(ActiveQuest activeQuest)
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR //TODO: remove
             Debug.Log($"[ActiveQuestsManager] QUEST \"{activeQuest.Quest.Descriptor.ID}\": COMPLETED");
 #endif
-            
+
             activeQuestsRepository.Remove(activeQuest.Quest.Descriptor.ID);
         }
         

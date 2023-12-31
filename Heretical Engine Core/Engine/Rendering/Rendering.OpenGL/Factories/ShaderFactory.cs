@@ -448,13 +448,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				return false;
 			}
 
-			/*
-			if (status == 0)
-			{
-				throw new Exception($"Program failed to link with error: {gl.GetProgramInfoLog(handle)}");
-			}
-			*/
-
 			gl.DetachShader(
 				handle,
 				vertex);
@@ -505,13 +498,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			metadata.Compiled = string.IsNullOrWhiteSpace(infoLog);
 
 			metadata.CompilationLog = infoLog;
-
-			/*
-			if (!string.IsNullOrWhiteSpace(infoLog))
-			{
-				throw new Exception($"Error compiling shader of type {type}, failed with error {infoLog}");
-			}
-			*/
 
 			return handle;
 		}

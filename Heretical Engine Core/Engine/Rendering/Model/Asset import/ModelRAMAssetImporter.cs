@@ -16,8 +16,6 @@ using HereticalSolutions.HereticalEngine.Math;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
-using HereticalSolutions.HereticalEngine.GameEntities;
-
 using HereticalSolutions.HereticalEngine.Application;
 
 using Silk.NET.Assimp;
@@ -207,7 +205,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			{
 				var error = assimp.GetErrorStringS();
 
-				throw new Exception(error);
+				context.Logger?.ThrowException<ModelRAMAssetImporter>($"ASSIMP ERROR: {error}");
 			}
 
 			//DO NOT USE MName in scene. It's not documented in Assimp and I have no idea why it's even present
@@ -724,7 +722,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				{
 					importer.Initialize(
 						geometryResourcePathClosure,
-						new GeometryRAM
+						new Geometry
 						{
 							Vertices = vertices,
 

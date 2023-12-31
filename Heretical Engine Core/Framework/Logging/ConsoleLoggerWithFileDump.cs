@@ -6,22 +6,30 @@ namespace HereticalSolutions.Logging
 		: IFormatLogger,
 		  IDumpable
 	{
-		private readonly ISerializationArgument serializationArgument;
-
-		private readonly ISerializer serializer;
-
 		private readonly List<string> fullLog;
 
+		private ISerializationArgument serializationArgument;
+
+		private ISerializer serializer;
+
 		public ConsoleLoggerWithFileDump(
-			ISerializationArgument serializationArgument,
-			ISerializer serializer,
 			List<string> fullLog)
+		{
+			serializationArgument = default;
+
+			serializer = default;
+
+			this.fullLog = fullLog;
+		}
+
+		//Split into a separate method to break the circular dependency between the logger and the serializer
+		public void Initialize(
+			ISerializationArgument serializationArgument,
+			ISerializer serializer)
 		{
 			this.serializationArgument = serializationArgument;
 
 			this.serializer = serializer;
-
-			this.fullLog = fullLog;
 		}
 
 		#region IFormatLogger

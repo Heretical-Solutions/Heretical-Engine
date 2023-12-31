@@ -1,5 +1,3 @@
-using System;
-
 namespace HereticalSolutions.Delegates.Notifiers
 {
 	public interface IAsyncNotifierSingleArgGeneric<TArgument, TValue>

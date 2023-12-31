@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Allocations;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Generic
 {
@@ -16,6 +16,8 @@ namespace HereticalSolutions.Pools.Generic
           IModifiable<Stack<T>>,
           ICountUpdateable
     {
+        private readonly IFormatLogger logger;
+
         private Stack<T> pool;
 
         /// <summary>
@@ -27,11 +29,14 @@ namespace HereticalSolutions.Pools.Generic
         public StackPool(
             Stack<T> pool,
             Action<StackPool<T>> resizeDelegate,
-            AllocationCommand<T> allocationCommand)
+            AllocationCommand<T> allocationCommand,
+            IFormatLogger logger)
         {
             this.pool = pool;
 
             this.resizeDelegate = resizeDelegate;
+
+            this.logger = logger;
 
             ResizeAllocationCommand = allocationCommand;
         }
@@ -58,7 +63,8 @@ namespace HereticalSolutions.Pools.Generic
         /// <param name="newCount">The new count for the pool.</param>
         public void UpdateCount(int newCount)
         {
-            throw new Exception("[StackPool] CANNOT UPDATE COUNT OF STACK");
+            logger?.ThrowException<StackPool<T>>(
+                "CANNOT UPDATE COUNT OF STACK");
         }
 
         #endregion

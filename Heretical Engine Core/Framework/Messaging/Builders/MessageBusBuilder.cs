@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-
 using HereticalSolutions.Allocations;
 using HereticalSolutions.Allocations.Factories;
 
 using HereticalSolutions.Delegates.Factories;
-
-using HereticalSolutions.Logging;
 
 using HereticalSolutions.Pools;
 using HereticalSolutions.Pools.Factories;
@@ -14,32 +9,29 @@ using HereticalSolutions.Pools.Factories;
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Messaging.Factories
 {
-    /// <summary>
-    /// Builder class for creating a message bus.
-    /// </summary>
     public class MessageBusBuilder
     {
         private readonly IObjectRepository messagePoolRepository;
+
         private readonly BroadcasterWithRepositoryBuilder broadcasterBuilder;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MessageBusBuilder"/> class.
-        /// </summary>
-        /// <param name="logger">The logger to be used.</param>
+        private readonly IFormatLogger logger;
+
         public MessageBusBuilder(
             IFormatLogger logger)
         {
+            this.logger = logger;
+
             messagePoolRepository = RepositoriesFactory.BuildDictionaryObjectRepository();
-            broadcasterBuilder = new BroadcasterWithRepositoryBuilder(logger);
+
+            broadcasterBuilder = new BroadcasterWithRepositoryBuilder(
+                logger);
         }
 
-        /// <summary>
-        /// Adds a message type to the message bus.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of message.</typeparam>
-        /// <returns>The instance of the <see cref="MessageBusBuilder"/>.</returns>
         public MessageBusBuilder AddMessageType<TMessage>()
         {
             Func<IMessage> valueAllocationDelegate = AllocationsFactory.ActivatorAllocationDelegate<IMessage, TMessage>;
@@ -64,7 +56,8 @@ namespace HereticalSolutions.Messaging.Factories
             
             IPool<IMessage> messagePool = PoolsFactory.BuildStackPool<IMessage>(
                 initialAllocationCommand,
-                additionalAllocationCommand);
+                additionalAllocationCommand,
+                logger);
             
             messagePoolRepository.Add(
                 typeof(TMessage),
@@ -75,16 +68,13 @@ namespace HereticalSolutions.Messaging.Factories
             return this;
         }
 
-        /// <summary>
-        /// Builds an instance of the <see cref="MessageBus"/> class.
-        /// </summary>
-        /// <returns>An instance of the <see cref="MessageBus"/> class.</returns>
         public MessageBus Build()
         {
             return new MessageBus(
                 broadcasterBuilder.Build(),
                 (IReadOnlyObjectRepository)messagePoolRepository,
-                new Queue<IMessage>());
+                new Queue<IMessage>(),
+                logger);
         }
     }
 }

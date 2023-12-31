@@ -1,8 +1,8 @@
-using System;
-
 using HereticalSolutions.Delegates.Factories;
 
 using HereticalSolutions.Pools;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Delegates.Subscriptions
 {
@@ -15,15 +15,20 @@ namespace HereticalSolutions.Delegates.Subscriptions
           ISubscriptionHandler<INonAllocSubscribableMultipleArgs, IInvokableMultipleArgs>
     {
         private readonly IInvokableMultipleArgs invokable;
-        
+
+        private readonly IFormatLogger logger;
+
         private INonAllocSubscribableMultipleArgs publisher;
 
-        private IPoolElement<IInvokableMultipleArgs> poolElement;
+        private IPoolElement<ISubscription> poolElement;
         
         public SubscriptionMultipleArgs(
-            Action<object[]> @delegate)
+            Action<object[]> @delegate,
+            IFormatLogger logger)
         {
             invokable = DelegatesFactory.BuildDelegateWrapperMultipleArgs(@delegate);
+
+            this.logger = logger;
 
             Active = false;
 
@@ -41,24 +46,6 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
         #endregion
         
-        /*
-        public void Subscribe(INonAllocSubscribableMultipleArgs publisher)
-        {
-            if (Active)
-                return;
-            
-            publisher.Subscribe(this);
-        }
-
-        public void Unsubscribe()
-        {
-            if (!Active)
-                return;
-
-            publisher.Unsubscribe(this);
-        }
-        */
-        
         #region ISubscriptionState
 
         /// <summary>
@@ -72,7 +59,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
         /// <summary>
         /// Gets the pool element associated with the subscription.
         /// </summary>
-        public IPoolElement<IInvokableMultipleArgs> PoolElement
+        public IPoolElement<ISubscription> PoolElement
         {
             get => poolElement;
         }
@@ -89,16 +76,16 @@ namespace HereticalSolutions.Delegates.Subscriptions
         public bool ValidateActivation(INonAllocSubscribableMultipleArgs publisher)
         {
             if (Active)
-                throw new Exception("[SubscriptionMultipleArgs] ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
+                logger?.ThrowException<SubscriptionMultipleArgs>("ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
 			
             if (this.publisher != null)
-                throw new Exception("[SubscriptionMultipleArgs] SUBSCRIPTION ALREADY HAS A PUBLISHER");
+                logger?.ThrowException<SubscriptionMultipleArgs>("SUBSCRIPTION ALREADY HAS A PUBLISHER");
 			
             if (poolElement != null)
-                throw new Exception("[SubscriptionMultipleArgs] SUBSCRIPTION ALREADY HAS A POOL ELEMENT");
+                logger?.ThrowException<SubscriptionMultipleArgs>("SUBSCRIPTION ALREADY HAS A POOL ELEMENT");
 			
             if (invokable == null)
-                throw new Exception("[SubscriptionMultipleArgs] INVALID DELEGATE");
+                logger?.ThrowException<SubscriptionMultipleArgs>("INVALID DELEGATE");
 
             return true;
         }
@@ -110,7 +97,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
         /// <param name="poolElement">The pool element associated with the subscription.</param>
         public void Activate(
             INonAllocSubscribableMultipleArgs publisher,
-            IPoolElement<IInvokableMultipleArgs> poolElement)
+            IPoolElement<ISubscription> poolElement)
         {
             this.poolElement = poolElement;
 
@@ -127,13 +114,13 @@ namespace HereticalSolutions.Delegates.Subscriptions
         public bool ValidateTermination(INonAllocSubscribableMultipleArgs publisher)
         {
             if (!Active)
-                throw new Exception("[SubscriptionMultipleArgs] ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
+                logger?.ThrowException<SubscriptionMultipleArgs>("ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
 			
             if (this.publisher != publisher)
-                throw new Exception("[SubscriptionMultipleArgs] INVALID PUBLISHER");
+                logger?.ThrowException<SubscriptionMultipleArgs>("INVALID PUBLISHER");
 			
             if (poolElement == null)
-                throw new Exception("[SubscriptionMultipleArgs] INVALID POOL ELEMENT");
+                logger?.ThrowException<SubscriptionMultipleArgs>("INVALID POOL ELEMENT");
 
             return true;
         }

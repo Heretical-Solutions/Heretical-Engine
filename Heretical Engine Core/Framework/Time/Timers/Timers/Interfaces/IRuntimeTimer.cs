@@ -5,7 +5,8 @@ namespace HereticalSolutions.Time
     /// <summary>
     /// Represents an interface for a timer that runs during runtime.
     /// </summary>
-    public interface IRuntimeTimer : ITimer
+    public interface IRuntimeTimer
+        : ITimer
     {
         #region Countdown and Time elapsed
 

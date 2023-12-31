@@ -1,12 +1,19 @@
-using System;
-
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Factories
 {
     public class PoolWithAddressBuilder<T>
     {
+        private readonly IFormatLogger logger;
+
+        public PoolWithAddressBuilder(IFormatLogger logger)
+        {
+            this.logger = logger;
+        }
+
         /// <summary>
         /// The root node of the address tree.
         /// </summary>
@@ -132,7 +139,8 @@ namespace HereticalSolutions.Pools.Factories
         public INonAllocDecoratedPool<T> Build()
         {
             if (root == null)
-                throw new Exception("[PoolWithAddressBuilder] BUILDER NOT INITIALIZED");
+                logger?.ThrowException<PoolWithAddressBuilder<T>>(
+                    "BUILDER NOT INITIALIZED");
 
             var result = BuildPoolWithAddress(root);
 
@@ -162,7 +170,10 @@ namespace HereticalSolutions.Pools.Factories
                 repository.Add(0, node.Pool);
             }
 
-            return AddressDecoratorsPoolsFactory.BuildNonAllocPoolWithAddress(repository, node.Level);
+            return AddressDecoratorsPoolsFactory.BuildNonAllocPoolWithAddress(
+                repository,
+                node.Level,
+                logger);
         }
     }
 }

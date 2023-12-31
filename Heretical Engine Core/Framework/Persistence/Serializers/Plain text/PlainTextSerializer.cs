@@ -1,137 +1,199 @@
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
 	public class PlainTextSerializer : ISerializer
 	{
 		private readonly IReadOnlyObjectRepository strategyRepository;
 
-		public PlainTextSerializer(IReadOnlyObjectRepository strategyRepository)
+		private readonly IFormatLogger logger;
+
+		public PlainTextSerializer(
+			IReadOnlyObjectRepository strategyRepository,
+			IFormatLogger logger)
 		{
 			this.strategyRepository = strategyRepository;
+
+			this.logger = logger;
 		}
 
 		#region ISerializer
 
-		public bool Serialize<TValue>(ISerializationArgument argument, TValue DTO)
+		public bool Serialize<TValue>(
+			ISerializationArgument argument,
+			TValue DTO)
 		{
 			string text = string.Empty;
 
-			if (typeof(TValue) == typeof(string))
+			switch (DTO)
 			{
-				text = (string)(object)DTO;
+				case string s:
+
+					text = s;
+
+					break;
+
+				case string[] array:
+
+					text = string.Join("\n", array);
+					
+					break;
+
+				default:
+					var containsPlainText = DTO as IContainsPlainText;
+
+					if (containsPlainText == null)
+						logger?.ThrowException<PlainTextSerializer>(
+							$"DTO OF TYPE {typeof(TValue).Name} DOES NOT IMPLEMENT IContainsPlainText");
+
+					text = containsPlainText.Text;
+
+					break;
 			}
-			else if (typeof(TValue) == typeof(string[]))
-			{
-				var array = (string[])(object)DTO;
 
-				text = string.Join("\n", array);
-			}
-			else
-			{
-				var containsPlainText = DTO as IContainsPlainText;
-
-				if (containsPlainText == null)
-					throw new Exception($"[PlainTextSerializer] DTO OF TYPE {typeof(TValue).ToString()} DOES NOT IMPLEMENT IContainsPlainText");
-
-				text = containsPlainText.Text;
-			}
-
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[PlainTextSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+			if (!strategyRepository.TryGet(
+				argument.GetType(),
+				out var strategyObject))
+				logger?.ThrowException<PlainTextSerializer>(
+					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 
 			return concreteStrategy.Serialize(argument, text);
 		}
 
-		public bool Serialize(ISerializationArgument argument, Type DTOType, object DTO)
+		public bool Serialize(
+			ISerializationArgument argument,
+			Type DTOType,
+			object DTO)
 		{
 			string text = string.Empty;
 
-			if (DTOType == typeof(string))
+			switch (DTO)
 			{
-				text = (string)DTO;
+				case string s:
+
+					text = s;
+
+					break;
+
+				case string[] array:
+
+					text = string.Join("\n", array);
+
+					break;
+
+				default:
+					var containsPlainText = DTO as IContainsPlainText;
+
+					if (containsPlainText == null)
+						logger?.ThrowException<PlainTextSerializer>(
+							$"DTO OF TYPE {DTOType.Name} DOES NOT IMPLEMENT IContainsPlainText");
+
+					text = containsPlainText.Text;
+
+					break;
 			}
-			else if (DTOType == typeof(string[]))
-			{
-				var array = (string[])DTO;
 
-				text = string.Join("\n", array);
-			}
-			else
-			{
-				var containsPlainText = DTO as IContainsPlainText;
-
-				if (containsPlainText == null)
-					throw new Exception($"[PlainTextSerializer] DTO OF TYPE {DTOType.ToString()} DOES NOT IMPLEMENT IContainsPlainText");
-
-				text = containsPlainText.Text;
-			}
-
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[PlainTextSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+			if (!strategyRepository.TryGet(
+				argument.GetType(),
+				out var strategyObject))
+				logger?.ThrowException<PlainTextSerializer>(
+					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 
 			return concreteStrategy.Serialize(argument, text);
 		}
 
-		public bool Deserialize<TValue>(ISerializationArgument argument, out TValue DTO)
+		public bool Deserialize<TValue>(
+			ISerializationArgument argument,
+			out TValue DTO)
 		{
 			DTO = (TValue)Activator.CreateInstance(typeof(TValue));
 
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[PlainTextSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+			if (!strategyRepository.TryGet(
+				argument.GetType(),
+				out var strategyObject))
+				logger?.ThrowException<PlainTextSerializer>(
+					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 
-			if (!concreteStrategy.Deserialize(argument, out var text))
+			if (!concreteStrategy.Deserialize(
+				argument,
+				out var text))
 				return false;
 
-			if (typeof(TValue) == typeof(string))
+			switch (DTO)
 			{
-				DTO = (TValue)(object)text;
-			}
-			else if (typeof(TValue) == typeof(string[]))
-			{
-				var array = text.Split("\n");
+				case string s:
 
-				DTO = (TValue)(object)array;
-			}
-			else
-			{
-				((IContainsPlainText)DTO).Text = text;
+					//DTO = (TValue)(object)text;
+					DTO = (TValue)Convert.ChangeType(text, typeof(TValue));
+
+					break;
+
+				case string[] array:
+
+					var resultArray = text.Split("\n");
+
+					//DTO = (TValue)(object)resultArray;
+					DTO = (TValue)Convert.ChangeType(resultArray, typeof(TValue));
+
+					break;
+
+				default:
+					((IContainsPlainText)DTO).Text = text;
+
+					break;
 			}
 
 			return true;
 		}
 
-		public bool Deserialize(ISerializationArgument argument, Type DTOType, out object DTO)
+		public bool Deserialize(
+			ISerializationArgument argument,
+			Type DTOType,
+			out object DTO)
 		{
 			DTO = Activator.CreateInstance(DTOType);
 
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[PlainTextSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+			if (!strategyRepository.TryGet(
+				argument.GetType(),
+				out var strategyObject))
+				logger?.ThrowException<PlainTextSerializer>(
+					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 
-			if (!concreteStrategy.Deserialize(argument, out var text))
+			if (!concreteStrategy.Deserialize(
+				argument,
+				out var text))
 				return false;
 
-			if (DTOType == typeof(string))
+			switch (DTO)
 			{
-				DTO = text;
-			}
-			else if (DTOType == typeof(string[]))
-			{
-				var array = text.Split("\n");
+				case string s:
 
-				DTO = array;
-			}
-			else
-			{
-				((IContainsPlainText)DTO).Text = text;
+					DTO = text;
+
+					break;
+
+				case string[] array:
+
+					var resultArray = text.Split("\n");
+
+					DTO = resultArray;
+
+					break;
+
+				default:
+					((IContainsPlainText)DTO).Text = text;
+
+					break;
 			}
 
 			return true;
@@ -139,8 +201,11 @@ namespace HereticalSolutions.Persistence.Serializers
 
 		public void Erase(ISerializationArgument argument)
 		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[PlainTextSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+			if (!strategyRepository.TryGet(
+				argument.GetType(),
+				out var strategyObject))
+				logger?.ThrowException<PlainTextSerializer>(
+					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 

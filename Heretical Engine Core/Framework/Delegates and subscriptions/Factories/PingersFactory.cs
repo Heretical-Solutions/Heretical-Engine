@@ -1,26 +1,22 @@
-using System;
 
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Allocations;
 using HereticalSolutions.Allocations.Factories;
+
 using HereticalSolutions.Delegates.Pinging;
 
 using HereticalSolutions.Pools;
 using HereticalSolutions.Pools.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Delegates.Factories
 {
-    /// <summary>
-    /// Provides factory methods for creating instances of pingers and non-alloc pingers.
-    /// </summary>
     public static partial class DelegatesFactory
     {
         #region Pinger
         
-        /// <summary>
-        /// Builds a new instance of <see cref="Pinger"/>.
-        /// </summary>
-        /// <returns>A new instance of <see cref="Pinger"/>.</returns>
         public static Pinger BuildPinger()
         {
             return new Pinger();
@@ -30,15 +26,12 @@ namespace HereticalSolutions.Delegates.Factories
         
         #region Non alloc pinger
         
-        /// <summary>
-        /// Builds a new instance of <see cref="NonAllocPinger"/> with default allocation rules.
-        /// </summary>
-        /// <returns>A new instance of <see cref="NonAllocPinger"/>.</returns>
-        public static NonAllocPinger BuildNonAllocPinger()
+        public static NonAllocPinger BuildNonAllocPinger(
+            IFormatLogger logger)
         {
-            Func<IInvokableNoArgs> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableNoArgs>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableNoArgs>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
@@ -51,43 +44,36 @@ namespace HereticalSolutions.Delegates.Factories
                 new AllocationCommandDescriptor
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
-                });
+                },
+                logger);
 
             return BuildNonAllocPinger(subscriptionsPool);
         }
 
-        /// <summary>
-        /// Builds a new instance of <see cref="NonAllocPinger"/> with custom allocation rules.
-        /// </summary>
-        /// <param name="initial">The initial allocation command descriptor.</param>
-        /// <param name="additional">The additional allocation command descriptor.</param>
-        /// <returns>A new instance of <see cref="NonAllocPinger"/>.</returns>
         public static NonAllocPinger BuildNonAllocPinger(
             AllocationCommandDescriptor initial,
-            AllocationCommandDescriptor additional)
+            AllocationCommandDescriptor additional,
+            IFormatLogger logger)
         {
-            Func<IInvokableNoArgs> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableNoArgs>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableNoArgs>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()
                 },
                 initial,
-                additional);
+                additional,
+                logger);
 
             return BuildNonAllocPinger(subscriptionsPool);
         }
 
-        /// <summary>
-        /// Builds a new instance of <see cref="NonAllocPinger"/> with a custom subscriptions pool.
-        /// </summary>
-        /// <param name="subscriptionsPool">The subscriptions pool to use.</param>
-        /// <returns>A new instance of <see cref="NonAllocPinger"/>.</returns>
-        public static NonAllocPinger BuildNonAllocPinger(INonAllocDecoratedPool<IInvokableNoArgs> subscriptionsPool)
+        public static NonAllocPinger BuildNonAllocPinger(
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool)
         {
-            var contents = ((IModifiable<INonAllocPool<IInvokableNoArgs>>)subscriptionsPool).Contents;
+            var contents = ((IModifiable<INonAllocPool<ISubscription>>)subscriptionsPool).Contents;
 			
             return new NonAllocPinger(
                 subscriptionsPool,

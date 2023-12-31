@@ -1,9 +1,9 @@
-using System;
-
 using HereticalSolutions.Repositories;
 
 using HereticalSolutions.Pools.Arguments;
 using HereticalSolutions.Pools.Behaviours;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Decorators
 {
@@ -14,37 +14,40 @@ namespace HereticalSolutions.Pools.Decorators
     public class NonAllocPoolWithAddress<T> : INonAllocDecoratedPool<T>
     {
         private readonly int level;
+
         private readonly IRepository<int, INonAllocDecoratedPool<T>> innerPoolsRepository;
+
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-        /// <summary>
-        /// Initializes a new instance of the NonAllocPoolWithAddress class.
-        /// </summary>
-        /// <param name="innerPoolsRepository">The repository containing the inner pools.</param>
-        /// <param name="level">The level of the address.</param>
-        public NonAllocPoolWithAddress(IRepository<int, INonAllocDecoratedPool<T>> innerPoolsRepository, int level)
+        private readonly IFormatLogger logger;
+
+        public NonAllocPoolWithAddress(
+            IRepository<int, INonAllocDecoratedPool<T>> innerPoolsRepository,
+            int level,
+            IFormatLogger logger)
         {
             this.innerPoolsRepository = innerPoolsRepository;
+
             this.level = level;
+            
+            this.logger = logger;
+
             pushBehaviourHandler = new PushToDecoratedPoolBehaviour<T>(this);
         }
 
         #region Pop
 
-        /// <summary>
-        /// Removes and returns an object from the pool with the specified arguments.
-        /// </summary>
-        /// <param name="args">The arguments used to determine which object to pop from the pool.</param>
-        /// <returns>The object from the pool.</returns>
         public IPoolElement<T> Pop(IPoolDecoratorArgument[] args)
         {
             #region Validation
 
             if (!args.TryGetArgument<AddressArgument>(out var arg))
-                throw new Exception("[NonAllocPoolWithAddress] ADDRESS ARGUMENT ABSENT");
+                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
+                    "ADDRESS ARGUMENT ABSENT");
 
             if (arg.AddressHashes.Length < level)
-                throw new Exception($"[NonAllocPoolWithAddress] INVALID ADDRESS DEPTH. LEVEL: {{ {level} }} ADDRESS LENGTH: {{ {arg.AddressHashes.Length} }}");
+                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
+                    $"INVALID ADDRESS DEPTH. LEVEL: {{ {level} }} ADDRESS LENGTH: {{ {arg.AddressHashes.Length} }}");
 
             #endregion
 
@@ -55,12 +58,14 @@ namespace HereticalSolutions.Pools.Decorators
             if (arg.AddressHashes.Length == level)
             {
                 if (!innerPoolsRepository.TryGet(0, out poolByAddress))
-                    throw new Exception($"[NonAllocPoolWithAddress] NO POOL DETECTED AT THE END OF ADDRESS. LEVEL: {{ {level} }}");
+                    logger?.ThrowException<NonAllocPoolWithAddress<T>>(
+                        $"NO POOL DETECTED AT THE END OF ADDRESS. LEVEL: {{ {level} }}");
 
                 var endOfAddressResult = poolByAddress.Pop(args);
 
                 // Update element data
                 var endOfAddressElementAsPushable = (IPushable<T>)endOfAddressResult;
+
                 endOfAddressElementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
 
                 return endOfAddressResult;
@@ -73,12 +78,14 @@ namespace HereticalSolutions.Pools.Decorators
             int currentAddressHash = arg.AddressHashes[level];
 
             if (!innerPoolsRepository.TryGet(currentAddressHash, out poolByAddress))
-                throw new Exception($"[NonAllocPoolWithAddress] INVALID ADDRESS {{ {arg.FullAddress} }} ADDRESS HASH: {{ {currentAddressHash} }} LEVEL: {{ {level} }}");
+                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
+                    $"INVALID ADDRESS {{ {arg.FullAddress} }} ADDRESS HASH: {{ {currentAddressHash} }} LEVEL: {{ {level} }}");
 
             var result = poolByAddress.Pop(args);
 
             // Update element data
             var elementAsPushable = (IPushable<T>)result;
+
             elementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
 
             return result;
@@ -101,7 +108,8 @@ namespace HereticalSolutions.Pools.Decorators
         public void Push(IPoolElement<T> instance, bool decoratorsOnly = false)
         {
             if (!instance.Metadata.Has<IContainsAddress>())
-                throw new Exception("[NonAllocPoolWithAddress] INVALID INSTANCE");
+                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
+                    "INVALID INSTANCE");
 
             INonAllocDecoratedPool<T> pool = null;
 
@@ -110,7 +118,8 @@ namespace HereticalSolutions.Pools.Decorators
             if (addressHashes.Length == level)
             {
                 if (!innerPoolsRepository.TryGet(0, out pool))
-                    throw new Exception($"[NonAllocPoolWithAddress] NO POOL DETECTED AT ADDRESS MAX. DEPTH. LEVEL: {{ {level} }}");
+                    logger?.ThrowException<NonAllocPoolWithAddress<T>>(
+                        $"NO POOL DETECTED AT ADDRESS MAX. DEPTH. LEVEL: {{ {level} }}");
 
                 pool.Push(instance, decoratorsOnly);
                 return;
@@ -119,7 +128,8 @@ namespace HereticalSolutions.Pools.Decorators
             int currentAddressHash = addressHashes[level];
 
             if (!innerPoolsRepository.TryGet(currentAddressHash, out pool))
-                throw new Exception($"[NonAllocPoolWithAddress] INVALID ADDRESS {{ {currentAddressHash} }}");
+                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
+                    $"INVALID ADDRESS {{ {currentAddressHash} }}");
 
             pool.Push(instance, decoratorsOnly);
         }

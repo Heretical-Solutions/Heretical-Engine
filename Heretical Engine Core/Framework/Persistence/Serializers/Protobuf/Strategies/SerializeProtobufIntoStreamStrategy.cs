@@ -1,8 +1,7 @@
-using System;
-using System.IO;
-
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
+
+using HereticalSolutions.Logging;
 
 using ProtoBuf;
 using ProtobufInternalSerializer = ProtoBuf.Serializer;
@@ -11,11 +10,24 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeProtobufIntoStreamStrategy : IProtobufSerializationStrategy
     {
-        public bool Serialize(ISerializationArgument argument, Type valueType, object value)
+        private readonly IFormatLogger logger;
+
+        public SerializeProtobufIntoStreamStrategy(IFormatLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type valueType,
+            object value)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(filePathSettings, out FileStream fileStream))
+            if (!StreamIO.OpenWriteStream(
+                filePathSettings,
+                out FileStream fileStream,
+                logger))
                 return false;
             
             ProtobufInternalSerializer.Serialize(fileStream, value);
@@ -29,13 +41,19 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            Type valueType,
+            out object value)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
-            if (!StreamIO.OpenReadStream(filePathSettings, out FileStream fileStream))
+            if (!StreamIO.OpenReadStream(
+                filePathSettings,
+                out FileStream fileStream,
+                logger))
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }

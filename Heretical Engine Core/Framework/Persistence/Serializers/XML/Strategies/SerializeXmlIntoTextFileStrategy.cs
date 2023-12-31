@@ -1,24 +1,25 @@
-using System.IO;
 using System.Xml.Serialization;
 
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
-    /// <summary>
-    /// Implements the IXmlSerializationStrategy interface to serialize and deserialize XML into a text file.
-    /// </summary>
     public class SerializeXmlIntoTextFileStrategy : IXmlSerializationStrategy
     {
-        /// <summary>
-        /// Serializes the specified value using the provided serializer and writes it into a text file according to the argument settings.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="serializer">The XML serializer.</param>
-        /// <param name="value">The value to be serialized.</param>
-        /// <returns>True if the serialization succeeded; otherwise, false.</returns>
-        public bool Serialize(ISerializationArgument argument, XmlSerializer serializer, object value)
+        private readonly IFormatLogger logger;
+
+        public SerializeXmlIntoTextFileStrategy(IFormatLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            XmlSerializer serializer,
+            object value)
         {
             FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
@@ -31,25 +32,27 @@ namespace HereticalSolutions.Persistence.Serializers
                 xml = stringWriter.ToString();
             }
             
-            return TextFileIO.Write(filePathSettings, xml);
+            return TextFileIO.Write(
+                filePathSettings,
+                xml,
+                logger);
         }
 
-        /// <summary>
-        /// Deserializes XML data from a text file according to the argument settings and updates the value.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="serializer">The XML serializer.</param>
-        /// <param name="value">When this method returns, contains the deserialized object. If the deserialization fails, contains null.</param>
-        /// <returns>True if the deserialization succeeded; otherwise, false.</returns>
-        public bool Deserialize(ISerializationArgument argument, XmlSerializer serializer, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            XmlSerializer serializer,
+            out object value)
         {
             FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
-            bool result = TextFileIO.Read(filePathSettings, out string xml);
+            bool result = TextFileIO.Read(
+                filePathSettings,
+                out string xml,
+                logger);
 
             if (!result)
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }
@@ -62,10 +65,6 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
         
-        /// <summary>
-        /// Erases the contents of a text file according to the argument settings.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
         public void Erase(ISerializationArgument argument)
         {
             FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;

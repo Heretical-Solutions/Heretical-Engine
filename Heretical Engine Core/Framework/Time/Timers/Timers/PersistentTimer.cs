@@ -1,13 +1,13 @@
-using System;
 using HereticalSolutions.Delegates;
+
 using HereticalSolutions.Persistence;
+
 using HereticalSolutions.Repositories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Time.Timers
 {
-    /// <summary>
-    /// Represents a persistent timer.
-    /// </summary>
     public class PersistentTimer
         : ITimer,
           IPersistentTimer,
@@ -16,20 +16,12 @@ namespace HereticalSolutions.Time.Timers
           ITickable,
           IVisitable
     {
-        private ITimerStrategy<IPersistentTimerContext, TimeSpan> currentStrategy;
-
         private readonly IReadOnlyRepository<ETimerState, ITimerStrategy<IPersistentTimerContext, TimeSpan>> strategyRepository;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PersistentTimer"/> class.
-        /// </summary>
-        /// <param name="id">The ID of the timer.</param>
-        /// <param name="defaultDurationSpan">The default duration span.</param>
-        /// <param name="onStartAsPublisher">The publisher for the "on start" event.</param>
-        /// <param name="onStartAsSubscribable">The subscribable for the "on start" event.</param>
-        /// <param name="onFinishAsPublisher">The publisher for the "on finish" event.</param>
-        /// <param name="onFinishAsSubscribable">The subscribable for the "on finish" event.</param>
-        /// <param name="strategyRepository">The repository containing the timer strategies.</param>
+        private readonly IFormatLogger logger;
+
+        private ITimerStrategy<IPersistentTimerContext, TimeSpan> currentStrategy;
+
         public PersistentTimer(
             string id,
             TimeSpan defaultDurationSpan,
@@ -40,7 +32,9 @@ namespace HereticalSolutions.Time.Timers
             IPublisherSingleArgGeneric<IPersistentTimer> onFinishAsPublisher,
             INonAllocSubscribableSingleArgGeneric<IPersistentTimer> onFinishAsSubscribable,
 
-            IReadOnlyRepository<ETimerState, ITimerStrategy<IPersistentTimerContext, TimeSpan>> strategyRepository)
+            IReadOnlyRepository<ETimerState, ITimerStrategy<IPersistentTimerContext, TimeSpan>> strategyRepository,
+
+            IFormatLogger logger)
         {
             ID = id;
 
@@ -64,6 +58,8 @@ namespace HereticalSolutions.Time.Timers
 
 
             this.strategyRepository = strategyRepository;
+
+            this.logger = logger;
 
             SetState(ETimerState.INACTIVE);
         }
@@ -314,24 +310,33 @@ namespace HereticalSolutions.Time.Timers
             get => typeof(PersistentTimerDTO);
         }
 
-        /// <summary>
-        /// Accepts a save visitor and returns whether the visit was successful.
-        /// </summary>
-        /// <typeparam name="TDTO">The type of the data transfer object.</typeparam>
-        /// <param name="visitor">The save visitor.</param>
-        /// <param name="DTO">The data transfer object.</param>
-        /// <returns>True if the visit was successful, false otherwise.</returns>
-        public bool Accept<TDTO>(ISaveVisitor visitor, out TDTO DTO)
+        public bool Accept<TDTO>(
+            ISaveVisitor visitor,
+            out TDTO DTO)
         {
-            if (!(typeof(TDTO).Equals(typeof(PersistentTimerDTO))))
-                throw new Exception($"[PersistentTimer] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(PersistentTimerDTO).ToString()}\" RECEIVED: \"{typeof(TDTO).ToString()}\"");
+            var result = visitor
+                .Save<IPersistentTimer, PersistentTimerDTO>(
+                    this,
+                    out PersistentTimerDTO persistentTimerDTO);
 
-            var result = visitor.Save<IPersistentTimer, PersistentTimerDTO>(this, out PersistentTimerDTO persistentTimerDTO);
+            DTO = default;
 
-            // DIRTY HACKS DO NOT REPEAT
-            var dtoObject = (object)persistentTimerDTO;
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (persistentTimerDTO)
+            {
+                case TDTO targetTypeDTO:
 
-            DTO = (TDTO)dtoObject;
+                    DTO = targetTypeDTO;
+
+                    break;
+
+                default:
+
+                    logger?.ThrowException<PersistentTimer>(
+                        $"CANNOT CAST RETURN VALUE TYPE \"{typeof(PersistentTimerDTO).Name}\" TO TYPE \"{typeof(TDTO).GetType().Name}\"");
+
+                    break;
+            }
 
             return result;
         }
@@ -351,22 +356,27 @@ namespace HereticalSolutions.Time.Timers
             return result;
         }
 
-        /// <summary>
-        /// Accepts a load visitor and returns whether the visit was successful.
-        /// </summary>
-        /// <typeparam name="TDTO">The type of the data transfer object.</typeparam>
-        /// <param name="visitor">The load visitor.</param>
-        /// <param name="DTO">The data transfer object.</param>
-        /// <returns>True if the visit was successful, false otherwise.</returns>
-        public bool Accept<TDTO>(ILoadVisitor visitor, TDTO DTO)
+        public bool Accept<TDTO>(
+            ILoadVisitor visitor,
+            TDTO DTO)
         {
-            if (!(typeof(TDTO).Equals(typeof(PersistentTimerDTO))))
-                throw new Exception($"[PersistentTimer] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(PersistentTimerDTO).ToString()}\" RECEIVED: \"{typeof(TDTO).ToString()}\"");
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (DTO)
+            {
+                case PersistentTimerDTO targetTypeDTO:
 
-            // DIRTY HACKS DO NOT REPEAT
-            var dtoObject = (object)DTO;
+                    return visitor
+                        .Load<IPersistentTimer, PersistentTimerDTO>(
+                            targetTypeDTO,
+                            this);
 
-            return visitor.Load<IPersistentTimer, PersistentTimerDTO>((PersistentTimerDTO)dtoObject, this);
+                default:
+
+                    logger?.ThrowException<PersistentTimer>(
+                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(PersistentTimerDTO).Name}\" RECEIVED: \"{typeof(TDTO).GetType().Name}\"");
+
+                    return false;
+            }
         }
 
         /// <summary>

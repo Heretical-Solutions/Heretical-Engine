@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using HereticalSolutions.Collections;
 using HereticalSolutions.Allocations;
 
@@ -9,10 +6,6 @@ using HereticalSolutions.Pools.Behaviours;
 
 namespace HereticalSolutions.Pools.Decorators
 {
-    /// <summary>
-    /// Represents a pool that can append elements and top up the supply from another pool.
-    /// </summary>
-    /// <typeparam name="T">The type of elements in the pool.</typeparam>
     public class SupplyAndMergePool<T> :
         INonAllocDecoratedPool<T>,
         IAppendable<IPoolElement<T>>,
@@ -28,16 +21,6 @@ namespace HereticalSolutions.Pools.Decorators
         
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SupplyAndMergePool{T}"/> class with the specified parameters.
-        /// </summary>
-        /// <param name="basePool">The base pool.</param>
-        /// <param name="supplyPool">The supply pool.</param>
-        /// <param name="supplyPoolAsIndexable">The supply pool as an indexable collection.</param>
-        /// <param name="supplyPoolAsFixedSizeCollection">The supply pool as a fixed-size collection.</param>
-        /// <param name="appendAllocationCommand">The allocation command for appending elements.</param>
-        /// <param name="mergeDelegate">The delegate for merging the supply pool into the base pool.</param>
-        /// <param name="topUpAllocationDelegate">The allocation delegate for topping up the supply pool.</param>
         public SupplyAndMergePool(
             INonAllocPool<T> basePool,
             INonAllocPool<T> supplyPool,
@@ -66,15 +49,8 @@ namespace HereticalSolutions.Pools.Decorators
 
         #region IAppendable
 
-        /// <summary>
-        /// Gets the allocation command for appending elements.
-        /// </summary>
         public AllocationCommand<IPoolElement<T>> AppendAllocationCommand { get; private set; }
 
-        /// <summary>
-        /// Appends an element to the pool.
-        /// </summary>
-        /// <returns>The appended element.</returns>
         public IPoolElement<T> Append()
         {
             if (!supplyPool.HasFreeSpace)
@@ -93,10 +69,6 @@ namespace HereticalSolutions.Pools.Decorators
 
         private readonly Func<T> topUpAllocationDelegate;
 
-        /// <summary>
-        /// Tops up the specified element.
-        /// </summary>
-        /// <param name="element">The element to top up.</param>
         public void TopUp(IPoolElement<T> element)
         {
             element.Value = topUpAllocationDelegate.Invoke();
@@ -108,9 +80,6 @@ namespace HereticalSolutions.Pools.Decorators
 
         private readonly Action<INonAllocPool<T>, INonAllocPool<T>, AllocationCommand<IPoolElement<T>>> mergeDelegate;
 
-        /// <summary>
-        /// Merges the supply pool into the base pool.
-        /// </summary>
         private void MergeSupplyIntoBase()
         {
             mergeDelegate.Invoke(
@@ -119,9 +88,6 @@ namespace HereticalSolutions.Pools.Decorators
                 AppendAllocationCommand);
         }
 
-        /// <summary>
-        /// Tops up the supply pool and merges it into the base pool.
-        /// </summary>
         private void TopUpAndMerge()
         {
             for (int i = supplyPoolAsIndexable.Count; i < supplyPoolAsFixedSizeCollection.Capacity; i++)
@@ -134,12 +100,7 @@ namespace HereticalSolutions.Pools.Decorators
 
         #region INonAllocDecoratedPool
         
-        /// <summary>
-        /// Pops an element from the pool using the specified decorator arguments.
-        /// </summary>
-        /// <param name="args">The decorator arguments.</param>
-        /// <returns>The popped element.</returns>
-        public IPoolElement<T> Pop(IPoolDecoratorArgument[] args)
+        public IPoolElement<T> Pop(IPoolDecoratorArgument[] args = null)
         {
             #region Append from argument
             
@@ -191,11 +152,6 @@ namespace HereticalSolutions.Pools.Decorators
             return result;
         }
 
-        /// <summary>
-        /// Pushes an element back into the pool.
-        /// </summary>
-        /// <param name="instance">The instance to push back.</param>
-        /// <param name="decoratorsOnly">A flag indicating whether to only perform decorators.</param>
         public void Push(IPoolElement<T> instance, bool decoratorsOnly = false)
         {
             if (decoratorsOnly)
@@ -217,9 +173,6 @@ namespace HereticalSolutions.Pools.Decorators
             basePool.Push(instance);
         }
         
-        /// <summary>
-        /// Gets a value indicating whether the pool has free space.
-        /// </summary>
         public bool HasFreeSpace { get { return true; } }  // ¯\_(ツ)_/¯
 
         #endregion

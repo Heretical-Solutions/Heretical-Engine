@@ -1,8 +1,8 @@
 using HereticalSolutions.Repositories;
 
-using HereticalSolutions.Logging;
-
 using HereticalSolutions.Delegates.Notifiers;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
@@ -903,7 +903,7 @@ namespace HereticalSolutions.ResourceManagement
 				IAsyncContainsNestedResources concurrentCurrentData = currentData as IAsyncContainsNestedResources;
 
 				if (concurrentCurrentData == null)
-					logger.ThrowException<ConcurrentRuntimeResourceManager>(
+					logger?.ThrowException<ConcurrentRuntimeResourceManager>(
 						$"RESOURCE DATA {currentData.Descriptor.ID} IS NOT CONCURRENT");
 
 				currentData = await concurrentCurrentData
@@ -924,7 +924,7 @@ namespace HereticalSolutions.ResourceManagement
 				IAsyncContainsNestedResources concurrentCurrentData = currentData as IAsyncContainsNestedResources;
 
 				if (concurrentCurrentData == null)
-					logger.ThrowException<ConcurrentRuntimeResourceManager>(
+					logger?.ThrowException<ConcurrentRuntimeResourceManager>(
 						$"RESOURCE DATA {currentData.Descriptor.ID} IS NOT CONCURRENT");
 
 				currentData = await concurrentCurrentData

@@ -142,6 +142,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				importerPool = PoolsFactory.BuildSimpleResizableObjectPool<AAssetImporter, TImporter>(
 					initialAllocation,
 					additionalAllocation,
+					context.Logger,
 					new object[]
 					{
 						context

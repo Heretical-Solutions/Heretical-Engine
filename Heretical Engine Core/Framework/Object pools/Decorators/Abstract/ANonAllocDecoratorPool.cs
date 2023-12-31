@@ -1,27 +1,25 @@
+using HereticalSolutions.Logging;
 using HereticalSolutions.Pools.Arguments;
 using HereticalSolutions.Pools.Behaviours;
 
 namespace HereticalSolutions.Pools
 {
-    /// <summary>
-    /// Represents an abstract class for a non-allocating decorator pool.
-    /// </summary>
-    /// <typeparam name="T">The type of objects stored in the pool.</typeparam>
     public abstract class ANonAllocDecoratorPool<T>
         : INonAllocDecoratedPool<T>
     {
-        protected INonAllocDecoratedPool<T> innerPool;
-
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ANonAllocDecoratorPool{T}"/> class.
-        /// </summary>
-        /// <param name="innerPool">The inner pool to be decorated.</param>
+        protected readonly IFormatLogger logger;
+
+        protected INonAllocDecoratedPool<T> innerPool;
+
         public ANonAllocDecoratorPool(
-            INonAllocDecoratedPool<T> innerPool)
+            INonAllocDecoratedPool<T> innerPool,
+            IFormatLogger logger)
         {
             this.innerPool = innerPool;
+
+            this.logger = logger;
 
             pushBehaviourHandler = new PushToDecoratedPoolBehaviour<T>(this);
         }

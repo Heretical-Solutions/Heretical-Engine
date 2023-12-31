@@ -1,15 +1,29 @@
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
 	public class SerializePlainTextIntoStreamStrategy : IPlainTextSerializationStrategy
 	{
-		public bool Serialize(ISerializationArgument argument, string text)
+		private readonly IFormatLogger logger;
+
+		public SerializePlainTextIntoStreamStrategy(IFormatLogger logger)
+		{
+			this.logger = logger;
+		}
+
+		public bool Serialize(
+			ISerializationArgument argument,
+			string text)
 		{
 			FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
-			if (!StreamIO.OpenWriteStream(filePathSettings, out StreamWriter streamWriter))
+			if (!StreamIO.OpenWriteStream(
+				filePathSettings,
+				out StreamWriter streamWriter,
+				logger))
 				return false;
 
 			streamWriter.Write(text);
@@ -19,13 +33,18 @@ namespace HereticalSolutions.Persistence.Serializers
 			return true;
 		}
 
-		public bool Deserialize(ISerializationArgument argument, out string text)
+		public bool Deserialize(
+			ISerializationArgument argument,
+			out string text)
 		{
 			FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
 			text = string.Empty;
 
-			if (!StreamIO.OpenReadStream(filePathSettings, out StreamReader streamReader))
+			if (!StreamIO.OpenReadStream(
+				filePathSettings,
+				out StreamReader streamReader,
+				logger))
 				return false;
 
 			text = streamReader.ReadToEnd();

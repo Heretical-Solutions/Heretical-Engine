@@ -9,7 +9,6 @@ using HereticalSolutions.GameEntities;
 using HereticalSolutions.GameEntities.Factories;
 
 using HereticalSolutions.HereticalEngine.Rendering;
-using HereticalSolutions.HereticalEngine.GameEntities;
 
 using HereticalSolutions.Logging;
 
@@ -257,7 +256,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				pathToExe.IndexOf("/bin/"))
 				+ "/Engine assets/";
 
-			var serializer = PersistenceFactory.BuildSimpleJSONSerializer();
+			var serializer = PersistenceFactory.BuildSimpleJSONSerializer(context.Logger);
 
 			var serializationArgument = new TextFileArgument();
 

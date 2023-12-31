@@ -1,21 +1,30 @@
-using System;
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Delegates;
+
 using HereticalSolutions.Delegates.Broadcasting;
+
 using HereticalSolutions.Pools;
+
 using HereticalSolutions.Repositories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Messaging
 {
-    /// <summary>
-    /// Represents a non-allocating message bus that can send and receive messages.
-    /// </summary>
-    public class NonAllocMessageBus : INonAllocMessageSender, INonAllocMessageReceiver
+    public class NonAllocMessageBus
+        : INonAllocMessageSender,
+          INonAllocMessageReceiver
     {
         private readonly NonAllocBroadcasterWithRepository broadcaster;
+
         private readonly IReadOnlyObjectRepository messageRepository;
+
         private readonly INonAllocDecoratedPool<IPoolElement<IMessage>> mailbox;
+
         private readonly IIndexable<IPoolElement<IPoolElement<IMessage>>> mailboxContentsAsIndexable;
+
+        private readonly IFormatLogger logger;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="NonAllocMessageBus"/> class.
@@ -28,29 +37,33 @@ namespace HereticalSolutions.Messaging
             NonAllocBroadcasterWithRepository broadcaster,
             IReadOnlyObjectRepository messageRepository,
             INonAllocDecoratedPool<IPoolElement<IMessage>> mailbox,
-            IIndexable<IPoolElement<IPoolElement<IMessage>>> mailboxContentsAsIndexable)
+            IIndexable<IPoolElement<IPoolElement<IMessage>>> mailboxContentsAsIndexable,
+            IFormatLogger logger)
         {
             this.broadcaster = broadcaster;
+
             this.messageRepository = messageRepository;
+
             this.mailbox = mailbox;
+
             this.mailboxContentsAsIndexable = mailboxContentsAsIndexable;
+
+            this.logger = logger;
         }
 
         #region IMessageSenderNonAlloc
 
         #region Pop
         
-        /// <summary>
-        /// Retrieves a message of the specified type from the message pool.
-        /// </summary>
-        /// <param name="messageType">The type of the message to retrieve.</param>
-        /// <param name="message">The retrieved message.</param>
-        /// <returns>The message sender instance.</returns>
-        /// <exception cref="Exception">Thrown when the specified message type is invalid for the message bus.</exception>
-        public INonAllocMessageSender PopMessage(Type messageType, out IPoolElement<IMessage> message)
+        public INonAllocMessageSender PopMessage(
+            Type messageType,
+            out IPoolElement<IMessage> message)
         {
-            if (!messageRepository.TryGet(messageType, out object messagePoolObject))
-                throw new Exception($"[NonAllocMessageBus] INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.ToString()}");
+            if (!messageRepository.TryGet(
+                messageType,
+                out object messagePoolObject))
+                logger?.ThrowException<NonAllocMessageBus>(
+                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}");
 
             INonAllocDecoratedPool<IMessage> messagePool = (INonAllocDecoratedPool<IMessage>)messagePoolObject;
 
@@ -59,17 +72,13 @@ namespace HereticalSolutions.Messaging
             return this;
         }
 
-        /// <summary>
-        /// Retrieves a message of the specified type from the message pool.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message to retrieve.</typeparam>
-        /// <param name="message">The retrieved message.</param>
-        /// <returns>The message sender instance.</returns>
-        /// <exception cref="Exception">Thrown when the specified message type is invalid for the message bus.</exception>
         public INonAllocMessageSender PopMessage<TMessage>(out IPoolElement<IMessage> message) where TMessage : IMessage
         {
-            if (!messageRepository.TryGet(typeof(TMessage), out object messagePoolObject))
-                throw new Exception($"[NonAllocMessageBus] INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).ToString()}");
+            if (!messageRepository.TryGet(
+                    typeof(TMessage),
+                    out object messagePoolObject))
+                logger?.ThrowException<NonAllocMessageBus>(
+                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}");
 
             INonAllocDecoratedPool<IMessage> messagePool = (INonAllocDecoratedPool<IMessage>)messagePoolObject;
 
@@ -82,35 +91,26 @@ namespace HereticalSolutions.Messaging
 
         #region Write
 
-        /// <summary>
-        /// Writes data to the specified message.
-        /// </summary>
-        /// <param name="messageElement">The message element to write to.</param>
-        /// <param name="args">The data to write to the message.</param>
-        /// <returns>The message sender instance.</returns>
-        /// <exception cref="Exception">Thrown when the message element is invalid.</exception>
-        public INonAllocMessageSender Write(IPoolElement<IMessage> messageElement, object[] args)
+        public INonAllocMessageSender Write(
+            IPoolElement<IMessage> messageElement,
+            object[] args)
         {
             if (messageElement == null)
-                throw new Exception($"[NonAllocMessageBus] INVALID MESSAGE");
+                logger?.ThrowException<NonAllocMessageBus>(
+                    $"INVALID MESSAGE");
 
             messageElement.Value.Write(args);
 
             return this;
         }
 
-        /// <summary>
-        /// Writes data to the specified message.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message to write to.</typeparam>
-        /// <param name="messageElement">The message element to write to.</param>
-        /// <param name="args">The data to write to the message.</param>
-        /// <returns>The message sender instance.</returns>
-        /// <exception cref="Exception">Thrown when the message element is invalid.</exception>
-        public INonAllocMessageSender Write<TMessage>(IPoolElement<IMessage> messageElement, object[] args) where TMessage : IMessage
+        public INonAllocMessageSender Write<TMessage>(
+            IPoolElement<IMessage> messageElement,
+            object[] args) where TMessage : IMessage
         {
             if (messageElement == null)
-                throw new Exception($"[NonAllocMessageBus] INVALID MESSAGE");
+                logger?.ThrowException<NonAllocMessageBus>(
+                    $"INVALID MESSAGE");
 
             messageElement.Value.Write(args);
 
@@ -194,8 +194,11 @@ namespace HereticalSolutions.Messaging
         {
             var messageType = message.Value.GetType();
 
-            if (!messageRepository.TryGet(messageType, out object messagePoolObject))
-                throw new Exception($"[NonAllocMessageBus] INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.ToString()}");
+            if (!messageRepository.TryGet(
+                messageType,
+                out object messagePoolObject))
+                logger?.ThrowException<NonAllocMessageBus>(
+                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}");
 
             INonAllocDecoratedPool<IMessage> messagePool = (INonAllocDecoratedPool<IMessage>)messagePoolObject;
 
@@ -206,8 +209,11 @@ namespace HereticalSolutions.Messaging
         {
             var messageType = typeof(TMessage);
 
-            if (!messageRepository.TryGet(messageType, out object messagePoolObject))
-                throw new Exception($"[NonAllocMessageBus] INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).ToString()}");
+            if (!messageRepository.TryGet(
+                messageType,
+                out object messagePoolObject))
+                logger?.ThrowException<NonAllocMessageBus>(
+                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}");
 
             INonAllocDecoratedPool<IMessage> messagePool = (INonAllocDecoratedPool<IMessage>)messagePoolObject;
 
@@ -218,44 +224,38 @@ namespace HereticalSolutions.Messaging
 
         #region IMessageReceiverNonAlloc
         
-        /// <summary>
-        /// Subscribes to messages of the specified type.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the messages to subscribe to.</typeparam>
-        /// <param name="subscription">The subscription to add.</param>
         public void SubscribeTo<TMessage>(ISubscription subscription) where TMessage : IMessage
         {
-            broadcaster.Subscribe<TMessage>((ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TMessage>, IInvokableSingleArgGeneric<TMessage>>)subscription);
+            broadcaster.Subscribe<TMessage>(
+                (ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TMessage>, IInvokableSingleArgGeneric<TMessage>>)
+                    subscription);
         }
         
-        /// <summary>
-        /// Subscribes to messages of the specified type.
-        /// </summary>
-        /// <param name="messageType">The type of the messages to subscribe to.</param>
-        /// <param name="subscription">The subscription to add.</param>
-        public void SubscribeTo(Type messageType, ISubscription subscription)
+        public void SubscribeTo(
+            Type messageType,
+            ISubscription subscription)
         {
-            broadcaster.Subscribe(messageType, (ISubscriptionHandler<INonAllocSubscribableSingleArg, IInvokableSingleArg>)subscription);
+            broadcaster.Subscribe(
+                messageType,
+                (ISubscriptionHandler<INonAllocSubscribableSingleArg, IInvokableSingleArg>)
+                    subscription);
         }
 
-        /// <summary>
-        /// Unsubscribes from messages of the specified type.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the messages to unsubscribe from.</typeparam>
-        /// <param name="subscription">The subscription to remove.</param>
         public void UnsubscribeFrom<TMessage>(ISubscription subscription) where TMessage : IMessage
         {
-            broadcaster.Unsubscribe<TMessage>((ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TMessage>, IInvokableSingleArgGeneric<TMessage>>)subscription);
+            broadcaster.Unsubscribe<TMessage>(
+                (ISubscriptionHandler<INonAllocSubscribableSingleArgGeneric<TMessage>, IInvokableSingleArgGeneric<TMessage>>)
+                    subscription);
         }
         
-        /// <summary>
-        /// Unsubscribes from messages of the specified type.
-        /// </summary>
-        /// <param name="messageType">The type of the messages to unsubscribe from.</param>
-        /// <param name="subscription">The subscription to remove.</param>
-        public void UnsubscribeFrom(Type messageType, ISubscription subscription)
+        public void UnsubscribeFrom(
+            Type messageType,
+            ISubscription subscription)
         {
-            broadcaster.Unsubscribe(messageType, (ISubscriptionHandler<INonAllocSubscribableSingleArg, IInvokableSingleArg>)subscription);
+            broadcaster.Unsubscribe(
+                messageType,
+                (ISubscriptionHandler<INonAllocSubscribableSingleArg, IInvokableSingleArg>)
+                    subscription);
         }
         
         #endregion

@@ -33,7 +33,7 @@ namespace HereticalSolutions.Delegates.Factories
         /// <returns>The current instance of the <see cref="NonAllocBroadcasterWithRepositoryBuilder"/>.</returns>
         public NonAllocBroadcasterWithRepositoryBuilder Add<TBroadcaster>()
         {
-            broadcastersRepository.Add(typeof(TBroadcaster), DelegatesFactory.BuildNonAllocBroadcasterGeneric<TBroadcaster>());
+            broadcastersRepository.Add(typeof(TBroadcaster), DelegatesFactory.BuildNonAllocBroadcasterGeneric<TBroadcaster>(logger));
 
             return this;
         }

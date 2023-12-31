@@ -1,6 +1,10 @@
 using HereticalSolutions.Pools.Decorators;
+
 using HereticalSolutions.RandomGeneration;
+
 using HereticalSolutions.Repositories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Factories
 {
@@ -17,18 +21,15 @@ namespace HereticalSolutions.Pools.Factories
 
         #region Non alloc decorator pools
 
-        /// <summary>
-        /// Builds a non-alloc pool with variants.
-        /// </summary>
-        /// <typeparam name="T">The type of objects stored in the pool.</typeparam>
-        /// <param name="repository">The repository used for storing variant containers.</param>
-        /// <param name="generator">The random generator used for generating variants.</param>
-        /// <returns>A NonAllocPoolWithVariants instance.</returns>
         public static NonAllocPoolWithVariants<T> BuildNonAllocPoolWithVariants<T>(
             IRepository<int, VariantContainer<T>> repository,
-            IRandomGenerator generator)
+            IRandomGenerator generator,
+            IFormatLogger logger)
         {
-            return new NonAllocPoolWithVariants<T>(repository, generator);
+            return new NonAllocPoolWithVariants<T>(
+                repository,
+                generator,
+                logger);
         }
 
         #endregion

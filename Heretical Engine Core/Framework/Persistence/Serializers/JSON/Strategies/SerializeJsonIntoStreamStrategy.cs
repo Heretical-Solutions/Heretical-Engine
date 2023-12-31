@@ -1,26 +1,29 @@
-using System.IO;
-
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
-    /// <summary>
-    /// Serializes and deserializes JSON into and from a stream.
-    /// </summary>
     public class SerializeJsonIntoStreamStrategy : IJsonSerializationStrategy
     {
-        /// <summary>
-        /// Serializes the given JSON into a stream.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="json">The JSON to be serialized.</param>
-        /// <returns><c>true</c> if the serialization was successful; otherwise, <c>false</c>.</returns>
-        public bool Serialize(ISerializationArgument argument, string json)
+        private readonly IFormatLogger logger;
+
+        public SerializeJsonIntoStreamStrategy(IFormatLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            string json)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
-            if (!StreamIO.OpenWriteStream(filePathSettings, out StreamWriter streamWriter))
+            if (!StreamIO.OpenWriteStream(
+                filePathSettings,
+                out StreamWriter streamWriter,
+                logger))
                 return false;
 
             streamWriter.Write(json);
@@ -30,19 +33,18 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        /// <summary>
-        /// Deserializes the JSON from a stream.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="json">The deserialized JSON.</param>
-        /// <returns><c>true</c> if the deserialization was successful; otherwise, <c>false</c>.</returns>
-        public bool Deserialize(ISerializationArgument argument, out string json)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            out string json)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
             json = string.Empty;
 
-            if (!StreamIO.OpenReadStream(filePathSettings, out StreamReader streamReader))
+            if (!StreamIO.OpenReadStream(
+                filePathSettings,
+                out StreamReader streamReader,
+                logger))
                 return false;
 
             json = streamReader.ReadToEnd();
@@ -52,10 +54,6 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        /// <summary>
-        /// Erases the serialized JSON from a stream.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
         public void Erase(ISerializationArgument argument)
         {
             FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;

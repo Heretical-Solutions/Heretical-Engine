@@ -36,7 +36,7 @@ namespace HereticalSolutions.Delegates.Factories
         /// <returns>The current instance of the BroadcasterWithRepositoryBuilder class.</returns>
         public BroadcasterWithRepositoryBuilder Add<TBroadcaster>()
         {
-            broadcastersRepository.Add(typeof(TBroadcaster), DelegatesFactory.BuildBroadcasterGeneric<TBroadcaster>());
+            broadcastersRepository.Add(typeof(TBroadcaster), DelegatesFactory.BuildBroadcasterGeneric<TBroadcaster>(logger));
 
             return this;
         }

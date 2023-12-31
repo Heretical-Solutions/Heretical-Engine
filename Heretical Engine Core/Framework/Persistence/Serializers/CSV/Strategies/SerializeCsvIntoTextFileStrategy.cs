@@ -1,28 +1,28 @@
-using System;
 using System.Collections;
 using System.Globalization;
-using System.IO;
 
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
+
+using HereticalSolutions.Logging;
 
 using CsvHelper;
 
 namespace HereticalSolutions.Persistence.Serializers
 {
-    /// <summary>
-    /// Serializes objects into a CSV and writes it into a text file.
-    /// </summary>
     public class SerializeCsvIntoTextFileStrategy : ICsvSerializationStrategy
     {
-        /// <summary>
-        /// Serializes an object into a CSV and writes it into a text file.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
-        /// <param name="valueType">The type of the object being serialized.</param>
-        /// <param name="value">The object to be serialized.</param>
-        /// <returns>true if the serialization was successful, otherwise false.</returns>
-        public bool Serialize(ISerializationArgument argument, Type valueType, object value)
+        private readonly IFormatLogger logger;
+
+        public SerializeCsvIntoTextFileStrategy(IFormatLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type valueType,
+            object value)
         {
             FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
@@ -49,25 +49,27 @@ namespace HereticalSolutions.Persistence.Serializers
                 csv = stringWriter.ToString();
             }
             
-            return TextFileIO.Write(filePathSettings, csv);
+            return TextFileIO.Write(
+                filePathSettings,
+                csv,
+                logger);
         }
 
-        /// <summary>
-        /// Deserializes an object from a CSV in a text file.
-        /// </summary>
-        /// <param name="argument">The deserialization argument.</param>
-        /// <param name="valueType">The type of the object being deserialized.</param>
-        /// <param name="value">The deserialized object.</param>
-        /// <returns>true if the deserialization was successful, otherwise false.</returns>
-        public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            Type valueType,
+            out object value)
         {
             FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
-            bool result = TextFileIO.Read(filePathSettings, out string csv);
+            bool result = TextFileIO.Read(
+                filePathSettings,
+                out string csv,
+                logger);
 
             if (!result)
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }
@@ -104,10 +106,6 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
         
-        /// <summary>
-        /// Erases the text file associated with the serialization argument.
-        /// </summary>
-        /// <param name="argument">The serialization argument.</param>
         public void Erase(ISerializationArgument argument)
         {
             FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;

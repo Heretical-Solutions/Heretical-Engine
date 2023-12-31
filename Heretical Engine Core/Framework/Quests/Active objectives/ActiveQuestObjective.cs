@@ -1,5 +1,3 @@
-using System;
-
 using HereticalSolutions.MVVM;
 using HereticalSolutions.MVVM.Observable;
 

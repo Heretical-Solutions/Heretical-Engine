@@ -1,5 +1,3 @@
-using System;
-
 using HereticalSolutions.Collections;
 
 using HereticalSolutions.Allocations;
@@ -7,42 +5,36 @@ using HereticalSolutions.Allocations.Factories;
 
 using HereticalSolutions.Delegates.Factories;
 
-using HereticalSolutions.Logging;
-
 using HereticalSolutions.Pools;
 using HereticalSolutions.Pools.Factories;
 
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Messaging.Factories
 {
-    /// <summary>
-    /// Builder class for creating a non-allocating message bus.
-    /// </summary>
     public class NonAllocMessageBusBuilder
     {
         private readonly IObjectRepository messagePoolRepository;
 
         private readonly NonAllocBroadcasterWithRepositoryBuilder broadcasterBuilder;
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NonAllocMessageBusBuilder"/> class.
-        /// </summary>
-        /// <param name="logger">The logger instance to use for logging.</param>
+
+        private readonly IFormatLogger logger;
+
+
         public NonAllocMessageBusBuilder(
             IFormatLogger logger)
         {
+            this.logger = logger;
+
             messagePoolRepository = RepositoriesFactory.BuildDictionaryObjectRepository();
 
-            broadcasterBuilder = new NonAllocBroadcasterWithRepositoryBuilder(logger);
+            broadcasterBuilder = new NonAllocBroadcasterWithRepositoryBuilder(
+                logger);
         }
 
-        /// <summary>
-        /// Adds a message type to the message bus builder.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of message to add.</typeparam>
-        /// <returns>A reference to the message bus builder.</returns>
         public NonAllocMessageBusBuilder AddMessageType<TMessage>()
         {
             Func<IMessage> valueAllocationDelegate = AllocationsFactory.ActivatorAllocationDelegate<IMessage, TMessage>;
@@ -60,7 +52,8 @@ namespace HereticalSolutions.Messaging.Factories
                 new AllocationCommandDescriptor
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
-                });
+                },
+                logger);
             
             messagePoolRepository.Add(
                 typeof(TMessage),
@@ -71,10 +64,6 @@ namespace HereticalSolutions.Messaging.Factories
             return this;
         }
 
-        /// <summary>
-        /// Builds a non-allocating message bus.
-        /// </summary>
-        /// <returns>The created non-allocating message bus.</returns>
         public NonAllocMessageBus Build()
         {
             Func<IPoolElement<IMessage>> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IPoolElement<IMessage>>;
@@ -92,7 +81,8 @@ namespace HereticalSolutions.Messaging.Factories
                 new AllocationCommandDescriptor
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
-                });
+                },
+                logger);
             
             var mailboxContents = ((IModifiable<INonAllocPool<IPoolElement<IMessage>>>)mailbox).Contents;
             
@@ -102,7 +92,8 @@ namespace HereticalSolutions.Messaging.Factories
                 broadcasterBuilder.Build(),
                 (IReadOnlyObjectRepository)messagePoolRepository,
                 mailbox,
-                mailboxContentAsIndexable);
+                mailboxContentAsIndexable,
+                logger);
         }
     }
 }
