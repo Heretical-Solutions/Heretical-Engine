@@ -131,11 +131,25 @@ namespace HereticalSolutions.Time.Strategies
             {
                 if (context.Repeat)
                 {
-                    context.OnFinishAsPublisher.Publish((IRuntimeTimer)context);
-                    
-                    context.CurrentTimeElapsed = 0f;
-            
-                    context.OnStartAsPublisher.Publish((IRuntimeTimer)context);
+                    if (context.FlushTimeElapsedOnRepeat)
+                    {
+                        context.OnFinishAsPublisher.Publish((IRuntimeTimer)context);
+                        
+                        context.CurrentTimeElapsed = 0f;
+                
+                        context.OnStartAsPublisher.Publish((IRuntimeTimer)context);
+                    }
+                    else
+                    {
+                        while (context.CurrentTimeElapsed > context.CurrentDuration)
+                        {
+                            context.OnFinishAsPublisher.Publish((IRuntimeTimer)context);
+
+                            context.CurrentTimeElapsed -= context.CurrentDuration;
+
+                            context.OnStartAsPublisher.Publish((IRuntimeTimer)context);
+                        }
+                    }
                 }
                 else
                     Finish(context);

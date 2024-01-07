@@ -10,7 +10,8 @@ namespace HereticalSolutions.Repositories
 	{
 		private readonly ConcurrentDictionary<TKey, TValue> database;
 
-		public ConcurrentDictionaryRepository(ConcurrentDictionary<TKey, TValue> database)
+		public ConcurrentDictionaryRepository(
+			ConcurrentDictionary<TKey, TValue> database)
 		{
 			this.database = database;
 		}
@@ -29,9 +30,13 @@ namespace HereticalSolutions.Repositories
 			return database[key];
 		}
 
-		public bool TryGet(TKey key, out TValue value)
+		public bool TryGet(
+			TKey key,
+			out TValue value)
 		{
-			return database.TryGetValue(key, out value);
+			return database.TryGetValue(
+				key,
+				out value);
 		}
 
 		public int Count { get { return database.Count; } }
@@ -40,46 +45,71 @@ namespace HereticalSolutions.Repositories
 
 		public IEnumerable<TValue> Values { get { return database.Values; } }
 
-		public void Clear()
-		{
-			database.Clear();
-		}
-
 		#endregion
 
-		public void Add(TKey key, TValue value)
+		public void Add(
+			TKey key,
+			TValue value)
 		{
-			database.TryAdd(key, value);
+			database.TryAdd(
+				key,
+				value);
 		}
 
-		public bool TryAdd(TKey key, TValue value)
+		public bool TryAdd(
+			TKey key,
+			TValue value)
 		{
-			return database.TryAdd(key, value);
+			return database.TryAdd(
+				key,
+				value);
 		}
 
-		public void Update(TKey key, TValue value)
+		public void Update(
+			TKey key,
+			TValue value)
 		{
 			database[key] = value;
 		}
 
-		public bool TryUpdate(TKey key, TValue value)
+		public bool TryUpdate(
+			TKey key,
+			TValue value)
 		{
-			return database.TryUpdate(key, value, database[key]);
+			return database.TryUpdate(
+				key,
+				value,
+				database[key]);
 		}
 
-		public void AddOrUpdate(TKey key, TValue value)
+		public void AddOrUpdate(
+			TKey key,
+			TValue value)
 		{
-			database.AddOrUpdate(key, value, (k, v) => value);
+			database.AddOrUpdate(
+				key,
+				value,
+				(k, v) => value);
 		}
 
 		public void Remove(TKey key)
 		{
-			database.TryRemove(key, out var value);
+			database.TryRemove(
+				key,
+				out var value);
 		}
 
 		public bool TryRemove(TKey key)
 		{
-			return database.TryRemove(key, out var value);
+			return database.TryRemove(
+				key,
+				out var value);
+		}
+
+
+		public void Clear()
+		{
+			database.Clear();
 		}
 
 		#endregion

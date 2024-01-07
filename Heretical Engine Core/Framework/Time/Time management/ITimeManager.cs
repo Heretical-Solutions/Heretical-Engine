@@ -1,10 +1,8 @@
-using HereticalSolutions.Synchronization;
-
 namespace HereticalSolutions.Time
 {
 	public interface ITimeManager
 	{
-		IRuntimeTimer ApplicationActiveTimer { get; }
+		IRuntimeTimer ApplicationRuntimeTimer { get; }
 
 		IPersistentTimer ApplicationPersistentTimer { get; }
 	}

@@ -8,11 +8,15 @@ namespace HereticalSolutions.Time.Factories
 {
     public static partial class TimeFactory
     {
+        public const string APPLICATION_RUNTIME_TIMER_ID = "Application runtime timer";
+
+        public const string APPLICATION_PERSISTENT_TIMER_ID = "Application persistent timer";
+
         public static TimeManager BuildTimeManager(
             IFormatLogger logger)
         {
             var applicationActiveTimer = TimeFactory.BuildRuntimeTimer(
-                "Application active",
+                APPLICATION_RUNTIME_TIMER_ID,
                 0f,
                 logger);
 
@@ -21,7 +25,7 @@ namespace HereticalSolutions.Time.Factories
             applicationActiveTimer.Start();
 
             var applicationPersistentTimer = TimeFactory.BuildPersistentTimer(
-                "Application persistent",
+                APPLICATION_PERSISTENT_TIMER_ID,
                 default,
                 logger);
 
@@ -30,7 +34,7 @@ namespace HereticalSolutions.Time.Factories
             applicationPersistentTimer.Start();
 
             return new TimeManager(
-                RepositoriesFactory.BuildDictionaryRepository<string, ISynchronizableGeneric<float>>(),
+                RepositoriesFactory.BuildDictionaryRepository<string, ISynchronizableGenericArg<float>>(),
                 applicationActiveTimer,
                 applicationPersistentTimer);
         }

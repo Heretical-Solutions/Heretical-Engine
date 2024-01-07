@@ -1,66 +1,57 @@
 using HereticalSolutions.Delegates;
 
-using HereticalSolutions.Logging;
+using HereticalSolutions.Repositories;
 
 namespace HereticalSolutions.Synchronization
 {
     public class SynchronizationContext
-        : ISynchronizable,
+        : ISynchronizableNoArgs,
           ISynchronizationProvider
     {
-        private SynchronizationDescriptor descriptor;
+        private readonly IReadOnlyObjectRepository metadata;
 
         private readonly IPublisherNoArgs pingerAsPublisher;
 
         private readonly INonAllocSubscribableNoArgs pingerAsSubscribable;
 
-        private readonly IFormatLogger logger;
+
+        private SynchronizationDescriptor descriptor;
 
         public SynchronizationContext(
             SynchronizationDescriptor descriptor,
+            IReadOnlyObjectRepository metadata,
             IPublisherNoArgs pingerAsPublisher,
-            INonAllocSubscribableNoArgs pingerAsSubscribable,
-            IFormatLogger logger)
+            INonAllocSubscribableNoArgs pingerAsSubscribable)
         {
             this.descriptor = descriptor;
+
+            this.metadata = metadata;
 
             this.pingerAsPublisher = pingerAsPublisher;
 
             this.pingerAsSubscribable = pingerAsSubscribable;
-
-            this.logger = logger;
         }
+
+        #region ISynchronizableNoArgs
 
         #region ISynchronizable
 
         public SynchronizationDescriptor Descriptor { get => descriptor; }
 
-        public void Toggle(bool active)
-        {
-            if (!descriptor.CanBeToggled)
-            {
-                logger?.ThrowException<SynchronizationContext>(
-                    "SYNCHRONIZATION IS TOGGLED WHILE ITS CONSTRAINED NOT TO BE ABLE TO BE TOGGLED");
-            }
+        public IReadOnlyObjectRepository Metadata { get => metadata; }
 
-            descriptor.Active = active;
-        }
+        #endregion
 
         public void Synchronize()
         {
-            if (!descriptor.CanBeToggled && !descriptor.Active)
+            if (metadata.Has<ITogglable>())
             {
-                logger?.ThrowException<SynchronizationContext>(
-                    "SYNCHRONIZATION IS TOGGLED WHILE ITS CONSTRAINED NOT TO BE ABLE TO BE TOGGLED");
-            }
+                var togglable = metadata.Get<ITogglable>();
 
-            if (!descriptor.Active)
-                return;
-
-            if (descriptor.CanScale)
-            {
-                logger?.ThrowException<SynchronizationContext>(
-                    "THIS SYNCHRONIZATION IS NOT GENERIC, IT CANNOT BE SCALED");
+                if (!togglable.Active)
+                {
+                    return;
+                }
             }
 
             pingerAsPublisher.Publish();

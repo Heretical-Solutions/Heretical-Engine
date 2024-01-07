@@ -116,6 +116,8 @@ namespace HereticalSolutions.Time.Timers
         /// </summary>
         public bool Repeat { get; set; }
 
+        public bool FlushTimeElapsedOnRepeat { get; set; }
+
         /// <summary>
         /// Resets the timer.
         /// </summary>

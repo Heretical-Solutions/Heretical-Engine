@@ -1,4 +1,4 @@
-using HereticalSolutions.Pools.Allocations;
+using HereticalSolutions.Metadata.Allocations;
 
 namespace HereticalSolutions.Pools.Factories
 {

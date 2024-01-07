@@ -1,6 +1,6 @@
 using HereticalSolutions.Synchronization;
 
-namespace HereticalSolutions.Time
+namespace HereticalSolutions.Synchronization
 {
 	public interface ISynchronizationProvidersRepository
 	{

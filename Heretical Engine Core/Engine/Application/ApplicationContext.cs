@@ -1,23 +1,12 @@
-using HereticalSolutions.Collections.Managed;
-
-using HereticalSolutions.ResourceManagement;
-
-using HereticalSolutions.HereticalEngine.Messaging;
-
 using HereticalSolutions.HereticalEngine.Modules;
 
-using HereticalSolutions.Logging;
+using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Application
 {
 	public class ApplicationContext
 	{
-		//Modules
-		public IModule[] Modules { get; private set; }
-
-		//TODO: remove
-		public ICoreModule RootModule { get; private set; }
-
+		/*
 		//TODO: replace with DI injections
 		public IRuntimeResourceManager RuntimeResourceManager { get; private set; }
 
@@ -26,25 +15,36 @@ namespace HereticalSolutions.HereticalEngine.Application
 
 		//TODO: replace with DI injections
 		public IFormatLogger Logger { get; private set; }
+		*/
+
+		private List<IModule> modules;
 
 		public ApplicationContext(
-			IModule[] modules,
-			ICoreModule rootModule,
-			IRuntimeResourceManager runtimeResourceManager,
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
-			IFormatLogger logger)
+			ContainerBuilder containerBuilder,
+			List<IModule> modules)
 		{
-			Modules = modules;
+			ContainerBuilder = containerBuilder;
 
-			RootModule = rootModule;
-
-
-			RuntimeResourceManager = runtimeResourceManager;
-
-
-			MainThreadCommandBuffer = mainThreadCommandBuffer;
-
-			Logger = logger;
+			this.modules = modules;
 		}
+
+		#region IApplicationContext
+
+		public IContainer Container { get; private set; }
+
+		public IEnumerable<IModule> ActiveModules { get => modules; }
+
+		#endregion
+
+		#region ICompositionRoot
+
+		public ContainerBuilder ContainerBuilder { get; private set; }
+
+		public void BuildContainer()
+		{
+
+		}
+
+		#endregion
 	}
 }

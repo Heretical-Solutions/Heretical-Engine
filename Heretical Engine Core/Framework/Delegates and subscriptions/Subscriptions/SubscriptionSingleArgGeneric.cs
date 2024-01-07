@@ -10,15 +10,16 @@ namespace HereticalSolutions.Delegates.Subscriptions
     /// Represents a subscription with a single generic argument.
     /// </summary>
     /// <typeparam name="TValue">The type of the argument.</typeparam>
-    public class SubscriptionSingleArgGeneric<TValue> : ISubscription,
-        ISubscriptionState<IInvokableSingleArgGeneric<TValue>>,
-        ISubscriptionState<IInvokableSingleArg>,
-        ISubscriptionHandler<
-            INonAllocSubscribableSingleArgGeneric<TValue>,
-            IInvokableSingleArgGeneric<TValue>>,
-        ISubscriptionHandler<
-            INonAllocSubscribableSingleArg,
-            IInvokableSingleArg>
+    public class SubscriptionSingleArgGeneric<TValue>
+        : ISubscription,
+          ISubscriptionState<IInvokableSingleArgGeneric<TValue>>,
+          ISubscriptionState<IInvokableSingleArg>,
+          ISubscriptionHandler<
+              INonAllocSubscribableSingleArgGeneric<TValue>,
+              IInvokableSingleArgGeneric<TValue>>,
+          ISubscriptionHandler<
+              INonAllocSubscribableSingleArg,
+              IInvokableSingleArg>
     {
         private readonly IInvokableSingleArgGeneric<TValue> invokable;
 

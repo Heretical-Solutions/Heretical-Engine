@@ -105,6 +105,37 @@ namespace HereticalSolutions.Repositories.Factories
 
         #endregion
 
+        #region Concurrent dictionary object repository
+
+        public static ConcurrentDictionaryObjectRepository BuildConcurrentDictionaryObjectRepository()
+        {
+            return new ConcurrentDictionaryObjectRepository(
+                new ConcurrentDictionary<Type, object>());
+        }
+
+        public static ConcurrentDictionaryObjectRepository BuildConcurrentDictionaryObjectRepository(
+            ConcurrentDictionary<Type, object> database)
+        {
+            return new ConcurrentDictionaryObjectRepository(
+                database);
+        }
+
+        public static ConcurrentDictionaryObjectRepository BuildConcurrentDictionaryObjectRepository(
+            IEqualityComparer<Type> comparer)
+        {
+            return new ConcurrentDictionaryObjectRepository(
+                new ConcurrentDictionary<Type, object>(comparer));
+        }
+
+        public static ConcurrentDictionaryObjectRepository CloneConcurrentDictionaryObjectRepository(
+            ConcurrentDictionary<Type, object> contents)
+        {
+            return new ConcurrentDictionaryObjectRepository(
+                new ConcurrentDictionary<Type, object>(contents));
+        }
+
+        #endregion
+
         #region Concurrent dictionary repository
 
         public static ConcurrentDictionaryRepository<TKey, TValue> BuildConcurrentDictionaryRepository<TKey, TValue>()

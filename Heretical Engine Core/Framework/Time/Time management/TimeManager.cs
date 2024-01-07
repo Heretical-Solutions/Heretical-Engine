@@ -6,48 +6,52 @@ namespace HereticalSolutions.Time
 {
     public class TimeManager
         : ITimeManager,
-          ISynchronizablesRepository,
+          ISynchronizablesGenericArgRepository<float>,
           ISynchronizationProvidersRepository,
           ITickable
     {
-        private readonly IRepository<string, ISynchronizableGeneric<float>> chronoRepository;
+        private readonly IRepository<string, ISynchronizableGenericArg<float>> chronoRepository;
 
-        private readonly IRuntimeTimer applicationActiveTimer;
+        private readonly IRuntimeTimer applicationRuntimeTimer;
 
         private readonly IPersistentTimer applicationPersistentTimer;
 
         public TimeManager(
-            IRepository<string, ISynchronizableGeneric<float>> chronoRepository,
-            IRuntimeTimer applicationActiveTimer,
+            IRepository<string, ISynchronizableGenericArg<float>> chronoRepository,
+            IRuntimeTimer applicationRuntimeTimer,
             IPersistentTimer applicationPersistentTimer)
         {
             this.chronoRepository = chronoRepository;
 
-            this.applicationActiveTimer = applicationActiveTimer;
+            this.applicationRuntimeTimer = applicationRuntimeTimer;
 
             this.applicationPersistentTimer = applicationPersistentTimer;
         }
 
         #region ITimeManager
 
-        public IRuntimeTimer ApplicationActiveTimer { get => applicationActiveTimer; }
+        public IRuntimeTimer ApplicationRuntimeTimer { get => applicationRuntimeTimer; }
 
         public IPersistentTimer ApplicationPersistentTimer { get => applicationPersistentTimer; }
 
         #endregion
 
-        #region ISynchronizablesRepository
+        #region ISynchronizablesGenericArgRepository
+
+        #region IReadOnlySynchronizablesGenericArgRepository
 
         public bool TryGetSynchronizable(
             string id,
-            out ISynchronizableGeneric<float> synchronizable)
+            out ISynchronizableGenericArg<float> synchronizable)
         {
             return chronoRepository.TryGet(
                 id,
                 out synchronizable);
         }
 
-        public void AddSynchronizable(ISynchronizableGeneric<float> synchronizable)
+        #endregion
+
+        public void AddSynchronizable(ISynchronizableGenericArg<float> synchronizable)
         {
             chronoRepository.TryAdd(
                 synchronizable.Descriptor.ID,
@@ -59,7 +63,7 @@ namespace HereticalSolutions.Time
             chronoRepository.TryRemove(id);
         }
 
-        public void RemoveSynchronizable(ISynchronizableGeneric<float> synchronizable)
+        public void RemoveSynchronizable(ISynchronizableGenericArg<float> synchronizable)
         {
             chronoRepository.TryRemove(synchronizable.Descriptor.ID);
         }
@@ -92,7 +96,7 @@ namespace HereticalSolutions.Time
 
         public void Tick(float delta)
         {
-            ((ITickable)applicationActiveTimer).Tick(delta);
+            ((ITickable)applicationRuntimeTimer).Tick(delta);
 
             ((ITickable)applicationPersistentTimer).Tick(delta);
 

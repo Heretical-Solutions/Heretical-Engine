@@ -163,17 +163,37 @@ namespace HereticalSolutions.Time.Strategies
             {
                 if (context.Repeat)
                 {
-                    context.OnFinishAsPublisher.Publish((IPersistentTimer)context);
+                    if (context.FlushTimeElapsedOnRepeat)
+                    {
+                        context.OnFinishAsPublisher.Publish((IPersistentTimer)context);
 
 
-                    context.StartTime = DateTime.Now;
+                        context.StartTime = DateTime.Now;
 
-                    context.EstimatedFinishTime = context.StartTime + context.CurrentDurationSpan;
+                        context.EstimatedFinishTime = context.StartTime + context.CurrentDurationSpan;
 
-                    context.SavedProgress = default(TimeSpan);
+                        context.SavedProgress = default(TimeSpan);
 
 
-                    context.OnStartAsPublisher.Publish((IPersistentTimer)context);
+                        context.OnStartAsPublisher.Publish((IPersistentTimer)context);
+                    }
+                    else
+                    {
+                        while (DateTime.Now > context.EstimatedFinishTime)
+                        {
+                            context.OnFinishAsPublisher.Publish((IPersistentTimer)context);
+
+
+                            context.StartTime = context.EstimatedFinishTime;
+
+                            context.EstimatedFinishTime = context.StartTime + context.CurrentDurationSpan;
+
+                            context.SavedProgress = default(TimeSpan);
+
+
+                            context.OnStartAsPublisher.Publish((IPersistentTimer)context);
+                        }
+                    }
                 }
                 else
                     Finish(context);
