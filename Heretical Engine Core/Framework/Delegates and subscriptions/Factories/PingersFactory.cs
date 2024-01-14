@@ -27,7 +27,7 @@ namespace HereticalSolutions.Delegates.Factories
         #region Non alloc pinger
         
         public static NonAllocPinger BuildNonAllocPinger(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
@@ -45,7 +45,7 @@ namespace HereticalSolutions.Delegates.Factories
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
                 },
-                logger);
+                loggerResolver);
 
             return BuildNonAllocPinger(subscriptionsPool);
         }
@@ -53,7 +53,7 @@ namespace HereticalSolutions.Delegates.Factories
         public static NonAllocPinger BuildNonAllocPinger(
             AllocationCommandDescriptor initial,
             AllocationCommandDescriptor additional,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
@@ -65,7 +65,7 @@ namespace HereticalSolutions.Delegates.Factories
                 },
                 initial,
                 additional,
-                logger);
+                loggerResolver);
 
             return BuildNonAllocPinger(subscriptionsPool);
         }

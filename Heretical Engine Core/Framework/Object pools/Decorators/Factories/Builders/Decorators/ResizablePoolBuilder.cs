@@ -1,6 +1,6 @@
 using HereticalSolutions.Allocations;
 
-using HereticalSolutions.Pools.Allocations;
+using HereticalSolutions.Metadata.Allocations;
 
 using HereticalSolutions.Logging;
 
@@ -8,6 +8,8 @@ namespace HereticalSolutions.Pools.Factories
 {
     public class ResizablePoolBuilder<T>
     {
+        private readonly ILoggerResolver loggerResolver;
+
         private readonly IFormatLogger logger;
 
         private Func<T> valueAllocationDelegate;
@@ -20,8 +22,12 @@ namespace HereticalSolutions.Pools.Factories
 
         private IAllocationCallback<T>[] callbacks;
 
-        public ResizablePoolBuilder(IFormatLogger logger)
+        public ResizablePoolBuilder(
+            ILoggerResolver loggerResolver = null,
+            IFormatLogger logger = null)
         {
+            this.loggerResolver = loggerResolver;
+
             this.logger = logger;
         }
 
@@ -33,9 +39,13 @@ namespace HereticalSolutions.Pools.Factories
             IAllocationCallback<T>[] callbacks)
         {
             this.valueAllocationDelegate = valueAllocationDelegate;
+
             this.metadataDescriptorBuilders = metadataDescriptorBuilders;
+
             this.initialAllocation = initialAllocation;
+
             this.additionalAllocation = additionalAllocation;
+
             this.callbacks = callbacks;
         }
 
@@ -83,7 +93,7 @@ namespace HereticalSolutions.Pools.Factories
                     metadataDescriptors,
                     initialAllocation,
                     additionalAllocation,
-                    logger);
+                    loggerResolver);
             }
             else
             {
@@ -93,7 +103,7 @@ namespace HereticalSolutions.Pools.Factories
                     initialAllocation,
                     additionalAllocation,
                     callback,
-                    logger);
+                    loggerResolver);
             }
 
             valueAllocationDelegate = null;
@@ -149,7 +159,7 @@ namespace HereticalSolutions.Pools.Factories
                     metadataDescriptors,
                     initialAllocation,
                     additionalAllocation,
-                    logger);
+                    loggerResolver);
             }
             else
             {
@@ -159,13 +169,17 @@ namespace HereticalSolutions.Pools.Factories
                     initialAllocation,
                     additionalAllocation,
                     callback,
-                    logger);
+                    loggerResolver);
             }
 
             valueAllocationDelegate = null;
+
             metadataDescriptorBuilders = null;
+
             initialAllocation = default(AllocationCommandDescriptor);
+
             additionalAllocation = default(AllocationCommandDescriptor);
+            
             callbacks = null;
 
             return result;

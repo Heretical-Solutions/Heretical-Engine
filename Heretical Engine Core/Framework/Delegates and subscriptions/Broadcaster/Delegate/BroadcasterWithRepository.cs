@@ -14,9 +14,10 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
         public BroadcasterWithRepository(
             IReadOnlyObjectRepository broadcasterRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.broadcasterRepository = broadcasterRepository;
+            
             this.logger = logger;
         }
 

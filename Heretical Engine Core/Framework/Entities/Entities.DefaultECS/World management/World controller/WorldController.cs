@@ -45,7 +45,7 @@ namespace HereticalSolutions.GameEntities
             Func<string, Entity, TEntityIdentityComponent> setIdentityComponentValuesDelegate,
             Func<object, TResolveComponent> createResolveComponentDelegate,
             IPrototypesRepository<World, Entity> prototypeRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             World = world;
 

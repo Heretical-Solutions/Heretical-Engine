@@ -16,7 +16,8 @@ namespace HereticalSolutions.MVVM.ViewModel
         /// Constructor for AViewModel class
         /// </summary>
         /// <param name="logger">Logger for logging</param>
-        public AViewModel(IFormatLogger logger)
+        public AViewModel(
+            IFormatLogger logger = null)
         {
             this.logger = logger;
         }

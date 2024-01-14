@@ -1,7 +1,8 @@
 using HereticalSolutions.Allocations;
 using HereticalSolutions.Allocations.Factories;
 
-using HereticalSolutions.Pools.Allocations;
+using HereticalSolutions.Metadata.Allocations;
+
 using HereticalSolutions.Pools.Decorators;
 using HereticalSolutions.Pools.GenericNonAlloc;
 
@@ -19,7 +20,7 @@ namespace HereticalSolutions.Pools.Factories
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
             IAllocationCallback<T> callback,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             Func<T> nullAllocation = AllocationsFactory.NullAllocationDelegate<T>;
 
@@ -35,7 +36,7 @@ namespace HereticalSolutions.Pools.Factories
                     metadataDescriptors,
                     callback),
                 valueAllocationDelegate,
-                logger);
+                loggerResolver);
 
             return supplyAndMergePool;
         }
@@ -45,7 +46,7 @@ namespace HereticalSolutions.Pools.Factories
             MetadataAllocationDescriptor[] metadataDescriptors,
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             Func<T> nullAllocation = AllocationsFactory.NullAllocationDelegate<T>;
 
@@ -59,7 +60,7 @@ namespace HereticalSolutions.Pools.Factories
                     nullAllocation,
                     metadataDescriptors),
                 valueAllocationDelegate,
-                logger);
+                loggerResolver);
 
             return supplyAndMergePool;
         }
@@ -68,15 +69,15 @@ namespace HereticalSolutions.Pools.Factories
             AllocationCommand<IPoolElement<T>> initialAllocationCommand,
             AllocationCommand<IPoolElement<T>> appendAllocationCommand,
             Func<T> topUpAllocationDelegate,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             var basePool = BuildPackedArrayPool<T>(
                 initialAllocationCommand,
-                logger);
+                loggerResolver);
 
             var supplyPool = BuildPackedArrayPool<T>(
                 appendAllocationCommand,
-                logger);
+                loggerResolver);
 
             return new SupplyAndMergePool<T>(
                 basePool,

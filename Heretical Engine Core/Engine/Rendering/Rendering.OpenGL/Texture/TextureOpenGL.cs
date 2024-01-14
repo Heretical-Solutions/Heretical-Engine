@@ -40,7 +40,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			GL gl,
 			Image<Rgba32> ramTexture,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			gl.TexImage2D(
 				TextureTarget.Texture2D,
@@ -90,7 +90,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			uint width,
 			uint height,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			fixed (void* dataPointer = &data[0])
 			{
@@ -115,7 +115,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public void SetParameters(
 			GL gl,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			if (!Enum.TryParse(
 				descriptor.WrapS,

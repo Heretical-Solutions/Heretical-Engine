@@ -29,8 +29,12 @@ namespace HereticalSolutions.Pools.Factories
         public static NonAllocPoolWithID<T> BuildNonAllocPoolWithID<T>(
             INonAllocDecoratedPool<T> innerPool,
             string id,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<NonAllocPoolWithID<T>>()
+                ?? null;
+
             return new NonAllocPoolWithID<T>(
                 innerPool,
                 id,

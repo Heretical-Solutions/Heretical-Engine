@@ -36,6 +36,8 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 		private readonly SemaphoreSlim postProcessorsSemaphore;
 
+		private readonly ILoggerResolver loggerResolver;
+
 		private readonly IFormatLogger logger;
 
 		public ConcurrentAssetImportManager(
@@ -43,6 +45,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			IRepository<Type, INonAllocDecoratedPool<AAssetImporter>> importerPoolRepository,
 			SemaphoreSlim importerPoolSemaphore,
 			SemaphoreSlim postProcessorsSemaphore,
+			ILoggerResolver loggerResolver = null,
 			IFormatLogger logger = null)
 		{
 			this.postProcessorRepository = postProcessorRepository;
@@ -52,6 +55,8 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 			this.importerPoolSemaphore = importerPoolSemaphore;
 
 			this.postProcessorsSemaphore = postProcessorsSemaphore;
+
+			this.loggerResolver = loggerResolver;
 
 			this.logger = logger;
 		}
@@ -163,11 +168,12 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 					importerPool = PoolsFactory.BuildSimpleResizableObjectPool<AAssetImporter, TImporter>(
 						initialAllocation,
 						additionalAllocation,
-						logger,
+						loggerResolver,
 						new object[]
 						{
 							this,
-							logger
+							loggerResolver,
+							(loggerResolver?.GetLogger<TImporter>() ?? null)
 						});
 
 					importerPoolRepository.Add(

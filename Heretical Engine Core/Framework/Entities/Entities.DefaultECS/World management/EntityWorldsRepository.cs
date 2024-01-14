@@ -34,7 +34,7 @@ namespace HereticalSolutions.GameEntities
 		public EntityWorldsRepository(
 			IRepository<string, World> worldsRepository,
 			IRepository<World, IWorldController> worldControllersRepository,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			this.worldsRepository = worldsRepository;
 

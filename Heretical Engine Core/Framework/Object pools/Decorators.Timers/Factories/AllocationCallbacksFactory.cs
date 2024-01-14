@@ -14,12 +14,12 @@ namespace HereticalSolutions.Pools.Factories
         public static SetRuntimeTimerCallback<T> BuildSetRuntimeTimerCallback<T>(
             string id = "Anonymous Timer",
             float defaultDuration = 0f,
-            IFormatLogger logger = null)
+            ILoggerResolver loggerResolver = null)
         {
             return new SetRuntimeTimerCallback<T>(
                 id,
                 defaultDuration,
-                logger);
+                loggerResolver);
         }
         
         #endregion

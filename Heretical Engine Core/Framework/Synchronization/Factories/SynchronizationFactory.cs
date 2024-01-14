@@ -15,7 +15,7 @@ namespace HereticalSolutions.Synchronization.Factories
 		public static SynchronizationContext BuildSynchronizationContext(
 			string id,
 			bool canBeToggled,
-			IFormatLogger logger)
+			ILoggerResolver loggerResolver = null)
 		{
 			var descriptor = new SynchronizationDescriptor(
 				id);
@@ -27,7 +27,7 @@ namespace HereticalSolutions.Synchronization.Factories
 					typeof(ITogglable),
 					new TogglableMetadata());
 
-			var pinger = DelegatesFactory.BuildNonAllocPinger(logger);
+			var pinger = DelegatesFactory.BuildNonAllocPinger(loggerResolver);
 
 			return new SynchronizationContext(
 				descriptor,
@@ -46,7 +46,7 @@ namespace HereticalSolutions.Synchronization.Factories
 			TDelta scale = default,
 			Func<TDelta, TDelta, TDelta> scaleDeltaDelegate = null,
 
-			IFormatLogger logger = null)
+			ILoggerResolver loggerResolver = null)
 		{
 			var descriptor = new SynchronizationDescriptor(
 				id);
@@ -66,7 +66,7 @@ namespace HereticalSolutions.Synchronization.Factories
 						scaleDeltaDelegate));
 
 			var broadcaster = DelegatesFactory.BuildNonAllocBroadcasterGeneric<TDelta>(
-				logger);
+				loggerResolver);
 
 			return new SynchronizationContextGeneric<TDelta>(
 				descriptor,
@@ -88,7 +88,7 @@ namespace HereticalSolutions.Synchronization.Factories
 			TDelta scale = default,
 			Func<TDelta, TDelta, TDelta> scaleDeltaDelegate = null,
 
-			IFormatLogger logger = null)
+			ILoggerResolver loggerResolver = null)
 		{
 			var descriptor = new SynchronizationDescriptor(
 				id);
@@ -110,7 +110,7 @@ namespace HereticalSolutions.Synchronization.Factories
 			var fixedDeltaTimer = TimeFactory.BuildRuntimeTimer(
 				FIXED_DELTA_TIMER_ID,
 				deltaToFloatDelegate(fixedDelta),
-				logger);
+				loggerResolver);
 
 			metadata.Add(
 				typeof(IHasFixedDelta<TDelta>),
@@ -119,10 +119,10 @@ namespace HereticalSolutions.Synchronization.Factories
 					fixedDeltaTimer,
 					fixedDeltaTimer,
 					deltaToFloatDelegate,
-					logger));
+					loggerResolver));
 
 			var broadcaster = DelegatesFactory.BuildNonAllocBroadcasterGeneric<TDelta>(
-				logger);
+				loggerResolver);
 
 			return new SynchronizationContextGeneric<TDelta>(
 				descriptor,

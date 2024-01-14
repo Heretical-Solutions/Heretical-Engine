@@ -12,7 +12,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
 		public PlainTextSerializer(
 			IReadOnlyObjectRepository strategyRepository,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			this.strategyRepository = strategyRepository;
 

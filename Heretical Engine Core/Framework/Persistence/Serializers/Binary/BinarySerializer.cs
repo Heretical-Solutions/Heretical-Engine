@@ -1,7 +1,8 @@
 using System.Runtime.Serialization.Formatters.Binary;
 
-using HereticalSolutions.Logging;
 using HereticalSolutions.Repositories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Persistence.Serializers
 {
@@ -15,7 +16,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public BinarySerializer(
             IReadOnlyObjectRepository strategyRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.strategyRepository = strategyRepository;
 

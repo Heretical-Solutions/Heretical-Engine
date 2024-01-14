@@ -60,12 +60,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		#endregion
 
-		private IFormatLogger logger;
+		private readonly IFormatLogger logger;
 
 		public ShaderDescriptorBuilder(
 			List<ShaderVertexAttributeOpenGL> vertexAttributes,
 			List<ShaderSampler2DArgumentOpenGL> sampler2DArguments,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			this.vertexAttributes = vertexAttributes;
 

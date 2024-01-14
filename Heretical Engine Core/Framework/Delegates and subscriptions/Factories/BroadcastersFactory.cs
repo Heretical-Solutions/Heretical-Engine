@@ -20,11 +20,11 @@ namespace HereticalSolutions.Delegates.Factories
         #region Broadcaster multiple args
 
         public static BroadcasterMultipleArgs BuildBroadcasterMultipleArgs(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             return new BroadcasterMultipleArgs(
                 BuildBroadcasterGeneric<object[]>(
-                    logger));
+                    loggerResolver));
         }
 
         #endregion
@@ -33,18 +33,22 @@ namespace HereticalSolutions.Delegates.Factories
 
         public static BroadcasterWithRepository BuildBroadcasterWithRepository(
             IRepository<Type, object> broadcastersRepository,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             return BuildBroadcasterWithRepository(
                 RepositoriesFactory.BuildDictionaryObjectRepository(
                     broadcastersRepository),
-                logger);
+                loggerResolver);
         }
         
         public static BroadcasterWithRepository BuildBroadcasterWithRepository(
             IReadOnlyObjectRepository repository,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<BroadcasterWithRepository>()
+                ?? null;
+
             return new BroadcasterWithRepository(
                 repository,
                 logger);
@@ -60,8 +64,12 @@ namespace HereticalSolutions.Delegates.Factories
         /// <typeparam name="T">The type of the broadcast argument.</typeparam>
         /// <returns>The built generic broadcaster.</returns>
         public static BroadcasterGeneric<T> BuildBroadcasterGeneric<T>(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<BroadcasterGeneric<T>>()
+                ?? null;
+
             return new BroadcasterGeneric<T>(logger);
         }
 
@@ -70,7 +78,7 @@ namespace HereticalSolutions.Delegates.Factories
         #region Non alloc broadcaster multiple args
         
         public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
@@ -88,7 +96,7 @@ namespace HereticalSolutions.Delegates.Factories
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
                 },
-                logger);
+                loggerResolver);
 
             return BuildNonAllocBroadcasterMultipleArgs(
                 subscriptionsPool);
@@ -97,7 +105,7 @@ namespace HereticalSolutions.Delegates.Factories
         public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
             AllocationCommandDescriptor initial,
             AllocationCommandDescriptor additional,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
@@ -109,7 +117,7 @@ namespace HereticalSolutions.Delegates.Factories
                 },
                 initial,
                 additional,
-                logger);
+                loggerResolver);
 
             return BuildNonAllocBroadcasterMultipleArgs(
                 subscriptionsPool);
@@ -137,12 +145,12 @@ namespace HereticalSolutions.Delegates.Factories
         /// <returns>The built non-allocating broadcaster with a repository.</returns>
         public static NonAllocBroadcasterWithRepository BuildNonAllocBroadcasterWithRepository(
             IRepository<Type, object> broadcastersRepository,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             return BuildNonAllocBroadcasterWithRepository(
                 RepositoriesFactory.BuildDictionaryObjectRepository(
                     broadcastersRepository),
-                logger);
+                loggerResolver);
         }
         
         /// <summary>
@@ -153,8 +161,12 @@ namespace HereticalSolutions.Delegates.Factories
         /// <returns>The built non-allocating broadcaster with a repository.</returns>
         public static NonAllocBroadcasterWithRepository BuildNonAllocBroadcasterWithRepository(
             IReadOnlyObjectRepository repository,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<NonAllocBroadcasterWithRepository>()
+                ?? null;
+
             return new NonAllocBroadcasterWithRepository(
                 repository,
                 logger);
@@ -170,7 +182,7 @@ namespace HereticalSolutions.Delegates.Factories
         /// <typeparam name="T">The type of the broadcast argument.</typeparam>
         /// <returns>The built non-allocating generic broadcaster.</returns>
         public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
@@ -188,17 +200,17 @@ namespace HereticalSolutions.Delegates.Factories
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
                 },
-                logger);
+                loggerResolver);
 
             return BuildNonAllocBroadcasterGeneric<T>(
                 subscriptionsPool,
-                logger);
+                loggerResolver);
         }
 
         public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>(
             AllocationCommandDescriptor initial,
             AllocationCommandDescriptor additional,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
@@ -210,19 +222,23 @@ namespace HereticalSolutions.Delegates.Factories
                 },
                 initial,
                 additional,
-                logger);
+                loggerResolver);
 
             return BuildNonAllocBroadcasterGeneric<T>(
                 subscriptionsPool,
-                logger);
+                loggerResolver);
         }
         
         public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>(
             INonAllocDecoratedPool<ISubscription> subscriptionsPool,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             var contents = ((IModifiable<INonAllocPool<ISubscription>>)subscriptionsPool).Contents;
 			
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<NonAllocBroadcasterGeneric<T>>()
+                ?? null;
+
             return new NonAllocBroadcasterGeneric<T>(
                 subscriptionsPool,
                 contents,

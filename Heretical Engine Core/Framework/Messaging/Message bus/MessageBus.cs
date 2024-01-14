@@ -5,7 +5,6 @@ using HereticalSolutions.Pools;
 using HereticalSolutions.Repositories;
 
 using HereticalSolutions.Logging;
-using Antlr4.Build.Tasks;
 
 namespace HereticalSolutions.Messaging
 {
@@ -25,7 +24,7 @@ namespace HereticalSolutions.Messaging
             BroadcasterWithRepository broadcaster,
             IReadOnlyObjectRepository messageRepository,
             Queue<IMessage> mailbox,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.broadcaster = broadcaster;
 

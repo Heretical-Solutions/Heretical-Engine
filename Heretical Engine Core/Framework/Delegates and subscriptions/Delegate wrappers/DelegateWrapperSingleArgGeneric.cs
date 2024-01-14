@@ -12,7 +12,7 @@ namespace HereticalSolutions.Delegates.Wrappers
 
         public DelegateWrapperSingleArgGeneric(
             Action<TValue> @delegate,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.@delegate = @delegate;
 

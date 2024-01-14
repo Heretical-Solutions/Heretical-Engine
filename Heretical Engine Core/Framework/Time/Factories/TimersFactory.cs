@@ -17,12 +17,16 @@ namespace HereticalSolutions.Time.Factories
         public static PersistentTimer BuildPersistentTimer(
             string id,
             TimeSpan defaultDurationSpan,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
-            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>(logger);
+            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>(loggerResolver);
             
-            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>(logger);
+            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>(loggerResolver);
             
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<PersistentTimer>()
+                ?? null;
+
             return new PersistentTimer(
                 id,
                 defaultDurationSpan,
@@ -66,12 +70,16 @@ namespace HereticalSolutions.Time.Factories
         public static RuntimeTimer BuildRuntimeTimer(
             string id,
             float defaultDuration,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
-            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>(logger);
+            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>(loggerResolver);
             
-            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>(logger);
+            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>(loggerResolver);
             
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<RuntimeTimer>()
+                ?? null;
+
             return new RuntimeTimer(
                 id,
                 defaultDuration,

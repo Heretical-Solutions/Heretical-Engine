@@ -18,7 +18,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public JSONSerializer(
             IReadOnlyObjectRepository strategyRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             writeSerializerSettings = new JsonSerializerSettings
             {

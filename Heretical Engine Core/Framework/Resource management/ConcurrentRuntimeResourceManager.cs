@@ -26,7 +26,7 @@ namespace HereticalSolutions.ResourceManagement
 			IRepository<int, IReadOnlyResourceData> rootResourcesRepository,
 			IAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData> rootResourceAddedNotifier,
 			SemaphoreSlim semaphore,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			this.rootResourceIDHashToID = rootResourceIDHashToID;
 

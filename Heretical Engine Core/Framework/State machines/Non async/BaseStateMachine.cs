@@ -34,7 +34,7 @@
 				IReadOnlyRepository<Type, ITransitionEvent<TBaseState>> events,
 				Queue<ITransitionEvent<TBaseState>> transitionQueue,
 				TBaseState currentState,
-				IFormatLogger logger)
+				IFormatLogger logger = null)
 			{
 				this.states = states;
 				this.events = events;

@@ -7,10 +7,16 @@ namespace HereticalSolutions.Pools.Factories
 {
     public class PoolWithAddressBuilder<T>
     {
+        private readonly ILoggerResolver loggerResolver;
+
         private readonly IFormatLogger logger;
 
-        public PoolWithAddressBuilder(IFormatLogger logger)
+        public PoolWithAddressBuilder(
+            ILoggerResolver loggerResolver = null,
+            IFormatLogger logger = null)
         {
+            this.loggerResolver = loggerResolver;
+
             this.logger = logger;
         }
 
@@ -173,7 +179,7 @@ namespace HereticalSolutions.Pools.Factories
             return AddressDecoratorsPoolsFactory.BuildNonAllocPoolWithAddress(
                 repository,
                 node.Level,
-                logger);
+                loggerResolver);
         }
     }
 }

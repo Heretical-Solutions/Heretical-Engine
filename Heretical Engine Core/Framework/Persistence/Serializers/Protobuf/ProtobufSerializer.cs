@@ -15,7 +15,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public ProtobufSerializer(
             IReadOnlyObjectRepository strategyRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.strategyRepository = strategyRepository;
 

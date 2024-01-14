@@ -19,17 +19,17 @@ namespace HereticalSolutions.Messaging.Factories
 
         private readonly BroadcasterWithRepositoryBuilder broadcasterBuilder;
 
-        private readonly IFormatLogger logger;
+        private readonly ILoggerResolver loggerResolver;
 
         public MessageBusBuilder(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
-            this.logger = logger;
+            this.loggerResolver = loggerResolver;
 
             messagePoolRepository = RepositoriesFactory.BuildDictionaryObjectRepository();
 
             broadcasterBuilder = new BroadcasterWithRepositoryBuilder(
-                logger);
+                loggerResolver);
         }
 
         public MessageBusBuilder AddMessageType<TMessage>()
@@ -57,7 +57,7 @@ namespace HereticalSolutions.Messaging.Factories
             IPool<IMessage> messagePool = PoolsFactory.BuildStackPool<IMessage>(
                 initialAllocationCommand,
                 additionalAllocationCommand,
-                logger);
+                loggerResolver);
             
             messagePoolRepository.Add(
                 typeof(TMessage),
@@ -70,6 +70,10 @@ namespace HereticalSolutions.Messaging.Factories
 
         public MessageBus Build()
         {
+            IFormatLogger logger = 
+                loggerResolver?.GetLogger<MessageBus>()
+                ?? null;
+
             return new MessageBus(
                 broadcasterBuilder.Build(),
                 (IReadOnlyObjectRepository)messagePoolRepository,

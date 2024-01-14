@@ -24,7 +24,7 @@ namespace HereticalSolutions.Pools.Decorators
         public NonAllocPoolWithAddress(
             IRepository<int, INonAllocDecoratedPool<T>> innerPoolsRepository,
             int level,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.innerPoolsRepository = innerPoolsRepository;
 

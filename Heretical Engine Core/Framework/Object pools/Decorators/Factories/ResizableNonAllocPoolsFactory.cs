@@ -1,6 +1,6 @@
 using HereticalSolutions.Allocations;
 
-using HereticalSolutions.Pools.Allocations;
+using HereticalSolutions.Metadata.Allocations;
 using HereticalSolutions.Pools.Decorators;
 using HereticalSolutions.Pools.GenericNonAlloc;
 
@@ -18,7 +18,7 @@ namespace HereticalSolutions.Pools.Factories
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
             IAllocationCallback<T> callback,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             ResizableNonAllocPool<T> resizableNonAllocPool = BuildResizableNonAllocPoolFromPackedArrayPool<T>(
                 BuildPoolElementAllocationCommandWithCallback<T>(
@@ -32,7 +32,7 @@ namespace HereticalSolutions.Pools.Factories
                     metadataDescriptors,
                     callback),
                 valueAllocationDelegate,
-                logger);
+                loggerResolver);
 
             return resizableNonAllocPool;
         }
@@ -42,7 +42,7 @@ namespace HereticalSolutions.Pools.Factories
             MetadataAllocationDescriptor[] metadataDescriptors,
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             ResizableNonAllocPool<T> resizableNonAllocPool = BuildResizableNonAllocPoolFromPackedArrayPool<T>(
                 BuildPoolElementAllocationCommand<T>(
@@ -54,7 +54,7 @@ namespace HereticalSolutions.Pools.Factories
                     valueAllocationDelegate,
                     metadataDescriptors),
                 valueAllocationDelegate,
-                logger);
+                loggerResolver);
 
             return resizableNonAllocPool;
         }
@@ -63,11 +63,11 @@ namespace HereticalSolutions.Pools.Factories
             AllocationCommand<IPoolElement<T>> initialAllocationCommand,
             AllocationCommand<IPoolElement<T>> resizeAllocationCommand,
             Func<T> topUpAllocationDelegate,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             var pool = BuildPackedArrayPool<T>(
                 initialAllocationCommand,
-                logger);
+                loggerResolver);
 
             return new ResizableNonAllocPool<T>(
                 pool,

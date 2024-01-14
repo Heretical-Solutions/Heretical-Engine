@@ -23,8 +23,12 @@ namespace HereticalSolutions.Delegates.Factories
         
         public static IInvokableSingleArg BuildDelegateWrapperSingleArg<TValue>(
             Action<TValue> @delegate,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<DelegateWrapperSingleArgGeneric<TValue>>()
+                ?? null;
+
             return new DelegateWrapperSingleArgGeneric<TValue>(
                 @delegate,
                 logger);
@@ -32,8 +36,12 @@ namespace HereticalSolutions.Delegates.Factories
         
         public static DelegateWrapperSingleArgGeneric<TValue> BuildDelegateWrapperSingleArgGeneric<TValue>(
             Action<TValue> @delegate,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<DelegateWrapperSingleArgGeneric<TValue>>()
+                ?? null;
+
             return new DelegateWrapperSingleArgGeneric<TValue>(
                 @delegate,
                 logger);

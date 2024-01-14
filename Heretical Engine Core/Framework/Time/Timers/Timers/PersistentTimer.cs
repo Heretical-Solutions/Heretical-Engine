@@ -34,7 +34,7 @@ namespace HereticalSolutions.Time.Timers
 
             IReadOnlyRepository<ETimerState, ITimerStrategy<IPersistentTimerContext, TimeSpan>> strategyRepository,
 
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             ID = id;
 

@@ -49,7 +49,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			GL gl,
 			Image<Rgba32> ramTexture,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger)
+			IFormatLogger logger) //TODO: use resolver for factory logging as well
 		{
 			if (!Enum.TryParse(
 				descriptor.Type,
@@ -87,7 +87,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			uint width,
 			uint height,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger)
+			IFormatLogger logger) //TODO: use resolver for factory logging as well
 		{
 			if (!Enum.TryParse(
 				descriptor.Type,
@@ -125,8 +125,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			FilePathSettings filePathSettings,
 			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILoggerResolver loggerResolver = null)
 		{
+			IFormatLogger logger = 
+				loggerResolver?.GetLogger<TextureRAMStorageHandle>()
+				?? null;
+
 			return new TextureRAMStorageHandle(
 				filePathSettings,
 				mainThreadCommandBuffer,
@@ -138,8 +142,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			FilePathSettings filePathSettings,
 			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILoggerResolver loggerResolver = null)
 		{
+			IFormatLogger logger =
+				loggerResolver?.GetLogger<ConcurrentTextureRAMStorageHandle>()
+				?? null;
+
 			return new ConcurrentTextureRAMStorageHandle(
 				filePathSettings,
 				new SemaphoreSlim(1, 1),

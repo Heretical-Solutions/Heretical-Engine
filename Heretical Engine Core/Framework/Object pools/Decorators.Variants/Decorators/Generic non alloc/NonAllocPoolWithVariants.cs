@@ -28,7 +28,7 @@ namespace HereticalSolutions.Pools.Decorators
         public NonAllocPoolWithVariants(
             IReadOnlyRepository<int, VariantContainer<T>> innerPoolsRepository,
             IRandomGenerator randomGenerator,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.innerPoolsRepository = innerPoolsRepository;
 

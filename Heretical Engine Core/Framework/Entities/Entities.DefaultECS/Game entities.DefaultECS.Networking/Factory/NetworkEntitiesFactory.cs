@@ -13,23 +13,23 @@ namespace HereticalSolutions.GameEntities.Factories
 	public static partial class NetworkEntitiesFactory
 	{
 		public static EntityManager BuildSimpleNetworkEntityManager(
-			IFormatLogger logger)
+			ILoggerResolver loggerResolver = null)
 		{
 			var registryEntityRepository = RepositoriesFactory.BuildDictionaryRepository<Guid, Entity>();
 
-			var entityWorldsRepository = EntitiesFactory.BuildEntityWorldsRepository(logger);
+			var entityWorldsRepository = EntitiesFactory.BuildEntityWorldsRepository(loggerResolver);
 
 
 			entityWorldsRepository.AddWorld(
 				WorldConstants.REGISTRY_WORLD_ID,
 				EntitiesFactory.BuildRegistryWorldController(
 					EntitiesFactory.BuildPrototypesRepository(),
-					logger));
+					loggerResolver));
 
 			entityWorldsRepository.AddWorld(
 				WorldConstants.EVENT_WORLD_ID,
 				EntitiesFactory.BuildEventWorldController(
-					logger));
+					loggerResolver));
 
 			entityWorldsRepository.AddWorld(
 				WorldConstants.SIMULATION_WORLD_ID,
@@ -46,7 +46,7 @@ namespace HereticalSolutions.GameEntities.Factories
 						};
 					},
 					(source) => { return new ResolveSimulationComponent { Source = source }; },
-					logger));
+					loggerResolver));
 
 			entityWorldsRepository.AddWorld(
 				WorldConstants.VIEW_WORLD_ID,
@@ -63,7 +63,7 @@ namespace HereticalSolutions.GameEntities.Factories
 						};
 					},
 					(source) => { return new ResolveViewComponent { Source = source }; },
-					logger));
+					loggerResolver));
 
 			entityWorldsRepository.AddWorld(
 				NetworkWorldConstants.NETWORKING_SERVER_DATA_WORLD_ID,
@@ -80,7 +80,7 @@ namespace HereticalSolutions.GameEntities.Factories
 						};
 					},
 					(source) => { return new ResolveServerDataComponent { Source = source }; },
-					logger));
+					loggerResolver));
 
 			entityWorldsRepository.AddWorld(
 				NetworkWorldConstants.NETWORKING_PREDICTION_WORLD_ID,
@@ -97,7 +97,7 @@ namespace HereticalSolutions.GameEntities.Factories
 						};
 					},
 					(source) => { return new ResolvePredictionComponent { Source = source }; },
-					logger));
+					loggerResolver));
 
 			List<World> childEntityWorlds = new List<World>();
 
@@ -105,6 +105,10 @@ namespace HereticalSolutions.GameEntities.Factories
 			childEntityWorlds.Add(entityWorldsRepository.GetWorld(WorldConstants.VIEW_WORLD_ID));
 			childEntityWorlds.Add(entityWorldsRepository.GetWorld(NetworkWorldConstants.NETWORKING_SERVER_DATA_WORLD_ID));
 			childEntityWorlds.Add(entityWorldsRepository.GetWorld(NetworkWorldConstants.NETWORKING_PREDICTION_WORLD_ID));
+
+			IFormatLogger logger = 
+				loggerResolver?.GetLogger<EntityManager>()
+				?? null;
 
 			return new EntityManager(
 				registryEntityRepository,
@@ -126,7 +130,7 @@ namespace HereticalSolutions.GameEntities.Factories
 		/// <returns>The built ECSWorldFullStateVisitor.</returns>
 		public static ECSWorldFullStateVisitor BuildECSWorldFullStateVisitor(
 			IEntityManager<World, Entity> entityManager,
-			IFormatLogger logger)
+			ILoggerResolver loggerResolver = null)
 		{
 			EntitiesFactory.BuildComponentTypesListWithAttribute<NetworkComponentAttribute>(
 				out var componentTypes,
@@ -142,6 +146,10 @@ namespace HereticalSolutions.GameEntities.Factories
 				typeof(EntitiesFactory).GetMethod(
 					"WriteComponent",
 					BindingFlags.Static | BindingFlags.Public);
+
+			IFormatLogger logger =
+				loggerResolver?.GetLogger<ECSWorldFullStateVisitor>()
+				?? null;
 
 			return new ECSWorldFullStateVisitor(
 				entityManager,
@@ -158,7 +166,7 @@ namespace HereticalSolutions.GameEntities.Factories
 
 		public static ECSWorldMementoVisitor BuildECSWorldMementoVisitor(
 			IEntityManager<World, Entity> entityManager,
-			IFormatLogger logger)
+			ILoggerResolver loggerResolver = null)
 		{
 			EntitiesFactory.BuildComponentTypesListWithAttribute<NetworkComponentAttribute>(
 				out var componentTypes,
@@ -174,6 +182,10 @@ namespace HereticalSolutions.GameEntities.Factories
 				typeof(EntitiesFactory).GetMethod(
 					"WriteComponent",
 					BindingFlags.Static | BindingFlags.Public);
+
+			IFormatLogger logger = 
+				loggerResolver?.GetLogger<ECSWorldMementoVisitor>()
+				?? null;
 
 			return new ECSWorldMementoVisitor(
 				entityManager,
@@ -199,7 +211,7 @@ namespace HereticalSolutions.GameEntities.Factories
 		public static ECSEventWorldVisitor BuildECSEventWorldVisitor(
 			IEventEntityBuilder<Entity> eventEntityBuilder,
 			bool host,
-			IFormatLogger logger)
+			ILoggerResolver loggerResolver = null)
 		{
 			EntitiesFactory.BuildComponentTypesListWithAttribute<NetworkEventComponentAttribute>(
 				out var componentTypes,
@@ -215,6 +227,10 @@ namespace HereticalSolutions.GameEntities.Factories
 				typeof(EntitiesFactory).GetMethod(
 					"WriteComponent",
 					BindingFlags.Static | BindingFlags.Public);
+
+			IFormatLogger logger =
+				loggerResolver?.GetLogger<ECSEventWorldVisitor>()
+				?? null;
 
 			return new ECSEventWorldVisitor(
 				eventEntityBuilder,

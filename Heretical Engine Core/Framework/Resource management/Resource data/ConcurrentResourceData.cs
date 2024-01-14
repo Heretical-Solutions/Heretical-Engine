@@ -47,7 +47,7 @@ namespace HereticalSolutions.ResourceManagement
 
 			SemaphoreSlim semaphore,
 
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			Descriptor = descriptor;
 

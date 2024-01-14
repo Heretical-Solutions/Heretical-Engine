@@ -23,7 +23,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
         /// <param name="logger">The logger.</param>
         public NonAllocBroadcasterWithRepository(
             IReadOnlyObjectRepository broadcasterRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.broadcasterRepository = broadcasterRepository;
 

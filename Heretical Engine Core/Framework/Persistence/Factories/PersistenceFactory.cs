@@ -11,8 +11,12 @@ namespace HereticalSolutions.Persistence.Factories
         public static CompositeVisitor BuildCompositeVisitor(
             IReadOnlyObjectRepository loadVisitorsRepository,
             IReadOnlyObjectRepository saveVisitorsRepository,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<CompositeVisitor>()
+                ?? null;
+
             return new CompositeVisitor(
                 loadVisitorsRepository,
                 saveVisitorsRepository,

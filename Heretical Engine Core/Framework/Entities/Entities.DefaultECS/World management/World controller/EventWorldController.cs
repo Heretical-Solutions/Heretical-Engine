@@ -12,7 +12,7 @@ namespace HereticalSolutions.GameEntities
 
 		public EventWorldController(
 			World world,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			World = world;
 

@@ -17,9 +17,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public MeshAssetDescriptorAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
+			ILoggerResolver loggerResolver = null,
 			IFormatLogger logger = null)
 			: base(
 				runtimeResourceManager,
+				loggerResolver,
 				logger)
 		{
 		}
@@ -58,12 +60,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<MeshAssetDescriptor>(
 					descriptor,
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<MeshAssetDescriptor>(
 					descriptor,
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #endif
 				true,
 				progress)

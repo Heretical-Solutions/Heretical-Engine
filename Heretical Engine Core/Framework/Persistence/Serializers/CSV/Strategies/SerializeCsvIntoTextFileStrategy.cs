@@ -14,7 +14,8 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         private readonly IFormatLogger logger;
 
-        public SerializeCsvIntoTextFileStrategy(IFormatLogger logger)
+        public SerializeCsvIntoTextFileStrategy(
+            IFormatLogger logger = null)
         {
             this.logger = logger;
         }

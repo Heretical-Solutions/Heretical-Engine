@@ -60,16 +60,16 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			#endregion
 
-			var windowModule = new WindowModule(iocBuilder);
+			//var windowModule = new WindowModule(iocBuilder);
 
 			IModule[] modules = new IModule[]
 			{
-				windowModule,
-				new OpenGLModule(iocBuilder),
-				new MainCameraModule(iocBuilder),
+				//windowModule,
+				//new OpenGLModule(iocBuilder),
+				//new MainCameraModule(iocBuilder),
 				//new OpenGLDrawTestMeshModule(),
 
-				new TempModule()
+				//new TempModule()
 
 				//new OpenGLDrawTestCubeModule(),
 				//new OpenGLDrawTextureModule(),
@@ -98,6 +98,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 				iocBuilder.RegisterInstance(module).Keyed<IModule>(module.Name); //.WithAttributeFiltering(); //FOR SOME REASON THIS IS NOT WORKING
 			}
+			
+			/*
 
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildConcurrentRuntimeResourceManager(logger);
@@ -141,6 +143,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			{
 				((IDumpable)logger).Dump();
 			}
+			*/
 		}
 	}
 }

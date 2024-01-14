@@ -18,7 +18,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public YAMLSerializer(
             IReadOnlyObjectRepository strategyRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             yamlSerializer = new SerializerBuilder().Build();
 

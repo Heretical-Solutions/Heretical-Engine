@@ -28,7 +28,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
         /// <param name="delegate">The action delegate.</param>
         public SubscriptionNoArgs(
             Action @delegate,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             invokable = DelegatesFactory.BuildDelegateWrapperNoArgs(@delegate);
 

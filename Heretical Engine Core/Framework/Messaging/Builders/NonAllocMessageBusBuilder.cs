@@ -21,18 +21,18 @@ namespace HereticalSolutions.Messaging.Factories
 
         private readonly NonAllocBroadcasterWithRepositoryBuilder broadcasterBuilder;
 
-        private readonly IFormatLogger logger;
+        private readonly ILoggerResolver loggerResolver;
 
 
         public NonAllocMessageBusBuilder(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
-            this.logger = logger;
+            this.loggerResolver = loggerResolver;
 
             messagePoolRepository = RepositoriesFactory.BuildDictionaryObjectRepository();
 
             broadcasterBuilder = new NonAllocBroadcasterWithRepositoryBuilder(
-                logger);
+                loggerResolver);
         }
 
         public NonAllocMessageBusBuilder AddMessageType<TMessage>()
@@ -53,7 +53,7 @@ namespace HereticalSolutions.Messaging.Factories
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
                 },
-                logger);
+                loggerResolver);
             
             messagePoolRepository.Add(
                 typeof(TMessage),
@@ -82,12 +82,16 @@ namespace HereticalSolutions.Messaging.Factories
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
                 },
-                logger);
+                loggerResolver);
             
             var mailboxContents = ((IModifiable<INonAllocPool<IPoolElement<IMessage>>>)mailbox).Contents;
             
             var mailboxContentAsIndexable = (IIndexable<IPoolElement<IPoolElement<IMessage>>>)mailboxContents;
             
+            IFormatLogger logger = 
+                loggerResolver?.GetLogger<NonAllocMessageBus>()
+                ?? null;
+
             return new NonAllocMessageBus(
                 broadcasterBuilder.Build(),
                 (IReadOnlyObjectRepository)messagePoolRepository,

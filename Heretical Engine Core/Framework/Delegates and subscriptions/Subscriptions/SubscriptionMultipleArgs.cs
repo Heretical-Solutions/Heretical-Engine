@@ -24,7 +24,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
         
         public SubscriptionMultipleArgs(
             Action<object[]> @delegate,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             invokable = DelegatesFactory.BuildDelegateWrapperMultipleArgs(@delegate);
 

@@ -26,7 +26,7 @@ namespace HereticalSolutions.Synchronization
 			IRuntimeTimer fixedDeltaTimer,
 			ITickable fixedDeltaTimerAsTickable,
 			Func<TDelta, float> deltaToFloatDelegate,
-			IFormatLogger logger)
+			ILoggerResolver loggerResolver = null)
 		{
 			FixedDelta = fixedDelta;
 
@@ -39,7 +39,7 @@ namespace HereticalSolutions.Synchronization
 
 			synchronizeFixedScubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<IRuntimeTimer>(
 				SynchronizeFixed,
-				logger);
+				loggerResolver);
 
 			fixedDeltaTimer.Repeat = true;
 

@@ -1,5 +1,3 @@
-using System;
-
 namespace HereticalSolutions.Logging
 {
     public interface IFormatLogger

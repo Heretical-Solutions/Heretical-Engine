@@ -1,7 +1,9 @@
 using System.Runtime.Serialization.Formatters.Binary;
-using HereticalSolutions.Logging;
+
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
+
+using HereticalSolutions.Logging;
 
 //BinaryFormatter.Serialize(Stream, object)' is obsolete: 'BinaryFormatter serialization is obsolete and should not be used. See https://aka.ms/binaryformatter for more information.
 // Disable the warning.
@@ -13,7 +15,8 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         private readonly IFormatLogger logger;
 
-        public SerializeBinaryIntoStreamStrategy(IFormatLogger logger)
+        public SerializeBinaryIntoStreamStrategy(
+            IFormatLogger logger = null)
         {
             this.logger = logger;
         }

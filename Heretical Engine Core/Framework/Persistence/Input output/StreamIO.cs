@@ -9,7 +9,7 @@ namespace HereticalSolutions.Persistence.IO
         public static bool OpenReadStream(
             FilePathSettings settings,
             out FileStream dataStream,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             string savePath = settings.FullPath;
 
@@ -28,7 +28,7 @@ namespace HereticalSolutions.Persistence.IO
         public static bool OpenReadStream(
             FilePathSettings settings,
             out StreamReader streamReader,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             string savePath = settings.FullPath;
 
@@ -47,7 +47,7 @@ namespace HereticalSolutions.Persistence.IO
         public static bool OpenWriteStream(
             FilePathSettings settings,
             out FileStream dataStream,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             string savePath = settings.FullPath;
 
@@ -63,7 +63,7 @@ namespace HereticalSolutions.Persistence.IO
         public static bool OpenWriteStream(
             FilePathSettings settings,
             out StreamWriter streamWriter,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             string savePath = settings.FullPath;
 
@@ -101,7 +101,7 @@ namespace HereticalSolutions.Persistence.IO
         
         private static bool FileExists(
             string path,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             if (string.IsNullOrEmpty(path))
                 logger?.ThrowException("INVALID PATH");
@@ -121,7 +121,7 @@ namespace HereticalSolutions.Persistence.IO
         
         private static void EnsureDirectoryExists(
             string path,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             if (string.IsNullOrEmpty(path))
                 logger?.ThrowException("INVALID PATH");

@@ -38,7 +38,7 @@ namespace HereticalSolutions.Messaging
             IReadOnlyObjectRepository messageRepository,
             INonAllocDecoratedPool<IPoolElement<IMessage>> mailbox,
             IIndexable<IPoolElement<IPoolElement<IMessage>>> mailboxContentsAsIndexable,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.broadcaster = broadcaster;
 

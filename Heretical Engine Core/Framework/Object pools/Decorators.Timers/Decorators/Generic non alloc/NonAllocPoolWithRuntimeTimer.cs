@@ -18,7 +18,7 @@ namespace HereticalSolutions.Pools.Decorators
 		public NonAllocPoolWithRuntimeTimer(
 			INonAllocDecoratedPool<T> innerPool,
 			ISynchronizationProvider provider,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 			: base(
 				innerPool,
 				logger)

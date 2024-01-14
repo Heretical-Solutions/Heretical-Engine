@@ -19,7 +19,7 @@ namespace HereticalSolutions.Pools.AllocationCallbacks
         /// </summary>
         public float DefaultDuration { get; set; }
 
-        private IFormatLogger logger;
+        private ILoggerResolver loggerResolver;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SetRuntimeTimerCallback{T}"/> class with the specified ID and default duration.
@@ -29,13 +29,13 @@ namespace HereticalSolutions.Pools.AllocationCallbacks
         public SetRuntimeTimerCallback(
             string id = "Anonymous Timer",
             float defaultDuration = 0f,
-            IFormatLogger logger = null)
+            ILoggerResolver loggerResolver = null)
         {
             ID = id;
 
             DefaultDuration = defaultDuration;
 
-            this.logger = logger;
+            this.loggerResolver = loggerResolver;
         }
 
         public void OnAllocated(IPoolElement<T> currentElement)
@@ -50,20 +50,20 @@ namespace HereticalSolutions.Pools.AllocationCallbacks
             metadata.RuntimeTimer = TimeFactory.BuildRuntimeTimer(
                 ID,
                 DefaultDuration,
-                logger);
+                loggerResolver);
 
             metadata.RuntimeTimerAsTickable = (ITickable)metadata.RuntimeTimer;
 
             // Subscribe to the runtime timer's tick event
             metadata.UpdateSubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<float>(
                 metadata.RuntimeTimerAsTickable.Tick,
-                logger);
+                loggerResolver);
 
             Action<IRuntimeTimer> pushDelegate = (timer) => { currentElement.Push(); };
 
             metadata.PushSubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<IRuntimeTimer>(
                 pushDelegate,
-                logger);
+                loggerResolver);
         }
     }
 }

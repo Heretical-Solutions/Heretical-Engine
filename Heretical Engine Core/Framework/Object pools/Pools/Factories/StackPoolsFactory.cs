@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using HereticalSolutions.Collections;
 using HereticalSolutions.Allocations;
 
@@ -19,11 +16,15 @@ namespace HereticalSolutions.Pools.Factories
         public static StackPool<T> BuildStackPool<T>(
             AllocationCommand<T> initialAllocationCommand,
             AllocationCommand<T> additionalAllocationCommand,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             var stack = new Stack<T>();
 
             PerformInitialAllocation<T>(stack, initialAllocationCommand);
+
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<StackPool<T>>()
+                ?? null;
 
             return new StackPool<T>(
                 stack,

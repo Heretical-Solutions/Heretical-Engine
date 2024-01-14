@@ -15,7 +15,7 @@ namespace HereticalSolutions.Persistence.Visitors
         public CompositeVisitor(
             IReadOnlyObjectRepository loadVisitorsRepository,
             IReadOnlyObjectRepository saveVisitorsRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.loadVisitorsRepository = loadVisitorsRepository;
 

@@ -28,7 +28,7 @@ namespace HereticalSolutions.GameEntities
             IRepository<Guid, Entity> registryEntitiesRepository,
             IReadOnlyEntityWorldsRepository<World, ISystem<Entity>, Entity> entityWorldsRepository,
             IReadOnlyList<World> childEntityWorlds,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.registryEntitiesRepository = registryEntitiesRepository;
 

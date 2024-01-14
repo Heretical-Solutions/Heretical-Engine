@@ -11,13 +11,18 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 	{
 		protected readonly IRuntimeResourceManager runtimeResourceManager;
 
+		protected readonly ILoggerResolver loggerResolver;
+
 		protected readonly IFormatLogger logger;
 
 		public AAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
+			ILoggerResolver loggerResolver = null,
 			IFormatLogger logger = null)
 		{
 			this.runtimeResourceManager = runtimeResourceManager;
+
+			this.loggerResolver = loggerResolver;
 
 			this.logger = logger;
 		}
@@ -56,11 +61,11 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 					ResourceManagementFactory.BuildConcurrentResourceData(
 						descriptor,
-						logger);
+						loggerResolver);
 #else
 					ResourceManagementFactory.BuildResourceData(
 						descriptor,
-						logger);
+						loggerResolver);
 #endif
 
 				await runtimeResourceManager.AddRootResource(
@@ -96,11 +101,11 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 						ResourceManagementFactory.BuildConcurrentResourceData(
 							descriptor,
-							logger);
+							loggerResolver);
 #else						
 						ResourceManagementFactory.BuildResourceData(
 							descriptor,
-							logger);
+							loggerResolver);
 #endif
 
 					await ((IResourceData)currentData)
@@ -140,11 +145,11 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				ResourceManagementFactory.BuildConcurrentResourceData(
 					descriptor,
-					logger);
+					loggerResolver);
 #else				
 				ResourceManagementFactory.BuildResourceData(
 					descriptor,
-					logger);
+					loggerResolver);
 #endif
 
 			await parent

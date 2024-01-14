@@ -19,8 +19,12 @@ namespace HereticalSolutions.Pools.Factories
         public static NonAllocPoolWithRuntimeTimer<T> BuildNonAllocPoolWithRuntimeTimer<T>(
             INonAllocDecoratedPool<T> innerPool,
             ISynchronizationProvider synchronizationProvider,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<NonAllocPoolWithRuntimeTimer<T>>()
+                ?? null;
+
             return new NonAllocPoolWithRuntimeTimer<T>(
                 innerPool,
                 synchronizationProvider,

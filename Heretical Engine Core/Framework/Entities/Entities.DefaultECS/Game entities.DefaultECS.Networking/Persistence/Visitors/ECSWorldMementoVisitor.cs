@@ -50,7 +50,7 @@ namespace HereticalSolutions.GameEntities
             HashSet<Guid> entitiesAlive,
             List<ECSComponentDTO> componentDTOCache,
             
-            IFormatLogger logger)
+            IFormatLogger logger = null)
             : base(logger)
         {
             this.entityManager = entityManager;

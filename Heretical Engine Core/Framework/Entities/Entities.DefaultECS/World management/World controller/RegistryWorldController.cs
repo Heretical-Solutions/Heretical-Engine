@@ -17,7 +17,7 @@ namespace HereticalSolutions.GameEntities
         public RegistryWorldController(
             World world,
             IPrototypesRepository<World, Entity> prototypeRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             World = world;
 

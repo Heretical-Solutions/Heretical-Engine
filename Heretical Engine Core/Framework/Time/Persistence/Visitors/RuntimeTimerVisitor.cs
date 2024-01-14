@@ -9,9 +9,14 @@ namespace HereticalSolutions.Time.Visitors
     public class RuntimeTimerVisitor
         : ASaveLoadVisitor<IRuntimeTimer, RuntimeTimerDTO>
     {
-        public RuntimeTimerVisitor(IFormatLogger logger)
+        private readonly ILoggerResolver loggerResolver;
+
+        public RuntimeTimerVisitor(
+            ILoggerResolver loggerResolver = null,
+            IFormatLogger logger = null)
             : base(logger)
         {
+            this.loggerResolver = loggerResolver;
         }
 
         #region ILoadVisitorGeneric
@@ -21,7 +26,7 @@ namespace HereticalSolutions.Time.Visitors
             value = TimeFactory.BuildRuntimeTimer(
                 DTO.ID,
                 DTO.DefaultDuration,
-                logger);
+                loggerResolver);
 
             ((ITimerWithState)value).SetState(DTO.State);
 

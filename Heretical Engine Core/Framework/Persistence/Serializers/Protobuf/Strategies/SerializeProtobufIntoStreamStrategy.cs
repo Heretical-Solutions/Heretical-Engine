@@ -12,7 +12,8 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         private readonly IFormatLogger logger;
 
-        public SerializeProtobufIntoStreamStrategy(IFormatLogger logger)
+        public SerializeProtobufIntoStreamStrategy(
+            IFormatLogger logger = null)
         {
             this.logger = logger;
         }

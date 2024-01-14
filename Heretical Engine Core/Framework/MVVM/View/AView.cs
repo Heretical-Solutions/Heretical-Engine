@@ -1,5 +1,5 @@
-using System;
 using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.MVVM.View
@@ -7,9 +7,11 @@ namespace HereticalSolutions.MVVM.View
     /// <summary>
     /// Represents a base class for views in the MVVM architecture.
     /// </summary>
-    public abstract class AView : ILifetimeable
+    public abstract class AView
+        : ILifetimeable
     {
         protected IViewModel viewModel;
+
         protected IFormatLogger logger;
 
         /// <summary>
@@ -17,9 +19,12 @@ namespace HereticalSolutions.MVVM.View
         /// </summary>
         /// <param name="viewModel">The view model associated with this view.</param>
         /// <param name="logger">The logger to be used for logging.</param>
-        public AView(IViewModel viewModel, IFormatLogger logger)
+        public AView(
+            IViewModel viewModel,
+            IFormatLogger logger = null)
         {
             this.viewModel = viewModel;
+
             this.logger = logger;
         }
 
@@ -112,7 +117,9 @@ namespace HereticalSolutions.MVVM.View
             OnTornDown?.Invoke();
 
             OnInitialized = null;
+
             OnCleanedUp = null;
+
             OnTornDown = null;
         }
 

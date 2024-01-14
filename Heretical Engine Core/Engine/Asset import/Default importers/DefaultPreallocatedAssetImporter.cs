@@ -15,9 +15,11 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 		public DefaultPreallocatedAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
+			ILoggerResolver loggerResolver = null,
 			IFormatLogger logger = null)
 			: base(
 				runtimeResourceManager,
+				loggerResolver,
 				logger)
 		{
 		}
@@ -56,12 +58,12 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<TAsset>(
 					preallocatedAsset,
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<TAsset>(
 					preallocatedAsset,
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #endif
 				true,
 				progress)

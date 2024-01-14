@@ -32,7 +32,7 @@ namespace HereticalSolutions.ResourceManagement
 			IRepository<int, IResourceVariantData> variantsRepository,
 			IRepository<int, string> nestedResourceIDHashToID,
 			IRepository<int, IReadOnlyResourceData> nestedResourcesRepository,
-			IFormatLogger logger)
+			IFormatLogger logger = null)
 		{
 			Descriptor = descriptor;
 			

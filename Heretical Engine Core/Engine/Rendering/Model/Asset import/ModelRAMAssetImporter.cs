@@ -37,9 +37,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public ModelRAMAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
+			ILoggerResolver loggerResolver = null,
 			IFormatLogger logger = null)
 			: base(
 				runtimeResourceManager,
+				loggerResolver,
 				logger)
 		{
 			assimp = AssimpAPI.GetApi();
@@ -143,12 +145,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<ModelAssetDescriptor>(
 					modelAssetDescriptor,
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<ModelAssetDescriptor>(
 					modelAssetDescriptor,
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #endif
 				true,
 				localProgress)

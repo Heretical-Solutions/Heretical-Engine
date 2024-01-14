@@ -1,3 +1,4 @@
+/*
 using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Application;
@@ -254,3 +255,4 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		}
 	}
 }
+*/

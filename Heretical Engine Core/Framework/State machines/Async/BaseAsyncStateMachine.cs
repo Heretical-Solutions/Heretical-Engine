@@ -55,7 +55,7 @@ namespace HereticalSolutions.StateMachines
             ITransitionController<TBaseState> transitionController,
             EAsyncTransitionRules defaultAsyncTransitionRules,
             TBaseState currentState,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.states = states;
 

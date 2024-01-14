@@ -15,8 +15,12 @@ namespace HereticalSolutions.Pools.Factories
 
         public static PackedArrayPool<T> BuildPackedArrayPool<T>(
             AllocationCommand<IPoolElement<T>> allocationCommand,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<PackedArrayPool<T>>()
+                ?? null;
+
             int initialAmount = CountInitialAllocationAmount<T>(allocationCommand);
 
             IPoolElement<T>[] contents = new IPoolElement<T>[initialAmount];

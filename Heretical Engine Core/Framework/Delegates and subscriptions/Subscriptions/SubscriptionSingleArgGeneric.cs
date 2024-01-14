@@ -31,11 +31,12 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
         public SubscriptionSingleArgGeneric(
             Action<TValue> @delegate,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null,
+            IFormatLogger logger = null)
         {
             invokable = DelegatesFactory.BuildDelegateWrapperSingleArgGeneric(
                 @delegate,
-                logger);
+                loggerResolver);
 
             this.logger = logger;
 

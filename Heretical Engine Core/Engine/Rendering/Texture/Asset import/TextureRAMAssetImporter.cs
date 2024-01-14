@@ -26,9 +26,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public TextureRAMAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
+			ILoggerResolver loggerResolver = null,
 			IFormatLogger logger = null)
 			: base(
 				runtimeResourceManager,
+				loggerResolver,
 				logger)
 		{
 		}
@@ -71,7 +73,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					filePathSettings,
 					mainThreadCommandBuffer,
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #else
 				TextureFactory.BuildTextureRAMStorageHandle(
 					filePathSettings,

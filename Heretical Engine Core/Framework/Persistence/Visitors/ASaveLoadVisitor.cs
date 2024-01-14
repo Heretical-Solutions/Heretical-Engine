@@ -10,7 +10,8 @@ namespace HereticalSolutions.Persistence
 	{
 		protected readonly IFormatLogger logger; 
 
-		public ASaveLoadVisitor(IFormatLogger logger)
+		public ASaveLoadVisitor(
+			IFormatLogger logger = null)
 		{
 			this.logger = logger;
 		}

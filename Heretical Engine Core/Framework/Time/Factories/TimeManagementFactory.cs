@@ -13,12 +13,12 @@ namespace HereticalSolutions.Time.Factories
         public const string APPLICATION_PERSISTENT_TIMER_ID = "Application persistent timer";
 
         public static TimeManager BuildTimeManager(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             var applicationActiveTimer = TimeFactory.BuildRuntimeTimer(
                 APPLICATION_RUNTIME_TIMER_ID,
                 0f,
-                logger);
+                loggerResolver);
 
             applicationActiveTimer.Accumulate = true;
 
@@ -27,7 +27,7 @@ namespace HereticalSolutions.Time.Factories
             var applicationPersistentTimer = TimeFactory.BuildPersistentTimer(
                 APPLICATION_PERSISTENT_TIMER_ID,
                 default,
-                logger);
+                loggerResolver);
 
             applicationActiveTimer.Accumulate = true;
 

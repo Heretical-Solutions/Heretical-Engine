@@ -4,6 +4,8 @@ using HereticalSolutions.Persistence.IO;
 
 using HereticalSolutions.Persistence.Factories;
 
+using HereticalSolutions.Repositories.Factories;
+
 namespace HereticalSolutions.Logging.Factories
 {
     /// <summary>
@@ -11,13 +13,18 @@ namespace HereticalSolutions.Logging.Factories
     /// </summary>
     public static class LoggersFactory
     {
-        /// <summary>
-        /// Builds a default logger instance.
-        /// </summary>
-        /// <returns>A new instance of the DefaultLogger class.</returns>
         public static ConsoleLogger BuildDefaultLogger()
         {
             return new ConsoleLogger();
+        }
+
+        public static SingleLoggerBuilder BuildDefaultLoggerBuilder(
+            IFormatLogger logger = null)
+        {
+            return new SingleLoggerBuilder(
+                logger,
+                RepositoriesFactory.BuildDictionaryRepository<Type, bool>(),
+                true);
         }
 
         public static ConsoleLoggerWithFileDump BuildDefaultLoggerWithFileDump(
@@ -37,7 +44,7 @@ namespace HereticalSolutions.Logging.Factories
 
             result.Initialize(
                 serializationArgument,
-                PersistenceFactory.BuildSimplePlainTextSerializer(result));
+                PersistenceFactory.BuildSimplePlainTextSerializer(null)); //TODO: refactor
 
             return result;
         }

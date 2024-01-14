@@ -8,7 +8,8 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         private readonly IFormatLogger logger;
 
-        public SerializeYamlIntoStringStrategy(IFormatLogger logger)
+        public SerializeYamlIntoStringStrategy(
+            IFormatLogger logger = null)
         {
             this.logger = logger;
         }

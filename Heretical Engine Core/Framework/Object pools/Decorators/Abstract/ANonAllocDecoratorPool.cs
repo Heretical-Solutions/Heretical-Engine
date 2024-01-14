@@ -15,7 +15,7 @@ namespace HereticalSolutions.Pools
 
         public ANonAllocDecoratorPool(
             INonAllocDecoratedPool<T> innerPool,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.innerPool = innerPool;
 

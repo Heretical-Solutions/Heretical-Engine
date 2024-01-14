@@ -1,3 +1,4 @@
+/*
 using System.Numerics;
 
 using HereticalSolutions.HereticalEngine.Math;
@@ -385,3 +386,4 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		}
 	}
 }
+*/

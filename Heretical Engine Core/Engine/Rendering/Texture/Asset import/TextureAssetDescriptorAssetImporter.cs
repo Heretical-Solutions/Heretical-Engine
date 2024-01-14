@@ -23,9 +23,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public TextureAssetDescriptorAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
+			ILoggerResolver loggerResolver = null,
 			IFormatLogger logger = null)
 			: base(
 				runtimeResourceManager,
+				loggerResolver,
 				logger)
 		{
 		}
@@ -69,7 +71,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 						textureName,
 						textureType),
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<TextureAssetDescriptor>(
 					TextureFactory.BuildTextureAssetDescriptor(

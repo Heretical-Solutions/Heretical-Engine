@@ -37,7 +37,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
         public NonAllocBroadcasterGeneric(
             INonAllocDecoratedPool<ISubscription> subscriptionsPool,
             INonAllocPool<ISubscription> subscriptionsContents,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.subscriptionsPool = subscriptionsPool;
 

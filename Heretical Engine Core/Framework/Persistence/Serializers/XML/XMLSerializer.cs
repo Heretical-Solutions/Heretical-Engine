@@ -14,7 +14,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public XMLSerializer(
             IReadOnlyObjectRepository strategyRepository,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.strategyRepository = strategyRepository;
 

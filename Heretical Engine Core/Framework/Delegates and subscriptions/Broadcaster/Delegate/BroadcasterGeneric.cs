@@ -12,7 +12,8 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
         private Action<TValue> multicastDelegate;
 
-        public BroadcasterGeneric(IFormatLogger logger)
+        public BroadcasterGeneric(
+            IFormatLogger logger = null)
         {
             this.logger = logger;
 

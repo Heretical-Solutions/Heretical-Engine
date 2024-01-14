@@ -13,7 +13,8 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         private readonly IFormatLogger logger;
 
-        public SerializeCsvIntoStringStrategy(IFormatLogger logger)
+        public SerializeCsvIntoStringStrategy(
+            IFormatLogger logger = null)
         {
             this.logger = logger;
         }

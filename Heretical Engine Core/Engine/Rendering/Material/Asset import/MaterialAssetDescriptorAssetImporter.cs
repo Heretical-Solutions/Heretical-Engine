@@ -17,9 +17,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		public MaterialAssetDescriptorAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
+			ILoggerResolver loggerResolver = null,
 			IFormatLogger logger = null)
 			: base(
 				runtimeResourceManager,
+				loggerResolver,
 				logger)
 		{
 		}
@@ -58,12 +60,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<MaterialAssetDescriptor>(
 					descriptor,
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<MaterialAssetDescriptor>(
 					descriptor,
 					runtimeResourceManager,
-					logger),
+					loggerResolver),
 #endif
 				true,
 				progress)

@@ -45,23 +45,23 @@ namespace HereticalSolutions.GameEntities.Factories
 
 
         public static EntityManager BuildSimpleEntityManager(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             var registryEntityRepository = RepositoriesFactory.BuildDictionaryRepository<Guid, Entity>();
 
-            var entityWorldsRepository = BuildEntityWorldsRepository(logger);
+            var entityWorldsRepository = BuildEntityWorldsRepository(loggerResolver);
 
 
             entityWorldsRepository.AddWorld(
                 WorldConstants.REGISTRY_WORLD_ID,
                 BuildRegistryWorldController(
                     BuildPrototypesRepository(),
-                    logger));
+                    loggerResolver));
 
             entityWorldsRepository.AddWorld(
                 WorldConstants.EVENT_WORLD_ID,
                 BuildEventWorldController(
-                    logger));
+                    loggerResolver));
 
             entityWorldsRepository.AddWorld(
                 WorldConstants.SIMULATION_WORLD_ID,
@@ -78,7 +78,7 @@ namespace HereticalSolutions.GameEntities.Factories
                         };
                     },
                     (source) => { return new ResolveSimulationComponent { Source = source }; },
-                    logger));
+                    loggerResolver));
 
             entityWorldsRepository.AddWorld(
                 WorldConstants.VIEW_WORLD_ID,
@@ -95,12 +95,16 @@ namespace HereticalSolutions.GameEntities.Factories
                         };
                     },
                     (source) => { return new ResolveViewComponent { Source = source }; },
-                    logger));
+                    loggerResolver));
 
             List<World> childEntityWorlds = new List<World>();
 
             childEntityWorlds.Add(entityWorldsRepository.GetWorld(WorldConstants.SIMULATION_WORLD_ID));
             childEntityWorlds.Add(entityWorldsRepository.GetWorld(WorldConstants.VIEW_WORLD_ID));
+
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<EntityManager>()
+                ?? null;
 
             return new EntityManager(
                 registryEntityRepository,
@@ -110,9 +114,13 @@ namespace HereticalSolutions.GameEntities.Factories
         }
 
         public static EventWorldController BuildEventWorldController(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             World world = new World();
+
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<EventWorldController>()
+                ?? null;
 
             return new EventWorldController(
                 world,
@@ -121,9 +129,13 @@ namespace HereticalSolutions.GameEntities.Factories
 
         public static RegistryWorldController BuildRegistryWorldController(
             IPrototypesRepository<World, Entity> prototypeRepository,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             World world = new World();
+
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<RegistryWorldController>()
+                ?? null;
 
             return new RegistryWorldController(
                 world,
@@ -137,9 +149,13 @@ namespace HereticalSolutions.GameEntities.Factories
                 Func<TEntityIdentityComponent, string> getPrototypeIDFromIdentityComponentDelegate,
                 Func<string, Entity, TEntityIdentityComponent> setIdentityComponentValuesDelegate,
                 Func<object, TResolveComponent> createResolveComponentDelegate,
-                IFormatLogger logger)
+                ILoggerResolver loggerResolver = null)
         {
             World world = new World();
+
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<WorldController<TEntityIdentityComponent, TResolveComponent>>()
+                ?? null;
 
             return new WorldController<TEntityIdentityComponent, TResolveComponent>(
                 world,
@@ -159,11 +175,15 @@ namespace HereticalSolutions.GameEntities.Factories
         }
 
         public static IEntityWorldsRepository BuildEntityWorldsRepository(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
             var worldsRepository = RepositoriesFactory.BuildDictionaryRepository<string, World>();
 
             var worldControllersRepository = RepositoriesFactory.BuildDictionaryRepository<World, IWorldController>();
+
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<EntityWorldsRepository>()
+                ?? null;
 
             return new EntityWorldsRepository(
                 worldsRepository,

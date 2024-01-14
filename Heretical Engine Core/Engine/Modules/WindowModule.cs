@@ -1,3 +1,4 @@
+/*
 using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Application;
@@ -277,15 +278,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			// Now that everything's defined, let's run this bad boy!
 			window.Run();
-
-			/*
-			for (int i = 0; i < context.Modules.Length; i++)
-			{
-				context.Modules[i].TearDown();
-			}
-			*/
 		}
 
 		#endregion
 	}
 }
+*/

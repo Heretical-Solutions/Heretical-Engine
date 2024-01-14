@@ -16,8 +16,12 @@ namespace HereticalSolutions.ResourceManagement.Factories
         /// </summary>
         /// <returns>A new instance of the <see cref="RuntimeResourceManager"/> class.</returns>
         public static RuntimeResourceManager BuildRuntimeResourceManager(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<RuntimeResourceManager>()
+                ?? null;
+
             return new RuntimeResourceManager(
                 RepositoriesFactory.BuildDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildDictionaryRepository<int, IReadOnlyResourceData>(),
@@ -25,20 +29,28 @@ namespace HereticalSolutions.ResourceManagement.Factories
         }
 
         public static ConcurrentRuntimeResourceManager BuildConcurrentRuntimeResourceManager(
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<ConcurrentRuntimeResourceManager>()
+                ?? null;
+
             return new ConcurrentRuntimeResourceManager(
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IReadOnlyResourceData>(),
-                NotifiersFactory.BuildAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData>(logger),
+                NotifiersFactory.BuildAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData>(loggerResolver),
                 new SemaphoreSlim(1, 1),
                 logger);
         }
 
         public static ResourceData BuildResourceData(
             ResourceDescriptor descriptor,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<ResourceData>()
+                ?? null;
+
             return new ResourceData(
                 descriptor,
                 RepositoriesFactory.BuildDictionaryRepository<int, string>(),
@@ -50,16 +62,20 @@ namespace HereticalSolutions.ResourceManagement.Factories
 
         public static ConcurrentResourceData BuildConcurrentResourceData(
             ResourceDescriptor descriptor,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<ConcurrentResourceData>()
+                ?? null;
+
             return new ConcurrentResourceData(
                 descriptor,
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IResourceVariantData>(),
-                NotifiersFactory.BuildAsyncNotifierSingleArgGeneric<int, IResourceVariantData>(logger),
+                NotifiersFactory.BuildAsyncNotifierSingleArgGeneric<int, IResourceVariantData>(loggerResolver),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, string>(),
                 RepositoriesFactory.BuildConcurrentDictionaryRepository<int, IReadOnlyResourceData>(),
-                NotifiersFactory.BuildAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData>(logger),
+                NotifiersFactory.BuildAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData>(loggerResolver),
                 new SemaphoreSlim(1, 1),
                 logger);
         }
@@ -84,8 +100,12 @@ namespace HereticalSolutions.ResourceManagement.Factories
         public static PreallocatedResourceStorageHandle<TResource> BuildPreallocatedResourceStorageHandle<TResource>(
             TResource resource,
             IRuntimeResourceManager runtimeResourceManager,
-            IFormatLogger logger = null)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<PreallocatedResourceStorageHandle<TResource>>()
+                ?? null;
+
             return new PreallocatedResourceStorageHandle<TResource>(
                 resource,
                 runtimeResourceManager,
@@ -95,8 +115,12 @@ namespace HereticalSolutions.ResourceManagement.Factories
         public static ConcurrentPreallocatedResourceStorageHandle<TResource> BuildConcurrentPreallocatedResourceStorageHandle<TResource>(
             TResource resource,
             IRuntimeResourceManager runtimeResourceManager,
-            IFormatLogger logger = null)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<ConcurrentPreallocatedResourceStorageHandle<TResource>>()
+                ?? null;
+
             return new ConcurrentPreallocatedResourceStorageHandle<TResource>(
                 resource,
                 new SemaphoreSlim(1, 1),
@@ -107,8 +131,12 @@ namespace HereticalSolutions.ResourceManagement.Factories
         public static ReadWriteResourceStorageHandle<TResource> BuildReadWriteResourceStorageHandle<TResource>(
             TResource resource,
             IRuntimeResourceManager runtimeResourceManager,
-            IFormatLogger logger = null)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<ReadWriteResourceStorageHandle<TResource>>()
+                ?? null;
+
             return new ReadWriteResourceStorageHandle<TResource>(
                 resource,
                 runtimeResourceManager,
@@ -118,8 +146,12 @@ namespace HereticalSolutions.ResourceManagement.Factories
         public static ConcurrentReadWriteResourceStorageHandle<TResource> BuildConcurrentReadWriteResourceStorageHandle<TResource>(
             TResource resource,
             IRuntimeResourceManager runtimeResourceManager,
-            IFormatLogger logger = null)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<ConcurrentReadWriteResourceStorageHandle<TResource>>()
+                ?? null;
+
             return new ConcurrentReadWriteResourceStorageHandle<TResource>(
                 resource,
                 new SemaphoreSlim(1, 1),

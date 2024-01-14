@@ -30,7 +30,7 @@ namespace HereticalSolutions.Pools.Generic
             Stack<T> pool,
             Action<StackPool<T>> resizeDelegate,
             AllocationCommand<T> allocationCommand,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.pool = pool;
 

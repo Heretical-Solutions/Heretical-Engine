@@ -1,3 +1,4 @@
+/*
 using HereticalSolutions.HereticalEngine.Application;
 
 using HereticalSolutions.Logging;
@@ -143,3 +144,4 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		#endregion
 	}
 }
+*/

@@ -12,9 +12,14 @@ namespace HereticalSolutions.Time.Visitors
           ISaveVisitorGeneric<IPersistentTimer, PersistentTimerDTO>,
           ISaveVisitor
     {
-        public PersistentTimerVisitor(IFormatLogger logger)
+        private readonly ILoggerResolver loggerResolver;
+
+        public PersistentTimerVisitor(
+            ILoggerResolver loggerResolver = null,
+            IFormatLogger logger = null)
             : base(logger)
         {
+            this.loggerResolver = loggerResolver;
         }
 
         #region ILoadVisitorGeneric
@@ -26,7 +31,7 @@ namespace HereticalSolutions.Time.Visitors
             value = TimeFactory.BuildPersistentTimer(
                 DTO.ID,
                 DTO.DefaultDurationSpan,
-                logger);
+                loggerResolver);
 
             ((ITimerWithState)value).SetState(DTO.State);
 

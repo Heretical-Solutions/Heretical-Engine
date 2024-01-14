@@ -7,7 +7,12 @@ using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.GenericNonAlloc
 {
-    public class PackedArrayPool<T>: IFixedSizeCollection<IPoolElement<T>>, INonAllocPool<T>, IIndexable<IPoolElement<T>>, IModifiable<IPoolElement<T>[]>, ICountUpdateable
+    public class PackedArrayPool<T>
+        : IFixedSizeCollection<IPoolElement<T>>,
+          INonAllocPool<T>,
+          IIndexable<IPoolElement<T>>,
+          IModifiable<IPoolElement<T>[]>,
+          ICountUpdateable
     {
         private readonly IFormatLogger logger;
 
@@ -19,7 +24,7 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 
         public PackedArrayPool(
             IPoolElement<T>[] contents,
-            IFormatLogger logger)
+            IFormatLogger logger = null)
         {
             this.contents = contents;
 

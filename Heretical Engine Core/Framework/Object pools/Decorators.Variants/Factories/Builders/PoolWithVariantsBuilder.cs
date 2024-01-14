@@ -11,14 +11,20 @@ namespace HereticalSolutions.Pools.Factories
 {
     public class PoolWithVariantsBuilder<T>
     {
+        private readonly ILoggerResolver loggerResolver;
+
         private readonly IFormatLogger logger;
 
         private IRepository<int, VariantContainer<T>> repository;
 
         private IRandomGenerator random;
 
-        public PoolWithVariantsBuilder(IFormatLogger logger)
+        public PoolWithVariantsBuilder(
+            ILoggerResolver loggerResolver = null,
+            IFormatLogger logger = null)
         {
+            this.loggerResolver = loggerResolver;
+
             this.logger = logger;
         }
 
@@ -53,7 +59,7 @@ namespace HereticalSolutions.Pools.Factories
             var result = VariantsDecoratorsPoolsFactory.BuildNonAllocPoolWithVariants<T>(
                 repository,
                 random,
-                logger);
+                loggerResolver);
 
             repository = null;
 

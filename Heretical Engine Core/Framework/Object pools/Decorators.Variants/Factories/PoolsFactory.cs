@@ -24,8 +24,12 @@ namespace HereticalSolutions.Pools.Factories
         public static NonAllocPoolWithVariants<T> BuildNonAllocPoolWithVariants<T>(
             IRepository<int, VariantContainer<T>> repository,
             IRandomGenerator generator,
-            IFormatLogger logger)
+            ILoggerResolver loggerResolver = null)
         {
+            IFormatLogger logger =
+                loggerResolver?.GetLogger<NonAllocPoolWithVariants<T>>()
+                ?? null;
+
             return new NonAllocPoolWithVariants<T>(
                 repository,
                 generator,
