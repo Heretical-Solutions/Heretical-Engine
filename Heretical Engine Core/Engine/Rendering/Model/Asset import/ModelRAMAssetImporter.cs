@@ -16,7 +16,7 @@ using HereticalSolutions.HereticalEngine.Math;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Logging;
 
 using Silk.NET.Assimp;
 
@@ -36,9 +36,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private AssimpAPI assimp;
 
 		public ModelRAMAssetImporter(
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 			: base(
-				context)
+				runtimeResourceManager,
+				logger)
 		{
 			assimp = AssimpAPI.GetApi();
 		}
@@ -58,7 +60,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			context.Logger?.Log<ModelRAMAssetImporter>(
+			logger?.Log<ModelRAMAssetImporter>(
 				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
@@ -66,11 +68,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await ImportModel(
 				filePathSettings,
 				progress)
-				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
 
 			progress?.Report(1f);
 
-			context.Logger?.Log<ModelRAMAssetImporter>(
+			logger?.Log<ModelRAMAssetImporter>(
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;
@@ -105,7 +107,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 			await Task
 				.WhenAll(assetImportTasks)
-				.ThrowExceptions<ModelRAMAssetImporter>(context.Logger);
+				.ThrowExceptions<ModelRAMAssetImporter>(logger);
 #else
 			int current = 0;
 
@@ -127,7 +129,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourcePath)
-					.ThrowExceptions<IResourceData, ModelRAMAssetImporter>(context.Logger),
+					.ThrowExceptions<IResourceData, ModelRAMAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = AssetImportConstants.ASSET_3D_MODEL_ASSET_DESCRIPTOR_VARIANT_ID,
@@ -140,15 +142,17 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<ModelAssetDescriptor>(
 					modelAssetDescriptor,
-					context),
+					runtimeResourceManager,
+					logger),
 #else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<ModelAssetDescriptor>(
 					modelAssetDescriptor,
-					context),
+					runtimeResourceManager,
+					logger),
 #endif
 				true,
 				localProgress)
-				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, ModelRAMAssetImporter>(logger);
 
 			progress?.Report(1f);
 
@@ -205,7 +209,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			{
 				var error = assimp.GetErrorStringS();
 
-				context.Logger?.ThrowException<ModelRAMAssetImporter>($"ASSIMP ERROR: {error}");
+				logger?.ThrowException<ModelRAMAssetImporter>($"ASSIMP ERROR: {error}");
 			}
 
 			//DO NOT USE MName in scene. It's not documented in Assimp and I have no idea why it's even present
@@ -898,7 +902,8 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				if (face.MNumIndices != 3)
 				{
-					context.Logger?.ThrowException<ModelRAMAssetImporter>($"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices} Face index: {i}");
+					logger?.ThrowException<ModelRAMAssetImporter>(
+						$"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices} Face index: {i}");
 				}
 				else
 				{

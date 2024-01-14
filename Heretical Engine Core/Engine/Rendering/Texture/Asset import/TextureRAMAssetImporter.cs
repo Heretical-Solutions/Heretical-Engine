@@ -8,7 +8,11 @@ using HereticalSolutions.Persistence.IO;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Collections.Managed;
+
+using HereticalSolutions.HereticalEngine.Messaging;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -18,26 +22,33 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 		private FilePathSettings filePathSettings;
 
+		private IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+
 		public TextureRAMAssetImporter(
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 			: base(
-				context)
+				runtimeResourceManager,
+				logger)
 		{
 		}
 
 		public void Initialize(
 			string resourcePath,
-			FilePathSettings filePathSettings)
+			FilePathSettings filePathSettings,
+			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer = null)
 		{
 			this.resourcePath = resourcePath;
 
 			this.filePathSettings = filePathSettings;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 		}
 
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			context.Logger?.Log<TextureRAMAssetImporter>(
+			logger?.Log<TextureRAMAssetImporter>(
 				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
@@ -45,7 +56,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourcePath)
-					.ThrowExceptions<IResourceData, TextureRAMAssetImporter>(context.Logger),
+					.ThrowExceptions<IResourceData, TextureRAMAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
@@ -58,19 +69,23 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				TextureFactory.BuildConcurrentTextureRAMStorageHandle(
 					filePathSettings,
-					context),
+					mainThreadCommandBuffer,
+					runtimeResourceManager,
+					logger),
 #else
 				TextureFactory.BuildTextureRAMStorageHandle(
 					filePathSettings,
-					context),
-#endif					
+					mainThreadCommandBuffer,
+					runtimeResourceManager,
+					logger),
+#endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, TextureRAMAssetImporter>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, TextureRAMAssetImporter>(logger);
 
 			progress?.Report(1f);
 
-			context.Logger?.Log<TextureRAMAssetImporter>(
+			logger?.Log<TextureRAMAssetImporter>(
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;

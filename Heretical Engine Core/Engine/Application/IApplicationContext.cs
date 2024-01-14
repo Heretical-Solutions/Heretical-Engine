@@ -8,6 +8,8 @@ namespace HereticalSolutions.HereticalEngine.Application
 	{
 		public IContainer Container { get; }
 
+		ILifetimeScope CurrentScope { get; }
+
 		public IEnumerable<IModule> ActiveModules { get; }
 	}
 }

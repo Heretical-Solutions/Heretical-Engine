@@ -4,6 +4,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 {
 	public static class MeshFactory
 	{
+		/*
 		public static MeshOpenGLStorageHandle BuildMeshOpenGLStorageHandle(
 			string meshAssetDescriptorResourcePath,
 			string meshAssetDescriptorResourceVariantID,
@@ -26,5 +27,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				new SemaphoreSlim(1, 1),
 				context);
 		}
+		*/
 	}
 }

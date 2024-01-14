@@ -1,3 +1,4 @@
+/*
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class MaterialOpenGL
@@ -16,3 +17,4 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		}
 	}
 }
+*/

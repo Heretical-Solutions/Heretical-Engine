@@ -5,7 +5,7 @@ using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -16,9 +16,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private MeshAssetDescriptor descriptor;
 
 		public MeshAssetDescriptorAssetImporter(
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 			: base(
-				context)
+				runtimeResourceManager,
+				logger)
 		{
 		}
 
@@ -34,7 +36,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			context.Logger?.Log<MeshAssetDescriptorAssetImporter>(
+			logger?.Log<MeshAssetDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
@@ -42,7 +44,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourcePath)
-					.ThrowExceptions<IResourceData, MeshAssetDescriptorAssetImporter>(context.Logger),
+					.ThrowExceptions<IResourceData, MeshAssetDescriptorAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = AssetImportConstants.ASSET_3D_MODEL_RAM_VARIANT_ID,
@@ -55,19 +57,21 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<MeshAssetDescriptor>(
 					descriptor,
-					context),
+					runtimeResourceManager,
+					logger),
 #else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<MeshAssetDescriptor>(
 					descriptor,
-					context),
+					runtimeResourceManager,
+					logger),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, MeshAssetDescriptorAssetImporter>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, MeshAssetDescriptorAssetImporter>(logger);
 
 			progress?.Report(1f);
 
-			context.Logger?.Log<MeshAssetDescriptorAssetImporter>(
+			logger?.Log<MeshAssetDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;

@@ -1,7 +1,8 @@
 using HereticalSolutions.Delegates.Factories;
-using HereticalSolutions.HereticalEngine.Application;
-using HereticalSolutions.Logging;
+
 using HereticalSolutions.Repositories.Factories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement.Factories
 {
@@ -82,40 +83,48 @@ namespace HereticalSolutions.ResourceManagement.Factories
 
         public static PreallocatedResourceStorageHandle<TResource> BuildPreallocatedResourceStorageHandle<TResource>(
             TResource resource,
-            ApplicationContext context)
+            IRuntimeResourceManager runtimeResourceManager,
+            IFormatLogger logger = null)
         {
             return new PreallocatedResourceStorageHandle<TResource>(
                 resource,
-                context);
+                runtimeResourceManager,
+                logger);
         }
 
         public static ConcurrentPreallocatedResourceStorageHandle<TResource> BuildConcurrentPreallocatedResourceStorageHandle<TResource>(
             TResource resource,
-            ApplicationContext context)
+            IRuntimeResourceManager runtimeResourceManager,
+            IFormatLogger logger = null)
         {
             return new ConcurrentPreallocatedResourceStorageHandle<TResource>(
                 resource,
                 new SemaphoreSlim(1, 1),
-                context);
+                runtimeResourceManager,
+                logger);
         }
 
         public static ReadWriteResourceStorageHandle<TResource> BuildReadWriteResourceStorageHandle<TResource>(
             TResource resource,
-            ApplicationContext context)
+            IRuntimeResourceManager runtimeResourceManager,
+            IFormatLogger logger = null)
         {
             return new ReadWriteResourceStorageHandle<TResource>(
                 resource,
-                context);
+                runtimeResourceManager,
+                logger);
         }
 
         public static ConcurrentReadWriteResourceStorageHandle<TResource> BuildConcurrentReadWriteResourceStorageHandle<TResource>(
             TResource resource,
-            ApplicationContext context)
+            IRuntimeResourceManager runtimeResourceManager,
+            IFormatLogger logger = null)
         {
             return new ConcurrentReadWriteResourceStorageHandle<TResource>(
                 resource,
                 new SemaphoreSlim(1, 1),
-                context);
+                runtimeResourceManager,
+                logger);
         }
     }
 }

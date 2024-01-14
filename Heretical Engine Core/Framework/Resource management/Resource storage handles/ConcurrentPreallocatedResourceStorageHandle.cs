@@ -1,4 +1,4 @@
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
@@ -10,10 +10,12 @@ namespace HereticalSolutions.ResourceManagement
 		public ConcurrentPreallocatedResourceStorageHandle(
 			TResource value,
 			SemaphoreSlim semaphore,
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 			: base(
 				semaphore,
-				context)
+				runtimeResourceManager,
+				logger)
 		{
 			this.value = value;
 		}

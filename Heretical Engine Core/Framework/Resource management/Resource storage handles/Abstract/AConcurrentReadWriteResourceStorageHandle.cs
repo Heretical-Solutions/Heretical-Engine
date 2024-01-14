@@ -1,4 +1,4 @@
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
@@ -8,10 +8,12 @@ namespace HereticalSolutions.ResourceManagement
 	{
 		public AConcurrentReadWriteResourceStorageHandle(
 			SemaphoreSlim semaphore,
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 			: base(
 				semaphore,
-				context)
+				runtimeResourceManager,
+				logger)
 		{
 		}
 
@@ -59,7 +61,7 @@ namespace HereticalSolutions.ResourceManagement
 
 					default:
 
-						context.Logger?.ThrowException(
+						logger?.ThrowException(
 							GetType(),
 							$"CANNOT SET RESOURCE OF TYPE {typeof(TValue).Name} TO RESOURCE OF TYPE {typeof(TResource).Name}");
 

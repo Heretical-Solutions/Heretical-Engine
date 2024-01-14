@@ -1,3 +1,4 @@
+/*
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 using HereticalSolutions.ResourceManagement;
@@ -210,3 +211,4 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		}
 	}
 }
+*/

@@ -1,8 +1,10 @@
 using HereticalSolutions.Persistence.IO;
 
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.ResourceManagement;
 
-using HereticalSolutions.HereticalEngine.Modules;
+using HereticalSolutions.Collections.Managed;
+
+using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Logging;
 
@@ -121,23 +123,32 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		public static TextureRAMStorageHandle BuildTextureRAMStorageHandle(
 			FilePathSettings filePathSettings,
-			ApplicationContext context)
+			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 		{
 			return new TextureRAMStorageHandle(
 				filePathSettings,
-				context);
+				mainThreadCommandBuffer,
+				runtimeResourceManager,
+				logger);
 		}
 
 		public static ConcurrentTextureRAMStorageHandle BuildConcurrentTextureRAMStorageHandle(
 			FilePathSettings filePathSettings,
-			ApplicationContext context)
+			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 		{
 			return new ConcurrentTextureRAMStorageHandle(
 				filePathSettings,
 				new SemaphoreSlim(1, 1),
-				context);
+				mainThreadCommandBuffer,
+				runtimeResourceManager,
+				logger);
 		}
 
+		/*
 		public static TextureOpenGLStorageHandle BuildTextureOpenGLStorageHandle(
 			string textureRAMResourcePath,
 			string textureRAMResourceVariantID,
@@ -170,5 +181,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				new SemaphoreSlim(1, 1),
 				context);
 		}
+		*/
 	}
 }

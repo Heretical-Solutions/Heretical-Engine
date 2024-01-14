@@ -2,7 +2,11 @@ using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.Persistence.IO;
 
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Collections.Managed;
+
+using HereticalSolutions.HereticalEngine.Messaging;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -11,12 +15,20 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 	{
 		private readonly FilePathSettings filePathSettings;
 
+		private readonly IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer;
+
 		public TextureRAMStorageHandle(
 			FilePathSettings filePathSettings,
-			ApplicationContext context)
-			: base (context)
+			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
+			: base (
+				runtimeResourceManager,
+				logger)
 		{
 			this.filePathSettings = filePathSettings;
+
+			this.mainThreadCommandBuffer = mainThreadCommandBuffer;
 		}
 
 		protected override async Task<Image<Rgba32>> AllocateResource(
@@ -36,15 +48,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				texture = await Image
 					.LoadAsync<Rgba32>(
 						filePathSettings.FullPath)
-					.ThrowExceptions<Image<Rgba32>, TextureRAMStorageHandle>(context.Logger);
+					.ThrowExceptions<Image<Rgba32>, TextureRAMStorageHandle>(logger);
 
 				//context.Logger?.Log<TextureRAMStorageHandle>(
 				//	$"DONE. TEXTURE IS LOADED: {(texture != default).ToString()}");
 			};
 
 			await ExecuteOnMainThread(
-				loadTextureDelegate)
-				.ThrowExceptions<TextureRAMStorageHandle>(context.Logger);
+				loadTextureDelegate,
+				mainThreadCommandBuffer)
+				.ThrowExceptions<TextureRAMStorageHandle>(logger);
 
 			return texture;
 		}

@@ -6,6 +6,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 	public static class ModelFactory
 	{
+		/*
 		public static ModelOpenGLStorageHandle BuildModelOpenGLStorageHandle(
 			string modelRAMPath,
 			string modelRAMVariantID,
@@ -28,6 +29,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				new SemaphoreSlim(1, 1),
 				context);
 		}
+		*/
 	}
 
 	#endif

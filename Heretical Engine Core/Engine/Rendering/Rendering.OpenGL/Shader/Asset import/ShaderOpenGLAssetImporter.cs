@@ -1,3 +1,4 @@
+/*
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
 using HereticalSolutions.Persistence;
@@ -107,3 +108,4 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		}
 	}
 }
+*/

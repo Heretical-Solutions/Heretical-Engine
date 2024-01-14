@@ -1,4 +1,4 @@
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
@@ -7,9 +7,11 @@ namespace HereticalSolutions.ResourceManagement
 		  IReadOnlyResourceStorageHandle
 	{
 		public AReadOnlyResourceStorageHandle(
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 			: base (
-				context)
+				runtimeResourceManager,
+				logger)
 		{
 		}
 
@@ -34,7 +36,7 @@ namespace HereticalSolutions.ResourceManagement
 				return;
 			}
 
-			context.Logger?.Log(
+			logger?.Log(
 				GetType(),
 				$"ALLOCATING");
 
@@ -42,11 +44,11 @@ namespace HereticalSolutions.ResourceManagement
 				progress)
 				.ThrowExceptions(
 					GetType(),
-					context.Logger);
+					logger);
 
 			allocated = true;
 
-			context.Logger?.Log(
+			logger?.Log(
 				GetType(),
 				$"ALLOCATED");
 
@@ -65,7 +67,7 @@ namespace HereticalSolutions.ResourceManagement
 				return;
 			}
 
-			context.Logger?.Log(
+			logger?.Log(
 				GetType(),
 				$"FREEING");
 
@@ -74,13 +76,13 @@ namespace HereticalSolutions.ResourceManagement
 				progress)
 				.ThrowExceptions(
 					GetType(),
-					context.Logger);
+					logger);
 
 			resource = default;
 
 			allocated = false;
 
-			context.Logger?.Log(
+			logger?.Log(
 				GetType(),
 				$"FREE");
 
@@ -94,7 +96,7 @@ namespace HereticalSolutions.ResourceManagement
 			get
 			{
 				if (!allocated)
-					context.Logger?.ThrowException(
+					logger?.ThrowException(
 						GetType(),
 						"RESOURCE IS NOT ALLOCATED");
 
@@ -105,7 +107,7 @@ namespace HereticalSolutions.ResourceManagement
 		public TValue GetResource<TValue>()
 		{
 			if (!allocated)
-				context.Logger?.ThrowException(
+				logger?.ThrowException(
 					GetType(),
 					"RESOURCE IS NOT ALLOCATED");
 
@@ -117,7 +119,7 @@ namespace HereticalSolutions.ResourceManagement
 
 				default:
 
-					context.Logger?.ThrowException(
+					logger?.ThrowException(
 						GetType(),
 						$"CANNOT GET RESOURCE OF TYPE {typeof(TValue).Name} FROM RESOURCE OF TYPE {typeof(TResource).Name}");
 

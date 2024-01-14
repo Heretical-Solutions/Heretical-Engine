@@ -5,7 +5,7 @@ using HereticalSolutions.ResourceManagement.Factories;
 
 using HereticalSolutions.HereticalEngine.AssetImport;
 
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
@@ -16,9 +16,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private MaterialAssetDescriptor descriptor;
 
 		public MaterialAssetDescriptorAssetImporter(
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 			: base(
-				context)
+				runtimeResourceManager,
+				logger)
 		{
 		}
 
@@ -34,7 +36,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			context.Logger?.Log<MaterialAssetDescriptorAssetImporter>(
+			logger?.Log<MaterialAssetDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
@@ -42,7 +44,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourcePath)
-					.ThrowExceptions<IResourceData, MaterialAssetDescriptorAssetImporter>(context.Logger),
+					.ThrowExceptions<IResourceData, MaterialAssetDescriptorAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = AssetImportConstants.ASSET_3D_MODEL_ASSET_DESCRIPTOR_VARIANT_ID,
@@ -55,19 +57,21 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 				ResourceManagementFactory.BuildConcurrentPreallocatedResourceStorageHandle<MaterialAssetDescriptor>(
 					descriptor,
-					context),
+					runtimeResourceManager,
+					logger),
 #else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<MaterialAssetDescriptor>(
 					descriptor,
-					context),
+					runtimeResourceManager,
+					logger),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, MaterialAssetDescriptorAssetImporter>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, MaterialAssetDescriptorAssetImporter>(logger);
 
 			progress?.Report(1f);
 
-			context.Logger?.Log<MaterialAssetDescriptorAssetImporter>(
+			logger?.Log<MaterialAssetDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;

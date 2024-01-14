@@ -1,4 +1,4 @@
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
@@ -9,9 +9,11 @@ namespace HereticalSolutions.ResourceManagement
 
         public PreallocatedResourceStorageHandle(
             TResource value,
-            ApplicationContext context)
+            IRuntimeResourceManager runtimeResourceManager,
+            IFormatLogger logger = null)
             : base(
-                context)
+                runtimeResourceManager,
+                logger)
         {
             this.value = value;
         }

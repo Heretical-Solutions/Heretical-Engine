@@ -7,5 +7,10 @@ namespace HereticalSolutions.HereticalEngine.Application
 		public ContainerBuilder ContainerBuilder { get; }
 
 		void BuildContainer();
+
+		void PushLifetimeScope(
+			Action<ContainerBuilder> configurationAction);
+
+		void PopLifetimeScope();
 	}
 }

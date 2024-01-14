@@ -6,7 +6,7 @@ using Silk.NET.Maths;
 
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class ShaderOpenGL
+	public struct ShaderOpenGL
 	{
 		public uint Handle;
 

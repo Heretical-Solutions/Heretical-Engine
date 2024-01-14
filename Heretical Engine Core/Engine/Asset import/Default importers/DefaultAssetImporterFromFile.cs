@@ -1,11 +1,11 @@
 #define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
-using HereticalSolutions.HereticalEngine.Application;
-
 using HereticalSolutions.Persistence;
 
 using HereticalSolutions.ResourceManagement;
 using HereticalSolutions.ResourceManagement.Factories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.HereticalEngine.AssetImport
 {
@@ -21,9 +21,11 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		protected ILoadVisitorGeneric<TAsset, TDTO> visitor;
 
 		public DefaultAssetImporterFromFile(
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 			: base(
-				context)
+				runtimeResourceManager,
+				logger)
 		{
 		}
 
@@ -61,7 +63,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				progress)
 				.ThrowExceptions<IResourceVariantData>(
 					GetType(),
-					context.Logger);
+					logger);
 
 			progress?.Report(1f);
 
@@ -90,7 +92,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				await GetOrCreateResourceData(resourcePath)
 					.ThrowExceptions<IResourceData>(
 						GetType(),
-						context.Logger),
+						logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = string.Empty,
@@ -104,18 +106,20 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 				ResourceManagementFactory
 					.BuildConcurrentPreallocatedResourceStorageHandle<TAsset>(
 						asset,
-						context),
+						runtimeResourceManager,
+						logger),
 #else
 				ResourceManagementFactory
 					.BuildPreallocatedResourceStorageHandle<TAsset>(
 						asset,
-						context),
+						runtimeResourceManager,
+						logger),
 #endif
 				allocate,
 				progress)
 				.ThrowExceptions<IResourceVariantData>(
 					GetType(),
-					context.Logger);
+					logger);
 
 			progress?.Report(1f);
 

@@ -502,6 +502,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			return handle;
 		}
 
+		/*
 		public static ShaderOpenGLStorageHandle BuildShaderOpenGLStorageHandle(
 			string vertexShaderSource,
 			string fragmentShaderSource,
@@ -526,5 +527,6 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 				new SemaphoreSlim(1, 1),
 				context);
 		}
+		*/
 	}
 }

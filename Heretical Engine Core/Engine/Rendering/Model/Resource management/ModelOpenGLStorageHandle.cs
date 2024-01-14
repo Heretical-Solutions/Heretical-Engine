@@ -1,3 +1,4 @@
+/*
 #define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
 
 using HereticalSolutions.ResourceManagement;
@@ -312,3 +313,4 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 	#endif
 }
+*/

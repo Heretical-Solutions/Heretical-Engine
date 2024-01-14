@@ -1,13 +1,12 @@
-using System.Threading;
-using System.Runtime.CompilerServices;
-
 namespace HereticalSolutions.Collections.Managed
 {
     /// <summary>
     /// Represents a thread-safe circular buffer with support for concurrent producer and consumer operations.
     /// </summary>
     /// <typeparam name="TValue">The type of values stored in the buffer.</typeparam>
-    public class ConcurrentGenericCircularBuffer<TValue> where TValue : class
+    public class ConcurrentGenericCircularBuffer<TValue>
+        : IGenericCircularBuffer<TValue>
+        where TValue : class
     {
         // Enum values stored in consts to quicken the state comparisons
         // We still need enum itself for serialization purposes

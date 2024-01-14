@@ -7,7 +7,7 @@ using HereticalSolutions.HereticalEngine.AssetImport;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Logging;
 
 using Silk.NET.Assimp;
 
@@ -22,9 +22,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		private TextureType textureType;
 
 		public TextureAssetDescriptorAssetImporter(
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 			: base(
-				context)
+				runtimeResourceManager,
+				logger)
 		{
 		}
 
@@ -43,7 +45,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public override async Task<IResourceVariantData> Import(
 			IProgress<float> progress = null)
 		{
-			context.Logger?.Log<TextureAssetDescriptorAssetImporter>(
+			logger?.Log<TextureAssetDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} INITIATED");
 
 			progress?.Report(0f);
@@ -51,7 +53,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			var result = await AddAssetAsResourceVariant(
 				await GetOrCreateResourceData(
 					resourcePath)
-					.ThrowExceptions<IResourceData, TextureAssetDescriptorAssetImporter>(context.Logger),
+					.ThrowExceptions<IResourceData, TextureAssetDescriptorAssetImporter>(logger),
 				new ResourceVariantDescriptor()
 				{
 					VariantID = AssetImportConstants.ASSET_3D_MODEL_ASSET_DESCRIPTOR_VARIANT_ID,
@@ -66,21 +68,23 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					TextureFactory.BuildTextureAssetDescriptor(
 						textureName,
 						textureType),
-					context),
+					runtimeResourceManager,
+					logger),
 #else
 				ResourceManagementFactory.BuildPreallocatedResourceStorageHandle<TextureAssetDescriptor>(
 					TextureFactory.BuildTextureAssetDescriptor(
 						textureName,
 						textureType),
-					context),
+					runtimeResourceManager,
+					logger),
 #endif
 				true,
 				progress)
-				.ThrowExceptions<IResourceVariantData, TextureAssetDescriptorAssetImporter>(context.Logger);
+				.ThrowExceptions<IResourceVariantData, TextureAssetDescriptorAssetImporter>(logger);
 
 			progress?.Report(1f);
 
-			context.Logger?.Log<TextureAssetDescriptorAssetImporter>(
+			logger?.Log<TextureAssetDescriptorAssetImporter>(
 				$"IMPORTING {resourcePath} FINISHED");
 
 			return result;

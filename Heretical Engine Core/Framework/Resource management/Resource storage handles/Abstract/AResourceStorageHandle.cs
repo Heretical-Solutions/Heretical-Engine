@@ -1,12 +1,16 @@
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.HereticalEngine.Messaging;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
 	public abstract class AResourceStorageHandle<TResource>
 	{
-		protected readonly ApplicationContext context;
+		protected readonly IRuntimeResourceManager runtimeResourceManager;
+
+		protected readonly IFormatLogger logger;
 
 
 		protected bool allocated = false;
@@ -14,9 +18,12 @@ namespace HereticalSolutions.ResourceManagement
 		protected TResource resource = default;
 
 		public AResourceStorageHandle(
-			ApplicationContext context)
+			IRuntimeResourceManager runtimeResourceManager,
+			IFormatLogger logger = null)
 		{
-			this.context = context;
+			this.runtimeResourceManager = runtimeResourceManager;
+
+			this.logger = logger;
 
 
 			resource = default;
@@ -36,14 +43,14 @@ namespace HereticalSolutions.ResourceManagement
 			string variantID = null,
 			IProgress<float> progress = null)
 		{
-			return await ((IContainsDependencyResources)context.RuntimeResourceManager)
+			return await ((IContainsDependencyResources)runtimeResourceManager)
 				.LoadDependency(
 					path,
 					variantID,
 					progress)
 				.ThrowExceptions<IReadOnlyResourceStorageHandle>(
 					GetType(),
-					context.Logger);
+					logger);
 
 			/*
 			#region Get resource data
@@ -145,12 +152,13 @@ namespace HereticalSolutions.ResourceManagement
 		}
 
 		protected async Task ExecuteOnMainThread(
-			Action delegateToExecute)
+			Action delegateToExecute,
+			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer)
 		{
 			var command = new MainThreadCommand(
 				delegateToExecute);
 
-			while (!context.MainThreadCommandBuffer.TryProduce(
+			while (!mainThreadCommandBuffer.TryProduce(
 				command))
 			{
 				await Task.Yield();
@@ -163,12 +171,13 @@ namespace HereticalSolutions.ResourceManagement
 		}
 
 		protected async Task ExecuteOnMainThread(
-			Func<Task> asyncDelegateToExecute)
+			Func<Task> asyncDelegateToExecute,
+			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer)
 		{
 			var command = new MainThreadCommand(
 				asyncDelegateToExecute);
 
-			while (!context.MainThreadCommandBuffer.TryProduce(
+			while (!mainThreadCommandBuffer.TryProduce(
 				command))
 			{
 				await Task.Yield();
