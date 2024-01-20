@@ -13,16 +13,14 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	public class LoggingModule
 		: IModule
 	{
-		public bool DumpLogsOnTearDown { get; set; }
+		private const string KEY_DUMPABLE_LOGGER = "Dumpable logger";
 
-		private ILogger logger;
+		public bool DumpLogsOnTearDown { get; set; }
 
 		public LoggingModule(
 			bool dumpLogsOnTearDown = true)
 		{
 			DumpLogsOnTearDown = dumpLogsOnTearDown;
-
-			SetUp();
 		}
 
 		#region IModule
@@ -66,7 +64,16 @@ namespace HereticalSolutions.HereticalEngine.Modules
 									applicationDataFolder,
 									$"Runtime logs/{logFileName}.log",
 									(ILoggerResolver)loggerBuilder,
-									loggerBuilder.CurrentLogger))
+									loggerBuilder.CurrentLogger));
+
+						var dumpableLogger = loggerBuilder.CurrentLogger;
+
+						containerBuilder
+							.Register(componentContext =>
+								(IDumpable)dumpableLogger)
+							.Named<IDumpable>(KEY_DUMPABLE_LOGGER);
+
+						loggerBuilder
 							.AddOrWrap(
 								LoggersFactory.BuildLoggerWrapperWithLogTypePrefix(
 									loggerBuilder.CurrentLogger))
@@ -88,111 +95,20 @@ namespace HereticalSolutions.HereticalEngine.Modules
 									loggerBuilder.CurrentLogger));
 					}
 
-					logger = ((ILoggerResolver)loggerBuilder).GetLogger<LoggingModule>();
-
-					/*
-					containerBuilder
-						.Register(componentContext =>
-							loggerBuilder)
-						.As<ILoggerResolver>();
-					*/
-
 					return (ILoggerResolver)loggerBuilder;
 				})
 			.As<ILoggerResolver>();
-
-			Initialize();
 		}
 
 		public void Unload(IApplicationContext context)
 		{
-			Cleanup();
-		}
-
-		#region ILifetimeable
-
-		public void SetUp()
-		{
-			if (IsSetUp)
-				throw new Exception(
-					logger.TryFormat<LoggingModule>(
-						"ALREADY SET UP"));
-
-			//Set up
-
-			IsSetUp = true;
-		}
-
-		public bool IsSetUp { get; private set; } = false;
-
-		public void Initialize(object[] args = null)
-		{
-			if (!IsSetUp)
+			if (DumpLogsOnTearDown)
 			{
-				throw new Exception(
-					logger.TryFormat<LoggingModule>(
-						"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED"));
+				var dumpableLogger = context.Container.ResolveNamed<IDumpable>(KEY_DUMPABLE_LOGGER);
+
+				dumpableLogger.Dump();
 			}
-
-			if (IsInitialized)
-			{
-				throw new Exception(
-					logger.TryFormat<LoggingModule>(
-						"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED"));
-			}
-
-			//Initialization
-
-
-			IsInitialized = true;
-
-			OnInitialized?.Invoke();
 		}
-
-		public bool IsInitialized { get; private set; } = false;
-
-		public Action OnInitialized { get; set; }
-
-		public void Cleanup()
-		{
-			if (!IsInitialized)
-				return;
-
-			//Clean up
-			logger = null;
-
-			IsInitialized = false;
-
-			OnCleanedUp?.Invoke();
-		}
-
-		public Action OnCleanedUp { get; set; }
-
-		public void TearDown()
-		{
-			if (!IsSetUp)
-				return;
-
-			IsSetUp = false;
-
-			Cleanup();
-
-			//Tear down
-			
-
-
-			OnTornDown?.Invoke();
-
-			OnInitialized = null;
-
-			OnCleanedUp = null;
-
-			OnTornDown = null;
-		}
-
-		public Action OnTornDown { get; set; }
-
-		#endregion
 
 		#endregion
 	}
