@@ -7,10 +7,10 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeYamlIntoTextFileStrategy : IYamlSerializationStrategy
     {
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public SerializeYamlIntoTextFileStrategy(
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.logger = logger;
         }

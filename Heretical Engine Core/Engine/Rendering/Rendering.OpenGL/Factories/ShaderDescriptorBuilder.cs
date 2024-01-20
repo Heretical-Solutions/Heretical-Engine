@@ -60,12 +60,12 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		#endregion
 
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 		public ShaderDescriptorBuilder(
 			List<ShaderVertexAttributeOpenGL> vertexAttributes,
 			List<ShaderSampler2DArgumentOpenGL> sampler2DArguments,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.vertexAttributes = vertexAttributes;
 
@@ -240,8 +240,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 						slotName,
 						out TextureUnit textureSlot))
 					{
-						logger?.ThrowException<ShaderDescriptorBuilder>(
-							$"COULD NOT PARSE TextureUnit: {slotName}");
+						throw new Exception(
+							logger.TryFormat<ShaderDescriptorBuilder>(
+								$"COULD NOT PARSE TextureUnit: {slotName}"));
 					}
 
 					var sampler2DArgument = new ShaderSampler2DArgumentOpenGL

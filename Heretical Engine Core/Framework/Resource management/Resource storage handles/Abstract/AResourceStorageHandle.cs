@@ -10,7 +10,7 @@ namespace HereticalSolutions.ResourceManagement
 	{
 		protected readonly IRuntimeResourceManager runtimeResourceManager;
 
-		protected readonly IFormatLogger logger;
+		protected readonly ILogger logger;
 
 
 		protected bool allocated = false;
@@ -19,7 +19,7 @@ namespace HereticalSolutions.ResourceManagement
 
 		public AResourceStorageHandle(
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.runtimeResourceManager = runtimeResourceManager;
 

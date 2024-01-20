@@ -18,7 +18,7 @@ namespace HereticalSolutions.Pools.Decorators
 		public NonAllocPoolWithRuntimeTimer(
 			INonAllocDecoratedPool<T> innerPool,
 			ISynchronizationProvider provider,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				innerPool,
 				logger)
@@ -31,8 +31,9 @@ namespace HereticalSolutions.Pools.Decorators
 			IPoolDecoratorArgument[] args)
 		{
 			if (!instance.Metadata.Has<IContainsRuntimeTimer>())
-				logger?.ThrowException<NonAllocPoolWithRuntimeTimer<T>>(
-					"INVALID INSTANCE");
+				throw new Exception(
+					logger.TryFormat<NonAllocPoolWithRuntimeTimer<T>>(
+						"INVALID INSTANCE"));
 
 			var metadata = instance.Metadata.Get<IContainsRuntimeTimer>();
 
@@ -69,8 +70,9 @@ namespace HereticalSolutions.Pools.Decorators
 		protected override void OnBeforePush(IPoolElement<T> instance)
 		{
 			if (!instance.Metadata.Has<IContainsRuntimeTimer>())
-				logger?.ThrowException<NonAllocPoolWithRuntimeTimer<T>>(
-					"INVALID INSTANCE");
+				throw new Exception(
+					logger.TryFormat<NonAllocPoolWithRuntimeTimer<T>>(
+						"INVALID INSTANCE"));
 
 			var metadata = instance.Metadata.Get<IContainsRuntimeTimer>();
 			

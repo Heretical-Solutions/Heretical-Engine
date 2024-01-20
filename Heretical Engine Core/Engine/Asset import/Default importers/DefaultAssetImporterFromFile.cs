@@ -23,7 +23,7 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 		public DefaultAssetImporterFromFile(
 			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				runtimeResourceManager,
 				loggerResolver,

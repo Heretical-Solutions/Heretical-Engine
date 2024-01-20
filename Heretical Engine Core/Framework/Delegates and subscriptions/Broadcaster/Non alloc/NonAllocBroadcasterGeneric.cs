@@ -22,7 +22,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
         #endregion
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         #region Buffer
 
@@ -37,7 +37,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
         public NonAllocBroadcasterGeneric(
             INonAllocDecoratedPool<ISubscription> subscriptionsPool,
             INonAllocPool<ISubscription> subscriptionsContents,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.subscriptionsPool = subscriptionsPool;
 
@@ -134,10 +134,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<NonAllocBroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\""));
             }
         }
 
@@ -162,10 +161,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<NonAllocBroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\""));
             }
         }
 
@@ -190,10 +188,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<NonAllocBroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\""));
             }
         }
 
@@ -218,10 +215,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<NonAllocBroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\""));
             }
         }
 
@@ -346,10 +342,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<NonAllocBroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\""));
             }
         }
 
@@ -366,10 +361,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<NonAllocBroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<NonAllocBroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\""));
             }
         }
 

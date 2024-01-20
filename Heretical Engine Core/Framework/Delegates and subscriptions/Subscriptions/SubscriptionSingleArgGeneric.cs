@@ -23,7 +23,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
     {
         private readonly IInvokableSingleArgGeneric<TValue> invokable;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         private object publisher;
 
@@ -32,7 +32,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
         public SubscriptionSingleArgGeneric(
             Action<TValue> @delegate,
             ILoggerResolver loggerResolver = null,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             invokable = DelegatesFactory.BuildDelegateWrapperSingleArgGeneric(
                 @delegate,
@@ -84,16 +84,24 @@ namespace HereticalSolutions.Delegates.Subscriptions
         public bool ValidateActivation(INonAllocSubscribableSingleArgGeneric<TValue> publisher)
         {
             if (Active)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE"));
 
             if (this.publisher != null)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("SUBSCRIPTION ALREADY HAS A PUBLISHER");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "SUBSCRIPTION ALREADY HAS A PUBLISHER"));
 
             if (poolElement != null)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("SUBSCRIPTION ALREADY HAS A POOL ELEMENT");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "SUBSCRIPTION ALREADY HAS A POOL ELEMENT"));
 
             if (invokable == null)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("INVALID DELEGATE");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "INVALID DELEGATE"));
 
             return true;
         }
@@ -123,13 +131,19 @@ namespace HereticalSolutions.Delegates.Subscriptions
             INonAllocSubscribableSingleArgGeneric<TValue> publisher)
         {
             if (!Active)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY INACTIVE");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY INACTIVE"));
 
             if (this.publisher != publisher)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("INVALID PUBLISHER");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "INVALID PUBLISHER"));
 
             if (poolElement == null)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("INVALID POOL ELEMENT");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "INVALID POOL ELEMENT"));
 
             return true;
         }
@@ -147,16 +161,24 @@ namespace HereticalSolutions.Delegates.Subscriptions
             INonAllocSubscribableSingleArg publisher)
         {
             if (Active)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE"));
 
             if (this.publisher != null)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("SUBSCRIPTION ALREADY HAS A PUBLISHER");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "SUBSCRIPTION ALREADY HAS A PUBLISHER"));
 
             if (poolElement != null)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("SUBSCRIPTION ALREADY HAS A POOL ELEMENT");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "SUBSCRIPTION ALREADY HAS A POOL ELEMENT"));
 
             if (invokable == null)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("INVALID DELEGATE");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "INVALID DELEGATE"));
 
             return true;
         }
@@ -176,13 +198,19 @@ namespace HereticalSolutions.Delegates.Subscriptions
             INonAllocSubscribableSingleArg publisher)
         {
             if (!Active)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY ACTIVE"));
 
             if (this.publisher != publisher)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("INVALID PUBLISHER");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "INVALID PUBLISHER"));
 
             if (poolElement == null)
-                logger?.ThrowException<SubscriptionSingleArgGeneric<TValue>>("INVALID POOL ELEMENT");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionSingleArgGeneric<TValue>>(
+                        "INVALID POOL ELEMENT"));
 
             return true;
         }

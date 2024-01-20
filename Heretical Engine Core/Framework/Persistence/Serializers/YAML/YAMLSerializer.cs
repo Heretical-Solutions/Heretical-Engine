@@ -14,11 +14,11 @@ namespace HereticalSolutions.Persistence.Serializers
 
         private readonly IReadOnlyObjectRepository strategyRepository;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public YAMLSerializer(
             IReadOnlyObjectRepository strategyRepository,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             yamlSerializer = new SerializerBuilder().Build();
 
@@ -40,8 +40,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<YAMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
 
@@ -60,8 +61,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<YAMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
 
@@ -79,8 +81,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<YAMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
 
@@ -104,8 +107,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<YAMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
 
@@ -124,8 +128,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<YAMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
             

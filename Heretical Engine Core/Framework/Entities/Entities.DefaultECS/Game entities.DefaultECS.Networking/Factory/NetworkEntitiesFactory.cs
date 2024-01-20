@@ -106,7 +106,7 @@ namespace HereticalSolutions.GameEntities.Factories
 			childEntityWorlds.Add(entityWorldsRepository.GetWorld(NetworkWorldConstants.NETWORKING_SERVER_DATA_WORLD_ID));
 			childEntityWorlds.Add(entityWorldsRepository.GetWorld(NetworkWorldConstants.NETWORKING_PREDICTION_WORLD_ID));
 
-			IFormatLogger logger = 
+			ILogger logger = 
 				loggerResolver?.GetLogger<EntityManager>()
 				?? null;
 
@@ -147,7 +147,7 @@ namespace HereticalSolutions.GameEntities.Factories
 					"WriteComponent",
 					BindingFlags.Static | BindingFlags.Public);
 
-			IFormatLogger logger =
+			ILogger logger =
 				loggerResolver?.GetLogger<ECSWorldFullStateVisitor>()
 				?? null;
 
@@ -183,7 +183,7 @@ namespace HereticalSolutions.GameEntities.Factories
 					"WriteComponent",
 					BindingFlags.Static | BindingFlags.Public);
 
-			IFormatLogger logger = 
+			ILogger logger = 
 				loggerResolver?.GetLogger<ECSWorldMementoVisitor>()
 				?? null;
 
@@ -228,7 +228,7 @@ namespace HereticalSolutions.GameEntities.Factories
 					"WriteComponent",
 					BindingFlags.Static | BindingFlags.Public);
 
-			IFormatLogger logger =
+			ILogger logger =
 				loggerResolver?.GetLogger<ECSEventWorldVisitor>()
 				?? null;
 

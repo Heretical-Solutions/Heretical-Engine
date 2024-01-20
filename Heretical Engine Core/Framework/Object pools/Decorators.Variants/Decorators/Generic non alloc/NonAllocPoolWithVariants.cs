@@ -18,7 +18,7 @@ namespace HereticalSolutions.Pools.Decorators
 
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NonAllocPoolWithVariants{T}"/> class.
@@ -28,7 +28,7 @@ namespace HereticalSolutions.Pools.Decorators
         public NonAllocPoolWithVariants(
             IReadOnlyRepository<int, VariantContainer<T>> innerPoolsRepository,
             IRandomGenerator randomGenerator,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.innerPoolsRepository = innerPoolsRepository;
 
@@ -48,8 +48,9 @@ namespace HereticalSolutions.Pools.Decorators
             if (args.TryGetArgument<VariantArgument>(out var arg))
             {
                 if (!innerPoolsRepository.TryGet(arg.Variant, out var variant))
-                    logger?.ThrowException<NonAllocPoolWithVariants<T>>(
-                        $"INVALID VARIANT {{ {arg.Variant} }}");
+                    throw new Exception(
+                        logger.TryFormat<NonAllocPoolWithVariants<T>>(
+                            $"INVALID VARIANT {{ {arg.Variant} }}"));
 
                 var concreteResult = variant.Pool.Pop(args);
 
@@ -66,8 +67,9 @@ namespace HereticalSolutions.Pools.Decorators
             #region Validation
 
             if (!innerPoolsRepository.TryGet(0, out var currentVariant))
-                logger?.ThrowException<NonAllocPoolWithVariants<T>>(
-                    "NO VARIANTS PRESENT");
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithVariants<T>>(
+                        "NO VARIANTS PRESENT"));
 
             #endregion
 
@@ -82,8 +84,9 @@ namespace HereticalSolutions.Pools.Decorators
                 index++;
 
                 if (!innerPoolsRepository.TryGet(index, out currentVariant))
-                    logger?.ThrowException<NonAllocPoolWithVariants<T>>(
-                        "INVALID VARIANT CHANCES");
+                    throw new Exception(
+                        logger.TryFormat<NonAllocPoolWithVariants<T>>(
+                            "INVALID VARIANT CHANCES"));
             }
 
             var result = currentVariant.Pool.Pop(args);
@@ -109,8 +112,9 @@ namespace HereticalSolutions.Pools.Decorators
             int variant = instance.Metadata.Get<IContainsVariant>().Variant;
 
             if (!innerPoolsRepository.TryGet(variant, out var poolByVariant))
-                logger?.ThrowException<NonAllocPoolWithVariants<T>>(
-                    $"INVALID VARIANT {{variant}}");
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithVariants<T>>(
+                        $"INVALID VARIANT {{variant}}"));
 
             poolByVariant.Pool.Push(instance, decoratorsOnly);
         }

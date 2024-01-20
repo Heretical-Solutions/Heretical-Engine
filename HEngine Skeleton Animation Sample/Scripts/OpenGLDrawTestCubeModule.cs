@@ -81,8 +81,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger?.ThrowException<OpenGLDrawTestCubeModule>(
-					"ALREADY SET UP");
+				throw new Exception(
+					logger.TryFormat<OpenGLDrawTestCubeModule>(
+						"ALREADY SET UP"));
 
 			//Set up
 
@@ -98,14 +99,16 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger?.ThrowException<OpenGLDrawTestCubeModule>(
-					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
+				throw new Exception(
+					logger.TryFormat<OpenGLDrawTestCubeModule>(
+						"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED"));
 			}
 
 			if (IsInitialized)
 			{
-				logger?.ThrowException<OpenGLDrawTestCubeModule>(
-					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
+				throw new Exception(
+					logger.TryFormat<OpenGLDrawTestCubeModule>(
+						"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED"));
 			}
 
 			//Initialization

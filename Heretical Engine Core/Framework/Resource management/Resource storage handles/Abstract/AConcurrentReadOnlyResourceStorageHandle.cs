@@ -11,7 +11,7 @@ namespace HereticalSolutions.ResourceManagement
 		public AConcurrentReadOnlyResourceStorageHandle(
 			SemaphoreSlim semaphore,
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				runtimeResourceManager,
 				logger)
@@ -134,9 +134,10 @@ namespace HereticalSolutions.ResourceManagement
 				try
 				{
 					if (!allocated)
-						logger?.ThrowException(
-							GetType(),
-							"RESOURCE IS NOT ALLOCATED");
+						throw new Exception(
+							logger.TryFormat(
+								GetType(),
+								"RESOURCE IS NOT ALLOCATED"));
 
 					return resource;
 				}
@@ -154,9 +155,10 @@ namespace HereticalSolutions.ResourceManagement
 			try
 			{
 				if (!allocated)
-					logger?.ThrowException(
-						GetType(),
-						"RESOURCE IS NOT ALLOCATED");
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							"RESOURCE IS NOT ALLOCATED"));
 
 				switch (resource)
 				{
@@ -166,11 +168,10 @@ namespace HereticalSolutions.ResourceManagement
 
 					default:
 
-						logger?.ThrowException(
-							GetType(),
-							$"RESOURCE IS NOT OF TYPE {typeof(TValue).Name}");
-
-						return default;
+						throw new Exception(
+							logger.TryFormat(
+								GetType(),
+								$"RESOURCE IS NOT OF TYPE {typeof(TValue).Name}"));
 				}
 			}
 			finally

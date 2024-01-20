@@ -9,10 +9,10 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeXmlIntoStringStrategy : IXmlSerializationStrategy
     {
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public SerializeXmlIntoStringStrategy(
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.logger = logger;
         }

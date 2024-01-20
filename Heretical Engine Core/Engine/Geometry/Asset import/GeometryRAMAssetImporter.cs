@@ -18,7 +18,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public GeometryRAMAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				runtimeResourceManager,
 				loggerResolver,

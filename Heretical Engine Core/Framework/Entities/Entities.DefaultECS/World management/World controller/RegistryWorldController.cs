@@ -12,12 +12,12 @@ namespace HereticalSolutions.GameEntities
     {
         private readonly IPrototypesRepository<World, Entity> prototypeRepository;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public RegistryWorldController(
             World world,
             IPrototypesRepository<World, Entity> prototypeRepository,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             World = world;
 

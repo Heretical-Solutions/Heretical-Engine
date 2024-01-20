@@ -18,13 +18,13 @@ namespace HereticalSolutions.Messaging
 
         private readonly Queue<IMessage> mailbox;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public MessageBus(
             BroadcasterWithRepository broadcaster,
             IReadOnlyObjectRepository messageRepository,
             Queue<IMessage> mailbox,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.broadcaster = broadcaster;
 
@@ -46,8 +46,9 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                     messageType,
                     out object messagePoolObject))
-                logger?.ThrowException<MessageBus>(
-                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}");
+                throw new Exception(
+                    logger.TryFormat<MessageBus>(
+                        $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}"));
 
             IPool<IMessage> messagePool = (IPool<IMessage>)messagePoolObject;
 
@@ -61,8 +62,9 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                     typeof(TMessage),
                     out object messagePoolObject))
-                logger?.ThrowException<MessageBus>(
-                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}");
+                throw new Exception(
+                    logger.TryFormat<MessageBus>(
+                        $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}"));
 
             IPool<IMessage> messagePool = (IPool<IMessage>)messagePoolObject;
 
@@ -78,8 +80,9 @@ namespace HereticalSolutions.Messaging
         public IMessageSender Write(IMessage message, object[] args)
         {
             if (message == null)
-                logger?.ThrowException<MessageBus>(
-                    $"INVALID MESSAGE");
+                throw new Exception(
+                    logger.TryFormat<MessageBus>(
+                        $"INVALID MESSAGE"));
 
             message.Write(args);
 
@@ -91,8 +94,9 @@ namespace HereticalSolutions.Messaging
             object[] args) where TMessage : IMessage
         {
             if (message == null)
-                logger?.ThrowException<MessageBus>(
-                    $"INVALID MESSAGE");
+                throw new Exception(
+                    logger.TryFormat<MessageBus>(
+                        $"INVALID MESSAGE"));
 
             message.Write(args);
 
@@ -173,8 +177,9 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                     messageType,
                     out object messagePoolObject))
-                logger?.ThrowException<MessageBus>(
-                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}");
+                throw new Exception(
+                    logger.TryFormat<MessageBus>(
+                        $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}"));
 
             IPool<IMessage> messagePool = (IPool<IMessage>)messagePoolObject;
 
@@ -188,8 +193,9 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                     messageType,
                     out object messagePoolObject))
-                logger?.ThrowException<MessageBus>(
-                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}");
+                throw new Exception(
+                    logger.TryFormat<MessageBus>(
+                        $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}"));
 
             IPool<IMessage> messagePool = (IPool<IMessage>)messagePoolObject;
 

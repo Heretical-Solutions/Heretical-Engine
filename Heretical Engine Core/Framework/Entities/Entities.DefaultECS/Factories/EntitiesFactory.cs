@@ -102,7 +102,7 @@ namespace HereticalSolutions.GameEntities.Factories
             childEntityWorlds.Add(entityWorldsRepository.GetWorld(WorldConstants.SIMULATION_WORLD_ID));
             childEntityWorlds.Add(entityWorldsRepository.GetWorld(WorldConstants.VIEW_WORLD_ID));
 
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<EntityManager>()
                 ?? null;
 
@@ -118,7 +118,7 @@ namespace HereticalSolutions.GameEntities.Factories
         {
             World world = new World();
 
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<EventWorldController>()
                 ?? null;
 
@@ -133,7 +133,7 @@ namespace HereticalSolutions.GameEntities.Factories
         {
             World world = new World();
 
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<RegistryWorldController>()
                 ?? null;
 
@@ -153,7 +153,7 @@ namespace HereticalSolutions.GameEntities.Factories
         {
             World world = new World();
 
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<WorldController<TEntityIdentityComponent, TResolveComponent>>()
                 ?? null;
 
@@ -181,7 +181,7 @@ namespace HereticalSolutions.GameEntities.Factories
 
             var worldControllersRepository = RepositoriesFactory.BuildDictionaryRepository<World, IWorldController>();
 
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<EntityWorldsRepository>()
                 ?? null;
 

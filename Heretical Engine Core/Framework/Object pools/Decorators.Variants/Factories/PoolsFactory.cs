@@ -26,7 +26,7 @@ namespace HereticalSolutions.Pools.Factories
             IRandomGenerator generator,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<NonAllocPoolWithVariants<T>>()
                 ?? null;
 

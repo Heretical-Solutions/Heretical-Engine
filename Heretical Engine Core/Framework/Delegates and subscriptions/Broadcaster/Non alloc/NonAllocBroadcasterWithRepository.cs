@@ -14,7 +14,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
     {
         private readonly IReadOnlyObjectRepository broadcasterRepository;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NonAllocBroadcasterWithRepository"/> class.
@@ -23,7 +23,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
         /// <param name="logger">The logger.</param>
         public NonAllocBroadcasterWithRepository(
             IReadOnlyObjectRepository broadcasterRepository,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.broadcasterRepository = broadcasterRepository;
 
@@ -44,8 +44,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     valueType,
                     out object broadcasterObject))
-                logger?.ThrowException<NonAllocBroadcasterWithRepository>(
-                    $"INVALID VALUE TYPE: \"{valueType.Name}\"");
+                throw new Exception(
+                    logger.TryFormat<NonAllocBroadcasterWithRepository>(
+                        $"INVALID VALUE TYPE: \"{valueType.Name}\""));
 
             var broadcaster = (IPublisherSingleArgGeneric<TValue>)broadcasterObject;
 
@@ -64,8 +65,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     valueType,
                     out object broadcasterObject))
-                logger?.ThrowException<NonAllocBroadcasterWithRepository>(
-                    $"INVALID VALUE TYPE: \"{valueType.Name}\"");
+                throw new Exception(
+                    logger.TryFormat<NonAllocBroadcasterWithRepository>(
+                        $"INVALID VALUE TYPE: \"{valueType.Name}\""));
 
             var broadcaster = (IPublisherSingleArg)broadcasterObject;
 
@@ -92,8 +94,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     valueType,
                     out object broadcasterObject))
-                logger?.ThrowException<NonAllocBroadcasterWithRepository>(
-                    $"INVALID VALUE TYPE: \"{valueType.Name}\"");
+                throw new Exception(
+                    logger.TryFormat<NonAllocBroadcasterWithRepository>(
+                        $"INVALID VALUE TYPE: \"{valueType.Name}\""));
 
             var broadcaster = (INonAllocSubscribableSingleArgGeneric<TValue>)broadcasterObject;
 
@@ -115,8 +118,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     valueType,
                     out object broadcasterObject))
-                logger?.ThrowException<NonAllocBroadcasterWithRepository>(
-                    $"INVALID VALUE TYPE: \"{valueType.Name}\"");
+                throw new Exception(
+                    logger.TryFormat<NonAllocBroadcasterWithRepository>(
+                        $"INVALID VALUE TYPE: \"{valueType.Name}\""));
 
             var broadcaster = (INonAllocSubscribableSingleArg)broadcasterObject;
 
@@ -139,8 +143,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     valueType,
                     out object broadcasterObject))
-                logger?.ThrowException<NonAllocBroadcasterWithRepository>(
-                    $"INVALID VALUE TYPE: \"{valueType.Name}\"");
+                throw new Exception(
+                    logger.TryFormat<NonAllocBroadcasterWithRepository>(
+                        $"INVALID VALUE TYPE: \"{valueType.Name}\""));
 
             var broadcaster = (INonAllocSubscribableSingleArgGeneric<TValue>)broadcasterObject;
 
@@ -162,8 +167,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     valueType,
                     out object broadcasterObject))
-                logger?.ThrowException<NonAllocBroadcasterWithRepository>(
-                    $"INVALID VALUE TYPE: \"{valueType.Name}\"");
+                throw new Exception(
+                    logger.TryFormat<NonAllocBroadcasterWithRepository>(
+                        $"INVALID VALUE TYPE: \"{valueType.Name}\""));
 
             var broadcaster = (INonAllocSubscribableSingleArg)broadcasterObject;
 
@@ -181,8 +187,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     valueType,
                     out object broadcasterObject))
-                logger?.ThrowException<NonAllocBroadcasterWithRepository>(
-                    $"INVALID VALUE TYPE: \"{valueType.Name}\"");
+                throw new Exception(
+                    logger.TryFormat<NonAllocBroadcasterWithRepository>(
+                        $"INVALID VALUE TYPE: \"{valueType.Name}\""));
 
             var broadcaster = (INonAllocSubscribableSingleArgGeneric<TValue>)broadcasterObject;
 
@@ -194,8 +201,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             if (!broadcasterRepository.TryGet(
                     valueType,
                     out object broadcasterObject))
-                logger?.ThrowException<NonAllocBroadcasterWithRepository>(
-                    $"INVALID VALUE TYPE: \"{valueType.Name}\"");
+                throw new Exception(
+                    logger.TryFormat<NonAllocBroadcasterWithRepository>(
+                        $"INVALID VALUE TYPE: \"{valueType.Name}\""));
 
             var broadcaster = (INonAllocSubscribable)broadcasterObject;
 

@@ -12,10 +12,10 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeCsvIntoStreamStrategy : ICsvSerializationStrategy
     {
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public SerializeCsvIntoStreamStrategy(
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.logger = logger;
         }

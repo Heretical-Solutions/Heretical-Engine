@@ -23,7 +23,7 @@ namespace HereticalSolutions.Time.Factories
             
             var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>(loggerResolver);
             
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<PersistentTimer>()
                 ?? null;
 
@@ -76,7 +76,7 @@ namespace HereticalSolutions.Time.Factories
             
             var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>(loggerResolver);
             
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<RuntimeTimer>()
                 ?? null;
 

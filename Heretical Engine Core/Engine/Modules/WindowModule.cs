@@ -50,8 +50,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger?.ThrowException<WindowModule>(
-					"ALREADY SET UP");
+				throw new Exception(
+					logger.TryFormat<WindowModule>(
+						"ALREADY SET UP"));
 
 			var windowOptions = WindowOptions.Default;
 
@@ -153,14 +154,16 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger?.ThrowException<WindowModule>(
-					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
+				throw new Exception(
+					logger.TryFormat<WindowModule>(
+						"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED"));
 			}
 
 			if (IsInitialized)
 			{
-				logger?.ThrowException<WindowModule>(
-					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
+				throw new Exception(
+					logger.TryFormat<WindowModule>(
+						"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED"));
 			}
 
 			inputContext = window.CreateInput();
@@ -272,8 +275,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger?.ThrowException<WindowModule>(
-					"CORE MODULE SHOULD BE SET UP BEFORE BEING RUN");
+				throw new Exception(
+					logger.TryFormat<WindowModule>(
+						"CORE MODULE SHOULD BE SET UP BEFORE BEING RUN"));
 			}
 
 			// Now that everything's defined, let's run this bad boy!

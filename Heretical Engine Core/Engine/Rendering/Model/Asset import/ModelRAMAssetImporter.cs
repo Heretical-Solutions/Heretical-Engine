@@ -38,7 +38,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public ModelRAMAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				runtimeResourceManager,
 				loggerResolver,
@@ -211,7 +211,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			{
 				var error = assimp.GetErrorStringS();
 
-				logger?.ThrowException<ModelRAMAssetImporter>($"ASSIMP ERROR: {error}");
+				throw new Exception(
+					logger.TryFormat<ModelRAMAssetImporter>(
+						$"ASSIMP ERROR: {error}"));
 			}
 
 			//DO NOT USE MName in scene. It's not documented in Assimp and I have no idea why it's even present
@@ -904,8 +906,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 
 				if (face.MNumIndices != 3)
 				{
-					logger?.ThrowException<ModelRAMAssetImporter>(
-						$"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices} Face index: {i}");
+					throw new Exception(
+						logger.TryFormat<ModelRAMAssetImporter>(
+							$"MESH IS NOT TRIANGULATED. MNumIndices: {face.MNumIndices} Face index: {i}"));
 				}
 				else
 				{

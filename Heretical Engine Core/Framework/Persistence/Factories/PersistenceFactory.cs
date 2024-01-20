@@ -13,7 +13,7 @@ namespace HereticalSolutions.Persistence.Factories
             IReadOnlyObjectRepository saveVisitorsRepository,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<CompositeVisitor>()
                 ?? null;
 

@@ -6,10 +6,10 @@ namespace HereticalSolutions.HereticalEngine.Application
 {
 	public interface IApplicationContext
 	{
-		public IContainer Container { get; }
+		IContainer Container { get; }
 
 		ILifetimeScope CurrentScope { get; }
 
-		public IEnumerable<IModule> ActiveModules { get; }
+		IEnumerable<IModule> ActiveModules { get; }
 	}
 }

@@ -95,8 +95,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger?.ThrowException<OpenGLDrawTextureModule>(
-					"ALREADY SET UP");
+				throw new Exception(
+					logger.TryFormat<OpenGLDrawTextureModule>(
+						"ALREADY SET UP"));
 
 			//Set up
 
@@ -112,14 +113,16 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger?.ThrowException<OpenGLDrawTextureModule>(
-					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
+				throw new Exception(
+					logger.TryFormat<OpenGLDrawTextureModule>(
+						"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED"));
 			}
 
 			if (IsInitialized)
 			{
-				logger?.ThrowException<OpenGLDrawTextureModule>(
-					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
+				throw new Exception(
+					logger.TryFormat<OpenGLDrawTextureModule>(
+						"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED"));
 			}
 
 			//Initialization

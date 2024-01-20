@@ -31,7 +31,7 @@ namespace HereticalSolutions.Pools.Factories
             string id,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<NonAllocPoolWithID<T>>()
                 ?? null;
 

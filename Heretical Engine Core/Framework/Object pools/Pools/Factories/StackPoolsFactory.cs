@@ -22,7 +22,7 @@ namespace HereticalSolutions.Pools.Factories
 
             PerformInitialAllocation<T>(stack, initialAllocationCommand);
 
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<StackPool<T>>()
                 ?? null;
 

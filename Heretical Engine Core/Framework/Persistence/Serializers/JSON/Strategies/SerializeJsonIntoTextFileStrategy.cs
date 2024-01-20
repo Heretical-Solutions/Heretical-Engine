@@ -7,10 +7,10 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeJsonIntoTextFileStrategy : IJsonSerializationStrategy
     {
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public SerializeJsonIntoTextFileStrategy(
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.logger = logger;
         }

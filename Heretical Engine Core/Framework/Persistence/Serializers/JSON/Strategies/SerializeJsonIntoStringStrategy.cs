@@ -6,10 +6,10 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeJsonIntoStringStrategy : IJsonSerializationStrategy
     {
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public SerializeJsonIntoStringStrategy(
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.logger = logger;
         }

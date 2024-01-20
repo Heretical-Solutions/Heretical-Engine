@@ -4,6 +4,7 @@ namespace HereticalSolutions.Logging
 	{
 		LOG,
 		WARNING,
-		ERROR
+		ERROR,
+		EXCEPTION
 	}
 }

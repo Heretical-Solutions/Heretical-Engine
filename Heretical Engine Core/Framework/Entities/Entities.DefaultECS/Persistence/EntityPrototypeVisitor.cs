@@ -37,7 +37,7 @@ namespace HereticalSolutions.GameEntities
 
 		public EntityPrototypeVisitor(
 			IPrototypesRepository<World, Entity> prototypesRepository,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(logger)
 		{
 			this.prototypesRepository = prototypesRepository;

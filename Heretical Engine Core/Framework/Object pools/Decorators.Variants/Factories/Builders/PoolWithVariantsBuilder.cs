@@ -13,7 +13,7 @@ namespace HereticalSolutions.Pools.Factories
     {
         private readonly ILoggerResolver loggerResolver;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         private IRepository<int, VariantContainer<T>> repository;
 
@@ -21,7 +21,7 @@ namespace HereticalSolutions.Pools.Factories
 
         public PoolWithVariantsBuilder(
             ILoggerResolver loggerResolver = null,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.loggerResolver = loggerResolver;
 
@@ -53,8 +53,9 @@ namespace HereticalSolutions.Pools.Factories
         public INonAllocDecoratedPool<T> Build()
         {
             if (repository == null)
-                logger?.ThrowException<PoolWithVariantsBuilder<T>>(
-                    "BUILDER NOT INITIALIZED");
+                throw new Exception(
+                    logger.TryFormat<PoolWithVariantsBuilder<T>>(
+                        "BUILDER NOT INITIALIZED"));
 
             var result = VariantsDecoratorsPoolsFactory.BuildNonAllocPoolWithVariants<T>(
                 repository,

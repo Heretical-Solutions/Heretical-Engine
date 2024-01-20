@@ -13,10 +13,10 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeBinaryIntoStreamStrategy : IBinarySerializationStrategy
     {
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public SerializeBinaryIntoStreamStrategy(
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.logger = logger;
         }

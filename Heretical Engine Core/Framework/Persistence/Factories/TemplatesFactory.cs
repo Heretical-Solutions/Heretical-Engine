@@ -15,7 +15,7 @@ namespace HereticalSolutions.Persistence.Factories
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
 
-            IFormatLogger argumentLogger =
+            ILogger argumentLogger =
                 loggerResolver?.GetLogger<SerializeBinaryIntoStreamStrategy>()
                 ?? null;
 
@@ -25,7 +25,7 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<BinarySerializer>()
                 ?? null;
 
@@ -39,7 +39,7 @@ namespace HereticalSolutions.Persistence.Factories
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            IFormatLogger argumentLogger =
+            ILogger argumentLogger =
                 loggerResolver?.GetLogger<SerializeProtobufIntoStreamStrategy>()
                 ?? null;
 
@@ -49,7 +49,7 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<ProtobufSerializer>()
                 ?? null;
 
@@ -63,7 +63,7 @@ namespace HereticalSolutions.Persistence.Factories
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            IFormatLogger stringArgumentLogger =
+            ILogger stringArgumentLogger =
                 loggerResolver?.GetLogger<SerializeJsonIntoStringStrategy>()
                 ?? null;
 
@@ -71,7 +71,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StringArgument),
                 new SerializeJsonIntoStringStrategy(stringArgumentLogger));
             
-            IFormatLogger streamArgumentLogger =
+            ILogger streamArgumentLogger =
                 loggerResolver?.GetLogger<SerializeJsonIntoStreamStrategy>()
                 ?? null;
 
@@ -79,7 +79,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StreamArgument),
                 new SerializeJsonIntoStreamStrategy(streamArgumentLogger));
 
-            IFormatLogger textFileArgumentLogger =
+            ILogger textFileArgumentLogger =
                 loggerResolver?.GetLogger<SerializeJsonIntoTextFileStrategy>()
                 ?? null;
 
@@ -89,7 +89,7 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<JSONSerializer>()
                 ?? null;
 
@@ -103,7 +103,7 @@ namespace HereticalSolutions.Persistence.Factories
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            IFormatLogger stringArgumentLogger =
+            ILogger stringArgumentLogger =
                 loggerResolver?.GetLogger<SerializeXmlIntoStringStrategy>()
                 ?? null;
 
@@ -111,7 +111,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StringArgument),
                 new SerializeXmlIntoStringStrategy(stringArgumentLogger));
             
-            IFormatLogger streamArgumentLogger =
+            ILogger streamArgumentLogger =
                 loggerResolver?.GetLogger<SerializeXmlIntoStreamStrategy>()
                 ?? null;
 
@@ -119,7 +119,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StreamArgument),
                 new SerializeXmlIntoStreamStrategy(streamArgumentLogger));
 
-            IFormatLogger textFileArgumentLogger =
+            ILogger textFileArgumentLogger =
                 loggerResolver?.GetLogger<SerializeXmlIntoTextFileStrategy>()
                 ?? null;
 
@@ -129,7 +129,7 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<XMLSerializer>()
                 ?? null;
 
@@ -143,7 +143,7 @@ namespace HereticalSolutions.Persistence.Factories
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            IFormatLogger stringArgumentLogger =
+            ILogger stringArgumentLogger =
                 loggerResolver?.GetLogger<SerializeYamlIntoStringStrategy>()
                 ?? null;
 
@@ -151,7 +151,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StringArgument),
                 new SerializeYamlIntoStringStrategy(stringArgumentLogger));
             
-            IFormatLogger streamArgumentLogger =
+            ILogger streamArgumentLogger =
                 loggerResolver?.GetLogger<SerializeYamlIntoStreamStrategy>()
                 ?? null;
 
@@ -159,7 +159,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StreamArgument),
                 new SerializeYamlIntoStreamStrategy(streamArgumentLogger));
 
-            IFormatLogger textFileArgumentLogger =
+            ILogger textFileArgumentLogger =
                 loggerResolver?.GetLogger<SerializeYamlIntoTextFileStrategy>()
                 ?? null;
 
@@ -169,7 +169,7 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<YAMLSerializer>()
                 ?? null;
 
@@ -183,7 +183,7 @@ namespace HereticalSolutions.Persistence.Factories
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            IFormatLogger stringArgumentLogger =
+            ILogger stringArgumentLogger =
                 loggerResolver?.GetLogger<SerializeCsvIntoStringStrategy>()
                 ?? null;
 
@@ -191,7 +191,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StringArgument),
                 new SerializeCsvIntoStringStrategy(stringArgumentLogger));
             
-            IFormatLogger streamArgumentLogger =
+            ILogger streamArgumentLogger =
                 loggerResolver?.GetLogger<SerializeCsvIntoStreamStrategy>()
                 ?? null;
 
@@ -199,7 +199,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StreamArgument),
                 new SerializeCsvIntoStreamStrategy(streamArgumentLogger));
 
-            IFormatLogger textFileArgumentLogger =
+            ILogger textFileArgumentLogger =
                 loggerResolver?.GetLogger<SerializeCsvIntoTextFileStrategy>()
                 ?? null;
 
@@ -209,7 +209,7 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
 
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<CSVSerializer>()
                 ?? null;
 
@@ -223,7 +223,7 @@ namespace HereticalSolutions.Persistence.Factories
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
 
-            IFormatLogger stringArgumentLogger =
+            ILogger stringArgumentLogger =
                 loggerResolver?.GetLogger<SerializePlainTextIntoStringStrategy>()
                 ?? null;
 
@@ -231,7 +231,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StringArgument),
                 new SerializePlainTextIntoStringStrategy(stringArgumentLogger));
 
-            IFormatLogger streamArgumentLogger =
+            ILogger streamArgumentLogger =
                 loggerResolver?.GetLogger<SerializePlainTextIntoStreamStrategy>()
                 ?? null;
 
@@ -239,7 +239,7 @@ namespace HereticalSolutions.Persistence.Factories
                 typeof(StreamArgument),
                 new SerializePlainTextIntoStreamStrategy(streamArgumentLogger));
 
-            IFormatLogger textFileArgumentLogger =
+            ILogger textFileArgumentLogger =
                 loggerResolver?.GetLogger<SerializePlainTextIntoTextFileStrategy>()
                 ?? null;
 
@@ -249,7 +249,7 @@ namespace HereticalSolutions.Persistence.Factories
 
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
 
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<PlainTextSerializer>()
                 ?? null;
 

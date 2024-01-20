@@ -18,7 +18,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
         public static RuntimeResourceManager BuildRuntimeResourceManager(
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<RuntimeResourceManager>()
                 ?? null;
 
@@ -31,7 +31,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
         public static ConcurrentRuntimeResourceManager BuildConcurrentRuntimeResourceManager(
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<ConcurrentRuntimeResourceManager>()
                 ?? null;
 
@@ -47,7 +47,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
             ResourceDescriptor descriptor,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<ResourceData>()
                 ?? null;
 
@@ -64,7 +64,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
             ResourceDescriptor descriptor,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<ConcurrentResourceData>()
                 ?? null;
 
@@ -102,7 +102,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
             IRuntimeResourceManager runtimeResourceManager,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<PreallocatedResourceStorageHandle<TResource>>()
                 ?? null;
 
@@ -117,7 +117,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
             IRuntimeResourceManager runtimeResourceManager,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<ConcurrentPreallocatedResourceStorageHandle<TResource>>()
                 ?? null;
 
@@ -133,7 +133,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
             IRuntimeResourceManager runtimeResourceManager,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<ReadWriteResourceStorageHandle<TResource>>()
                 ?? null;
 
@@ -148,7 +148,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
             IRuntimeResourceManager runtimeResourceManager,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<ConcurrentReadWriteResourceStorageHandle<TResource>>()
                 ?? null;
 

@@ -1,23 +1,8 @@
 ﻿#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
-using System.Globalization;
-
-using HereticalSolutions.Collections.Managed;
-
-using HereticalSolutions.ResourceManagement.Factories;
-using HereticalSolutions.ResourceManagement;
-
-using HereticalSolutions.HereticalEngine.Messaging;
-
 using HereticalSolutions.HereticalEngine.Application;
 
 using HereticalSolutions.HereticalEngine.Modules;
-
-using HereticalSolutions.Logging;
-using HereticalSolutions.Logging.Factories;
-
-using Autofac;
-using Autofac.Features.AttributeFilters;
 
 namespace HereticalSolutions.HereticalEngine.Samples
 {
@@ -27,43 +12,23 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		//TODO: https://github.com/dotnet/Silk.NET/discussions/534
 		unsafe static void Main(string[] args)
 		{
-			//var program = new Program();
+			IApplicationContext context = ApplicationFactory.BuildApplicationContext();
 
-			var iocBuilder = new ContainerBuilder();
-
-			var pathToExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
-
-			//TODO: change
-			var applicationDataFolder = pathToExe.Substring(
-				0,
-				pathToExe.IndexOf("/bin/"));
-
-			#region Logger initialization
-
-			//Courtesy of https://stackoverflow.com/questions/114983/given-a-datetime-object-how-do-i-get-an-iso-8601-date-in-string-format
-			//Read comments carefully
-
-			// Prefer this, to avoid having to manually define a framework-provided format
-			//string dateTimeNow = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
-
-			string dateTimeNow = DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture);
-
-			//string dateTimeNow = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
-
-			string logFileName = dateTimeNow;
-
-			IFormatLogger logger = LoggersFactory.BuildDefaultLoggerWithFileDump(
-				applicationDataFolder,
-				$"Runtime logs/{logFileName}.log");
-
-			iocBuilder.RegisterInstance(logger).As<IFormatLogger>();
-
-			#endregion
+			ICompositionRoot compositionRoot = context as ICompositionRoot;
 
 			//var windowModule = new WindowModule(iocBuilder);
 
 			IModule[] modules = new IModule[]
 			{
+				//Core modules, main container scope
+				new ApplicationDataModule(),
+				new LoggingModule(),
+				new DIContainerBuilderModule()
+
+				//Project scope
+
+				//Scene scope
+				
 				//windowModule,
 				//new OpenGLModule(iocBuilder),
 				//new MainCameraModule(iocBuilder),
@@ -78,6 +43,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			foreach (var module in modules)
 			{
+				/*
 				module.OnInitialized += () =>
 				{
 					logger?.Log<Program>(
@@ -95,10 +61,19 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					logger?.Log<Program>(
 						$"MODULE {module.GetType().Name} TORN DOWN");
 				};
+				*/
 
-				iocBuilder.RegisterInstance(module).Keyed<IModule>(module.Name); //.WithAttributeFiltering(); //FOR SOME REASON THIS IS NOT WORKING
+				module.Load(context);
+
+				/*
+				compositionRoot
+					.ContainerBuilder
+					.RegisterInstance(module)
+					.Named<IModule>(
+						module.Name);
+				*/
 			}
-			
+
 			/*
 
 #if USE_THREAD_SAFE_RESOURCE_MANAGEMENT

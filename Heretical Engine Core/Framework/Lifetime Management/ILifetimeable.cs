@@ -28,7 +28,7 @@ namespace HereticalSolutions.LifetimeManagement
         //Initialize from the interface, they can do it as long as the target downcasts arguments to their respective types
         //and performs an inner Initialize call
         //void Initialize();
-        void Initialize(object[] args);
+        void Initialize(object[] args = null);
 
         /// <summary>
         /// Gets a value indicating whether the object has been initialized.

@@ -16,7 +16,7 @@ namespace HereticalSolutions.Pools.Generic
           IModifiable<Stack<T>>,
           ICountUpdateable
     {
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         private Stack<T> pool;
 
@@ -30,7 +30,7 @@ namespace HereticalSolutions.Pools.Generic
             Stack<T> pool,
             Action<StackPool<T>> resizeDelegate,
             AllocationCommand<T> allocationCommand,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.pool = pool;
 
@@ -63,8 +63,9 @@ namespace HereticalSolutions.Pools.Generic
         /// <param name="newCount">The new count for the pool.</param>
         public void UpdateCount(int newCount)
         {
-            logger?.ThrowException<StackPool<T>>(
-                "CANNOT UPDATE COUNT OF STACK");
+            throw new Exception(
+                logger.TryFormat<StackPool<T>>(
+                    "CANNOT UPDATE COUNT OF STACK"));
         }
 
         #endregion

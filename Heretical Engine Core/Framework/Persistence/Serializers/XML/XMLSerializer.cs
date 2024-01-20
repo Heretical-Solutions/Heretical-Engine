@@ -10,11 +10,11 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         private readonly IReadOnlyObjectRepository strategyRepository;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public XMLSerializer(
             IReadOnlyObjectRepository strategyRepository,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.strategyRepository = strategyRepository;
 
@@ -32,8 +32,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<XMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<XMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IXmlSerializationStrategy)strategyObject;
 
@@ -53,8 +54,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<XMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<XMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IXmlSerializationStrategy)strategyObject;
 
@@ -71,8 +73,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<XMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<XMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IXmlSerializationStrategy)strategyObject;
 
@@ -96,8 +99,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<XMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<XMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IXmlSerializationStrategy)strategyObject;
 
@@ -114,8 +118,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<XMLSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<XMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (IXmlSerializationStrategy)strategyObject;
 			

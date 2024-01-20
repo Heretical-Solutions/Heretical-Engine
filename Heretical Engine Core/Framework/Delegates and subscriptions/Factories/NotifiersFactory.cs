@@ -10,7 +10,7 @@ namespace HereticalSolutions.Delegates.Factories
 			ILoggerResolver loggerResolver = null)
 			where TArgument : IEquatable<TArgument>
 		{
-			IFormatLogger logger =
+			ILogger logger =
 				loggerResolver?.GetLogger<AsyncNotifierSingleArgGeneric<TArgument, TValue>>()
 				?? null;
 

@@ -12,7 +12,7 @@ namespace HereticalSolutions.Delegates.Factories
             Action @delegate,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<SubscriptionNoArgs>()
                 ?? null;
 
@@ -25,7 +25,7 @@ namespace HereticalSolutions.Delegates.Factories
             Action<TValue> @delegate,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<SubscriptionSingleArgGeneric<TValue>>()
                 ?? null;
 
@@ -39,7 +39,7 @@ namespace HereticalSolutions.Delegates.Factories
             Action<object[]> @delegate,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<SubscriptionMultipleArgs>()
                 ?? null;
 

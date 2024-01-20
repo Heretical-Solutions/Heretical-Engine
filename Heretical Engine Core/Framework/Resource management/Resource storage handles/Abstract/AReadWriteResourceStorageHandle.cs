@@ -8,7 +8,7 @@ namespace HereticalSolutions.ResourceManagement
 	{
 		public AReadWriteResourceStorageHandle(
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				runtimeResourceManager,
 				logger)
@@ -46,11 +46,10 @@ namespace HereticalSolutions.ResourceManagement
 
 				default:
 
-					logger?.ThrowException(
+					throw new Exception(
+						logger.TryFormat(
 							GetType(),
-							$"CANNOT SET RESOURCE OF TYPE {typeof(TValue).Name} TO RESOURCE OF TYPE {typeof(TResource).Name}");
-
-					break;
+							$"CANNOT SET RESOURCE OF TYPE {typeof(TValue).Name} TO RESOURCE OF TYPE {typeof(TResource).Name}"));
 			}
 
 			return true;

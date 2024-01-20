@@ -18,7 +18,7 @@ namespace HereticalSolutions.Time.Timers
     {
         private readonly IReadOnlyRepository<ETimerState, ITimerStrategy<IRuntimeTimerContext, float>> strategyRepository;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         private ITimerStrategy<IRuntimeTimerContext, float> currentStrategy;
         
@@ -35,7 +35,7 @@ namespace HereticalSolutions.Time.Timers
 
             IReadOnlyRepository<ETimerState, ITimerStrategy<IRuntimeTimerContext, float>> strategyRepository,
 
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             ID = id;
 
@@ -269,10 +269,9 @@ namespace HereticalSolutions.Time.Timers
 
                 default:
 
-                    logger?.ThrowException<RuntimeTimer>(
-                        $"CANNOT CAST RETURN VALUE TYPE \"{typeof(RuntimeTimerDTO).Name}\" TO TYPE \"{typeof(TDTO).GetType().Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<RuntimeTimer>(
+                            $"CANNOT CAST RETURN VALUE TYPE \"{typeof(RuntimeTimerDTO).Name}\" TO TYPE \"{typeof(TDTO).GetType().Name}\""));
             }
 
             return result;
@@ -309,10 +308,9 @@ namespace HereticalSolutions.Time.Timers
 
                 default:
 
-                    logger?.ThrowException<RuntimeTimer>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(RuntimeTimerDTO).Name}\" RECEIVED: \"{typeof(TDTO).GetType().Name}\"");
-
-                    return false;
+                    throw new Exception(
+                        logger.TryFormat<RuntimeTimer>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(RuntimeTimerDTO).Name}\" RECEIVED: \"{typeof(TDTO).GetType().Name}\""));
             }
         }
 

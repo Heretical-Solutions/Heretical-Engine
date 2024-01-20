@@ -14,7 +14,7 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
           IModifiable<IPoolElement<T>[]>,
           ICountUpdateable
     {
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         private IPoolElement<T>[] contents;
         
@@ -24,7 +24,7 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 
         public PackedArrayPool(
             IPoolElement<T>[] contents,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.contents = contents;
 
@@ -93,8 +93,9 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 			get
 			{
                 if (index >= count || index < 0)
-					logger?.ThrowException<PackedArrayPool<T>>(
-						$"INVALID INDEX: {index} COUNT: {Count} CAPACITY: {Capacity}");
+					throw new Exception(
+                        logger.TryFormat<PackedArrayPool<T>>(
+						    $"INVALID INDEX: {index} COUNT: {Count} CAPACITY: {Capacity}"));
 
 				return contents[index];
 			}
@@ -103,8 +104,9 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 		public IPoolElement<T> Get(int index)
 		{
 			if (index >= count || index < 0)
-				logger?.ThrowException<PackedArrayPool<T>>(
-					$"INVALID INDEX: {index} COUNT: {count} CAPACITY: {Capacity}");
+				throw new Exception(
+                    logger.TryFormat<PackedArrayPool<T>>(
+					    $"INVALID INDEX: {index} COUNT: {count} CAPACITY: {Capacity}"));
 
 			return contents[index];
 		}
@@ -145,8 +147,9 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 		{
             if (index < count)
             {
-                logger?.ThrowException<PackedArrayPool<T>>(
-                    $"ELEMENT AT INDEX {index} IS ALREADY POPPED");
+                throw new Exception(
+                    logger.TryFormat<PackedArrayPool<T>>(
+                        $"ELEMENT AT INDEX {index} IS ALREADY POPPED"));
 			}
 
 

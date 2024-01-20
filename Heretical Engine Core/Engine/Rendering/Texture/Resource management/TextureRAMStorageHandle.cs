@@ -21,7 +21,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			FilePathSettings filePathSettings,
 			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base (
 				runtimeResourceManager,
 				logger)

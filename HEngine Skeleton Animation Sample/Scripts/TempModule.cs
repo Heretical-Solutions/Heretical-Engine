@@ -34,8 +34,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger?.ThrowException<TempModule>(
-					"ALREADY SET UP");
+				throw new Exception(
+					logger.TryFormat<TempModule>(
+						"ALREADY SET UP"));
 
 			//Set up
 
@@ -51,14 +52,16 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger?.ThrowException<TempModule>(
-					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
+				context.throw new Exception(
+					logger.TryFormat<TempModule>(
+						"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED"));
 			}
 
 			if (IsInitialized)
 			{
-				logger?.ThrowException<TempModule>(
-					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
+				throw new Exception(
+					logger.TryFormat<TempModule>(
+						"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED"));
 			}
 
 			//Initialization

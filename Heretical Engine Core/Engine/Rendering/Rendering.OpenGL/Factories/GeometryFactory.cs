@@ -10,7 +10,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			GL gl,
 			Geometry ramGeometry,
 			ShaderDescriptorOpenGL shaderDescriptor,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			//https://learnopengl.com/Model-Loading/Mesh
 			/*
@@ -101,7 +101,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 		private static float[] BuildVertexBufferObject(
 			Vertex[] vertices,
 			ShaderDescriptorOpenGL shaderDescriptor,
-			IFormatLogger logger) //TODO: use resolver for factory logging as well
+			ILogger logger) //TODO: use resolver for factory logging as well
 		{
 			float[] result = new float[vertices.Length * shaderDescriptor.Stride];
 
@@ -126,7 +126,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			ShaderVertexAttributeOpenGL vertexAttribute,
 			float[] vbo,
 			int stride,
-			IFormatLogger logger) //TODO: use resolver for factory logging as well
+			ILogger logger) //TODO: use resolver for factory logging as well
 		{
 			int strideInFloat = (int)(stride / sizeof(float));
 

@@ -36,7 +36,7 @@ namespace HereticalSolutions.GameEntities
             IReadOnlyRepository<Type, int> typeToHash,
             VisitorReadComponentDelegate[] componentReaders,
             IReadOnlyRepository<Type, VisitorWriteComponentDelegate> componentWriters,
-            IFormatLogger logger = null)
+            ILogger logger = null)
             : base (logger)
         {
             this.entityManager = entityManager;

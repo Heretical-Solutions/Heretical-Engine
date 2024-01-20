@@ -17,7 +17,7 @@ namespace HereticalSolutions.Pools.Factories
             AllocationCommand<IPoolElement<T>> allocationCommand,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<PackedArrayPool<T>>()
                 ?? null;
 

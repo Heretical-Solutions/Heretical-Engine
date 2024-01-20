@@ -13,7 +13,7 @@ namespace HereticalSolutions.Time.Visitors
 
         public RuntimeTimerVisitor(
             ILoggerResolver loggerResolver = null,
-            IFormatLogger logger = null)
+            ILogger logger = null)
             : base(logger)
         {
             this.loggerResolver = loggerResolver;

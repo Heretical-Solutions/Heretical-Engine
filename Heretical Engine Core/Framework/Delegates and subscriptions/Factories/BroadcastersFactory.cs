@@ -45,7 +45,7 @@ namespace HereticalSolutions.Delegates.Factories
             IReadOnlyObjectRepository repository,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<BroadcasterWithRepository>()
                 ?? null;
 
@@ -66,7 +66,7 @@ namespace HereticalSolutions.Delegates.Factories
         public static BroadcasterGeneric<T> BuildBroadcasterGeneric<T>(
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<BroadcasterGeneric<T>>()
                 ?? null;
 
@@ -163,7 +163,7 @@ namespace HereticalSolutions.Delegates.Factories
             IReadOnlyObjectRepository repository,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<NonAllocBroadcasterWithRepository>()
                 ?? null;
 
@@ -235,7 +235,7 @@ namespace HereticalSolutions.Delegates.Factories
         {
             var contents = ((IModifiable<INonAllocPool<ISubscription>>)subscriptionsPool).Contents;
 			
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<NonAllocBroadcasterGeneric<T>>()
                 ?? null;
 

@@ -9,7 +9,7 @@ namespace HereticalSolutions.ResourceManagement
 		public AConcurrentReadWriteResourceStorageHandle(
 			SemaphoreSlim semaphore,
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				semaphore,
 				runtimeResourceManager,
@@ -61,11 +61,10 @@ namespace HereticalSolutions.ResourceManagement
 
 					default:
 
-						logger?.ThrowException(
-							GetType(),
-							$"CANNOT SET RESOURCE OF TYPE {typeof(TValue).Name} TO RESOURCE OF TYPE {typeof(TResource).Name}");
-
-						break;
+						throw new Exception(
+							logger.TryFormat(
+								GetType(),
+								$"CANNOT SET RESOURCE OF TYPE {typeof(TValue).Name} TO RESOURCE OF TYPE {typeof(TResource).Name}"));
 				}
 
 				return true;

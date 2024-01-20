@@ -1,42 +1,38 @@
 using HereticalSolutions.HereticalEngine.Modules;
 
-using Autofac;
 using HereticalSolutions.Logging;
+
+using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Application
 {
 	public class ApplicationContext
+		: IApplicationContext,
+		  ICompositionRoot
 	{
-		/*
-		//TODO: replace with DI injections
-		public IRuntimeResourceManager RuntimeResourceManager { get; private set; }
+		private readonly Stack<ILifetimeScope> scopeStack;
 
-		//TODO: replace with DI injections
-		public ConcurrentGenericCircularBuffer<MainThreadCommand> MainThreadCommandBuffer { get; private set; }
-
-		//TODO: replace with DI injections
-		public IFormatLogger Logger { get; private set; }
-		*/
+		private readonly List<Action<ContainerBuilder>> containerActions;
 
 		private readonly List<IModule> modules;
 
-		private readonly Stack<ILifetimeScope> scopeStack;
-
-		private readonly IFormatLogger logger;
+		private ILogger logger;
 
 		public ApplicationContext(
 			ContainerBuilder containerBuilder,
 			Stack<ILifetimeScope> scopeStack,
-			List<IModule> modules,
-			IFormatLogger logger = null)
+			List<Action<ContainerBuilder>> containerActions,
+			List<IModule> modules)
 		{
 			ContainerBuilder = containerBuilder;
 
 			this.scopeStack = scopeStack;
 
+			this.containerActions = containerActions;
+
 			this.modules = modules;
 
-			this.logger = logger;
+			logger = null;
 		}
 
 		#region IApplicationContext
@@ -56,41 +52,66 @@ namespace HereticalSolutions.HereticalEngine.Application
 		public void BuildContainer()
 		{
 			if (ContainerBuilder == null)
-				logger?.ThrowException<ApplicationContext>(
-					"CONTAINER BUILDER IS NULL");
+				throw new Exception(
+					logger.TryFormat<ApplicationContext>(
+						"CONTAINER BUILDER IS NULL"));
 
 			if (Container != null)
-				logger?.ThrowException<ApplicationContext>(
-					"CONTAINER IS ALREADY BUILT");
+				throw new Exception(
+					logger.TryFormat<ApplicationContext>(
+						"CONTAINER IS ALREADY BUILT"));
 
 			Container = ContainerBuilder.Build();
+
+			var loggerResolver = Container.Resolve<ILoggerResolver>();
+
+			logger = loggerResolver.GetLogger<ApplicationContext>();
 		}
 
-		public void PushLifetimeScope(
-			Action<ContainerBuilder> configurationAction)
+		public void AddPendingContainerAction(Action<ContainerBuilder> containerAction)
+		{
+			containerActions.Add(containerAction);
+		}
+
+		public void PushLifetimeScope()
 		{
 			if (Container == null)
-				logger?.ThrowException<ApplicationContext>(
-					"CONTAINER IS NOT BUILT");
+				throw new Exception(
+					logger.TryFormat<ApplicationContext>(
+						"CONTAINER IS NOT BUILT"));
 
 			if (scopeStack == null)
-				logger?.ThrowException<ApplicationContext>(
-					"SCOPE STACK IS NULL");
+				throw new Exception(
+					logger?.TryFormat<ApplicationContext>(
+					"SCOPE STACK IS NULL"));
 
-			var newScope = Container.BeginLifetimeScope(configurationAction);
+			var currentLifetimeContainerActions = containerActions.ToArray();
+
+			var newScope = Container.BeginLifetimeScope(
+				(currentContainerBuilder) =>
+				{
+					foreach (var action in currentLifetimeContainerActions)
+					{
+						action?.Invoke(currentContainerBuilder);
+					}
+				});
 
 			scopeStack.Push(newScope);
+
+			containerActions.Clear();
 		}
 
 		public void PopLifetimeScope()
 		{
 			if (scopeStack == null)
-				logger?.ThrowException<ApplicationContext>(
-					"SCOPE STACK IS NULL");
+				throw new Exception(
+					logger.TryFormat<ApplicationContext>(
+						"SCOPE STACK IS NULL"));
 
 			if (scopeStack.Count == 0)
-				logger?.ThrowException<ApplicationContext>(
-					"SCOPE STACK IS EMPTY");
+				throw new Exception(
+					logger.TryFormat<ApplicationContext>(
+						"SCOPE STACK IS EMPTY"));
 
 			scopeStack
 				.Pop()

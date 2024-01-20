@@ -8,12 +8,12 @@ namespace HereticalSolutions.Delegates.Broadcasting
           ISubscribableSingleArgGeneric<TValue>,
           ISubscribableSingleArg
     {
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         private Action<TValue> multicastDelegate;
 
         public BroadcasterGeneric(
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.logger = logger;
 
@@ -53,10 +53,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<BroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<BroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\""));
             }
         }
 
@@ -73,10 +72,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<BroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<BroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\""));
             }
         }
 
@@ -130,10 +128,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<BroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<BroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\""));
             }
         }
 
@@ -150,10 +147,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<BroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<BroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\""));
             }
         }
 
@@ -170,10 +166,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<BroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<BroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\""));
             }
         }
 
@@ -190,10 +185,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
                 default:
 
-                    logger?.ThrowException<BroadcasterGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<BroadcasterGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\""));
             }
         }
 

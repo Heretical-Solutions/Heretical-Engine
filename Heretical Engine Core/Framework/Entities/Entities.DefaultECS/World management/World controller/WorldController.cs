@@ -35,7 +35,7 @@ namespace HereticalSolutions.GameEntities
 
         #endregion
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
         
 
         public WorldController(
@@ -45,7 +45,7 @@ namespace HereticalSolutions.GameEntities
             Func<string, Entity, TEntityIdentityComponent> setIdentityComponentValuesDelegate,
             Func<object, TResolveComponent> createResolveComponentDelegate,
             IPrototypesRepository<World, Entity> prototypeRepository,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             World = world;
 

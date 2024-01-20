@@ -1,13 +1,7 @@
 namespace HereticalSolutions.Logging
 {
-    public interface IFormatLogger
+    public interface ILogger
     {
-        bool Active { get; set; }
-
-        bool LogTypePrefixEnabled { get; set; }
-
-        bool RichTextFormattingEnabled { get; set; }
-
         #region Log
 
         void Log(
@@ -91,13 +85,13 @@ namespace HereticalSolutions.Logging
 
         #region Exception
 
-        void ThrowException(
+        string FormatException(
             string value);
 
-        void ThrowException<TSource>(
+        string FormatException<TSource>(
             string value);
 
-        void ThrowException(
+        string FormatException(
             Type logSource,
             string value);
 

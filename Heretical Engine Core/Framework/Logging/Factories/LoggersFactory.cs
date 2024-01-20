@@ -8,28 +8,36 @@ using HereticalSolutions.Repositories.Factories;
 
 namespace HereticalSolutions.Logging.Factories
 {
-    /// <summary>
-    /// Class for creating instances of loggers.
-    /// </summary>
     public static class LoggersFactory
     {
-        public static ConsoleLogger BuildDefaultLogger()
+        public static LoggerBuilder BuildLoggerBuilder()
+        {
+            return new LoggerBuilder(
+                RepositoriesFactory.BuildDictionaryRepository<Type, bool>());
+        }
+
+        public static ConsoleLogger BuildConsoleLogger()
         {
             return new ConsoleLogger();
         }
 
-        public static SingleLoggerBuilder BuildDefaultLoggerBuilder(
-            IFormatLogger logger = null)
+        public static LoggerWrapperWithSourceTypePrefix BuildLoggerWrapperWithSourceTypePrefix(
+            ILogger innerLogger)
         {
-            return new SingleLoggerBuilder(
-                logger,
-                RepositoriesFactory.BuildDictionaryRepository<Type, bool>(),
-                true);
+            return new LoggerWrapperWithSourceTypePrefix(innerLogger);
         }
 
-        public static ConsoleLoggerWithFileDump BuildDefaultLoggerWithFileDump(
+        public static LoggerWrapperWithLogTypePrefix BuildLoggerWrapperWithLogTypePrefix(
+            ILogger innerLogger)
+        {
+            return new LoggerWrapperWithLogTypePrefix(innerLogger);
+        }
+
+        public static LoggerWrapperWithFileDump BuildLoggerWrapperWithFileDump(
             string applicationDataFolder,
-            string relativePath)
+            string relativePath,
+            ILoggerResolver loggerResolver,
+            ILogger innerLogger)
         {
             var serializationArgument = new TextFileArgument();
 
@@ -39,12 +47,11 @@ namespace HereticalSolutions.Logging.Factories
                 ApplicationDataFolder = applicationDataFolder
             };
 
-            var result = new ConsoleLoggerWithFileDump(
-                new List<string>());
-
-            result.Initialize(
+            var result = new LoggerWrapperWithFileDump(
+                innerLogger,
                 serializationArgument,
-                PersistenceFactory.BuildSimplePlainTextSerializer(null)); //TODO: refactor
+                PersistenceFactory.BuildSimplePlainTextSerializer(loggerResolver),
+                new List<string>());
 
             return result;
         }

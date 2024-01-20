@@ -88,7 +88,7 @@ namespace HereticalSolutions.Messaging.Factories
             
             var mailboxContentAsIndexable = (IIndexable<IPoolElement<IPoolElement<IMessage>>>)mailboxContents;
             
-            IFormatLogger logger = 
+            ILogger logger = 
                 loggerResolver?.GetLogger<NonAllocMessageBus>()
                 ?? null;
 

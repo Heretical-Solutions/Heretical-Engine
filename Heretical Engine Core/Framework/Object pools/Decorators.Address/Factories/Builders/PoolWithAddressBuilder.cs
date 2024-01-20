@@ -9,11 +9,11 @@ namespace HereticalSolutions.Pools.Factories
     {
         private readonly ILoggerResolver loggerResolver;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public PoolWithAddressBuilder(
             ILoggerResolver loggerResolver = null,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.loggerResolver = loggerResolver;
 
@@ -145,8 +145,9 @@ namespace HereticalSolutions.Pools.Factories
         public INonAllocDecoratedPool<T> Build()
         {
             if (root == null)
-                logger?.ThrowException<PoolWithAddressBuilder<T>>(
-                    "BUILDER NOT INITIALIZED");
+                throw new Exception(
+                    logger.TryFormat<PoolWithAddressBuilder<T>>(
+                        "BUILDER NOT INITIALIZED"));
 
             var result = BuildPoolWithAddress(root);
 

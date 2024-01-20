@@ -22,7 +22,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			SemaphoreSlim semaphore,
 			IGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer,
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				semaphore,
 				runtimeResourceManager,

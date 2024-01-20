@@ -23,7 +23,7 @@ namespace HereticalSolutions.ResourceManagement
 		private readonly IRepository<int, IReadOnlyResourceData> nestedResourcesRepository;
 
 
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 
 		public ResourceData(
@@ -32,7 +32,7 @@ namespace HereticalSolutions.ResourceManagement
 			IRepository<int, IResourceVariantData> variantsRepository,
 			IRepository<int, string> nestedResourceIDHashToID,
 			IRepository<int, IReadOnlyResourceData> nestedResourcesRepository,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			Descriptor = descriptor;
 			
@@ -501,8 +501,9 @@ namespace HereticalSolutions.ResourceManagement
 			}
 
 			if (dependencyResourceVariant == null)
-				logger?.ThrowException<ResourceData>(
-					$"VARIANT {(string.IsNullOrEmpty(variantID) ? "NULL" : variantID)} DOES NOT EXIST");
+				throw new Exception(
+					logger.TryFormat<ResourceData>(
+						$"VARIANT {(string.IsNullOrEmpty(variantID) ? "NULL" : variantID)} DOES NOT EXIST"));
 
 			return dependencyResourceVariant;
 		}

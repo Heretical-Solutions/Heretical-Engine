@@ -11,7 +11,7 @@ namespace HereticalSolutions.ResourceManagement
 			TResource value,
 			SemaphoreSlim semaphore,
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				semaphore,
 				runtimeResourceManager,

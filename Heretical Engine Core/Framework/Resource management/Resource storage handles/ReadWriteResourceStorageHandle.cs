@@ -10,7 +10,7 @@ namespace HereticalSolutions.ResourceManagement
 		public ReadWriteResourceStorageHandle(
 			TResource defaultValue,
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				runtimeResourceManager,
 				logger)

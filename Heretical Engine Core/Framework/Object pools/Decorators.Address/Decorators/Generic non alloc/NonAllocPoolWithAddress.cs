@@ -19,12 +19,12 @@ namespace HereticalSolutions.Pools.Decorators
 
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public NonAllocPoolWithAddress(
             IRepository<int, INonAllocDecoratedPool<T>> innerPoolsRepository,
             int level,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.innerPoolsRepository = innerPoolsRepository;
 
@@ -42,12 +42,14 @@ namespace HereticalSolutions.Pools.Decorators
             #region Validation
 
             if (!args.TryGetArgument<AddressArgument>(out var arg))
-                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
-                    "ADDRESS ARGUMENT ABSENT");
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        "ADDRESS ARGUMENT ABSENT"));
 
             if (arg.AddressHashes.Length < level)
-                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
-                    $"INVALID ADDRESS DEPTH. LEVEL: {{ {level} }} ADDRESS LENGTH: {{ {arg.AddressHashes.Length} }}");
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        $"INVALID ADDRESS DEPTH. LEVEL: {{ {level} }} ADDRESS LENGTH: {{ {arg.AddressHashes.Length} }}"));
 
             #endregion
 
@@ -58,8 +60,9 @@ namespace HereticalSolutions.Pools.Decorators
             if (arg.AddressHashes.Length == level)
             {
                 if (!innerPoolsRepository.TryGet(0, out poolByAddress))
-                    logger?.ThrowException<NonAllocPoolWithAddress<T>>(
-                        $"NO POOL DETECTED AT THE END OF ADDRESS. LEVEL: {{ {level} }}");
+                    throw new Exception(
+                        logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                            $"NO POOL DETECTED AT THE END OF ADDRESS. LEVEL: {{ {level} }}"));
 
                 var endOfAddressResult = poolByAddress.Pop(args);
 
@@ -78,8 +81,9 @@ namespace HereticalSolutions.Pools.Decorators
             int currentAddressHash = arg.AddressHashes[level];
 
             if (!innerPoolsRepository.TryGet(currentAddressHash, out poolByAddress))
-                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
-                    $"INVALID ADDRESS {{ {arg.FullAddress} }} ADDRESS HASH: {{ {currentAddressHash} }} LEVEL: {{ {level} }}");
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        $"INVALID ADDRESS {{ {arg.FullAddress} }} ADDRESS HASH: {{ {currentAddressHash} }} LEVEL: {{ {level} }}"));
 
             var result = poolByAddress.Pop(args);
 
@@ -108,8 +112,9 @@ namespace HereticalSolutions.Pools.Decorators
         public void Push(IPoolElement<T> instance, bool decoratorsOnly = false)
         {
             if (!instance.Metadata.Has<IContainsAddress>())
-                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
-                    "INVALID INSTANCE");
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        "INVALID INSTANCE"));
 
             INonAllocDecoratedPool<T> pool = null;
 
@@ -118,18 +123,21 @@ namespace HereticalSolutions.Pools.Decorators
             if (addressHashes.Length == level)
             {
                 if (!innerPoolsRepository.TryGet(0, out pool))
-                    logger?.ThrowException<NonAllocPoolWithAddress<T>>(
-                        $"NO POOL DETECTED AT ADDRESS MAX. DEPTH. LEVEL: {{ {level} }}");
+                    throw new Exception(
+                        logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                            $"NO POOL DETECTED AT ADDRESS MAX. DEPTH. LEVEL: {{ {level} }}"));
 
                 pool.Push(instance, decoratorsOnly);
+                
                 return;
             }
 
             int currentAddressHash = addressHashes[level];
 
             if (!innerPoolsRepository.TryGet(currentAddressHash, out pool))
-                logger?.ThrowException<NonAllocPoolWithAddress<T>>(
-                    $"INVALID ADDRESS {{ {currentAddressHash} }}");
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        $"INVALID ADDRESS {{ {currentAddressHash} }}"));
 
             pool.Push(instance, decoratorsOnly);
         }

@@ -13,12 +13,12 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 		protected readonly ILoggerResolver loggerResolver;
 
-		protected readonly IFormatLogger logger;
+		protected readonly ILogger logger;
 
 		public AAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.runtimeResourceManager = runtimeResourceManager;
 

@@ -1,6 +1,6 @@
 namespace HereticalSolutions.Logging
 {
-	public interface IDumpable
+	public interface IDumpable //TODO: extract
 	{
 		void Dump();
 	}

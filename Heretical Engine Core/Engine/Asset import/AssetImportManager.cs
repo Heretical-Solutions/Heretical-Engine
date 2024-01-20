@@ -34,13 +34,13 @@ namespace HereticalSolutions.HereticalEngine.AssetImport
 
 		private readonly ILoggerResolver loggerResolver;
 
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 		public AssetImportManager(
 			IRepository<Type, List<AAssetImportPostProcessor>> postProcessorRepository,
 			IRepository<Type, INonAllocDecoratedPool<AAssetImporter>> importerPoolRepository,
 			ILoggerResolver loggerResolver = null,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.postProcessorRepository = postProcessorRepository;
 

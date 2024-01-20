@@ -15,11 +15,11 @@ namespace HereticalSolutions.Persistence.Factories
         public static CompositeVisitor BuildSimpleCompositeVisitorWithTimerVisitors(
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger persistentTimerVisitorLogger =
+            ILogger persistentTimerVisitorLogger =
                 loggerResolver?.GetLogger<PersistentTimerVisitor>()
                 ?? null;
 
-            IFormatLogger runtimeTimerVisitorLogger =
+            ILogger runtimeTimerVisitorLogger =
                 loggerResolver?.GetLogger<RuntimeTimerVisitor>()
                 ?? null;
 

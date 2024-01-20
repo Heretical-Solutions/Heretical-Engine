@@ -6,10 +6,10 @@ namespace HereticalSolutions.Persistence
 		ISaveVisitorGeneric<TValue, TDTO>,
 		ISaveVisitor
 	{
-		protected readonly IFormatLogger logger;
+		protected readonly ILogger logger;
 
 		public ASaveVisitor(
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.logger = logger;
 		}
@@ -47,11 +47,10 @@ namespace HereticalSolutions.Persistence
 
 				default:
 
-					logger?.ThrowException(
-						GetType(),
-						$"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).GetType().Name}\"");
-
-					break;
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).GetType().Name}\""));
 			}
 
 			if (!result)
@@ -86,11 +85,10 @@ namespace HereticalSolutions.Persistence
 
 				default:
 
-					logger?.ThrowException(
-						GetType(),
-						$"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).GetType().Name}\"");
-
-					break;
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).GetType().Name}\""));
 			}
 
 			if (!result)
@@ -109,11 +107,10 @@ namespace HereticalSolutions.Persistence
 
 				default:
 
-					logger?.ThrowException(
-						GetType(),
-						$"CANNOT CAST \"{typeof(TDTO).Name}\" TO \"{typeof(TDTO).GetType().Name}\"");
-
-					return false;
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"CANNOT CAST \"{typeof(TDTO).Name}\" TO \"{typeof(TDTO).GetType().Name}\""));
 			}
 		}
 

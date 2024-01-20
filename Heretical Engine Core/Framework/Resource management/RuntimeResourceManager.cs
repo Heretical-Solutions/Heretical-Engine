@@ -15,12 +15,12 @@ namespace HereticalSolutions.ResourceManagement
 
         private readonly IRepository<int, IReadOnlyResourceData> rootResourcesRepository;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public RuntimeResourceManager(
             IRepository<int, string> rootResourceIDHashToID,
             IRepository<int, IReadOnlyResourceData> rootResourcesRepository,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.rootResourceIDHashToID = rootResourceIDHashToID;
 
@@ -471,8 +471,9 @@ namespace HereticalSolutions.ResourceManagement
                 path.SplitAddressBySeparator());
 
             if (dependencyResource == null)
-                logger?.ThrowException<RuntimeResourceManager>(
-                    $"RESOURCE {path} DOES NOT EXIST");
+                throw new Exception(
+                    logger.TryFormat<RuntimeResourceManager>(
+                        $"RESOURCE {path} DOES NOT EXIST"));
 
             return dependencyResource;
         }

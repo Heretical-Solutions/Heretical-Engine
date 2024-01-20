@@ -49,15 +49,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			GL gl,
 			Image<Rgba32> ramTexture,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger) //TODO: use resolver for factory logging as well
+			ILogger logger) //TODO: use resolver for factory logging as well
 		{
 			if (!Enum.TryParse(
 				descriptor.Type,
 				out TextureType textureType))
 			{
-				logger?.ThrowException(
-					typeof(TextureFactory),
-					$"COULD NOT PARSE TEXTURE TYPE: {descriptor.Type}");
+				throw new Exception(
+					logger.TryFormat(
+						typeof(TextureFactory),
+						$"COULD NOT PARSE TEXTURE TYPE: {descriptor.Type}"));
 			}
 
 			var handle = gl.GenTexture();
@@ -87,15 +88,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			uint width,
 			uint height,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger) //TODO: use resolver for factory logging as well
+			ILogger logger) //TODO: use resolver for factory logging as well
 		{
 			if (!Enum.TryParse(
 				descriptor.Type,
 				out TextureType textureType))
 			{
-				logger?.ThrowException(
-					typeof(TextureFactory),
-					$"COULD NOT PARSE TEXTURE TYPE: {descriptor.Type}");
+				throw new Exception(
+					logger.TryFormat(
+						typeof(TextureFactory),
+						$"COULD NOT PARSE TEXTURE TYPE: {descriptor.Type}"));
 			}
 
 			var handle = gl.GenTexture();
@@ -127,7 +129,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null)
 		{
-			IFormatLogger logger = 
+			ILogger logger = 
 				loggerResolver?.GetLogger<TextureRAMStorageHandle>()
 				?? null;
 
@@ -144,7 +146,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null)
 		{
-			IFormatLogger logger =
+			ILogger logger =
 				loggerResolver?.GetLogger<ConcurrentTextureRAMStorageHandle>()
 				?? null;
 

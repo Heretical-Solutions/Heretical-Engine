@@ -8,11 +8,11 @@ namespace HereticalSolutions.GameEntities
 	public class EventWorldController
 		: IWorldController<World, ISystem<Entity>, Entity>
 	{
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 		public EventWorldController(
 			World world,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			World = world;
 

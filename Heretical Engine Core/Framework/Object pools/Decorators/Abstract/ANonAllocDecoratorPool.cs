@@ -9,13 +9,13 @@ namespace HereticalSolutions.Pools
     {
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-        protected readonly IFormatLogger logger;
+        protected readonly ILogger logger;
 
         protected INonAllocDecoratedPool<T> innerPool;
 
         public ANonAllocDecoratorPool(
             INonAllocDecoratedPool<T> innerPool,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.innerPool = innerPool;
 

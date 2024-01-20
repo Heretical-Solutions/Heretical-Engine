@@ -19,7 +19,7 @@
 
 			private readonly Queue<ITransitionEvent<TBaseState>> transitionQueue;
 
-			private readonly IFormatLogger logger;
+			private readonly ILogger logger;
 
 			/// <summary>
 			/// Initializes a new instance of the <see cref="BaseStateMachine{TBaseState}"/> class.
@@ -34,7 +34,7 @@
 				IReadOnlyRepository<Type, ITransitionEvent<TBaseState>> events,
 				Queue<ITransitionEvent<TBaseState>> transitionQueue,
 				TBaseState currentState,
-				IFormatLogger logger = null)
+				ILogger logger = null)
 			{
 				this.states = states;
 				this.events = events;
@@ -91,9 +91,10 @@
 			public TBaseState GetState<TConcreteState>()
 			{
 				if (!states.TryGet(typeof(TConcreteState), out var result))
-					logger?.ThrowException(
-						GetType(),
-						$"STATE {typeof(TConcreteState).Name} NOT FOUND");
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"STATE {typeof(TConcreteState).Name} NOT FOUND"));
 
 				return result;
 			}
@@ -106,9 +107,10 @@
 			public TBaseState GetState(Type stateType)
 			{
 				if (!states.TryGet(stateType, out var result))
-					logger?.ThrowException(
-						GetType(),
-						$"STATE {stateType.Name} NOT FOUND");
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"STATE {stateType.Name} NOT FOUND"));
 
 				return result;
 			}
@@ -126,9 +128,10 @@
 				ITransitionEvent<TBaseState> @event;
 
 				if (!events.TryGet(typeof(TEvent), out @event))
-					logger?.ThrowException(
-						GetType(),
-						$"EVENT {typeof(TEvent).Name} NOT FOUND");
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"EVENT {typeof(TEvent).Name} NOT FOUND"));
 
 				if (TransitionInProgress)
 					transitionQueue.Enqueue(@event);
@@ -145,9 +148,10 @@
 				ITransitionEvent<TBaseState> @event;
 
 				if (!events.TryGet(eventType, out @event))
-					logger?.ThrowException(
-						GetType(),
-						$"EVENT {eventType.Name} NOT FOUND");
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"EVENT {eventType.Name} NOT FOUND"));
 
 				if (TransitionInProgress)
 					transitionQueue.Enqueue(@event);
@@ -171,9 +175,10 @@
 			public void TransitToImmediately<TState>()
 			{
 				if (!states.Has(typeof(TState)))
-					logger?.ThrowException(
-						GetType(),
-						$"STATE {typeof(TState).Name} NOT FOUND");
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"STATE {typeof(TState).Name} NOT FOUND"));
 
 				var previousState = CurrentState;
 				var newState = states.Get(typeof(TState));
@@ -190,9 +195,10 @@
 			public void TransitToImmediately(Type stateType)
 			{
 				if (!states.Has(stateType))
-					logger?.ThrowException(
-						GetType(),
-						$"STATE {stateType.Name} NOT FOUND");
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"STATE {stateType.Name} NOT FOUND"));
 
 				var previousState = CurrentState;
 				var newState = states.Get(stateType);
@@ -213,9 +219,10 @@
 					string currentStateString = CurrentState.GetType().Name;
 					string fromStateString = @event.From.GetType().Name;
 
-					logger?.ThrowException(
-						GetType(),
-						$"CURRENT STATE {currentStateString} IS NOT EQUAL TO TRANSITION FROM STATE {fromStateString}");
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"CURRENT STATE {currentStateString} IS NOT EQUAL TO TRANSITION FROM STATE {fromStateString}"));
 				}
 
 				OnEventFired?.Invoke(@event);

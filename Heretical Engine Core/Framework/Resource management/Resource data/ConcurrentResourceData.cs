@@ -32,7 +32,7 @@ namespace HereticalSolutions.ResourceManagement
 
 		private readonly SemaphoreSlim semaphore;
 
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 		public ConcurrentResourceData(
 			ResourceDescriptor descriptor,
@@ -47,7 +47,7 @@ namespace HereticalSolutions.ResourceManagement
 
 			SemaphoreSlim semaphore,
 
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			Descriptor = descriptor;
 

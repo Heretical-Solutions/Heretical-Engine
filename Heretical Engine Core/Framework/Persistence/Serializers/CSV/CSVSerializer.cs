@@ -8,11 +8,11 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         private readonly IReadOnlyObjectRepository strategyRepository;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public CSVSerializer(
             IReadOnlyObjectRepository strategyRepository,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.strategyRepository = strategyRepository;
 
@@ -26,8 +26,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<CSVSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
 
@@ -43,8 +44,9 @@ namespace HereticalSolutions.Persistence.Serializers
             object DTO)
         {
             if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-                logger?.ThrowException<CSVSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
 
@@ -61,8 +63,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<CSVSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
 
@@ -84,8 +87,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<CSVSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
 
@@ -97,8 +101,9 @@ namespace HereticalSolutions.Persistence.Serializers
             if (!strategyRepository.TryGet(
                 argument.GetType(),
                 out var strategyObject))
-                logger?.ThrowException<CSVSerializer>(
-                    $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
             var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
 

@@ -22,13 +22,13 @@ namespace HereticalSolutions.GameEntities
         //TODO: ensure that it's what this class needs
         private readonly IReadOnlyList<World> childEntityWorlds;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public EntityManager(
             IRepository<Guid, Entity> registryEntitiesRepository,
             IReadOnlyEntityWorldsRepository<World, ISystem<Entity>, Entity> entityWorldsRepository,
             IReadOnlyList<World> childEntityWorlds,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.registryEntitiesRepository = registryEntitiesRepository;
 

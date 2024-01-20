@@ -10,9 +10,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		string Name { get; }
 
 		void Load(
-			ApplicationContext context);
+			IApplicationContext context);
 
 		void Unload(
-			ApplicationContext context);
+			IApplicationContext context);
 	}
 }

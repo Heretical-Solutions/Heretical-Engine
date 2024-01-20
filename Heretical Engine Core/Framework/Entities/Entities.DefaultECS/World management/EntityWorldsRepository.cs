@@ -29,12 +29,12 @@ namespace HereticalSolutions.GameEntities
 
 		private readonly IRepository<World, IWorldController> worldControllersRepository;
 
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 		public EntityWorldsRepository(
 			IRepository<string, World> worldsRepository,
 			IRepository<World, IWorldController> worldControllersRepository,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.worldsRepository = worldsRepository;
 

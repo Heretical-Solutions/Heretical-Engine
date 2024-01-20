@@ -4,12 +4,13 @@ namespace HereticalSolutions.HereticalEngine.Application
 {
 	public interface ICompositionRoot
 	{
-		public ContainerBuilder ContainerBuilder { get; }
+		ContainerBuilder ContainerBuilder { get; }
 
 		void BuildContainer();
 
-		void PushLifetimeScope(
-			Action<ContainerBuilder> configurationAction);
+		void AddPendingContainerAction(Action<ContainerBuilder> containerAction);
+
+		void PushLifetimeScope();
 
 		void PopLifetimeScope();
 	}

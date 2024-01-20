@@ -8,11 +8,11 @@ namespace HereticalSolutions.Delegates.Wrappers
     {
         private readonly Action<TValue> @delegate;
         
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         public DelegateWrapperSingleArgGeneric(
             Action<TValue> @delegate,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.@delegate = @delegate;
 
@@ -48,10 +48,9 @@ namespace HereticalSolutions.Delegates.Wrappers
 
                 default:
 
-                    logger?.ThrowException<DelegateWrapperSingleArgGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<DelegateWrapperSingleArgGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\""));
             }
         }
 
@@ -68,10 +67,9 @@ namespace HereticalSolutions.Delegates.Wrappers
 
                 default:
 
-                    logger?.ThrowException<DelegateWrapperSingleArgGeneric<TValue>>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<DelegateWrapperSingleArgGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\""));
             }
         }
         

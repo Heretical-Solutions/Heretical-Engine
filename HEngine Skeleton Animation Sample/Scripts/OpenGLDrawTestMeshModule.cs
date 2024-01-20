@@ -41,8 +41,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			ApplicationContext context)
 		{
 			if (IsSetUp)
-				context.Logger?.ThrowException<OpenGLDrawTestMeshModule>(
-					"ALREADY SET UP");
+				throw new Exception(
+					logger.TryFormat<OpenGLDrawTestMeshModule>(
+						"ALREADY SET UP"));
 
 			//Set up
 
@@ -58,14 +59,16 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (!IsSetUp)
 			{
-				context.Logger?.ThrowException<OpenGLDrawTestMeshModule>(
-					"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED");
+				throw new Exception(
+					logger.TryFormat<OpenGLDrawTestMeshModule>(
+						"MODULE SHOULD BE SET UP BEFORE BEING INITIALIZED"));
 			}
 
 			if (IsInitialized)
 			{
-				logger?.ThrowException<OpenGLDrawTestMeshModule>(
-					"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED");
+				throw new Exception(
+					logger.TryFormat<OpenGLDrawTestMeshModule>(
+						"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED"));
 			}
 
 			//Initialization

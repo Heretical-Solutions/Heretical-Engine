@@ -64,7 +64,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		public static void TryFillVertexAttributeValues(
 			ref ShaderVertexAttributeOpenGL vertexAttribute,
-			IFormatLogger logger) //TODO: use resolver for factory logging as well
+			ILogger logger) //TODO: use resolver for factory logging as well
 		{
 			#region Keyword parsing
 
@@ -281,7 +281,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 
 		public static void TryFillSamplerArgumentValues(
 			ref ShaderSampler2DArgumentOpenGL samplerArgument,
-			IFormatLogger logger) //TODO: use resolver for factory logging as well
+			ILogger logger) //TODO: use resolver for factory logging as well
 		{
 			ETextureKeywords textureKeyword;
 
@@ -328,7 +328,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			ref ShaderDescriptorOpenGL descriptor,
 			bool parseVertexAttributes,
 			bool parseUniformSamplers,
-			IFormatLogger logger) //TODO: use resolver for factory logging as well
+			ILogger logger) //TODO: use resolver for factory logging as well
 		{
 			AntlrInputStream inputStream = new AntlrInputStream(shaderCode);
 
@@ -362,7 +362,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering.Factories
 			string vertexShaderSource,
 			string fragmentShaderSource,
 			GL gl,
-			IFormatLogger logger,
+			ILogger logger,
 			out uint handle,
 			out ShaderDescriptorOpenGL descriptor,
 			out ShaderResourceMetadata VertexShaderMetadata,

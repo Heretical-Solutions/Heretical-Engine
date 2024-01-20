@@ -40,7 +40,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			GL gl,
 			Image<Rgba32> ramTexture,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			gl.TexImage2D(
 				TextureTarget.Texture2D,
@@ -90,7 +90,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 			uint width,
 			uint height,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			fixed (void* dataPointer = &data[0])
 			{
@@ -115,14 +115,15 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public void SetParameters(
 			GL gl,
 			TextureAssetDescriptor descriptor,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			if (!Enum.TryParse(
 				descriptor.WrapS,
 				out GLEnum wrapS))
 			{
-				logger?.ThrowException<TextureOpenGL>(
-					$"COULD NOT PARSE WrapS: {descriptor.WrapS}");
+				throw new Exception(
+					logger.TryFormat<TextureOpenGL>(
+						$"COULD NOT PARSE WrapS: {descriptor.WrapS}"));
 			}
 
 			gl.TexParameter(
@@ -134,8 +135,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				descriptor.WrapT,
 				out GLEnum wrapT))
 			{
-				logger?.ThrowException<TextureOpenGL>(
-					$"COULD NOT PARSE WrapT: {descriptor.WrapT}");
+				throw new Exception(
+					logger.TryFormat<TextureOpenGL>(
+						$"COULD NOT PARSE WrapT: {descriptor.WrapT}"));
 			}
 
 			gl.TexParameter(
@@ -147,8 +149,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				descriptor.MinFilter,
 				out GLEnum minFilter))
 			{
-				logger?.ThrowException<TextureOpenGL>(
-					$"COULD NOT PARSE MinFilter: {descriptor.MinFilter}");
+				throw new Exception(
+					logger.TryFormat<TextureOpenGL>(
+						$"COULD NOT PARSE MinFilter: {descriptor.MinFilter}"));
 			}
 
 			gl.TexParameter(
@@ -160,8 +163,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 				descriptor.MagFilter,
 				out GLEnum magFilter))
 			{
-				logger?.ThrowException<TextureOpenGL>(
-					$"COULD NOT PARSE MinFilter: {descriptor.MagFilter}");
+				throw new Exception(
+					logger.TryFormat<TextureOpenGL>(
+						$"COULD NOT PARSE MinFilter: {descriptor.MagFilter}"));
 			}
 
 			gl.TexParameter(

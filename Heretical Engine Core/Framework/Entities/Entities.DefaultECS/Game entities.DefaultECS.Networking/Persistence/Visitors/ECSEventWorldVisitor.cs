@@ -39,7 +39,7 @@ namespace HereticalSolutions.GameEntities
             VisitorReadComponentDelegate[] componentReaders,
             IReadOnlyRepository<Type, VisitorWriteComponentDelegate> componentWriters,
             bool host,
-            IFormatLogger logger = null)
+            ILogger logger = null)
             : base (logger)
         {
             this.eventEntityBuilder = eventEntityBuilder;

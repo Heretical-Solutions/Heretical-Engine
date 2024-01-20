@@ -18,7 +18,7 @@ namespace HereticalSolutions.Time.Timers
     {
         private readonly IReadOnlyRepository<ETimerState, ITimerStrategy<IPersistentTimerContext, TimeSpan>> strategyRepository;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         private ITimerStrategy<IPersistentTimerContext, TimeSpan> currentStrategy;
 
@@ -34,7 +34,7 @@ namespace HereticalSolutions.Time.Timers
 
             IReadOnlyRepository<ETimerState, ITimerStrategy<IPersistentTimerContext, TimeSpan>> strategyRepository,
 
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             ID = id;
 
@@ -334,10 +334,9 @@ namespace HereticalSolutions.Time.Timers
 
                 default:
 
-                    logger?.ThrowException<PersistentTimer>(
-                        $"CANNOT CAST RETURN VALUE TYPE \"{typeof(PersistentTimerDTO).Name}\" TO TYPE \"{typeof(TDTO).GetType().Name}\"");
-
-                    break;
+                    throw new Exception(
+                        logger.TryFormat<PersistentTimer>(
+                            $"CANNOT CAST RETURN VALUE TYPE \"{typeof(PersistentTimerDTO).Name}\" TO TYPE \"{typeof(TDTO).GetType().Name}\""));
             }
 
             return result;
@@ -374,10 +373,9 @@ namespace HereticalSolutions.Time.Timers
 
                 default:
 
-                    logger?.ThrowException<PersistentTimer>(
-                        $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(PersistentTimerDTO).Name}\" RECEIVED: \"{typeof(TDTO).GetType().Name}\"");
-
-                    return false;
+                    throw new Exception(
+                        logger.TryFormat<PersistentTimer>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(PersistentTimerDTO).Name}\" RECEIVED: \"{typeof(TDTO).GetType().Name}\""));
             }
         }
 

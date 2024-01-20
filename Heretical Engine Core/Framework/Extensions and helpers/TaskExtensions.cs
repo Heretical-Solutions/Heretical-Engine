@@ -66,7 +66,7 @@ namespace HereticalSolutions
 
 		public static ConfiguredTaskAwaitable LogExceptions<TSource>(
 			this Task task,
-			IFormatLogger logger)
+			ILogger logger)
 		{
 			return task
 				.ContinueWith(
@@ -93,7 +93,7 @@ namespace HereticalSolutions
 
 		public static ConfiguredTaskAwaitable ThrowExceptions<TSource>(
 			this Task task,
-			IFormatLogger logger)
+			ILogger logger)
 		{
 			return task
 				.ContinueWith(
@@ -112,8 +112,9 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger?.ThrowException<TSource>(
-							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+						throw new Exception(
+							logger.TryFormat<TSource>(
+								$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}"));
 					})
 				.ConfigureAwait(false);
 		}
@@ -121,7 +122,7 @@ namespace HereticalSolutions
 		public static ConfiguredTaskAwaitable LogExceptions(
 			this Task task,
 			Type logSource,
-			IFormatLogger logger)
+			ILogger logger)
 		{
 			return task
 				.ContinueWith(
@@ -150,7 +151,7 @@ namespace HereticalSolutions
 		public static ConfiguredTaskAwaitable ThrowExceptions(
 			this Task task,
 			Type logSource,
-			IFormatLogger logger)
+			ILogger logger)
 		{
 			return task
 				.ContinueWith(
@@ -169,9 +170,10 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger?.ThrowException(
-							logSource,
-							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
+						throw new Exception(
+							logger.TryFormat(
+								logSource,
+								$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}"));
 					})
 				.ConfigureAwait(false);
 		}
@@ -232,7 +234,7 @@ namespace HereticalSolutions
 
 		public static ConfiguredTaskAwaitable<T> LogExceptions<T, TSource>(
 			this Task<T> task,
-			IFormatLogger logger)
+			ILogger logger)
 		{
 			return task
 				.ContinueWith<T>(
@@ -261,7 +263,7 @@ namespace HereticalSolutions
 
 		public static ConfiguredTaskAwaitable<T> ThrowExceptions<T, TSource>(
 			this Task<T> task,
-			IFormatLogger logger)
+			ILogger logger)
 		{
 			return task
 				.ContinueWith<T>(
@@ -280,10 +282,9 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger?.ThrowException<TSource>(
-							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
-
-						return default;
+						throw new Exception(
+							logger.TryFormat<TSource>(
+								$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}"));
 					})
 				.ConfigureAwait(false);
 		}
@@ -291,7 +292,7 @@ namespace HereticalSolutions
 		public static ConfiguredTaskAwaitable<T> LogExceptions<T>(
 			this Task<T> task,
 			Type logSource,
-			IFormatLogger logger)
+			ILogger logger)
 		{
 			return task
 				.ContinueWith<T>(
@@ -322,7 +323,7 @@ namespace HereticalSolutions
 		public static ConfiguredTaskAwaitable<T> ThrowExceptions<T>(
 			this Task<T> task,
 			Type logSource,
-			IFormatLogger logger)
+			ILogger logger)
 		{
 			return task
 				.ContinueWith<T>(
@@ -341,11 +342,10 @@ namespace HereticalSolutions
 							stringBuilder.Append('\n');
 						}
 
-						logger?.ThrowException(
-							logSource,
-							$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}");
-
-						return default;
+						throw new Exception(
+							logger.TryFormat(
+								logSource,
+								$"{targetTask.Exception.Message} INNER EXCEPTIONS:\n{stringBuilder.ToString()}"));
 					})
 				.ConfigureAwait(false);
 		}

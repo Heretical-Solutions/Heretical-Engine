@@ -70,7 +70,7 @@ namespace HereticalSolutions.Messaging.Factories
 
         public MessageBus Build()
         {
-            IFormatLogger logger = 
+            ILogger logger = 
                 loggerResolver?.GetLogger<MessageBus>()
                 ?? null;
 

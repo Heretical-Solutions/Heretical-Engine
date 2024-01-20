@@ -19,14 +19,14 @@ namespace HereticalSolutions.ResourceManagement
 
 		private readonly SemaphoreSlim semaphore;
 
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 		public ConcurrentRuntimeResourceManager(
 			IRepository<int, string> rootResourceIDHashToID,
 			IRepository<int, IReadOnlyResourceData> rootResourcesRepository,
 			IAsyncNotifierSingleArgGeneric<int, IReadOnlyResourceData> rootResourceAddedNotifier,
 			SemaphoreSlim semaphore,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.rootResourceIDHashToID = rootResourceIDHashToID;
 
@@ -903,8 +903,9 @@ namespace HereticalSolutions.ResourceManagement
 				IAsyncContainsNestedResources concurrentCurrentData = currentData as IAsyncContainsNestedResources;
 
 				if (concurrentCurrentData == null)
-					logger?.ThrowException<ConcurrentRuntimeResourceManager>(
-						$"RESOURCE DATA {currentData.Descriptor.ID} IS NOT CONCURRENT");
+					throw new Exception(
+						logger.TryFormat<ConcurrentRuntimeResourceManager>(
+							$"RESOURCE DATA {currentData.Descriptor.ID} IS NOT CONCURRENT"));
 
 				currentData = await concurrentCurrentData
 					.GetNestedResourceWhenAvailable(
@@ -924,8 +925,9 @@ namespace HereticalSolutions.ResourceManagement
 				IAsyncContainsNestedResources concurrentCurrentData = currentData as IAsyncContainsNestedResources;
 
 				if (concurrentCurrentData == null)
-					logger?.ThrowException<ConcurrentRuntimeResourceManager>(
-						$"RESOURCE DATA {currentData.Descriptor.ID} IS NOT CONCURRENT");
+					throw new Exception(
+						logger.TryFormat<ConcurrentRuntimeResourceManager>(
+							$"RESOURCE DATA {currentData.Descriptor.ID} IS NOT CONCURRENT"));
 
 				currentData = await concurrentCurrentData
 					.GetNestedResourceWhenAvailable(

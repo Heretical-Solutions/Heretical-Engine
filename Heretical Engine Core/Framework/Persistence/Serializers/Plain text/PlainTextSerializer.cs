@@ -8,11 +8,11 @@ namespace HereticalSolutions.Persistence.Serializers
 	{
 		private readonly IReadOnlyObjectRepository strategyRepository;
 
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 		public PlainTextSerializer(
 			IReadOnlyObjectRepository strategyRepository,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.strategyRepository = strategyRepository;
 
@@ -45,8 +45,9 @@ namespace HereticalSolutions.Persistence.Serializers
 					var containsPlainText = DTO as IContainsPlainText;
 
 					if (containsPlainText == null)
-						logger?.ThrowException<PlainTextSerializer>(
-							$"DTO OF TYPE {typeof(TValue).Name} DOES NOT IMPLEMENT IContainsPlainText");
+						throw new Exception(
+							logger.TryFormat<PlainTextSerializer>(
+								$"DTO OF TYPE {typeof(TValue).Name} DOES NOT IMPLEMENT IContainsPlainText"));
 
 					text = containsPlainText.Text;
 
@@ -56,8 +57,9 @@ namespace HereticalSolutions.Persistence.Serializers
 			if (!strategyRepository.TryGet(
 				argument.GetType(),
 				out var strategyObject))
-				logger?.ThrowException<PlainTextSerializer>(
-					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+				throw new Exception(
+					logger.TryFormat<PlainTextSerializer>(
+						$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 
@@ -89,8 +91,9 @@ namespace HereticalSolutions.Persistence.Serializers
 					var containsPlainText = DTO as IContainsPlainText;
 
 					if (containsPlainText == null)
-						logger?.ThrowException<PlainTextSerializer>(
-							$"DTO OF TYPE {DTOType.Name} DOES NOT IMPLEMENT IContainsPlainText");
+						throw new Exception(
+							logger.TryFormat<PlainTextSerializer>(
+								$"DTO OF TYPE {DTOType.Name} DOES NOT IMPLEMENT IContainsPlainText"));
 
 					text = containsPlainText.Text;
 
@@ -100,8 +103,9 @@ namespace HereticalSolutions.Persistence.Serializers
 			if (!strategyRepository.TryGet(
 				argument.GetType(),
 				out var strategyObject))
-				logger?.ThrowException<PlainTextSerializer>(
-					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+				throw new Exception(
+					logger.TryFormat<PlainTextSerializer>(
+						$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 
@@ -117,8 +121,9 @@ namespace HereticalSolutions.Persistence.Serializers
 			if (!strategyRepository.TryGet(
 				argument.GetType(),
 				out var strategyObject))
-				logger?.ThrowException<PlainTextSerializer>(
-					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+				throw new Exception(
+					logger.TryFormat<PlainTextSerializer>(
+						$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 
@@ -164,8 +169,9 @@ namespace HereticalSolutions.Persistence.Serializers
 			if (!strategyRepository.TryGet(
 				argument.GetType(),
 				out var strategyObject))
-				logger?.ThrowException<PlainTextSerializer>(
-					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+				throw new Exception(
+					logger.TryFormat<PlainTextSerializer>(
+						$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 
@@ -204,8 +210,9 @@ namespace HereticalSolutions.Persistence.Serializers
 			if (!strategyRepository.TryGet(
 				argument.GetType(),
 				out var strategyObject))
-				logger?.ThrowException<PlainTextSerializer>(
-					$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}");
+				throw new Exception(
+					logger.TryFormat<PlainTextSerializer>(
+						$"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
 			var concreteStrategy = (IPlainTextSerializationStrategy)strategyObject;
 

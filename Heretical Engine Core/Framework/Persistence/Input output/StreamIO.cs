@@ -9,7 +9,7 @@ namespace HereticalSolutions.Persistence.IO
         public static bool OpenReadStream(
             FilePathSettings settings,
             out FileStream dataStream,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             string savePath = settings.FullPath;
 
@@ -28,7 +28,7 @@ namespace HereticalSolutions.Persistence.IO
         public static bool OpenReadStream(
             FilePathSettings settings,
             out StreamReader streamReader,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             string savePath = settings.FullPath;
 
@@ -47,7 +47,7 @@ namespace HereticalSolutions.Persistence.IO
         public static bool OpenWriteStream(
             FilePathSettings settings,
             out FileStream dataStream,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             string savePath = settings.FullPath;
 
@@ -63,7 +63,7 @@ namespace HereticalSolutions.Persistence.IO
         public static bool OpenWriteStream(
             FilePathSettings settings,
             out StreamWriter streamWriter,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             string savePath = settings.FullPath;
 
@@ -101,15 +101,17 @@ namespace HereticalSolutions.Persistence.IO
         
         private static bool FileExists(
             string path,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             if (string.IsNullOrEmpty(path))
-                logger?.ThrowException("INVALID PATH");
+                throw new Exception(
+                    logger.TryFormat("INVALID PATH"));
 			
             string directoryPath = Path.GetDirectoryName(path);
 
             if (string.IsNullOrEmpty(directoryPath))
-                logger?.ThrowException("INVALID DIRECTORY PATH");
+                throw new Exception(
+                    logger.TryFormat("INVALID DIRECTORY PATH"));
 			
             if (!Directory.Exists(directoryPath))
             {
@@ -121,15 +123,17 @@ namespace HereticalSolutions.Persistence.IO
         
         private static void EnsureDirectoryExists(
             string path,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             if (string.IsNullOrEmpty(path))
-                logger?.ThrowException("INVALID PATH");
+                throw new Exception(
+                    logger.TryFormat("INVALID PATH"));
 			
             string directoryPath = Path.GetDirectoryName(path);
 
             if (string.IsNullOrEmpty(directoryPath))
-                logger?.ThrowException("INVALID DIRECTORY PATH");
+                throw new Exception(
+                    logger.TryFormat("INVALID DIRECTORY PATH"));
 			
             if (!Directory.Exists(directoryPath))
             {

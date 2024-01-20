@@ -12,7 +12,7 @@ namespace HereticalSolutions.MVVM.View
     {
         protected IViewModel viewModel;
 
-        protected IFormatLogger logger;
+        protected ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AView"/> class.
@@ -21,7 +21,7 @@ namespace HereticalSolutions.MVVM.View
         /// <param name="logger">The logger to be used for logging.</param>
         public AView(
             IViewModel viewModel,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.viewModel = viewModel;
 
@@ -61,9 +61,10 @@ namespace HereticalSolutions.MVVM.View
         public virtual void SetUp()
         {
             if (IsSetUp)
-                logger?.ThrowException(
-                    GetType(),
-                    "ALREADY SET UP");
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        "ALREADY SET UP"));
 
             IsSetUp = true;
         }
@@ -72,16 +73,18 @@ namespace HereticalSolutions.MVVM.View
         {
             if (!IsSetUp)
             {
-                logger?.ThrowException(
-                    GetType(),
-                    "VIEW SHOULD BE SET UP BEFORE BEING INITIALIZED");
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        "VIEW SHOULD BE SET UP BEFORE BEING INITIALIZED"));
             }
 
             if (IsInitialized)
             {
-                logger?.ThrowException(
-                    GetType(),
-                    "INITIALIZING VIEW THAT IS ALREADY INITIALIZED");
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        "INITIALIZING VIEW THAT IS ALREADY INITIALIZED"));
             }
 
             IsInitialized = true;
@@ -137,9 +140,10 @@ namespace HereticalSolutions.MVVM.View
 
             if (!propertyObtained)
             {
-                logger?.ThrowException(
-                    GetType(),
-                    $"COULD NOT OBTAIN PROPERTY {propertyID} FROM VIEWMODEL {viewModel.GetType().Name}");
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        $"COULD NOT OBTAIN PROPERTY {propertyID} FROM VIEWMODEL {viewModel.GetType().Name}"));
             }
         }
     }

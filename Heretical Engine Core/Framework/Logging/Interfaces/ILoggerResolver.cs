@@ -2,8 +2,8 @@ namespace HereticalSolutions.Logging
 {
 	public interface ILoggerResolver
 	{
-		IFormatLogger GetLogger<TLogSource>();
+		ILogger GetLogger<TLogSource>();
 
-		IFormatLogger GetLogger(Type logSourceType);
+		ILogger GetLogger(Type logSourceType);
 	}
 }

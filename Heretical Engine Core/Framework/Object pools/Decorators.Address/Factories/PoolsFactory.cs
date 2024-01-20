@@ -24,7 +24,7 @@ namespace HereticalSolutions.Pools.Factories
             int level,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<NonAllocPoolWithAddress<T>>()
                 ?? null;
 

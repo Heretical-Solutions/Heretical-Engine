@@ -21,7 +21,7 @@ namespace HereticalSolutions.Pools.Factories
             ISynchronizationProvider synchronizationProvider,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<NonAllocPoolWithRuntimeTimer<T>>()
                 ?? null;
 

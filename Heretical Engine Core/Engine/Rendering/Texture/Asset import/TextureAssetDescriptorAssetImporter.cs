@@ -24,7 +24,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		public TextureAssetDescriptorAssetImporter(
 			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base(
 				runtimeResourceManager,
 				loggerResolver,

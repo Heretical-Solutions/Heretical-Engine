@@ -24,7 +24,7 @@ namespace HereticalSolutions.Messaging
 
         private readonly IIndexable<IPoolElement<IPoolElement<IMessage>>> mailboxContentsAsIndexable;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="NonAllocMessageBus"/> class.
@@ -38,7 +38,7 @@ namespace HereticalSolutions.Messaging
             IReadOnlyObjectRepository messageRepository,
             INonAllocDecoratedPool<IPoolElement<IMessage>> mailbox,
             IIndexable<IPoolElement<IPoolElement<IMessage>>> mailboxContentsAsIndexable,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.broadcaster = broadcaster;
 
@@ -62,8 +62,9 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                 messageType,
                 out object messagePoolObject))
-                logger?.ThrowException<NonAllocMessageBus>(
-                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}");
+                throw new Exception(
+                    logger.TryFormat<NonAllocMessageBus>(
+                        $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}"));
 
             INonAllocDecoratedPool<IMessage> messagePool = (INonAllocDecoratedPool<IMessage>)messagePoolObject;
 
@@ -77,8 +78,9 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                     typeof(TMessage),
                     out object messagePoolObject))
-                logger?.ThrowException<NonAllocMessageBus>(
-                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}");
+                throw new Exception(
+                    logger.TryFormat<NonAllocMessageBus>(
+                        $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}"));
 
             INonAllocDecoratedPool<IMessage> messagePool = (INonAllocDecoratedPool<IMessage>)messagePoolObject;
 
@@ -96,8 +98,9 @@ namespace HereticalSolutions.Messaging
             object[] args)
         {
             if (messageElement == null)
-                logger?.ThrowException<NonAllocMessageBus>(
-                    $"INVALID MESSAGE");
+                throw new Exception(
+                    logger.TryFormat<NonAllocMessageBus>(
+                        $"INVALID MESSAGE"));
 
             messageElement.Value.Write(args);
 
@@ -109,8 +112,9 @@ namespace HereticalSolutions.Messaging
             object[] args) where TMessage : IMessage
         {
             if (messageElement == null)
-                logger?.ThrowException<NonAllocMessageBus>(
-                    $"INVALID MESSAGE");
+                throw new Exception(
+                    logger.TryFormat<NonAllocMessageBus>(
+                        $"INVALID MESSAGE"));
 
             messageElement.Value.Write(args);
 
@@ -197,8 +201,9 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                 messageType,
                 out object messagePoolObject))
-                logger?.ThrowException<NonAllocMessageBus>(
-                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}");
+                throw new Exception(
+                    logger.TryFormat<NonAllocMessageBus>(
+                        $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {messageType.Name}"));
 
             INonAllocDecoratedPool<IMessage> messagePool = (INonAllocDecoratedPool<IMessage>)messagePoolObject;
 
@@ -212,8 +217,9 @@ namespace HereticalSolutions.Messaging
             if (!messageRepository.TryGet(
                 messageType,
                 out object messagePoolObject))
-                logger?.ThrowException<NonAllocMessageBus>(
-                    $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}");
+                throw new Exception(
+                    logger.TryFormat<NonAllocMessageBus>(
+                        $"INVALID MESSAGE TYPE FOR PARTICULAR MESSAGE BUS: {typeof(TMessage).Name}"));
 
             INonAllocDecoratedPool<IMessage> messagePool = (INonAllocDecoratedPool<IMessage>)messagePoolObject;
 

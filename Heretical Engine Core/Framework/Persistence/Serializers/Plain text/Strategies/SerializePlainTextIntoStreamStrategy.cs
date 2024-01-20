@@ -7,10 +7,10 @@ namespace HereticalSolutions.Persistence.Serializers
 {
 	public class SerializePlainTextIntoStreamStrategy : IPlainTextSerializationStrategy
 	{
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 		public SerializePlainTextIntoStreamStrategy(
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.logger = logger;
 		}

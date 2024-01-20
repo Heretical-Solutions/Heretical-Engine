@@ -10,12 +10,12 @@ namespace HereticalSolutions.Delegates.Notifiers
 
 		private readonly SemaphoreSlim semaphore;
 
-		private readonly IFormatLogger logger;
+		private readonly ILogger logger;
 
 		public AsyncNotifierSingleArgGeneric(
 			List<NotifyRequestSingleArgGeneric<TArgument, TValue>> requests,
 			SemaphoreSlim semaphore,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 		{
 			this.requests = requests;
 

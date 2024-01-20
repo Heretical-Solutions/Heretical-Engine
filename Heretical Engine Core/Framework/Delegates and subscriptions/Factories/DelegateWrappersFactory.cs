@@ -25,7 +25,7 @@ namespace HereticalSolutions.Delegates.Factories
             Action<TValue> @delegate,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<DelegateWrapperSingleArgGeneric<TValue>>()
                 ?? null;
 
@@ -38,7 +38,7 @@ namespace HereticalSolutions.Delegates.Factories
             Action<TValue> @delegate,
             ILoggerResolver loggerResolver = null)
         {
-            IFormatLogger logger =
+            ILogger logger =
                 loggerResolver?.GetLogger<DelegateWrapperSingleArgGeneric<TValue>>()
                 ?? null;
 

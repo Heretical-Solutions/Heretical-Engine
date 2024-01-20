@@ -8,7 +8,7 @@ namespace HereticalSolutions.ResourceManagement
 	{
 		public AReadOnlyResourceStorageHandle(
 			IRuntimeResourceManager runtimeResourceManager,
-			IFormatLogger logger = null)
+			ILogger logger = null)
 			: base (
 				runtimeResourceManager,
 				logger)
@@ -96,9 +96,10 @@ namespace HereticalSolutions.ResourceManagement
 			get
 			{
 				if (!allocated)
-					logger?.ThrowException(
-						GetType(),
-						"RESOURCE IS NOT ALLOCATED");
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							"RESOURCE IS NOT ALLOCATED"));
 
 				return resource;
 			}
@@ -107,9 +108,10 @@ namespace HereticalSolutions.ResourceManagement
 		public TValue GetResource<TValue>()
 		{
 			if (!allocated)
-				logger?.ThrowException(
-					GetType(),
-					"RESOURCE IS NOT ALLOCATED");
+				throw new Exception(
+					logger.TryFormat(
+						GetType(),
+						"RESOURCE IS NOT ALLOCATED"));
 
 			switch (resource)
 			{
@@ -119,11 +121,10 @@ namespace HereticalSolutions.ResourceManagement
 
 				default:
 
-					logger?.ThrowException(
-						GetType(),
-						$"CANNOT GET RESOURCE OF TYPE {typeof(TValue).Name} FROM RESOURCE OF TYPE {typeof(TResource).Name}");
-
-					return default;
+					throw new Exception(
+						logger.TryFormat(
+							GetType(),
+							$"CANNOT GET RESOURCE OF TYPE {typeof(TValue).Name} FROM RESOURCE OF TYPE {typeof(TResource).Name}"));
 			}
 		}
 

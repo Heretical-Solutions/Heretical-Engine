@@ -10,7 +10,7 @@ namespace HereticalSolutions.Pools.Factories
     {
         private readonly ILoggerResolver loggerResolver;
 
-        private readonly IFormatLogger logger;
+        private readonly ILogger logger;
 
         private Func<T> valueAllocationDelegate;
 
@@ -24,7 +24,7 @@ namespace HereticalSolutions.Pools.Factories
 
         public ResizablePoolBuilder(
             ILoggerResolver loggerResolver = null,
-            IFormatLogger logger = null)
+            ILogger logger = null)
         {
             this.loggerResolver = loggerResolver;
 
@@ -56,8 +56,9 @@ namespace HereticalSolutions.Pools.Factories
         public INonAllocDecoratedPool<T> BuildResizablePool()
         {
             if (valueAllocationDelegate == null)
-                logger?.ThrowException<ResizablePoolBuilder<T>>(
-                    "BUILDER NOT INITIALIZED");
+                throw new Exception(
+                    logger.TryFormat<ResizablePoolBuilder<T>>(
+                        "BUILDER NOT INITIALIZED"));
 
             #region Metadata initialization
 
@@ -122,8 +123,9 @@ namespace HereticalSolutions.Pools.Factories
         public INonAllocDecoratedPool<T> BuildSupplyAndMergePool()
         {
             if (valueAllocationDelegate == null)
-                logger?.ThrowException<ResizablePoolBuilder<T>>(
-                    "BUILDER NOT INITIALIZED");
+                throw new Exception(
+                    logger.TryFormat<ResizablePoolBuilder<T>>(
+                        "BUILDER NOT INITIALIZED"));
 
             #region Metadata initialization
 
