@@ -60,12 +60,29 @@ namespace HereticalSolutions.Time
 
         public void RemoveSynchronizable(string id)
         {
+            if (!chronoRepository.TryGet(
+                id,
+                out var synchronizable))
+                return;
+
+            ((ISynchronizationProvider)synchronizable).UnsubscribeAll();
+
             chronoRepository.TryRemove(id);
         }
 
         public void RemoveSynchronizable(ISynchronizableGenericArg<float> synchronizable)
         {
-            chronoRepository.TryRemove(synchronizable.Descriptor.ID);
+            RemoveSynchronizable(synchronizable.Descriptor.ID);
+        }
+
+        public void RemoveAllSynchronizables()
+        {
+            foreach (var synchronizable in chronoRepository.Values)
+            {
+                ((ISynchronizationProvider)synchronizable).UnsubscribeAll();
+            }
+
+            chronoRepository.Clear();
         }
 
         #endregion

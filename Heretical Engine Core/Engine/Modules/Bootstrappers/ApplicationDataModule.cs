@@ -17,9 +17,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		public void Load(IApplicationContext context)
 		{
-			var contextAsCompositionRoot = context as ICompositionRoot;
+			var compositionRoot = context as ICompositionRoot;
 
-			var containerBuilder = contextAsCompositionRoot.ContainerBuilder;
+			var containerBuilder = compositionRoot.ContainerBuilder;
 
 
 			var pathToExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -35,7 +35,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				{
 					return applicationDataFolder;
 				})
-				.Named<string>("Application data folder");
+				.Named<string>(ApplicationDataConstants.APPLICATION_DATA_FOLDER);
 		}
 
 		public void Unload(IApplicationContext context)

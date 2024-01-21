@@ -1,3 +1,7 @@
+using HereticalSolutions.HereticalEngine.Modules;
+
+using HereticalSolutions.LifetimeManagement;
+
 using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Application
@@ -8,10 +12,26 @@ namespace HereticalSolutions.HereticalEngine.Application
 
 		void BuildContainer();
 
-		void AddPendingContainerAction(Action<ContainerBuilder> containerAction);
+
+		void NestLifetime(ILifetimeable lifetime);
+
+		void SetLifetimeAsCurrent(ILifetimeable lifetime);
+
+
+		void QueueLifetimeScopeAction(
+			Action<ContainerBuilder> lifetimeScopeAction);
 
 		void PushLifetimeScope();
 
 		void PopLifetimeScope();
+
+
+		void AddActiveModule(IModule module);
+
+		void RemoveActiveModule(IModule module);
+
+		void LoadModule(IModule module);
+
+		void UnloadModule(IModule module);
 	}
 }

@@ -3,8 +3,6 @@ using HereticalSolutions.HereticalEngine.Application;
 using HereticalSolutions.Synchronization;
 using HereticalSolutions.Synchronization.Factories;
 
-using HereticalSolutions.Logging;
-
 using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Modules
@@ -12,18 +10,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	public class SynchronizationModule
 		: ALifetimeableModule
 	{
-		public SynchronizationModule(ILogger logger = null)
-			: base(logger)
-		{
-		}
-
 		public override string Name => "Synchronization module";
 
-		public override void Load(IApplicationContext context)
+		protected override void InitializeInternal()
 		{
-			var contextAsCompositionRoot = context as ICompositionRoot;
+			var compositionRoot = context as ICompositionRoot;
 
-			var containerBuilder = contextAsCompositionRoot.ContainerBuilder;
+			var containerBuilder = compositionRoot.ContainerBuilder;
 
 			containerBuilder
 				.Register(componentContext =>
@@ -34,14 +27,18 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				})
 			.As<ISynchronizationManager>();
 
-			base.Load(context);
+			base.InitializeInternal();
 		}
 
-		public override void Unload(IApplicationContext context)
+		protected override void CleanupInternal()
 		{
-			//TODO: UNSUBSCRIBE ALL
+			if (context.CurrentLifetimeScope.TryResolve<ISynchronizationManager>(
+				out ISynchronizationManager synchronizationManager))
+			{
+				((ISynchronizablesRepository)synchronizationManager).RemoveAllSynchronizables();
+			}
 
-			base.Unload(context);
+			base.CleanupInternal();
 		}
 	}
 }

@@ -8,7 +8,11 @@ namespace HereticalSolutions.MVVM.View
     /// Represents a base class for views in the MVVM architecture.
     /// </summary>
     public abstract class AView
-        : ILifetimeable
+        : ILifetimeable,
+          ISetUppable,
+          IInitializable,
+          ICleanUppable,
+          ITearDownable
     {
         protected IViewModel viewModel;
 
@@ -55,9 +59,10 @@ namespace HereticalSolutions.MVVM.View
         /// </summary>
         public Action OnTornDown { get; set; }
 
-        /// <summary>
-        /// Sets up the view.
-        /// </summary>
+        #endregion
+
+        #region ISetUppable
+
         public virtual void SetUp()
         {
             if (IsSetUp)
@@ -68,6 +73,10 @@ namespace HereticalSolutions.MVVM.View
 
             IsSetUp = true;
         }
+
+        #endregion
+
+        #region IInitializable
 
         public virtual void Initialize(object[] args)
         {
@@ -92,9 +101,10 @@ namespace HereticalSolutions.MVVM.View
             OnInitialized?.Invoke();
         }
 
-        /// <summary>
-        /// Cleans up the view.
-        /// </summary>
+        #endregion
+
+        #region ICleanUppable
+
         public virtual void Cleanup()
         {
             if (!IsInitialized)
@@ -105,16 +115,17 @@ namespace HereticalSolutions.MVVM.View
             OnCleanedUp?.Invoke();
         }
 
-        /// <summary>
-        /// Tears down the view.
-        /// </summary>
+        #endregion
+
+        #region ITearDownable
+
         public virtual void TearDown()
         {
             if (!IsSetUp)
                 return;
 
             IsSetUp = false;
-            
+
             Cleanup();
 
             OnTornDown?.Invoke();
@@ -128,12 +139,6 @@ namespace HereticalSolutions.MVVM.View
 
         #endregion
 
-        /// <summary>
-        /// Tries to obtain an observable property from the view model.
-        /// </summary>
-        /// <typeparam name="T">The type of the property.</typeparam>
-        /// <param name="propertyID">The ID of the property.</param>
-        /// <param name="property">The resulting <see cref="IObservableProperty{T}"/>.</param>
         protected void TryObtainProperty<T>(string propertyID, out IObservableProperty<T> property)
         {
             bool propertyObtained = viewModel.GetObservable<T>(propertyID, out property);

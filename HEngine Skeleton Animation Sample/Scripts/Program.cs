@@ -1,14 +1,15 @@
 ﻿#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
+using Autofac;
 using HereticalSolutions.HereticalEngine.Application;
 
 using HereticalSolutions.HereticalEngine.Modules;
+using HereticalSolutions.LifetimeManagement;
 
 namespace HereticalSolutions.HereticalEngine.Samples
 {
 	public class Program
 	{
-
 		//TODO: https://github.com/dotnet/Silk.NET/discussions/534
 		unsafe static void Main(string[] args)
 		{
@@ -20,14 +21,20 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			IModule[] modules = new IModule[]
 			{
-				//Core modules, main container scope
+				//Bootstrapper modules, main container scope
 				new ApplicationDataModule(),
 				new LoggingModule(),
-				new DIContainerBuilderModule()
+				new BuildDIContainerModule(),
 
 				//Project scope
+				new ApplicationLifetimeModule(),
+				new SynchronizationModule(),
+				new TimeModule(),
+				new BuildLifetimeScopeModule(),
 
 				//Scene scope
+				new SceneLifetimeModule(),
+				new BuildLifetimeScopeModule()
 				
 				//windowModule,
 				//new OpenGLModule(iocBuilder),
@@ -63,7 +70,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				};
 				*/
 
-				module.Load(context);
+				compositionRoot.LoadModule(module);
 
 				/*
 				compositionRoot
@@ -73,6 +80,31 @@ namespace HereticalSolutions.HereticalEngine.Samples
 						module.Name);
 				*/
 			}
+
+			//To test teardown  functionality
+			///*
+			if (!context
+				.CurrentLifetimeScope
+				.TryResolveNamed<ILifetimeable>(
+					"Application lifetime module",
+					out ILifetimeable applicationLifetimeModule))
+			{
+				throw new System.Exception("Failed to resolve application lifetime module");
+			}
+			else
+			{
+				((ITearDownable)applicationLifetimeModule).TearDown();
+			}
+			//*/
+
+			///*
+			while (context.ActiveModules.Count() > 0)
+			{
+				Console.WriteLine($"Unloading module {context.ActiveModules.Last().Name}");
+
+				compositionRoot.UnloadModule(context.ActiveModules.Last());
+			}
+			//*/
 
 			/*
 

@@ -1,5 +1,7 @@
 using HereticalSolutions.HereticalEngine.Modules;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 using Autofac;
@@ -10,38 +12,52 @@ namespace HereticalSolutions.HereticalEngine.Application
 		: IApplicationContext,
 		  ICompositionRoot
 	{
-		private readonly Stack<ILifetimeScope> scopeStack;
+		private readonly Stack<ILifetimeScope> lifetimeScopeStack;
 
-		private readonly List<Action<ContainerBuilder>> containerActions;
+		private readonly List<Action<ContainerBuilder>> lifetimeScopeActions;
 
-		private readonly List<IModule> modules;
+		private readonly List<IModule> activeModules;
+
+		private ILifetimeable currentLifetime;
 
 		private ILogger logger;
 
 		public ApplicationContext(
 			ContainerBuilder containerBuilder,
-			Stack<ILifetimeScope> scopeStack,
-			List<Action<ContainerBuilder>> containerActions,
-			List<IModule> modules)
+			Stack<ILifetimeScope> lifetimeScopeStack,
+			List<Action<ContainerBuilder>> lifetimeScopeActions,
+			List<IModule> activeModules)
 		{
 			ContainerBuilder = containerBuilder;
 
-			this.scopeStack = scopeStack;
+			this.lifetimeScopeStack = lifetimeScopeStack;
 
-			this.containerActions = containerActions;
+			this.lifetimeScopeActions = lifetimeScopeActions;
 
-			this.modules = modules;
+			this.activeModules = activeModules;
+
+			currentLifetime = null;
 
 			logger = null;
 		}
 
 		#region IApplicationContext
 
-		public IContainer Container { get; private set; }
+		public IContainer DIContainer { get; private set; }
 
-		public ILifetimeScope CurrentScope { get => scopeStack.Peek(); }
+		public ILifetimeScope CurrentLifetimeScope
+		{
+			get 
+			{
+				lifetimeScopeStack.TryPeek(out var result);
 
-		public IEnumerable<IModule> ActiveModules { get => modules; }
+				return result;
+			}
+		}
+
+		public ILifetimeable CurrentLifetime { get => currentLifetime; }
+
+		public IEnumerable<IModule> ActiveModules { get => activeModules; }
 
 		#endregion
 
@@ -56,66 +72,122 @@ namespace HereticalSolutions.HereticalEngine.Application
 					logger.TryFormat<ApplicationContext>(
 						"CONTAINER BUILDER IS NULL"));
 
-			if (Container != null)
+			if (DIContainer != null)
 				throw new Exception(
 					logger.TryFormat<ApplicationContext>(
 						"CONTAINER IS ALREADY BUILT"));
 
-			Container = ContainerBuilder.Build();
+			DIContainer = ContainerBuilder.Build();
 
-			var loggerResolver = Container.Resolve<ILoggerResolver>();
+
+			var loggerResolver = DIContainer.Resolve<ILoggerResolver>();
 
 			logger = loggerResolver.GetLogger<ApplicationContext>();
 		}
 
-		public void AddPendingContainerAction(Action<ContainerBuilder> containerAction)
+		public void NestLifetime(ILifetimeable lifetime)
 		{
-			containerActions.Add(containerAction);
+			//LifetimeSynchronizer.SyncLifetimes( //We don't want the module to initialize itself upon parent lifetime's initialization
+			LifetimeSynchronizer.SyncEndOfLifetimes(
+				lifetime,
+				currentLifetime);
+		}
+
+		public void SetLifetimeAsCurrent(ILifetimeable lifetime)
+		{
+			currentLifetime = lifetime;
+		}
+
+		public void QueueLifetimeScopeAction(Action<ContainerBuilder> lifetimeScopeAction)
+		{
+			lifetimeScopeActions.Add(lifetimeScopeAction);
 		}
 
 		public void PushLifetimeScope()
 		{
-			if (Container == null)
+			if (DIContainer == null)
 				throw new Exception(
 					logger.TryFormat<ApplicationContext>(
 						"CONTAINER IS NOT BUILT"));
 
-			if (scopeStack == null)
+			if (lifetimeScopeStack == null)
 				throw new Exception(
-					logger?.TryFormat<ApplicationContext>(
+					logger.TryFormat<ApplicationContext>(
 					"SCOPE STACK IS NULL"));
 
-			var currentLifetimeContainerActions = containerActions.ToArray();
+			var currentLifetimeScopeActions = lifetimeScopeActions.ToArray();
 
-			var newScope = Container.BeginLifetimeScope(
+			var newScope = DIContainer.BeginLifetimeScope(
 				(currentContainerBuilder) =>
 				{
-					foreach (var action in currentLifetimeContainerActions)
+					foreach (var action in currentLifetimeScopeActions)
 					{
 						action?.Invoke(currentContainerBuilder);
 					}
 				});
 
-			scopeStack.Push(newScope);
+			lifetimeScopeStack.Push(newScope);
 
-			containerActions.Clear();
+			lifetimeScopeActions.Clear();
 		}
 
 		public void PopLifetimeScope()
 		{
-			if (scopeStack == null)
+			if (lifetimeScopeStack == null)
 				throw new Exception(
 					logger.TryFormat<ApplicationContext>(
 						"SCOPE STACK IS NULL"));
 
-			if (scopeStack.Count == 0)
+			if (lifetimeScopeStack.Count == 0)
 				throw new Exception(
 					logger.TryFormat<ApplicationContext>(
 						"SCOPE STACK IS EMPTY"));
 
-			scopeStack
+			lifetimeScopeStack
 				.Pop()
 				.Dispose();
+		}
+
+		public void AddActiveModule(IModule module)
+		{
+			if (module == null)
+				throw new Exception(
+					logger.TryFormat<ApplicationContext>(
+						"MODULE IS NULL"));
+
+			if (activeModules.Contains(module))
+				throw new Exception(
+					logger.TryFormat<ApplicationContext>(
+						"MODULE IS ALREADY LOADED"));
+
+			activeModules.Add(module);
+		}
+
+		public void RemoveActiveModule(IModule module)
+		{
+			if (module == null)
+				throw new Exception(
+					logger.TryFormat<ApplicationContext>(
+						"MODULE IS NULL"));
+
+			if (!activeModules.Contains(module))
+				return;
+
+			activeModules.Remove(module);
+		}
+		
+		public void LoadModule(IModule module)
+		{
+			module.Load(this);
+
+			AddActiveModule(module);
+		}
+
+		public void UnloadModule(IModule module)
+		{
+			RemoveActiveModule(module);
+
+			module.Unload(this);
 		}
 
 		#endregion

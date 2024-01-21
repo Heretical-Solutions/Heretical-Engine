@@ -8,5 +8,7 @@ namespace HereticalSolutions.Synchronization
 		void RemoveSynchronizable(string id);
 
 		void RemoveSynchronizable(ISynchronizableNoArgs synchronizable);
+
+		void RemoveAllSynchronizables();
 	}
 }

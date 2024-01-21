@@ -2,26 +2,32 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
-	public class DIContainerBuilderModule
+	public class BuildLifetimeScopeModule
 		: IModule
 	{
-		public DIContainerBuilderModule()
+		public BuildLifetimeScopeModule()
 		{
 		}
 
 		#region IModule
 
-		public string Name => "DI container builder module";
+		public string Name => "Build lifetime scope module";
 
 		public void Load(IApplicationContext context)
 		{
 			var compositionRoot = context as ICompositionRoot;
 
-			compositionRoot.BuildContainer();
+			compositionRoot.PushLifetimeScope();
 		}
 
 		public void Unload(IApplicationContext context)
 		{
+			//Moded to ALifetimeModule
+			/*
+			var compositionRoot = context as ICompositionRoot;
+
+			compositionRoot.PopLifetimeScope();
+			*/
 		}
 
 		#endregion

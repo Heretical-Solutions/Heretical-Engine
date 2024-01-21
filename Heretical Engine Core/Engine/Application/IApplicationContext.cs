@@ -1,14 +1,18 @@
 using HereticalSolutions.HereticalEngine.Modules;
 
+using HereticalSolutions.LifetimeManagement;
+
 using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Application
 {
 	public interface IApplicationContext
 	{
-		IContainer Container { get; }
+		IContainer DIContainer { get; }
 
-		ILifetimeScope CurrentScope { get; }
+		ILifetimeScope CurrentLifetimeScope { get; }
+
+		ILifetimeable CurrentLifetime { get; }
 
 		IEnumerable<IModule> ActiveModules { get; }
 	}

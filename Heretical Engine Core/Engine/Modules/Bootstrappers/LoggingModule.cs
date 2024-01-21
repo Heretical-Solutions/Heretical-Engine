@@ -29,9 +29,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		public void Load(IApplicationContext context)
 		{
-			var contextAsCompositionRoot = context as ICompositionRoot;
+			var compositionRoot = context as ICompositionRoot;
 
-			var containerBuilder = contextAsCompositionRoot.ContainerBuilder;
+			var containerBuilder = compositionRoot.ContainerBuilder;
 
 			containerBuilder
 				.Register(componentContext =>
@@ -40,7 +40,10 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 					if (DumpLogsOnTearDown)
 					{
-						string applicationDataFolder = componentContext.ResolveNamed<string>("Application data folder");
+						if (!componentContext.TryResolveNamed<string>(
+							ApplicationDataConstants.APPLICATION_DATA_FOLDER,
+							out string applicationDataFolder))
+							throw new Exception("[LoggingModule] COULD NOT RESOLVE APPLICATION DATA FOLDER");
 
 						//Courtesy of https://stackoverflow.com/questions/114983/given-a-datetime-object-how-do-i-get-an-iso-8601-date-in-string-format
 						//Read comments carefully
@@ -104,9 +107,14 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (DumpLogsOnTearDown)
 			{
-				var dumpableLogger = context.Container.ResolveNamed<IDumpable>(KEY_DUMPABLE_LOGGER);
-
-				dumpableLogger.Dump();
+				if (context
+					.DIContainer
+					.TryResolveNamed<IDumpable>(
+						KEY_DUMPABLE_LOGGER,
+						out var dumpableLogger))
+				{
+					dumpableLogger.Dump();
+				}
 			}
 		}
 

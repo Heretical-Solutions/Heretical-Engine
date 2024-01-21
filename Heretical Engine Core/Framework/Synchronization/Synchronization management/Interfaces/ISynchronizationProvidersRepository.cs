@@ -1,5 +1,3 @@
-using HereticalSolutions.Synchronization;
-
 namespace HereticalSolutions.Synchronization
 {
 	public interface ISynchronizationProvidersRepository

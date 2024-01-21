@@ -7,5 +7,7 @@ namespace HereticalSolutions.Synchronization
         void Subscribe(ISubscription subscription);
 
         void Unsubscribe(ISubscription subscription);
+
+        void UnsubscribeAll();
     }
 }

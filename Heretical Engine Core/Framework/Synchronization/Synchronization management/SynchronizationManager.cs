@@ -39,12 +39,29 @@ namespace HereticalSolutions.Synchronization
 
 		public void RemoveSynchronizable(string id)
 		{
+			if (!synchroRepository.TryGet(
+				id,
+				out var synchronizable))
+				return;
+
+			((ISynchronizationProvider)synchronizable).UnsubscribeAll();
+
 			synchroRepository.TryRemove(id);
 		}
 
 		public void RemoveSynchronizable(ISynchronizableNoArgs synchronizable)
 		{
-			synchroRepository.TryRemove(synchronizable.Descriptor.ID);
+			RemoveSynchronizable(synchronizable.Descriptor.ID);
+		}
+
+		public void RemoveAllSynchronizables()
+		{
+			foreach (var synchronizable in synchroRepository.Values)
+			{
+				((ISynchronizationProvider)synchronizable).UnsubscribeAll();
+			}
+
+			synchroRepository.Clear();
 		}
 
 		#endregion

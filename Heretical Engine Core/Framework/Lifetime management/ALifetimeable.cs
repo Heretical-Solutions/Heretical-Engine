@@ -3,7 +3,12 @@ using HereticalSolutions.Logging;
 namespace HereticalSolutions.LifetimeManagement
 {
 	public abstract class ALifetimeable
-		: ILifetimeable
+		: ILifetimeable,
+		  ISetUppable,
+		  IInitializable,
+		  ICleanUppable,
+		  ITearDownable,
+		  IDisposable
 	{
 		protected readonly ILogger logger;
 
@@ -15,7 +20,21 @@ namespace HereticalSolutions.LifetimeManagement
 
 		#region ILifetimeable
 
-		public void SetUp()
+		public bool IsSetUp { get; private set; } = false;
+
+		public bool IsInitialized { get; private set; } = false;
+
+		public Action OnInitialized { get; set; }
+
+		public Action OnCleanedUp { get; set; }
+
+		public Action OnTornDown { get; set; }
+
+		#endregion
+
+		#region ISetUppable
+
+		public virtual void SetUp()
 		{
 			if (IsSetUp)
 				throw new Exception(
@@ -29,9 +48,11 @@ namespace HereticalSolutions.LifetimeManagement
 			IsSetUp = true;
 		}
 
-		public bool IsSetUp { get; private set; } = false;
+		#endregion
 
-		public void Initialize(object[] args = null)
+		#region IInitializable
+
+		public virtual void Initialize(object[] args = null)
 		{
 			if (!IsSetUp)
 			{
@@ -57,11 +78,11 @@ namespace HereticalSolutions.LifetimeManagement
 			OnInitialized?.Invoke();
 		}
 
-		public bool IsInitialized { get; private set; } = false;
+		#endregion
 
-		public Action OnInitialized { get; set; }
+		#region ICleanUppable
 
-		public void Cleanup()
+		public virtual void Cleanup()
 		{
 			if (!IsInitialized)
 				return;
@@ -74,7 +95,9 @@ namespace HereticalSolutions.LifetimeManagement
 			OnCleanedUp?.Invoke();
 		}
 
-		public Action OnCleanedUp { get; set; }
+		#endregion
+
+		#region ITearDownable
 
 		public void TearDown()
 		{
@@ -98,7 +121,14 @@ namespace HereticalSolutions.LifetimeManagement
 			OnTornDown = null;
 		}
 
-		public Action OnTornDown { get; set; }
+		#endregion
+
+		#region IDisposable
+
+		public void Dispose()
+		{
+			TearDown();
+		}
 
 		#endregion
 

@@ -73,7 +73,11 @@ namespace HereticalSolutions.Synchronization
                 subscription);
         }
 
-        //TODO: Add UnsubscribeAll
+        public void UnsubscribeAll()
+        {
+            pingerAsSubscribable.UnsubscribeAll();
+        }
+        
         #endregion
     }
 }
