@@ -274,6 +274,10 @@ namespace HereticalSolutions.Logging
 
 		public void Dump()
 		{
+			Log(
+				GetType(),
+				$"DUMPING LOGS TO FILE");
+
 			serializer.Serialize<string[]>(
 				serializationArgument,
 				fullLog.ToArray());

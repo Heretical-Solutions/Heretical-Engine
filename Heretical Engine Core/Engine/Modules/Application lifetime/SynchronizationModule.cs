@@ -18,11 +18,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var containerBuilder = compositionRoot.ContainerBuilder;
 
+			ISynchronizationManager synchronizationManager = SynchronizationFactory.BuildSynchronizationManager();
+
 			containerBuilder
 				.Register(componentContext =>
 				{
-					ISynchronizationManager synchronizationManager = SynchronizationFactory.BuildSynchronizationManager();
-
 					return synchronizationManager;
 				})
 			.As<ISynchronizationManager>();

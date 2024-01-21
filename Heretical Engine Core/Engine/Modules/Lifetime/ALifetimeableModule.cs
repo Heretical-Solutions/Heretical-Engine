@@ -49,7 +49,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			}
 
 			//This should be placed here because InitializeInternal may call compositionRoot.SetLifetimeAsCurrent(this); that will cause the module to replace the current lifetime scope. We don't want it to subscribe its lifetime to itself now do we?
-			((ICompositionRoot)context).NestLifetime(this);
+			((ILifetimeComposer)context).NestLifetime(this);
 
 			InitializeInternal();
 
@@ -145,7 +145,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			//This one IS needed. Module could be unloaded in two ways: by calling Unload and by parent lifetime tear down.
 			//In both cases we need to ensure that module is unlisted from active ones without creating recursive calls
-			((ICompositionRoot)context).RemoveActiveModule(this);
+			((IModuleManager)context).RemoveActiveModule(this);
 		}
 	}
 }

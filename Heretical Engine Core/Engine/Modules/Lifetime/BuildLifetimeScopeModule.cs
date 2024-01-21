@@ -9,18 +9,18 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		protected override void InitializeInternal()
 		{
-			var compositionRoot = context as ICompositionRoot;
+			var lifetimeScopeManager = context as ILifetimeScopeManager;
 
-			compositionRoot.PushLifetimeScope();
+			lifetimeScopeManager.PushLifetimeScope();
 
 			base.InitializeInternal();
 		}
 
 		protected override void CleanupInternal()
 		{
-			var compositionRoot = context as ICompositionRoot;
+			var lifetimeScopeManager = context as ILifetimeScopeManager;
 
-			compositionRoot.PopLifetimeScope();
+			lifetimeScopeManager.PopLifetimeScope();
 
 			base.CleanupInternal();
 		}

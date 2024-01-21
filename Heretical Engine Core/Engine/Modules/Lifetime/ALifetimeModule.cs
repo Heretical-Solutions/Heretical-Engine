@@ -18,17 +18,19 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		protected override void InitializeInternal()
 		{
-			var compositionRoot = context as ICompositionRoot;
-			
+			var lifetimeComposer = context as ILifetimeComposer;
+
+			var lifetimeScopeManager = context as ILifetimeScopeManager;
+
 			parentLifetime = context.CurrentLifetime;
 
 			isRootLifetime = parentLifetime == null;
 
-			compositionRoot.SetLifetimeAsCurrent(
+			lifetimeComposer.SetLifetimeAsCurrent(
 				this,
 				isRootLifetime);
 
-			compositionRoot.QueueLifetimeScopeAction(
+			lifetimeScopeManager.QueueLifetimeScopeAction(
 				containerBuilder =>
 				{
 					containerBuilder
@@ -51,9 +53,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
         protected override void CleanupInternal()
         {
-			var compositionRoot = context as ICompositionRoot;
+			var lifetimeComposer = context as ILifetimeComposer;
 
-			compositionRoot.SetLifetimeAsCurrent(
+			lifetimeComposer.SetLifetimeAsCurrent(
 				parentLifetime,
 				isRootLifetime);
 

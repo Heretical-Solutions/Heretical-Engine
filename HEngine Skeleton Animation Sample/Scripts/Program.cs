@@ -15,7 +15,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			//Create application context
 			IApplicationContext context = ApplicationFactory.BuildApplicationContext();
 
-			ICompositionRoot compositionRoot = context as ICompositionRoot;
+			IModuleManager moduleManager = context as IModuleManager;
 
 			//var windowModule = new WindowModule(iocBuilder);
 
@@ -51,7 +51,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			foreach (var module in modules)
 			{
-				compositionRoot.LoadModule(module);
+				moduleManager.LoadModule(module);
 			}
 
 			//Lifetime
@@ -64,7 +64,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			{
 				Console.WriteLine($"Unloading module {context.ActiveModules.Last().Name}");
 
-				compositionRoot.UnloadModule(context.ActiveModules.Last());
+				moduleManager.UnloadModule(context.ActiveModules.Last());
 			}
 
 			//End of application

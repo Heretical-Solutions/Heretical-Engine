@@ -13,14 +13,20 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	public class LoggingModule
 		: IModule
 	{
-		private const string KEY_DUMPABLE_LOGGER = "Dumpable logger";
+		private bool dumpLogsOnTearDown;
 
-		public bool DumpLogsOnTearDown { get; set; }
+		private ILoggerResolver loggerResolver;
+
+		private IDumpable dumpableLogger;
 
 		public LoggingModule(
 			bool dumpLogsOnTearDown = true)
 		{
-			DumpLogsOnTearDown = dumpLogsOnTearDown;
+			this.dumpLogsOnTearDown = dumpLogsOnTearDown;
+
+			loggerResolver = null;
+
+			dumpableLogger = null;
 		}
 
 		#region IModule
@@ -36,9 +42,12 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			containerBuilder
 				.Register(componentContext =>
 				{
+					if (loggerResolver != null)
+						return loggerResolver;
+
 					ILoggerBuilder loggerBuilder = LoggersFactory.BuildLoggerBuilder();
 
-					if (DumpLogsOnTearDown)
+					if (dumpLogsOnTearDown)
 					{
 						if (!componentContext.TryResolveNamed<string>(
 							ApplicationDataConstants.APPLICATION_DATA_FOLDER,
@@ -69,12 +78,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 									(ILoggerResolver)loggerBuilder,
 									loggerBuilder.CurrentLogger));
 
-						var dumpableLogger = loggerBuilder.CurrentLogger;
-
-						containerBuilder
-							.Register(componentContext =>
-								(IDumpable)dumpableLogger)
-							.Named<IDumpable>(KEY_DUMPABLE_LOGGER);
+						dumpableLogger = (IDumpable)loggerBuilder.CurrentLogger;
 
 						loggerBuilder
 							.AddOrWrap(
@@ -98,24 +102,25 @@ namespace HereticalSolutions.HereticalEngine.Modules
 									loggerBuilder.CurrentLogger));
 					}
 
-					return (ILoggerResolver)loggerBuilder;
+					loggerResolver = (ILoggerResolver)loggerBuilder;
+
+					return loggerResolver;
 				})
 			.As<ILoggerResolver>();
 		}
 
 		public void Unload(IApplicationContext context)
 		{
-			if (DumpLogsOnTearDown)
+			if (dumpableLogger != null)
 			{
-				if (context
-					.DIContainer
-					.TryResolveNamed<IDumpable>(
-						KEY_DUMPABLE_LOGGER,
-						out var dumpableLogger))
-				{
-					dumpableLogger.Dump();
-				}
+				dumpableLogger.Dump();
 			}
+
+			dumpableLogger = null;
+
+			loggerResolver = null;
+
+			dumpLogsOnTearDown = false;
 		}
 
 		#endregion

@@ -11,29 +11,5 @@ namespace HereticalSolutions.HereticalEngine.Application
 		ContainerBuilder ContainerBuilder { get; }
 
 		void BuildContainer();
-
-
-		void NestLifetime(ILifetimeable lifetime);
-
-		void SetLifetimeAsCurrent(
-			ILifetimeable lifetime,
-			bool root = false);
-
-
-		void QueueLifetimeScopeAction(
-			Action<ContainerBuilder> lifetimeScopeAction);
-
-		void PushLifetimeScope();
-
-		void PopLifetimeScope();
-
-
-		void AddActiveModule(IModule module);
-
-		void RemoveActiveModule(IModule module);
-
-		void LoadModule(IModule module);
-
-		void UnloadModule(IModule module);
 	}
 }

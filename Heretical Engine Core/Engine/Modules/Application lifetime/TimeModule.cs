@@ -20,11 +20,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var containerBuilder = compositionRoot.ContainerBuilder;
 
+			ITimeManager timeManager = TimeFactory.BuildTimeManager();
+
 			containerBuilder
 				.Register(componentContext =>
 				{
-					ITimeManager timeManager = TimeFactory.BuildTimeManager();
-
 					return timeManager;
 				})
 			.As<ITimeManager>();

@@ -10,7 +10,10 @@ namespace HereticalSolutions.HereticalEngine.Application
 {
 	public class ApplicationContext
 		: IApplicationContext,
-		  ICompositionRoot
+		  ICompositionRoot,
+		  ILifetimeComposer,
+		  ILifetimeScopeManager,
+		  IModuleManager
 	{
 		private readonly Stack<ILifetimeScope> lifetimeScopeStack;
 
