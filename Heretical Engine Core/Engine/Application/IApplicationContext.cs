@@ -12,6 +12,8 @@ namespace HereticalSolutions.HereticalEngine.Application
 
 		ILifetimeScope CurrentLifetimeScope { get; }
 
+		ILifetimeable RootLifetime { get; }
+
 		ILifetimeable CurrentLifetime { get; }
 
 		IEnumerable<IModule> ActiveModules { get; }

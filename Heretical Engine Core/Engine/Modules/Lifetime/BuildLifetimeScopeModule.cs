@@ -3,33 +3,26 @@ using HereticalSolutions.HereticalEngine.Application;
 namespace HereticalSolutions.HereticalEngine.Modules
 {
 	public class BuildLifetimeScopeModule
-		: IModule
+		: ALifetimeModule
 	{
-		public BuildLifetimeScopeModule()
-		{
-		}
+		public override string Name => "Build lifetime scope module";
 
-		#region IModule
-
-		public string Name => "Build lifetime scope module";
-
-		public void Load(IApplicationContext context)
+		protected override void InitializeInternal()
 		{
 			var compositionRoot = context as ICompositionRoot;
 
 			compositionRoot.PushLifetimeScope();
+
+			base.InitializeInternal();
 		}
 
-		public void Unload(IApplicationContext context)
+		protected override void CleanupInternal()
 		{
-			//Moded to ALifetimeModule
-			/*
 			var compositionRoot = context as ICompositionRoot;
 
 			compositionRoot.PopLifetimeScope();
-			*/
-		}
 
-		#endregion
+			base.CleanupInternal();
+		}
 	}
 }

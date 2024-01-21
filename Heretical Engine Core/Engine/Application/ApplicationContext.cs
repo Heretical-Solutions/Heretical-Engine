@@ -18,6 +18,8 @@ namespace HereticalSolutions.HereticalEngine.Application
 
 		private readonly List<IModule> activeModules;
 
+		private ILifetimeable rootLifetime;
+
 		private ILifetimeable currentLifetime;
 
 		private ILogger logger;
@@ -35,6 +37,8 @@ namespace HereticalSolutions.HereticalEngine.Application
 			this.lifetimeScopeActions = lifetimeScopeActions;
 
 			this.activeModules = activeModules;
+
+			rootLifetime = null;
 
 			currentLifetime = null;
 
@@ -54,6 +58,8 @@ namespace HereticalSolutions.HereticalEngine.Application
 				return result;
 			}
 		}
+
+		public ILifetimeable RootLifetime { get => rootLifetime; }
 
 		public ILifetimeable CurrentLifetime { get => currentLifetime; }
 
@@ -93,9 +99,14 @@ namespace HereticalSolutions.HereticalEngine.Application
 				currentLifetime);
 		}
 
-		public void SetLifetimeAsCurrent(ILifetimeable lifetime)
+		public void SetLifetimeAsCurrent(
+			ILifetimeable lifetime,
+			bool root = false)
 		{
 			currentLifetime = lifetime;
+
+			if (root)
+				rootLifetime = lifetime;
 		}
 
 		public void QueueLifetimeScopeAction(Action<ContainerBuilder> lifetimeScopeAction)
@@ -115,16 +126,32 @@ namespace HereticalSolutions.HereticalEngine.Application
 					logger.TryFormat<ApplicationContext>(
 					"SCOPE STACK IS NULL"));
 
+
 			var currentLifetimeScopeActions = lifetimeScopeActions.ToArray();
 
-			var newScope = DIContainer.BeginLifetimeScope(
+			Action<ContainerBuilder> configurationAction =
 				(currentContainerBuilder) =>
 				{
 					foreach (var action in currentLifetimeScopeActions)
 					{
 						action?.Invoke(currentContainerBuilder);
 					}
-				});
+				};
+
+
+			ILifetimeScope currentLifetimeScope = CurrentLifetimeScope;
+
+			ILifetimeScope newScope = null;
+
+			if (currentLifetimeScope != null)
+			{
+				newScope = currentLifetimeScope.BeginLifetimeScope(configurationAction);
+			}
+			else
+			{
+				newScope = DIContainer.BeginLifetimeScope(configurationAction);
+			}
+
 
 			lifetimeScopeStack.Push(newScope);
 

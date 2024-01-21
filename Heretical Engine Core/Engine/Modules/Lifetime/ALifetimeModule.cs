@@ -10,13 +10,23 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		: ALifetimeableModule,
 		  IModule
 	{
+		protected ILifetimeable parentLifetime;
+
+		protected bool isRootLifetime;
+
 		public override string Name => "Abstract lifetime module";
 
 		protected override void InitializeInternal()
 		{
 			var compositionRoot = context as ICompositionRoot;
 			
-			compositionRoot.SetLifetimeAsCurrent(this);
+			parentLifetime = context.CurrentLifetime;
+
+			isRootLifetime = parentLifetime == null;
+
+			compositionRoot.SetLifetimeAsCurrent(
+				this,
+				isRootLifetime);
 
 			compositionRoot.QueueLifetimeScopeAction(
 				containerBuilder =>
@@ -43,8 +53,13 @@ namespace HereticalSolutions.HereticalEngine.Modules
         {
 			var compositionRoot = context as ICompositionRoot;
 
-			//Moved here because we want to pop lifetime scope AFTER the current lifetime is torn down
-			compositionRoot.PopLifetimeScope();
+			compositionRoot.SetLifetimeAsCurrent(
+				parentLifetime,
+				isRootLifetime);
+
+			parentLifetime = null;
+
+			isRootLifetime = false;
 
 			base.CleanupInternal();
 		}

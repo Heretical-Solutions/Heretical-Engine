@@ -1,9 +1,8 @@
 ﻿#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
-using Autofac;
 using HereticalSolutions.HereticalEngine.Application;
-
 using HereticalSolutions.HereticalEngine.Modules;
+
 using HereticalSolutions.LifetimeManagement;
 
 namespace HereticalSolutions.HereticalEngine.Samples
@@ -13,12 +12,14 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		//TODO: https://github.com/dotnet/Silk.NET/discussions/534
 		unsafe static void Main(string[] args)
 		{
+			//Create application context
 			IApplicationContext context = ApplicationFactory.BuildApplicationContext();
 
 			ICompositionRoot compositionRoot = context as ICompositionRoot;
 
 			//var windowModule = new WindowModule(iocBuilder);
 
+			//Load modules
 			IModule[] modules = new IModule[]
 			{
 				//Bootstrapper modules, main container scope
@@ -50,61 +51,23 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			foreach (var module in modules)
 			{
-				/*
-				module.OnInitialized += () =>
-				{
-					logger?.Log<Program>(
-						$"MODULE {module.GetType().Name} INITIALIZED");
-				};
-
-				module.OnCleanedUp += () =>
-				{
-					logger?.Log<Program>(
-						$"MODULE {module.GetType().Name} CLEANED UP");
-				};
-
-				module.OnTornDown += () =>
-				{
-					logger?.Log<Program>(
-						$"MODULE {module.GetType().Name} TORN DOWN");
-				};
-				*/
-
 				compositionRoot.LoadModule(module);
-
-				/*
-				compositionRoot
-					.ContainerBuilder
-					.RegisterInstance(module)
-					.Named<IModule>(
-						module.Name);
-				*/
 			}
 
-			//To test teardown  functionality
-			///*
-			if (!context
-				.CurrentLifetimeScope
-				.TryResolveNamed<ILifetimeable>(
-					"Application lifetime module",
-					out ILifetimeable applicationLifetimeModule))
-			{
-				throw new System.Exception("Failed to resolve application lifetime module");
-			}
-			else
-			{
-				((ITearDownable)applicationLifetimeModule).TearDown();
-			}
-			//*/
+			//Lifetime
 
-			///*
+			//Start finishing the application by unloading the root lifetime module
+			((ITearDownable)context.RootLifetime).TearDown();
+
+			//Finish by unloading the bootstrap modules
 			while (context.ActiveModules.Count() > 0)
 			{
 				Console.WriteLine($"Unloading module {context.ActiveModules.Last().Name}");
 
 				compositionRoot.UnloadModule(context.ActiveModules.Last());
 			}
-			//*/
+
+			//End of application
 
 			/*
 

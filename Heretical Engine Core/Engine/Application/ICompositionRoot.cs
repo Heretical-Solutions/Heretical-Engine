@@ -15,7 +15,9 @@ namespace HereticalSolutions.HereticalEngine.Application
 
 		void NestLifetime(ILifetimeable lifetime);
 
-		void SetLifetimeAsCurrent(ILifetimeable lifetime);
+		void SetLifetimeAsCurrent(
+			ILifetimeable lifetime,
+			bool root = false);
 
 
 		void QueueLifetimeScopeAction(
