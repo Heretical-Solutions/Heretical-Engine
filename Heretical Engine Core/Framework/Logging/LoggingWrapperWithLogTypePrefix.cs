@@ -1,7 +1,8 @@
 namespace HereticalSolutions.Logging
 {
 	public class LoggerWrapperWithLogTypePrefix
-		: ILogger
+		: ILogger,
+		  ILoggerWrapper
 	{
 		private readonly ILogger innerLogger;
 
@@ -10,6 +11,12 @@ namespace HereticalSolutions.Logging
 		{
 			this.innerLogger = innerLogger;
 		}
+
+		#region ILoggerWrapper
+
+		public ILogger InnerLogger { get => innerLogger; }
+
+		#endregion
 
 		#region ILogger
 

@@ -1,6 +1,4 @@
 /*
-#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
-
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.Rendering.Factories;

@@ -4,6 +4,7 @@ namespace HereticalSolutions.Logging
 {
 	public class LoggerWrapperWithFileDump
 		: ILogger,
+		  ILoggerWrapper,
 		  IDumpable
 	{
 		private readonly ILogger innerLogger;
@@ -28,6 +29,12 @@ namespace HereticalSolutions.Logging
 
 			this.fullLog = fullLog;
 		}
+
+		#region ILoggerWrapper
+
+		public ILogger InnerLogger { get => innerLogger; }
+
+		#endregion
 
 		#region ILogger
 

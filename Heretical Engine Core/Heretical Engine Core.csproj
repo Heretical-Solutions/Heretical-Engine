@@ -9,6 +9,7 @@
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>USE_THREAD_SAFE_RESOURCE_MANAGEMENT;PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

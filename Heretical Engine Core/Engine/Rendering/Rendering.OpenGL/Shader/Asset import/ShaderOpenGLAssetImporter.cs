@@ -1,6 +1,4 @@
 /*
-#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-
 using HereticalSolutions.Persistence;
 
 using HereticalSolutions.ResourceManagement;

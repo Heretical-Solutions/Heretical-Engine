@@ -5,6 +5,8 @@ using HereticalSolutions.Time.Factories;
 
 using HereticalSolutions.Synchronization;
 
+using HereticalSolutions.Logging;
+
 using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Modules
@@ -20,14 +22,23 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var containerBuilder = compositionRoot.ContainerBuilder;
 
-			ITimeManager timeManager = TimeFactory.BuildTimeManager();
-
 			containerBuilder
 				.Register(componentContext =>
 				{
+					componentContext.TryResolve<ILoggerResolver>(
+						out ILoggerResolver loggerResolver);
+
+					var logger = loggerResolver?.GetLogger<TimeModule>();
+
+					logger?.Log<TimeModule>(
+						"BUILDING TIME MANAGER");
+
+					ITimeManager timeManager = TimeFactory.BuildTimeManager(loggerResolver);
+
 					return timeManager;
 				})
-			.As<ITimeManager>();
+				.As<ITimeManager>()
+				.SingleInstance();
 
 			base.InitializeInternal();
 		}

@@ -1,4 +1,4 @@
-﻿#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
+﻿//#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
 
 using HereticalSolutions.HereticalEngine.Application;
 using HereticalSolutions.HereticalEngine.Modules;
@@ -29,6 +29,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 				//Project scope
 				new ApplicationLifetimeModule(),
+				new ResourceManagementModule(),
 				new SynchronizationModule(),
 				new TimeModule(),
 				new BuildLifetimeScopeModule(),

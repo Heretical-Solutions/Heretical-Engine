@@ -13,20 +13,12 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	public class LoggingModule
 		: IModule
 	{
-		private bool dumpLogsOnTearDown;
-
-		private ILoggerResolver loggerResolver;
-
-		private IDumpable dumpableLogger;
+		private readonly bool dumpLogsOnTearDown;
 
 		public LoggingModule(
 			bool dumpLogsOnTearDown = true)
 		{
 			this.dumpLogsOnTearDown = dumpLogsOnTearDown;
-
-			loggerResolver = null;
-
-			dumpableLogger = null;
 		}
 
 		#region IModule
@@ -42,9 +34,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			containerBuilder
 				.Register(componentContext =>
 				{
-					if (loggerResolver != null)
-						return loggerResolver;
-
 					ILoggerBuilder loggerBuilder = LoggersFactory.BuildLoggerBuilder();
 
 					if (dumpLogsOnTearDown)
@@ -52,7 +41,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 						if (!componentContext.TryResolveNamed<string>(
 							ApplicationDataConstants.APPLICATION_DATA_FOLDER,
 							out string applicationDataFolder))
+						{
 							throw new Exception("[LoggingModule] COULD NOT RESOLVE APPLICATION DATA FOLDER");
+						}
 
 						//Courtesy of https://stackoverflow.com/questions/114983/given-a-datetime-object-how-do-i-get-an-iso-8601-date-in-string-format
 						//Read comments carefully
@@ -76,11 +67,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 									applicationDataFolder,
 									$"Runtime logs/{logFileName}.log",
 									(ILoggerResolver)loggerBuilder,
-									loggerBuilder.CurrentLogger));
-
-						dumpableLogger = (IDumpable)loggerBuilder.CurrentLogger;
-
-						loggerBuilder
+									loggerBuilder.CurrentLogger))
 							.AddOrWrap(
 								LoggersFactory.BuildLoggerWrapperWithLogTypePrefix(
 									loggerBuilder.CurrentLogger))
@@ -102,25 +89,58 @@ namespace HereticalSolutions.HereticalEngine.Modules
 									loggerBuilder.CurrentLogger));
 					}
 
-					loggerResolver = (ILoggerResolver)loggerBuilder;
+					ILoggerResolver loggerResolver = (ILoggerResolver)loggerBuilder;
+
+					var logger = loggerResolver.GetLogger<LoggingModule>();
+
+					logger?.Log<LoggingModule>(
+						"LOGGER RESOLVER BUILT");
 
 					return loggerResolver;
 				})
-			.As<ILoggerResolver>();
+				.As<ILoggerResolver>()
+				.SingleInstance();
+
+			containerBuilder
+				.Register(componentContext =>
+				{
+					if (!componentContext.TryResolve<ILoggerResolver>(
+						out ILoggerResolver loggerResolver))
+						return null;
+
+					ILoggerBuilder loggerBuilder = (ILoggerBuilder)loggerResolver;
+
+					var currentLogger = loggerBuilder.CurrentLogger;
+
+					do
+					{
+						if (currentLogger is IDumpable dumpableLogger)
+						{
+							return (IDumpable)currentLogger;
+						}
+
+						if (currentLogger is not ILoggerWrapper loggerWrapper)
+						{
+							return null;
+						}
+
+						currentLogger = loggerWrapper.InnerLogger;
+					}
+					while (true);
+				})
+				.As<IDumpable>()
+				.SingleInstance();
 		}
 
 		public void Unload(IApplicationContext context)
 		{
-			if (dumpableLogger != null)
+			if (context
+				.DIContainer
+				.TryResolve<IDumpable>(
+					out IDumpable dumpableLogger))
 			{
 				dumpableLogger.Dump();
 			}
-
-			dumpableLogger = null;
-
-			loggerResolver = null;
-
-			dumpLogsOnTearDown = false;
 		}
 
 		#endregion

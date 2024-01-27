@@ -1,10 +1,5 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
-#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-
-#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
-
 using System.Numerics;
 
 using HereticalSolutions.Persistence.IO;

@@ -38,14 +38,18 @@ namespace HereticalSolutions.HereticalEngine.Modules
 						{
 							return this;
 						})
-					.Named<ILifetimeable>(ModuleLifetimeConstants.CURRENT_SCOPE);
+						//.RegisterInstance(this)
+						.Named<ILifetimeable>(ModuleLifetimeConstants.CURRENT_SCOPE)
+						.SingleInstance();
 
 					containerBuilder
 						.Register(componentContext =>
 						{
 							return this;
 						})
-					.Named<ILifetimeable>(Name);
+						//.RegisterInstance(this)
+						.Named<ILifetimeable>(Name)
+						.SingleInstance();
 				});
 
 			base.InitializeInternal();

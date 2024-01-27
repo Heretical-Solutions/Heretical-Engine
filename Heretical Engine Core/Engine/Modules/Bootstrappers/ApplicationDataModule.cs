@@ -35,7 +35,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				{
 					return applicationDataFolder;
 				})
-				.Named<string>(ApplicationDataConstants.APPLICATION_DATA_FOLDER);
+				.Named<string>(ApplicationDataConstants.APPLICATION_DATA_FOLDER)
+				.SingleInstance();
 		}
 
 		public void Unload(IApplicationContext context)

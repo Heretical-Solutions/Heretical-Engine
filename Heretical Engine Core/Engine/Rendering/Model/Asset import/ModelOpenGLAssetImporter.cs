@@ -1,8 +1,4 @@
 /*
-#define USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-
-#define PARALLELIZE_AWAITING_FOR_RESOURCE_DEPENDENCIES
-
 using HereticalSolutions.ResourceManagement;
 
 using HereticalSolutions.HereticalEngine.AssetImport;

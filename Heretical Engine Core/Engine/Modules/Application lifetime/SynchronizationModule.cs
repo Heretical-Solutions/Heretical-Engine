@@ -3,6 +3,8 @@ using HereticalSolutions.HereticalEngine.Application;
 using HereticalSolutions.Synchronization;
 using HereticalSolutions.Synchronization.Factories;
 
+using HereticalSolutions.Logging;
+
 using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Modules
@@ -18,14 +20,23 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 			var containerBuilder = compositionRoot.ContainerBuilder;
 
-			ISynchronizationManager synchronizationManager = SynchronizationFactory.BuildSynchronizationManager();
-
 			containerBuilder
 				.Register(componentContext =>
 				{
+					componentContext.TryResolve<ILoggerResolver>(
+						out ILoggerResolver loggerResolver);
+
+					var logger = loggerResolver?.GetLogger<SynchronizationModule>();
+
+					logger?.Log<SynchronizationModule>(
+						"BUILDING SYNCHRONIZATION MANAGER");
+
+					ISynchronizationManager synchronizationManager = SynchronizationFactory.BuildSynchronizationManager();
+
 					return synchronizationManager;
 				})
-			.As<ISynchronizationManager>();
+				//.RegisterInstance(synchronizationManager)
+				.As<ISynchronizationManager>();
 
 			base.InitializeInternal();
 		}

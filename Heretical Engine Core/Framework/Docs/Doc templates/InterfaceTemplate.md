@@ -16,6 +16,22 @@ Method | Description
 
 ## Using IGenericInterface\<T\>
 
+### Case A
+
+```csharp
+IGenericInterface\<T\> foo;
+
+//lorem ipsum
+foo.bar();
+
+//lorem ipsum
+
+//lorem ipsum
+foo.bar();
+```
+
+### Case B
+
 ```csharp
 IGenericInterface\<T\> foo;
 
@@ -33,4 +49,21 @@ foo.bar();
 ```csharp
 //lorem ipsum
 IGenericInterface\<T\> foo = bar();
+```
+
+## Implementing IGenericInterface\<T\>
+
+```csharp
+#region IGenericInterface\<T\>
+
+//lorem ipsum
+public T MethodA() {}
+
+//lorem ipsum
+public void MethodB(T argument) {}
+
+//lorem ipsum
+public bool PropertyC { get; }
+
+#endregion
 ```

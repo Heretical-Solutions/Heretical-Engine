@@ -7,10 +7,7 @@ using HereticalSolutions.Logging;
 namespace HereticalSolutions.Time.Visitors
 {
     public class PersistentTimerVisitor
-        : ASaveLoadVisitor<IPersistentTimer, PersistentTimerDTO>,
-          ILoadVisitor,
-          ISaveVisitorGeneric<IPersistentTimer, PersistentTimerDTO>,
-          ISaveVisitor
+        : ASaveLoadVisitor<IPersistentTimer, PersistentTimerDTO>
     {
         private readonly ILoggerResolver loggerResolver;
 
