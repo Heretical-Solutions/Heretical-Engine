@@ -7,8 +7,7 @@ namespace HereticalSolutions.Time
     public class TimeManager
         : ITimeManager,
           ISynchronizablesGenericArgRepository<float>,
-          ISynchronizationProvidersRepository,
-          ITickable
+          ISynchronizationProvidersRepository
     {
         private readonly IRepository<string, ISynchronizableGenericArg<float>> chronoRepository;
 
@@ -33,6 +32,24 @@ namespace HereticalSolutions.Time
         public IRuntimeTimer ApplicationRuntimeTimer { get => applicationRuntimeTimer; }
 
         public IPersistentTimer ApplicationPersistentTimer { get => applicationPersistentTimer; }
+
+        #region ITickable
+
+        public void Tick(float delta)
+        {
+            ((ITickable)applicationRuntimeTimer).Tick(delta);
+
+            ((ITickable)applicationPersistentTimer).Tick(delta);
+
+            foreach (var key in chronoRepository.Keys)
+            {
+                var synchronizable = chronoRepository.Get(key);
+
+                synchronizable.Synchronize(delta);
+            }
+        }
+
+        #endregion
 
         #endregion
 
@@ -105,24 +122,6 @@ namespace HereticalSolutions.Time
             }
 
             return result;
-        }
-
-        #endregion
-
-        #region ITickable
-
-        public void Tick(float delta)
-        {
-            ((ITickable)applicationRuntimeTimer).Tick(delta);
-
-            ((ITickable)applicationPersistentTimer).Tick(delta);
-
-            foreach (var key in chronoRepository.Keys)
-            {
-                var synchronizable = chronoRepository.Get(key);
-
-                synchronizable.Synchronize(delta);
-            }
         }
 
         #endregion

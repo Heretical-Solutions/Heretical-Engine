@@ -134,7 +134,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		public void Unload(IApplicationContext context)
 		{
-			if (context
+			if (((ICompositionRoot)context)
 				.DIContainer
 				.TryResolve<IDumpable>(
 					out IDumpable dumpableLogger))

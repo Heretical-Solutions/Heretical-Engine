@@ -5,6 +5,10 @@ using HereticalSolutions.HereticalEngine.Modules;
 
 using HereticalSolutions.LifetimeManagement;
 
+using HereticalSolutions.Synchronization;
+
+using Autofac;
+
 namespace HereticalSolutions.HereticalEngine.Samples
 {
 	public class Program
@@ -12,14 +16,20 @@ namespace HereticalSolutions.HereticalEngine.Samples
 		//TODO: https://github.com/dotnet/Silk.NET/discussions/534
 		unsafe static void Main(string[] args)
 		{
+			//Start of application
+
 			//Create application context
 			IApplicationContext context = ApplicationFactory.BuildApplicationContext();
 
-			IModuleManager moduleManager = context as IModuleManager;
+			IApplicationStatusManager applicationStatusManager = context as IApplicationStatusManager;
 
-			//var windowModule = new WindowModule(iocBuilder);
+			//Application initialization
 
 			//Load modules
+			applicationStatusManager.SetStatus(EApplicationStatus.INITIALIZING);
+
+			IModuleManager moduleManager = context as IModuleManager;
+
 			IModule[] modules = new IModule[]
 			{
 				//Bootstrapper modules, main container scope
@@ -27,14 +37,32 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				new LoggingModule(),
 				new BuildDIContainerModule(),
 
-				//Project scope
+				//Application lifetime scope
 				new ApplicationLifetimeModule(),
+				new MainThreadCommandBufferModule(),
 				new ResourceManagementModule(),
 				new SynchronizationModule(),
 				new TimeModule(),
+				new RenderingModule(),
+				new ApplicationSynchronizationPointsModule(),
 				new BuildLifetimeScopeModule(),
 
-				//Scene scope
+				//Presentation lifetime scope
+				new PresentationLifetimeModule(),
+				new RenderingSynchronizationPointsModule(),
+				new WindowSynchronizationPointsModule(),
+				new RenderingTimeModule(),
+				new SilkNETWindowModule(),
+				new BuildLifetimeScopeModule(),
+
+				//These two lifetimes (^ and v) should actually be branches of the application lifetime
+				//TODO: the same presentation lifetime scope but for editor
+
+				//Domain model lifetime scope
+				new DomainModelLifetimeModule(),
+				new BuildLifetimeScopeModule(),
+
+				//Scene lifetime scope
 				new SceneLifetimeModule(),
 				new BuildLifetimeScopeModule()
 				
@@ -55,10 +83,28 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				moduleManager.LoadModule(module);
 			}
 
+			applicationStatusManager.SetStatus(EApplicationStatus.INITIALIZED);
+
 			//Lifetime
+			applicationStatusManager.SetStatus(EApplicationStatus.RUNNING);
+
+			//((ILifetimeScopeManager)context).CurrentLifetimeScope.TryResolve<IWindow>(out var window);
+			//window?.Run();
+
+			if (((ILifetimeScopeManager)context)
+				.CurrentLifetimeScope
+				.TryResolve<ISynchronizationManager>(
+					out var synchronizationManager))
+			{
+				synchronizationManager.SynchronizeAll(ApplicationSynchronizationConstants.START_APPLICATION);
+			}
+
+			//Application shutdown
+			applicationStatusManager.SetStatus(EApplicationStatus.SHUTTING_DOWN);
 
 			//Start finishing the application by unloading the root lifetime module
-			((ITearDownable)context.RootLifetime).TearDown();
+			//TODO: move to the modules
+			((ITearDownable)((ILifetimeComposer)context).RootLifetime).TearDown();
 
 			//Finish by unloading the bootstrap modules
 			while (context.ActiveModules.Count() > 0)
@@ -68,53 +114,9 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				moduleManager.UnloadModule(context.ActiveModules.Last());
 			}
 
+			applicationStatusManager.SetStatus(EApplicationStatus.SHUTDOWN);
+
 			//End of application
-
-			/*
-
-#if USE_THREAD_SAFE_RESOURCE_MANAGEMENT
-			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildConcurrentRuntimeResourceManager(logger);
-#else
-			IRuntimeResourceManager runtimeResourceManager = ResourceManagementFactory.BuildRuntimeResourceManager(logger);
-#endif
-
-			iocBuilder.RegisterInstance(runtimeResourceManager).As<IRuntimeResourceManager>();
-
-			ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer =
-				new ConcurrentGenericCircularBuffer<MainThreadCommand>(
-					new MainThreadCommand[1024],
-					new int[1024]);
-
-			iocBuilder.RegisterInstance(mainThreadCommandBuffer).As<ConcurrentGenericCircularBuffer<MainThreadCommand>>();
-
-			ApplicationContext context = new ApplicationContext(
-				modules,
-				(ICoreModule)windowModule,
-				runtimeResourceManager,
-				
-				mainThreadCommandBuffer,
-				logger);
-
-			//TODO: replace ApplicationContext dependencies whereever needed with direct dependencies
-			iocBuilder.RegisterInstance(context).As<ApplicationContext>();
-
-			for (int i = 0; i < context.Modules.Length; i++)
-			{
-				context.Modules[i].SetUp(context);
-			}
-
-			context.RootModule.Run(context);
-
-			for (int i = 0; i < context.Modules.Length; i++)
-			{
-				context.Modules[i].TearDown();
-			}
-
-			if (logger != null)
-			{
-				((IDumpable)logger).Dump();
-			}
-			*/
 		}
 	}
 }

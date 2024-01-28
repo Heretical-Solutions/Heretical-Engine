@@ -2,8 +2,9 @@ using HereticalSolutions.HereticalEngine.Application;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
+	//TODO: branch instead of pushing / popping
 	public class BuildLifetimeScopeModule
-		: ALifetimeModule
+		: ALifetimeableModule
 	{
 		public override string Name => "Build lifetime scope module";
 

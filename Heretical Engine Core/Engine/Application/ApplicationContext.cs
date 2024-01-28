@@ -13,13 +13,17 @@ namespace HereticalSolutions.HereticalEngine.Application
 		  ICompositionRoot,
 		  ILifetimeComposer,
 		  ILifetimeScopeManager,
+		  IApplicationStatusManager,
 		  IModuleManager
 	{
+		//TODO: ensure that lifetime scopes are trees, not a stack. Changing presentation lifetime should NOT affect the domain model lifetime
 		private readonly Stack<ILifetimeScope> lifetimeScopeStack;
 
 		private readonly List<Action<ContainerBuilder>> lifetimeScopeActions;
 
 		private readonly List<IModule> activeModules;
+
+		private EApplicationStatus currentStatus;
 
 		private ILifetimeable rootLifetime;
 
@@ -46,31 +50,21 @@ namespace HereticalSolutions.HereticalEngine.Application
 			currentLifetime = null;
 
 			logger = null;
+
+			currentStatus = EApplicationStatus.UNINITIALIZED;
 		}
 
 		#region IApplicationContext
 
-		public IContainer DIContainer { get; private set; }
-
-		public ILifetimeScope CurrentLifetimeScope
-		{
-			get 
-			{
-				lifetimeScopeStack.TryPeek(out var result);
-
-				return result;
-			}
-		}
-
-		public ILifetimeable RootLifetime { get => rootLifetime; }
-
-		public ILifetimeable CurrentLifetime { get => currentLifetime; }
+		public EApplicationStatus CurrentStatus { get => currentStatus; }
 
 		public IEnumerable<IModule> ActiveModules { get => activeModules; }
 
 		#endregion
 
 		#region ICompositionRoot
+
+		public IContainer DIContainer { get; private set; }
 
 		public ContainerBuilder ContainerBuilder { get; private set; }
 
@@ -94,6 +88,14 @@ namespace HereticalSolutions.HereticalEngine.Application
 			logger = loggerResolver.GetLogger<ApplicationContext>();
 		}
 
+		#endregion
+
+		#region ILifetimeComposer
+
+		public ILifetimeable RootLifetime { get => rootLifetime; }
+
+		public ILifetimeable CurrentLifetime { get => currentLifetime; }
+
 		public void NestLifetime(ILifetimeable lifetime)
 		{
 			//LifetimeSynchronizer.SyncLifetimes( //We don't want the module to initialize itself upon parent lifetime's initialization
@@ -112,6 +114,26 @@ namespace HereticalSolutions.HereticalEngine.Application
 				rootLifetime = lifetime;
 		}
 
+		#endregion
+
+		#region ILifetimeScopeManager
+
+		public ILifetimeScope CurrentLifetimeScope
+		{
+			get
+			{
+				if (lifetimeScopeStack == null)
+					throw new Exception(
+						logger.TryFormat<ApplicationContext>(
+							"SCOPE STACK IS NULL"));
+				
+				if (lifetimeScopeStack.Count == 0)
+					return null;
+
+				return lifetimeScopeStack.Peek();
+			}
+		}
+
 		public void QueueLifetimeScopeAction(Action<ContainerBuilder> lifetimeScopeAction)
 		{
 			lifetimeScopeActions.Add(lifetimeScopeAction);
@@ -127,7 +149,7 @@ namespace HereticalSolutions.HereticalEngine.Application
 			if (lifetimeScopeStack == null)
 				throw new Exception(
 					logger.TryFormat<ApplicationContext>(
-					"SCOPE STACK IS NULL"));
+						"SCOPE STACK IS NULL"));
 
 
 			var currentLifetimeScopeActions = lifetimeScopeActions.ToArray();
@@ -142,13 +164,14 @@ namespace HereticalSolutions.HereticalEngine.Application
 				};
 
 
-			ILifetimeScope currentLifetimeScope = CurrentLifetimeScope;
+			ILifetimeScope previousScope = CurrentLifetimeScope;
 
 			ILifetimeScope newScope = null;
 
-			if (currentLifetimeScope != null)
+
+			if (previousScope != null)
 			{
-				newScope = currentLifetimeScope.BeginLifetimeScope(configurationAction);
+				newScope = previousScope.BeginLifetimeScope(configurationAction);
 			}
 			else
 			{
@@ -177,6 +200,19 @@ namespace HereticalSolutions.HereticalEngine.Application
 				.Pop()
 				.Dispose();
 		}
+
+		#endregion
+
+		#region IApplicationStatusManager
+
+		public void SetStatus(EApplicationStatus status)
+		{
+			currentStatus = status;
+		}
+
+		#endregion
+
+		#region IModuleManager
 
 		public void AddActiveModule(IModule module)
 		{

@@ -1,20 +1,17 @@
 using HereticalSolutions.HereticalEngine.Application;
 
-using HereticalSolutions.Time;
-using HereticalSolutions.Time.Factories;
+using HereticalSolutions.HereticalEngine.Messaging;
 
-using HereticalSolutions.Synchronization;
-
-using HereticalSolutions.Logging;
+using HereticalSolutions.Collections.Managed;
 
 using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
-	public class TimeModule
+	public class MainThreadCommandBufferModule
 		: ALifetimeableModule
 	{
-		public override string Name => "Time module";
+		public override string Name => "Main thread command buffer module";
 
 		protected override void InitializeInternal()
 		{
@@ -26,17 +23,17 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					containerBuilder
 						.Register(componentContext =>
 						{
-							componentContext.TryResolve<ILoggerResolver>(
-								out ILoggerResolver loggerResolver);
+							logger?.Log<MainThreadCommandBufferModule>(
+								"BUILDING MAIN THREAD COMMAND BUFFER");
 
-							logger?.Log<TimeModule>(
-								"BUILDING TIME MANAGER");
+							ConcurrentGenericCircularBuffer<MainThreadCommand> mainThreadCommandBuffer =
+								new ConcurrentGenericCircularBuffer<MainThreadCommand>(
+									new MainThreadCommand[1024],
+									new int[1024]);
 
-							ITimeManager timeManager = TimeFactory.BuildTimeManager(loggerResolver);
-
-							return timeManager;
+							return mainThreadCommandBuffer;
 						})
-						.As<ITimeManager>()
+						.As<ConcurrentGenericCircularBuffer<MainThreadCommand>>()
 						.SingleInstance();
 
 					//For some fucking reason autofac performs delegates in lifetime scopes ad hoc meaning that the delegate won't run
@@ -57,24 +54,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					containerBuilder
 						.RegisterBuildCallback(componentContext =>
 						{
-							componentContext.TryResolve<ITimeManager>(out var timeManager);
+							componentContext.TryResolve<ConcurrentGenericCircularBuffer<MainThreadCommand>>(out var mainThreadCommandBuffer);
 						});
 				});
 
 			base.InitializeInternal();
-		}
-
-		protected override void CleanupInternal()
-		{
-			if (((ILifetimeScopeManager)context)
-				.CurrentLifetimeScope
-				.TryResolve<ITimeManager>(
-					out ITimeManager timeManager))
-			{
-				((ISynchronizablesGenericArgRepository<float>)timeManager).RemoveAllSynchronizables();
-			}
-
-			base.CleanupInternal();
 		}
 	}
 }

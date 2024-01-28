@@ -92,9 +92,12 @@ namespace HereticalSolutions.Synchronization
 
 		public void SynchronizeAll(string id)
 		{
-			var synchronizable = synchroRepository.Get(id);
-
-			synchronizable.Synchronize();
+			if (synchroRepository.TryGet(
+				id,
+				out var synchronizable))
+			{
+				synchronizable.Synchronize();
+			}
 		}
 
 		#endregion

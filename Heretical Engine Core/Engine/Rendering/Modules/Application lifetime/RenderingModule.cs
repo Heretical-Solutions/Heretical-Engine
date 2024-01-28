@@ -1,9 +1,7 @@
 using HereticalSolutions.HereticalEngine.Application;
 
-using HereticalSolutions.Time;
-using HereticalSolutions.Time.Factories;
-
-using HereticalSolutions.Synchronization;
+using HereticalSolutions.HereticalEngine.Rendering;
+using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 using HereticalSolutions.Logging;
 
@@ -11,10 +9,10 @@ using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
-	public class TimeModule
+	public class RenderingModule
 		: ALifetimeableModule
 	{
-		public override string Name => "Time module";
+		public override string Name => "Rendering module";
 
 		protected override void InitializeInternal()
 		{
@@ -29,14 +27,16 @@ namespace HereticalSolutions.HereticalEngine.Modules
 							componentContext.TryResolve<ILoggerResolver>(
 								out ILoggerResolver loggerResolver);
 
-							logger?.Log<TimeModule>(
-								"BUILDING TIME MANAGER");
+							var logger = loggerResolver?.GetLogger<RenderingModule>();
 
-							ITimeManager timeManager = TimeFactory.BuildTimeManager(loggerResolver);
+							logger?.Log<RenderingModule>(
+								"BUILDING COMPOSITE RENDERER");
 
-							return timeManager;
+							IRenderer renderer = RendererFactory.BuildCompositeRenderer();
+
+							return renderer;
 						})
-						.As<ITimeManager>()
+						.As<IRenderer>()
 						.SingleInstance();
 
 					//For some fucking reason autofac performs delegates in lifetime scopes ad hoc meaning that the delegate won't run
@@ -57,7 +57,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					containerBuilder
 						.RegisterBuildCallback(componentContext =>
 						{
-							componentContext.TryResolve<ITimeManager>(out var timeManager);
+							componentContext.TryResolve<IRenderer>(out var renderer);
 						});
 				});
 
@@ -68,10 +68,10 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (((ILifetimeScopeManager)context)
 				.CurrentLifetimeScope
-				.TryResolve<ITimeManager>(
-					out ITimeManager timeManager))
+				.TryResolve<IRenderer>(
+					out IRenderer renderer))
 			{
-				((ISynchronizablesGenericArgRepository<float>)timeManager).RemoveAllSynchronizables();
+				((ICompositeRenderer)renderer).RemoveAllRenderers();
 			}
 
 			base.CleanupInternal();

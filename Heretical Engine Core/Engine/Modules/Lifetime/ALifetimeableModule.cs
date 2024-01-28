@@ -26,12 +26,29 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			this.context = context;
 
-			if (context
-				.DIContainer
-				.TryResolve<ILoggerResolver>(
-					out var resolver))
+			var lifetimeScopeManager = context as ILifetimeScopeManager;
+
+			if (lifetimeScopeManager.CurrentLifetimeScope != null)
 			{
-				logger = resolver.GetLogger(GetType());
+				if (lifetimeScopeManager
+					.CurrentLifetimeScope
+					.TryResolve<ILoggerResolver>(
+						out var resolver))
+				{
+					logger = resolver.GetLogger(GetType());
+				}
+			}
+			else
+			{
+				var compositionRoot = context as ICompositionRoot;
+
+				if (compositionRoot
+					.DIContainer
+					.TryResolve<ILoggerResolver>(
+						out var resolver))
+				{
+					logger = resolver.GetLogger(GetType());
+				}
 			}
 
 			if (IsSetUp)

@@ -1,6 +1,7 @@
 namespace HereticalSolutions.Time
 {
 	public interface ITimeManager
+		: ITickable
 	{
 		IRuntimeTimer ApplicationRuntimeTimer { get; }
 

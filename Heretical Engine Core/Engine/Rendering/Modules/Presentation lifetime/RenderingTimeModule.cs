@@ -11,10 +11,10 @@ using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
-	public class TimeModule
+	public class RenderingTimeModule
 		: ALifetimeableModule
 	{
-		public override string Name => "Time module";
+		public override string Name => "Rendering time module";
 
 		protected override void InitializeInternal()
 		{
@@ -29,14 +29,14 @@ namespace HereticalSolutions.HereticalEngine.Modules
 							componentContext.TryResolve<ILoggerResolver>(
 								out ILoggerResolver loggerResolver);
 
-							logger?.Log<TimeModule>(
+							logger?.Log<RenderingTimeModule>(
 								"BUILDING TIME MANAGER");
 
-							ITimeManager timeManager = TimeFactory.BuildTimeManager(loggerResolver);
+							ITimeManager renderingTimeManager = TimeFactory.BuildTimeManager(loggerResolver);
 
-							return timeManager;
+							return renderingTimeManager;
 						})
-						.As<ITimeManager>()
+						.Named<ITimeManager>(RenderingConstants.RENDERING_TIME_MANAGER_NAME)
 						.SingleInstance();
 
 					//For some fucking reason autofac performs delegates in lifetime scopes ad hoc meaning that the delegate won't run
@@ -57,7 +57,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					containerBuilder
 						.RegisterBuildCallback(componentContext =>
 						{
-							componentContext.TryResolve<ITimeManager>(out var timeManager);
+							componentContext.TryResolveNamed<ITimeManager>(
+								RenderingConstants.RENDERING_TIME_MANAGER_NAME,
+								out var renderingTimeManager);
 						});
 				});
 
@@ -68,10 +70,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 		{
 			if (((ILifetimeScopeManager)context)
 				.CurrentLifetimeScope
-				.TryResolve<ITimeManager>(
-					out ITimeManager timeManager))
+				.TryResolveNamed<ITimeManager>(
+					RenderingConstants.RENDERING_TIME_MANAGER_NAME,
+					out ITimeManager renderingtimeManager))
 			{
-				((ISynchronizablesGenericArgRepository<float>)timeManager).RemoveAllSynchronizables();
+				((ISynchronizablesGenericArgRepository<float>)renderingtimeManager).RemoveAllSynchronizables();
 			}
 
 			base.CleanupInternal();
