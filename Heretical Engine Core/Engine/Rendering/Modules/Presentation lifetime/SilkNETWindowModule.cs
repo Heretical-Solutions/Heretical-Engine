@@ -10,6 +10,8 @@ using HereticalSolutions.Synchronization;
 
 using HereticalSolutions.Time;
 
+using HereticalSolutions.Hierarchy;
+
 using HereticalSolutions.Logging;
 
 using Silk.NET.Windowing;
@@ -26,7 +28,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		protected override void InitializeInternal()
 		{
-			var lifetimeScopeManager = context as ILifetimeScopeManager;
+			var lifetimeScopeManager = parentLifetime as ILifetimeScopeContainer;
 
 			lifetimeScopeManager.QueueLifetimeScopeAction(
 				containerBuilder =>
@@ -100,6 +102,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 							// Our loading function
 							window.Load += () =>
 							{
+								LoadOpenWindowLifetimeModules();
+
 								synchronizationManager
 									.SynchronizeAll(WindowSynchronizationConstants.WINDOW_LOADED);
 
@@ -138,9 +142,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 								logger?.Log<SilkNETWindowModule>(
 									"WINDOW UNLOADED");
 							};
-
-							// Now that everything's defined, let's run this bad boy!\
-							//UPDATE: NOT now. After all the modules are loaded
 
 							if (!((ISynchronizationProvidersRepository)synchronizationManager)
 								.TryGetProvider(
@@ -202,6 +203,24 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				else
 					command.Execute();
 			}
+		}
+
+		private void LoadOpenWindowLifetimeModules()
+		{
+			var moduleManager = context as IModuleManager;
+
+			//Window lifetime
+			var windowLifetimeModule = new WindowLifetimeModule(
+				new List<IReadOnlyHierarchyNode>(),
+				new List<Action<ContainerBuilder>>(),
+				new IModule[]
+				{
+
+				});
+
+			moduleManager.LoadModule(
+				windowLifetimeModule,
+				parentLifetime);
 		}
 	}
 }

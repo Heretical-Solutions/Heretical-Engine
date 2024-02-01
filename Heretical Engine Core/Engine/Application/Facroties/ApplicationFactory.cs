@@ -10,8 +10,6 @@ namespace HereticalSolutions.HereticalEngine.Application
 		{
 			return new ApplicationContext(
 				new ContainerBuilder(),
-				new Stack<ILifetimeScope>(),
-				new List<Action<ContainerBuilder>>(),
 				new List<IModule>());
 		}
 	}

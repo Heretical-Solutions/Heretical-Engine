@@ -1,16 +1,12 @@
 using Autofac;
 
-namespace HereticalSolutions.HereticalEngine.Application
+namespace HereticalSolutions.HereticalEngine.Modules
 {
-	public interface ILifetimeScopeManager
+	public interface ILifetimeScopeContainer
 	{
 		ILifetimeScope CurrentLifetimeScope { get; }
 
 		void QueueLifetimeScopeAction(
 			Action<ContainerBuilder> lifetimeScopeAction);
-
-		void PushLifetimeScope();
-
-		void PopLifetimeScope();
 	}
 }

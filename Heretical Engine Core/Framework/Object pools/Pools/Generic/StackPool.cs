@@ -18,6 +18,7 @@ namespace HereticalSolutions.Pools.Generic
     {
         private readonly ILogger logger;
 
+        //Not readonly because IModifiable's UpdateContents method replaces one pool with another
         private Stack<T> pool;
 
         /// <summary>

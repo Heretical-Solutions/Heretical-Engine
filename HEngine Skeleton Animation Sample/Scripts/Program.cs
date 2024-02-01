@@ -5,6 +5,8 @@ using HereticalSolutions.HereticalEngine.Modules;
 
 using HereticalSolutions.LifetimeManagement;
 
+using HereticalSolutions.Hierarchy;
+
 using HereticalSolutions.Synchronization;
 
 using Autofac;
@@ -30,68 +32,74 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			IModuleManager moduleManager = context as IModuleManager;
 
-			IModule[] modules = new IModule[]
-			{
-				//Bootstrapper modules, main container scope
-				new ApplicationDataModule(),
-				new LoggingModule(),
-				new BuildDIContainerModule(),
 
-				//Application lifetime scope
-				new ApplicationLifetimeModule(),
-				new MainThreadCommandBufferModule(),
-				new ResourceManagementModule(),
-				new SynchronizationModule(),
-				new TimeModule(),
-				new RenderingModule(),
-				new ApplicationSynchronizationPointsModule(),
-				new BuildLifetimeScopeModule(),
+			//Root lifetime
+			var rootLifetimeModule = new RootLifetimeModule(
+				new List<IReadOnlyHierarchyNode>(),
+				new List<Action<ContainerBuilder>>(),
+				new IModule[]
+				{
+					new ApplicationContextModule(),
+					new ApplicationDataModule(),
+					new LoggingModule()
+				});
 
-				//Presentation lifetime scope
-				new PresentationLifetimeModule(),
-				new RenderingSynchronizationPointsModule(),
-				new WindowSynchronizationPointsModule(),
-				new RenderingTimeModule(),
-				new SilkNETWindowModule(),
-				new BuildLifetimeScopeModule(),
+			moduleManager.LoadModule(
+				rootLifetimeModule,
+				null);
 
-				//These two lifetimes (^ and v) should actually be branches of the application lifetime
-				//TODO: the same presentation lifetime scope but for editor
+			var rootLifetime = (ILifetimeModule)rootLifetimeModule;
 
-				//Domain model lifetime scope
-				new DomainModelLifetimeModule(),
-				new BuildLifetimeScopeModule(),
 
-				//Scene lifetime scope
-				new SceneLifetimeModule(),
-				new BuildLifetimeScopeModule()
-				
-				//windowModule,
-				//new OpenGLModule(iocBuilder),
-				//new MainCameraModule(iocBuilder),
-				//new OpenGLDrawTestMeshModule(),
+			//Application lifetime
+			var ApplicationLifetimeModule = new ApplicationLifetimeModule(
+				new List<IReadOnlyHierarchyNode>(),
+				new List<Action<ContainerBuilder>>(),
+				new IModule[]
+				{
+					new MainThreadCommandBufferModule(),
+					new ResourceManagementModule(),
+					new SynchronizationModule(),
+					new TimeModule(),
+					new RenderingModule(),
+					new ApplicationSynchronizationPointsModule()
+				});
 
-				//new TempModule()
+			moduleManager.LoadModule(
+				ApplicationLifetimeModule,
+				rootLifetime);
 
-				//new OpenGLDrawTestCubeModule(),
-				//new OpenGLDrawTextureModule(),
-				//new ImGuiModule()
-			};
+			var applicationLifetime = (ILifetimeModule)ApplicationLifetimeModule;
 
-			foreach (var module in modules)
-			{
-				moduleManager.LoadModule(module);
-			}
+
+			//Presentation lifetime
+			var presentationLifetimeModule = new PresentationLifetimeModule(
+				new List<IReadOnlyHierarchyNode>(),
+				new List<Action<ContainerBuilder>>(),
+				new IModule[]
+				{
+					new RenderingSynchronizationPointsModule(),
+					new WindowSynchronizationPointsModule(),
+					new RenderingTimeModule(),
+					new SilkNETWindowModule()
+				});
+
+			moduleManager.LoadModule(
+				presentationLifetimeModule,
+				applicationLifetime);
+
+			var presentationLifetime = (ILifetimeModule)presentationLifetimeModule;
+
 
 			applicationStatusManager.SetStatus(EApplicationStatus.INITIALIZED);
 
-			//Lifetime
+			//Update loop
 			applicationStatusManager.SetStatus(EApplicationStatus.RUNNING);
 
 			//((ILifetimeScopeManager)context).CurrentLifetimeScope.TryResolve<IWindow>(out var window);
 			//window?.Run();
 
-			if (((ILifetimeScopeManager)context)
+			if (applicationLifetime
 				.CurrentLifetimeScope
 				.TryResolve<ISynchronizationManager>(
 					out var synchronizationManager))
@@ -104,15 +112,7 @@ namespace HereticalSolutions.HereticalEngine.Samples
 
 			//Start finishing the application by unloading the root lifetime module
 			//TODO: move to the modules
-			((ITearDownable)((ILifetimeComposer)context).RootLifetime).TearDown();
-
-			//Finish by unloading the bootstrap modules
-			while (context.ActiveModules.Count() > 0)
-			{
-				Console.WriteLine($"Unloading module {context.ActiveModules.Last().Name}");
-
-				moduleManager.UnloadModule(context.ActiveModules.Last());
-			}
+			((ITearDownable)context.RootLifetime).TearDown();
 
 			applicationStatusManager.SetStatus(EApplicationStatus.SHUTDOWN);
 

@@ -7,5 +7,7 @@ namespace HereticalSolutions.HereticalEngine.Application
 		EApplicationStatus CurrentStatus { get; }
 
 		IEnumerable<IModule> ActiveModules { get; }
+
+		ILifetimeModule RootLifetime { get; }
 	}
 }

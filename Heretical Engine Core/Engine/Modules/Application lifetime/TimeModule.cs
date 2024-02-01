@@ -1,5 +1,3 @@
-using HereticalSolutions.HereticalEngine.Application;
-
 using HereticalSolutions.Time;
 using HereticalSolutions.Time.Factories;
 
@@ -18,7 +16,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		protected override void InitializeInternal()
 		{
-			var lifetimeScopeManager = context as ILifetimeScopeManager;
+			var lifetimeScopeManager = parentLifetime as ILifetimeScopeContainer;
 
 			lifetimeScopeManager.QueueLifetimeScopeAction(
 				containerBuilder =>
@@ -66,7 +64,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		protected override void CleanupInternal()
 		{
-			if (((ILifetimeScopeManager)context)
+			if (parentLifetime
 				.CurrentLifetimeScope
 				.TryResolve<ITimeManager>(
 					out ITimeManager timeManager))

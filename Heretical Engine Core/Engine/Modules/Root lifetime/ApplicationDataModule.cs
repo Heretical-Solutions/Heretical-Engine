@@ -5,17 +5,11 @@ using Autofac;
 namespace HereticalSolutions.HereticalEngine.Modules
 {
 	public class ApplicationDataModule
-		: IModule
+		: ALifetimeableModule
 	{
-		public ApplicationDataModule()
-		{
-		}
+		public override string Name => "Application data module";
 
-		#region IModule
-
-		public string Name => "Application data module";
-
-		public void Load(IApplicationContext context)
+		protected override void InitializeInternal()
 		{
 			var compositionRoot = context as ICompositionRoot;
 
@@ -37,12 +31,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				})
 				.Named<string>(ApplicationDataConstants.APPLICATION_DATA_FOLDER)
 				.SingleInstance();
-		}
 
-		public void Unload(IApplicationContext context)
-		{
-		}
 
-		#endregion
+			base.InitializeInternal();
+		}
 	}
 }

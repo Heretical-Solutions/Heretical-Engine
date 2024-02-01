@@ -127,12 +127,13 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
             //Update index
             result.Metadata.Get<IIndexed>().Index = count;
 
-            
+            //TODO: perform if (IPushable) checks BEFORE doing the following
             //Update element data
             var elementAsPushable = (IPushable<T>)result; 
             
             elementAsPushable.Status = EPoolElementStatus.POPPED;
             
+            //TODO: maybe not all of them have/need UpdatePushBehaviour. Refactor this
             elementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
             
             
@@ -209,6 +210,7 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
             Push(item.Metadata.Get<IIndexed>().Index);
         }
 
+        //TODO: extract to an interface
         /// <summary>
         /// Pushes an item back into the pool at the specified index.
         /// </summary>

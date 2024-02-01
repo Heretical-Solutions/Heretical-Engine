@@ -1,5 +1,3 @@
-using HereticalSolutions.HereticalEngine.Application;
-
 using HereticalSolutions.HereticalEngine.Messaging;
 
 using HereticalSolutions.Collections.Managed;
@@ -15,7 +13,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		protected override void InitializeInternal()
 		{
-			var lifetimeScopeManager = context as ILifetimeScopeManager;
+			var lifetimeScopeManager = parentLifetime as ILifetimeScopeContainer;
 
 			lifetimeScopeManager.QueueLifetimeScopeAction(
 				containerBuilder =>
@@ -54,7 +52,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					containerBuilder
 						.RegisterBuildCallback(componentContext =>
 						{
-							componentContext.TryResolve<ConcurrentGenericCircularBuffer<MainThreadCommand>>(out var mainThreadCommandBuffer);
+							componentContext.TryResolve<ConcurrentGenericCircularBuffer<MainThreadCommand>>(
+								out var mainThreadCommandBuffer);
 						});
 				});
 

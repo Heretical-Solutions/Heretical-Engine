@@ -11,9 +11,11 @@ using Autofac;
 namespace HereticalSolutions.HereticalEngine.Modules
 {
 	public class LoggingModule
-		: IModule
+		: ALifetimeableModule
 	{
 		private readonly bool dumpLogsOnTearDown;
+
+		public override string Name => "Logging module";
 
 		public LoggingModule(
 			bool dumpLogsOnTearDown = true)
@@ -21,11 +23,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			this.dumpLogsOnTearDown = dumpLogsOnTearDown;
 		}
 
-		#region IModule
-
-		public string Name => "Logging module";
-
-		public void Load(IApplicationContext context)
+		protected override void InitializeInternal()
 		{
 			var compositionRoot = context as ICompositionRoot;
 
@@ -130,9 +128,11 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				})
 				.As<IDumpable>()
 				.SingleInstance();
+
+			base.InitializeInternal();
 		}
 
-		public void Unload(IApplicationContext context)
+        protected override void CleanupInternal()
 		{
 			if (((ICompositionRoot)context)
 				.DIContainer
@@ -141,8 +141,8 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			{
 				dumpableLogger.Dump();
 			}
-		}
 
-		#endregion
+			base.CleanupInternal();
+		}
 	}
 }

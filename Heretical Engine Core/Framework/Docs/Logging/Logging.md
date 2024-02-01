@@ -13,3 +13,5 @@
 - Remember that concrete classes should receive instances of `ILogger`, while their factories should receive instances of `ILoggerResolver`. Classes should NOT ask a resolver for their dedicated loggers; their loggers should be provided to them by factories. Factories, on the other hand, should NOT use loggers that have already been resolved for some classes as a dependency for the class instances they create; they should ask logger resolvers to provide a new one.
 
 ## Implementations
+
+### Wrappers

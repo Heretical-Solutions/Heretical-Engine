@@ -16,40 +16,28 @@ namespace HereticalSolutions.HereticalEngine.Modules
 	{
 		protected IApplicationContext context;
 
+		protected IActiveModuleRegistry activeModuleRegistry;
+
+		protected ILifetimeModule parentLifetime;
+
 		protected ILogger logger;
 
 		#region IModule
 
 		public virtual string Name => "Abstract lifetimeable module";
 
-		public virtual void Load(IApplicationContext context)
+		public virtual void Load(
+			IApplicationContext context,
+			ILifetimeModule parentLifetime)
 		{
 			this.context = context;
 
-			var lifetimeScopeManager = context as ILifetimeScopeManager;
+			activeModuleRegistry = context as IActiveModuleRegistry;
 
-			if (lifetimeScopeManager.CurrentLifetimeScope != null)
-			{
-				if (lifetimeScopeManager
-					.CurrentLifetimeScope
-					.TryResolve<ILoggerResolver>(
-						out var resolver))
-				{
-					logger = resolver.GetLogger(GetType());
-				}
-			}
-			else
-			{
-				var compositionRoot = context as ICompositionRoot;
+			this.parentLifetime = parentLifetime;
 
-				if (compositionRoot
-					.DIContainer
-					.TryResolve<ILoggerResolver>(
-						out var resolver))
-				{
-					logger = resolver.GetLogger(GetType());
-				}
-			}
+
+			TryResolveLogger(parentLifetime as ILifetimeScopeContainer);
 
 			if (IsSetUp)
 				throw new Exception(
@@ -65,23 +53,27 @@ namespace HereticalSolutions.HereticalEngine.Modules
 						"ATTEMPT TO INITIALIZE MODULE THAT IS ALREADY INITIALIZED"));
 			}
 
-			//This should be placed here because InitializeInternal may call compositionRoot.SetLifetimeAsCurrent(this); that will cause the module to replace the current lifetime scope. We don't want it to subscribe its lifetime to itself now do we?
-			((ILifetimeComposer)context).NestLifetime(this);
+
+			LifetimeSynchronizer.SyncEndOfLifetimes(
+				this,
+				parentLifetime);
 
 			InitializeInternal();
+
 
 			IsSetUp = true;
 
 			IsInitialized = true;
 
-			OnInitialized?.Invoke();
-
 			logger?.Log(
 				GetType(),
 				$"MODULE INITIALIZED");
+
+			OnInitialized?.Invoke();
 		}
 
-		public virtual void Unload(IApplicationContext context)
+		public virtual void Unload(
+			IApplicationContext context)
 		{
 			TearDown();
 		}
@@ -104,7 +96,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		#region ITearDownable
 
-		public void TearDown()
+		public virtual void TearDown()
 		{
 			if (!IsSetUp)
 				return;
@@ -120,6 +112,12 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			//Cleanup
 			CleanupInternal();
 
+			logger?.Log(
+				GetType(),
+				$"MODULE DEINITIALIZED");
+
+			logger = null;
+
 
 			OnCleanedUp?.Invoke();
 
@@ -131,15 +129,6 @@ namespace HereticalSolutions.HereticalEngine.Modules
 			OnCleanedUp = null;
 
 			OnTornDown = null;
-
-
-			logger?.Log(
-				GetType(),
-				$"MODULE TORN DOWN");
-
-			logger = null;
-
-			context = null;
 		}
 
 		#endregion
@@ -155,14 +144,54 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		protected virtual void InitializeInternal()
 		{
-
+			activeModuleRegistry.RegisterActiveModule(this);
 		}
 
 		protected virtual void CleanupInternal()
 		{
 			//This one IS needed. Module could be unloaded in two ways: by calling Unload and by parent lifetime tear down.
 			//In both cases we need to ensure that module is unlisted from active ones without creating recursive calls
-			((IModuleManager)context).RemoveActiveModule(this);
+			activeModuleRegistry.UnregisterActiveModule(this);
+
+			parentLifetime = null;
+
+			activeModuleRegistry = null;
+
+			context = null;
+		}
+
+		//Remember: we're trying to obtain a logger WITHOUT hooking up to the parent YET
+		protected void TryResolveLogger(ILifetimeScopeContainer lifetimeScopeContainer)
+		{
+			if (lifetimeScopeContainer != null
+				&& lifetimeScopeContainer.CurrentLifetimeScope != null)
+			{
+				if (lifetimeScopeContainer
+					.CurrentLifetimeScope
+					.TryResolve<ILoggerResolver>(
+						out var resolver))
+				{
+					logger = resolver.GetLogger(GetType());
+				}
+			}
+			else
+			{
+				var compositionRoot = context as ICompositionRoot;
+
+				if (compositionRoot == null)
+					return;
+
+				if (compositionRoot.DIContainer == null)
+					return;
+
+				if (compositionRoot
+					.DIContainer
+					.TryResolve<ILoggerResolver>(
+						out var resolver))
+				{
+					logger = resolver.GetLogger(GetType());
+				}
+			}
 		}
 	}
 }

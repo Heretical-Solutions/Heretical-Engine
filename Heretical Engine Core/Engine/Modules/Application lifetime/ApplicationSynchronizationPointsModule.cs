@@ -16,7 +16,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 
 		protected override void InitializeInternal()
 		{
-			var lifetimeScopeManager = context as ILifetimeScopeManager;
+			var lifetimeScopeManager = parentLifetime as ILifetimeScopeContainer;
 
 			lifetimeScopeManager.QueueLifetimeScopeAction(
 				containerBuilder =>

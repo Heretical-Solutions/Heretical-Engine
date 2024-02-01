@@ -4,12 +4,12 @@ using Autofac;
 
 namespace HereticalSolutions.HereticalEngine.Modules
 {
-	public class PresentationLifetimeModule
+	public class WindowLifetimeModule
 		: ALifetimeModule
 	{
-		public override string Name => "Presentation lifetime module";
+		public override string Name => "Window lifetime module";
 
-		public PresentationLifetimeModule(
+		public WindowLifetimeModule(
 			List<IReadOnlyHierarchyNode> children,
 			List<Action<ContainerBuilder>> lifetimeScopeActions,
 			IModule[] initialModules)
@@ -17,7 +17,7 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				children,
 				lifetimeScopeActions,
 				initialModules)
-				{
-				}
+		{
+		}
 	}
 }
