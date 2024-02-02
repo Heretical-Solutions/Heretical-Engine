@@ -1,4 +1,4 @@
-using HereticalSolutions.HereticalEngine.Application;
+using HereticalSolutions.HereticalEngine.Modules;
 
 using HereticalSolutions.Synchronization;
 using HereticalSolutions.Synchronization.Factories;
@@ -7,7 +7,7 @@ using HereticalSolutions.Logging;
 
 using Autofac;
 
-namespace HereticalSolutions.HereticalEngine.Modules
+namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class RenderingSynchronizationPointsModule
 		: ALifetimeableModule

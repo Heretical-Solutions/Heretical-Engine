@@ -1,41 +1,34 @@
 using HereticalSolutions.HereticalEngine.Modules;
 
-using HereticalSolutions.Time;
-using HereticalSolutions.Time.Factories;
-
-using HereticalSolutions.Synchronization;
-
-using HereticalSolutions.Logging;
+using Silk.NET.Windowing;
 
 using Autofac;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class RenderingTimeModule
+	public class WindowRegistryModule
 		: ALifetimeableModule
 	{
-		public override string Name => "Rendering time module";
+		private readonly IWindow window;
+
+		public WindowRegistryModule(IWindow window)
+		{
+			this.window = window;
+		}
+
+		public override string Name => "Window registry module";
 
 		protected override void InitializeInternal()
 		{
-			var lifetimeScopeManager = parentLifetime as ILifetimeScopeContainer;
-
-			lifetimeScopeManager.QueueLifetimeScopeAction(
+			parentLifetime.QueueLifetimeScopeAction(
 				containerBuilder =>
 				{
 					containerBuilder
 						.Register(componentContext =>
 						{
-							componentContext.TryResolve<ILoggerResolver>(
-								out ILoggerResolver loggerResolver);
-
-							logger?.Log<RenderingTimeModule>(
-								"BUILDING TIME MANAGER");
-
-							ITimeManager renderingTimeManager = TimeFactory.BuildTimeManager(loggerResolver);
-
-							return renderingTimeManager;
+							return window;
 						})
-						.Named<ITimeManager>(RenderingConstants.RENDERING_TIME_MANAGER_NAME)
+						.As<IWindow>()
 						.SingleInstance();
 
 					//For some fucking reason autofac performs delegates in lifetime scopes ad hoc meaning that the delegate won't run
@@ -56,27 +49,11 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					containerBuilder
 						.RegisterBuildCallback(componentContext =>
 						{
-							componentContext.TryResolveNamed<ITimeManager>(
-								RenderingConstants.RENDERING_TIME_MANAGER_NAME,
-								out var renderingTimeManager);
+							componentContext.TryResolve<IWindow>(out var window);
 						});
 				});
 
 			base.InitializeInternal();
-		}
-
-		protected override void CleanupInternal()
-		{
-			if (parentLifetime
-				.CurrentLifetimeScope
-				.TryResolveNamed<ITimeManager>(
-					RenderingConstants.RENDERING_TIME_MANAGER_NAME,
-					out ITimeManager renderingtimeManager))
-			{
-				((ISynchronizablesGenericArgRepository<float>)renderingtimeManager).RemoveAllSynchronizables();
-			}
-
-			base.CleanupInternal();
 		}
 	}
 }

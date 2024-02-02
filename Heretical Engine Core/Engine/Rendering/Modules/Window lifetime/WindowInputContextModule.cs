@@ -1,18 +1,19 @@
-using HereticalSolutions.HereticalEngine.Application;
-
-using HereticalSolutions.HereticalEngine.Rendering;
-using HereticalSolutions.HereticalEngine.Rendering.Factories;
+using HereticalSolutions.HereticalEngine.Modules;
 
 using HereticalSolutions.Logging;
 
+using Silk.NET.Windowing;
+
+using Silk.NET.Input;
+
 using Autofac;
 
-namespace HereticalSolutions.HereticalEngine.Modules
+namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class RenderingModule
+	public class WindowInputContextModule
 		: ALifetimeableModule
 	{
-		public override string Name => "Rendering module";
+		public override string Name => "Window input context module";
 
 		protected override void InitializeInternal()
 		{
@@ -24,19 +25,45 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					containerBuilder
 						.Register(componentContext =>
 						{
-							componentContext.TryResolve<ILoggerResolver>(
-								out ILoggerResolver loggerResolver);
+							if (!componentContext
+								.TryResolve<IWindow>(
+									out var window))
+							{
+								throw new Exception(
+									logger.TryFormat<WindowInputContextModule>(
+										"COULD NOT RESOLVE WINDOW"));
+							}
 
-							var logger = loggerResolver?.GetLogger<RenderingModule>();
+							logger?.Log<WindowInputContextModule>(
+								"BUILDING WINDOW INPUT CONTEXT");
 
-							logger?.Log<RenderingModule>(
-								"BUILDING COMPOSITE RENDERER");
+							var inputContext = window.CreateInput();
 
-							IRenderer renderer = RendererFactory.BuildCompositeRenderer();
-
-							return renderer;
+							return inputContext;
 						})
-						.As<IRenderer>()
+						.As<IInputContext>()
+						.SingleInstance();
+
+					containerBuilder
+						.Register(componentContext =>
+						{
+							if (!componentContext
+								.TryResolve<IInputContext>(
+									out var inputContext))
+							{
+								throw new Exception(
+									logger.TryFormat<WindowInputContextModule>(
+										"COULD NOT RESOLVE INPUT CONTEXT"));
+							}
+
+							logger?.Log<WindowInputContextModule>(
+								"RETRIEVING PRIMARY KEYBOARD");
+
+							var primaryKeyboard = inputContext.Keyboards.FirstOrDefault();
+
+							return primaryKeyboard;
+						})
+						.As<IKeyboard>()
 						.SingleInstance();
 
 					//For some fucking reason autofac performs delegates in lifetime scopes ad hoc meaning that the delegate won't run
@@ -57,24 +84,15 @@ namespace HereticalSolutions.HereticalEngine.Modules
 					containerBuilder
 						.RegisterBuildCallback(componentContext =>
 						{
-							componentContext.TryResolve<IRenderer>(out var renderer);
+							componentContext.TryResolve<IInputContext>(
+								out var inputContext);
+
+							componentContext.TryResolve<IKeyboard>(
+								out var primaryKeyboard);
 						});
 				});
 
 			base.InitializeInternal();
-		}
-
-		protected override void CleanupInternal()
-		{
-			if (parentLifetime
-				.CurrentLifetimeScope
-				.TryResolve<IRenderer>(
-					out IRenderer renderer))
-			{
-				((ICompositeRenderer)renderer).RemoveAllRenderers();
-			}
-
-			base.CleanupInternal();
 		}
 	}
 }

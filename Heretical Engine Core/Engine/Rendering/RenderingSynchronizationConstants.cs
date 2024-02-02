@@ -1,4 +1,4 @@
-namespace HereticalSolutions.HereticalEngine.Application
+namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public static class RenderingSynchronizationConstants
 	{

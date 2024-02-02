@@ -1,8 +1,10 @@
+using HereticalSolutions.HereticalEngine.Modules;
+
 using HereticalSolutions.Hierarchy;
 
 using Autofac;
 
-namespace HereticalSolutions.HereticalEngine.Modules
+namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class WindowLifetimeModule
 		: ALifetimeModule

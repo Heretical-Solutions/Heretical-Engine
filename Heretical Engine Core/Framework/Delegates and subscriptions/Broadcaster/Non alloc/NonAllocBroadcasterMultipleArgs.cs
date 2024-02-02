@@ -51,7 +51,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
             var subscriptionElement = subscriptionsPool.Pop();
 
-            subscriptionElement.Value = ((ISubscriptionState<ISubscription>)subscription).Invokable;
+            var subscriptionState = (ISubscriptionState<IInvokableMultipleArgs>)subscription;
+
+            subscriptionElement.Value = (ISubscription)subscriptionState;
 
             subscription.Activate(this, subscriptionElement);
         }

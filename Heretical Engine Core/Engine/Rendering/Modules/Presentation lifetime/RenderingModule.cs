@@ -1,19 +1,18 @@
 using HereticalSolutions.HereticalEngine.Modules;
 
-using HereticalSolutions.Time;
-using HereticalSolutions.Time.Factories;
-
-using HereticalSolutions.Synchronization;
+using HereticalSolutions.HereticalEngine.Rendering.Factories;
 
 using HereticalSolutions.Logging;
 
 using Autofac;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
-	public class RenderingTimeModule
+	//TODO: find use for this module
+	public class RenderingModule
 		: ALifetimeableModule
 	{
-		public override string Name => "Rendering time module";
+		public override string Name => "Rendering module";
 
 		protected override void InitializeInternal()
 		{
@@ -28,14 +27,16 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 							componentContext.TryResolve<ILoggerResolver>(
 								out ILoggerResolver loggerResolver);
 
-							logger?.Log<RenderingTimeModule>(
-								"BUILDING TIME MANAGER");
+							var logger = loggerResolver?.GetLogger<RenderingModule>();
 
-							ITimeManager renderingTimeManager = TimeFactory.BuildTimeManager(loggerResolver);
+							logger?.Log<RenderingModule>(
+								"BUILDING COMPOSITE RENDERER");
 
-							return renderingTimeManager;
+							IRenderer renderer = RendererFactory.BuildCompositeRenderer();
+
+							return renderer;
 						})
-						.Named<ITimeManager>(RenderingConstants.RENDERING_TIME_MANAGER_NAME)
+						.As<IRenderer>()
 						.SingleInstance();
 
 					//For some fucking reason autofac performs delegates in lifetime scopes ad hoc meaning that the delegate won't run
@@ -56,9 +57,7 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					containerBuilder
 						.RegisterBuildCallback(componentContext =>
 						{
-							componentContext.TryResolveNamed<ITimeManager>(
-								RenderingConstants.RENDERING_TIME_MANAGER_NAME,
-								out var renderingTimeManager);
+							componentContext.TryResolve<IRenderer>(out var renderer);
 						});
 				});
 
@@ -69,11 +68,10 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 		{
 			if (parentLifetime
 				.CurrentLifetimeScope
-				.TryResolveNamed<ITimeManager>(
-					RenderingConstants.RENDERING_TIME_MANAGER_NAME,
-					out ITimeManager renderingtimeManager))
+				.TryResolve<IRenderer>(
+					out IRenderer renderer))
 			{
-				((ISynchronizablesGenericArgRepository<float>)renderingtimeManager).RemoveAllSynchronizables();
+				((ICompositeRenderer)renderer).RemoveAllRenderers();
 			}
 
 			base.CleanupInternal();

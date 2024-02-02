@@ -2,6 +2,7 @@
 
 using HereticalSolutions.HereticalEngine.Application;
 using HereticalSolutions.HereticalEngine.Modules;
+using HereticalSolutions.HereticalEngine.Rendering;
 
 using HereticalSolutions.LifetimeManagement;
 
@@ -61,7 +62,8 @@ namespace HereticalSolutions.HereticalEngine.Samples
 					new ResourceManagementModule(),
 					new SynchronizationModule(),
 					new TimeModule(),
-					new RenderingModule(),
+					new ApplicationTimePointsModule(),
+					//new RenderingModule(),
 					new ApplicationSynchronizationPointsModule()
 				});
 
@@ -79,9 +81,10 @@ namespace HereticalSolutions.HereticalEngine.Samples
 				new IModule[]
 				{
 					new RenderingSynchronizationPointsModule(),
-					new WindowSynchronizationPointsModule(),
+					//new WindowSynchronizationPointsModule(),
 					new RenderingTimeModule(),
-					new SilkNETWindowModule()
+					new RenderingTimePointsModule(),
+					//new SilkNETWindowModule()
 				});
 
 			moduleManager.LoadModule(
@@ -91,13 +94,22 @@ namespace HereticalSolutions.HereticalEngine.Samples
 			var presentationLifetime = (ILifetimeModule)presentationLifetimeModule;
 
 
+			//Let's try doing it separately
+			moduleManager.LoadModule(
+				new SilkNETWindowModule(
+					new IModule[]
+					{
+						new WindowSynchronizationPointsModule(),
+						new WindowInputContextModule(),
+						new OpenGLModule()
+					}),
+				presentationLifetime);
+
+
 			applicationStatusManager.SetStatus(EApplicationStatus.INITIALIZED);
 
 			//Update loop
 			applicationStatusManager.SetStatus(EApplicationStatus.RUNNING);
-
-			//((ILifetimeScopeManager)context).CurrentLifetimeScope.TryResolve<IWindow>(out var window);
-			//window?.Run();
 
 			if (applicationLifetime
 				.CurrentLifetimeScope
