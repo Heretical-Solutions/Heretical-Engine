@@ -2,11 +2,15 @@ using System.Collections.Concurrent;
 
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.Repositories
 {
 	public class ConcurrentDictionaryObjectRepository
 		: IObjectRepository,
-		  ICloneableObjectRepository
+		  ICloneableObjectRepository,
+		  ICleanUppable,
+		  IDisposable
 	{
 		private readonly ConcurrentDictionary<Type, object> database;
 
@@ -201,6 +205,39 @@ namespace HereticalSolutions.Repositories
 		public IObjectRepository Clone()
 		{
 			return RepositoriesFactory.CloneConcurrentDictionaryObjectRepository(database);
+		}
+
+		#endregion
+
+		#region ICleanUppable
+
+		public void Cleanup()
+		{
+			foreach (var value in database.Values)
+			{
+				if (value is ICleanUppable)
+					(value as ICleanUppable).Cleanup();
+			}
+
+			foreach (var value in database.Values)
+			{
+				if (value is IDisposable)
+					(value as IDisposable).Dispose();
+			}
+
+			Clear();
+		}
+
+		#endregion
+
+		#region IDisposable
+
+		public void Dispose()
+		{
+			Cleanup();
+
+			if (database is IDisposable)
+				(database as IDisposable).Dispose();
 		}
 
 		#endregion

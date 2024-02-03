@@ -2,11 +2,17 @@ using HereticalSolutions.Collections;
 
 using HereticalSolutions.Pools;
 
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Delegates.Pinging
 {
     public class NonAllocPinger
         : IPublisherNoArgs,
-          INonAllocSubscribableNoArgs
+          INonAllocSubscribableNoArgs,
+          ICleanUppable,
+          IDisposable
     {
         #region Subscriptions
 
@@ -17,6 +23,8 @@ namespace HereticalSolutions.Delegates.Pinging
         private readonly IFixedSizeCollection<IPoolElement<ISubscription>> subscriptionsWithCapacity;
 
         #endregion
+
+        private readonly ILogger logger;
 
         #region Buffer
 
@@ -30,9 +38,12 @@ namespace HereticalSolutions.Delegates.Pinging
 
         public NonAllocPinger(
             INonAllocDecoratedPool<ISubscription> subscriptionsPool,
-            INonAllocPool<ISubscription> subscriptionsContents)
+            INonAllocPool<ISubscription> subscriptionsContents,
+            ILogger logger = null)
         {
             this.subscriptionsPool = subscriptionsPool;
+
+            this.logger = logger;
 
             subscriptionsAsIndexable = (IIndexable<IPoolElement<ISubscription>>)subscriptionsContents;
 
@@ -56,6 +67,9 @@ namespace HereticalSolutions.Delegates.Pinging
             subscriptionElement.Value = subscription;
 
             subscriptionHandler.Activate(this, subscriptionElement);
+
+            logger?.Log<NonAllocPinger>(
+                $"SUBSCRIPTION ADDED: {subscriptionElement.Value.GetHashCode()}");
         }
 
         public void Unsubscribe(ISubscription subscription)
@@ -69,11 +83,16 @@ namespace HereticalSolutions.Delegates.Pinging
 
             TryRemoveFromBuffer(poolElement);
 
+            var previousValue = poolElement.Value;
+
             poolElement.Value = null;
 
             subscriptionsPool.Push(poolElement);
 
             subscriptionHandler.Terminate();
+
+            logger?.Log<NonAllocPinger>(
+                $"SUBSCRIPTION REMOVED: {previousValue.GetHashCode()}");
         }
 
         public void Unsubscribe(IPoolElement<ISubscription> subscription)
@@ -141,6 +160,50 @@ namespace HereticalSolutions.Delegates.Pinging
             InvokeSubscriptions();
 
             EmptyBuffer();
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (subscriptionsPool is ICleanUppable)
+                (subscriptionsPool as ICleanUppable).Cleanup();
+
+            for (int i = 0; i < currentSubscriptionsBufferCount; i++)
+            {
+                if (currentSubscriptionsBuffer[i] != null
+                    && currentSubscriptionsBuffer[i] is ICleanUppable)
+                {
+                    (currentSubscriptionsBuffer[i] as ICleanUppable).Cleanup();
+                }
+            }
+
+            EmptyBuffer();
+
+            currentSubscriptionsBufferCount = -1;
+
+            pingInProgress = false;
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (subscriptionsPool is IDisposable)
+                (subscriptionsPool as IDisposable).Dispose();
+
+            for (int i = 0; i < currentSubscriptionsBufferCount; i++)
+            {
+                if (currentSubscriptionsBuffer[i] != null
+                    && currentSubscriptionsBuffer[i] is IDisposable)
+                {
+                    (currentSubscriptionsBuffer[i] as IDisposable).Dispose();
+                }
+            }
         }
 
         #endregion

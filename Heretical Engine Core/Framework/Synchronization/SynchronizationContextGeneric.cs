@@ -2,11 +2,15 @@ using HereticalSolutions.Delegates;
 
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.Synchronization
 {
 	public class SynchronizationContextGeneric<TDelta>
 		: ISynchronizableGenericArg<TDelta>,
-		  ISynchronizationProvider
+		  ISynchronizationProvider,
+		  ICleanUppable,
+		  IDisposable
 	{
 		private readonly IReadOnlyObjectRepository metadata;
 
@@ -109,6 +113,33 @@ namespace HereticalSolutions.Synchronization
 		{
 			broadcasterAsSubscribable.UnsubscribeAll();
 		}
+
+		#endregion
+
+		#region ICleanUppable
+
+		public void Cleanup()
+		{
+			if (metadata is ICleanUppable)
+				(metadata as ICleanUppable).Cleanup();
+
+			if (broadcasterAsPublisher is ICleanUppable)
+				(broadcasterAsPublisher as ICleanUppable).Cleanup();
+		}
+
+		#endregion
+
+		#region IDisposable
+
+		public void Dispose()
+		{
+			if (metadata is IDisposable)
+				(metadata as IDisposable).Dispose();
+
+			if (broadcasterAsPublisher is IDisposable)
+				(broadcasterAsPublisher as IDisposable).Dispose();
+		}
+
 		#endregion
 	}
 }

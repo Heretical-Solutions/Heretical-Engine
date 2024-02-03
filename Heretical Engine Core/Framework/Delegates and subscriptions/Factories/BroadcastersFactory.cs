@@ -99,7 +99,8 @@ namespace HereticalSolutions.Delegates.Factories
                 loggerResolver);
 
             return BuildNonAllocBroadcasterMultipleArgs(
-                subscriptionsPool);
+                subscriptionsPool,
+                loggerResolver);
         }
 
         public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
@@ -120,17 +121,24 @@ namespace HereticalSolutions.Delegates.Factories
                 loggerResolver);
 
             return BuildNonAllocBroadcasterMultipleArgs(
-                subscriptionsPool);
+                subscriptionsPool,
+                loggerResolver);
         }
         
         public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
-            INonAllocDecoratedPool<ISubscription> subscriptionsPool)
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool,
+            ILoggerResolver loggerResolver = null)
         {
             var contents = ((IModifiable<INonAllocPool<ISubscription>>)subscriptionsPool).Contents;
-			
+
+            ILogger logger =
+                loggerResolver?.GetLogger<NonAllocBroadcasterMultipleArgs>()
+                ?? null;
+
             return new NonAllocBroadcasterMultipleArgs(
                 subscriptionsPool,
-                contents);
+                contents,
+                logger);
         }
         
         #endregion

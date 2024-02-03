@@ -3,13 +3,17 @@ using HereticalSolutions.Delegates.Factories;
 
 using HereticalSolutions.Time;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Synchronization
 {
 	public class HasFixedDeltaMetadata<TDelta>
 		: IHasFixedDelta<TDelta>,
-		  IPublisherDependencyRecipient<TDelta>
+		  IPublisherDependencyRecipient<TDelta>,
+		  ICleanUppable,
+		  IDisposable
 	{
 		private readonly IRuntimeTimer fixedDeltaTimer;
 
@@ -99,18 +103,36 @@ namespace HereticalSolutions.Synchronization
 			broadcasterAsPublisher?.Publish(FixedDelta);
 		}
 
+		#region ICleanUppable
+
+		public void Cleanup()
+		{
+			if (broadcasterAsPublisher is ICleanUppable)
+				(broadcasterAsPublisher as ICleanUppable).Cleanup();
+
+			if (synchronizeFixedScubscription is ICleanUppable)
+				(synchronizeFixedScubscription as ICleanUppable).Cleanup();
+
+			if (fixedDeltaTimer is ICleanUppable)
+				(fixedDeltaTimer as ICleanUppable).Cleanup();
+		}
+
+		#endregion
+
+		#region IDisposable
+
 		public void Dispose()
 		{
-			if (fixedDeltaTimer != null
-				&& synchronizeFixedScubscription != null
-				&& synchronizeFixedScubscription.Active)
-			{
-				fixedDeltaTimer.OnFinish.Unsubscribe(
-					(ISubscriptionHandler<
-						INonAllocSubscribableSingleArgGeneric<IRuntimeTimer>,
-						IInvokableSingleArgGeneric<IRuntimeTimer>>)
-						synchronizeFixedScubscription);
-			}
+			if (broadcasterAsPublisher is IDisposable)
+				(broadcasterAsPublisher as IDisposable).Dispose();
+
+			if (synchronizeFixedScubscription is IDisposable)
+				(synchronizeFixedScubscription as IDisposable).Dispose();
+
+			if (fixedDeltaTimer is IDisposable)
+				(fixedDeltaTimer as IDisposable).Dispose();
 		}
+
+		#endregion
 	}
 }

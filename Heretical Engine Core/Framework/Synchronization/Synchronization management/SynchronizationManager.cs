@@ -1,11 +1,15 @@
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.Synchronization
 {
 	public class SynchronizationManager
 		: ISynchronizationManager,
 		  ISynchronizablesRepository,
-		  ISynchronizationProvidersRepository
+		  ISynchronizationProvidersRepository,
+		  ICleanUppable,
+		  IDisposable
 	{
 		private readonly IRepository<string, ISynchronizableNoArgs> synchroRepository;
 
@@ -98,6 +102,26 @@ namespace HereticalSolutions.Synchronization
 			{
 				synchronizable.Synchronize();
 			}
+		}
+
+		#endregion
+
+		#region ICleanUppable
+
+		public void Cleanup()
+		{
+			if (synchroRepository is ICleanUppable)
+				(synchroRepository as ICleanUppable).Cleanup();
+		}
+
+		#endregion
+
+		#region IDisposable
+
+		public void Dispose()
+		{
+			if (synchroRepository is IDisposable)
+				(synchroRepository as IDisposable).Dispose();
 		}
 
 		#endregion

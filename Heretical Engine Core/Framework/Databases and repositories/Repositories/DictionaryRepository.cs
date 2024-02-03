@@ -1,10 +1,14 @@
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.Repositories
 {
     public class DictionaryRepository<TKey, TValue> :
         IRepository<TKey, TValue>,
-        IClonableRepository<TKey, TValue>
+        IClonableRepository<TKey, TValue>,
+        ICleanUppable,
+        IDisposable
     {
         private readonly Dictionary<TKey, TValue> database;
 
@@ -126,6 +130,39 @@ namespace HereticalSolutions.Repositories
         public IRepository<TKey, TValue> Clone()
         {
             return RepositoriesFactory.CloneDictionaryRepository(database);
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (typeof(ICleanUppable).IsAssignableFrom(typeof(TValue)))
+            {
+                foreach (var value in database.Values)
+                    (value as ICleanUppable).Cleanup();
+            }
+
+            if (typeof(IDisposable).IsAssignableFrom(typeof(TValue)))
+            {
+                foreach (var value in database.Values)
+                    (value as IDisposable).Dispose();
+            }
+
+            Clear();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            Cleanup();
+
+            if (database is IDisposable)
+                (database as IDisposable).Dispose();
         }
 
         #endregion

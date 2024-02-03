@@ -1,3 +1,5 @@
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Delegates.Broadcasting
@@ -6,7 +8,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
         : IPublisherSingleArgGeneric<TValue>,
           IPublisherSingleArg,
           ISubscribableSingleArgGeneric<TValue>,
-          ISubscribableSingleArg
+          ISubscribableSingleArg,
+          ICleanUppable,
+          IDisposable
     {
         private readonly ILogger logger;
 
@@ -217,6 +221,24 @@ namespace HereticalSolutions.Delegates.Broadcasting
         }
 
         public void UnsubscribeAll()
+        {
+            multicastDelegate = null;
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            multicastDelegate = null;
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
         {
             multicastDelegate = null;
         }

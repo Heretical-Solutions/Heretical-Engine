@@ -1,8 +1,12 @@
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.Delegates.Broadcasting
 {
     public class BroadcasterMultipleArgs
         : IPublisherMultipleArgs,
-          ISubscribableMultipleArgs
+          ISubscribableMultipleArgs,
+          ICleanUppable,
+          IDisposable
     {
         private readonly BroadcasterGeneric<object[]> innerBroadcaster;
 
@@ -56,6 +60,26 @@ namespace HereticalSolutions.Delegates.Broadcasting
         }
 
         #endregion
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (innerBroadcaster is ICleanUppable)
+                (innerBroadcaster as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (innerBroadcaster is IDisposable)
+                (innerBroadcaster as IDisposable).Dispose();
+        }
 
         #endregion
     }

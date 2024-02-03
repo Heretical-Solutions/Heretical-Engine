@@ -1,3 +1,5 @@
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.Delegates.Pinging
 {
     /// <summary>
@@ -5,7 +7,9 @@ namespace HereticalSolutions.Delegates.Pinging
     /// </summary>
     public class Pinger
         : IPublisherNoArgs,
-          ISubscribableNoArgs
+          ISubscribableNoArgs,
+          ICleanUppable,
+          IDisposable
     {
         private Action multicastDelegate;
 
@@ -76,6 +80,24 @@ namespace HereticalSolutions.Delegates.Pinging
         }
 
         #endregion
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            multicastDelegate = null;
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            multicastDelegate = null;
+        }
 
         #endregion
     }

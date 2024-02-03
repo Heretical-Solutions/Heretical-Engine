@@ -2,6 +2,8 @@ using HereticalSolutions.Delegates.Factories;
 
 using HereticalSolutions.Pools;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Delegates.Subscriptions
@@ -12,7 +14,9 @@ namespace HereticalSolutions.Delegates.Subscriptions
     public class SubscriptionMultipleArgs
         : ISubscription,
           ISubscriptionState<IInvokableMultipleArgs>,
-          ISubscriptionHandler<INonAllocSubscribableMultipleArgs, IInvokableMultipleArgs>
+          ISubscriptionHandler<INonAllocSubscribableMultipleArgs, IInvokableMultipleArgs>,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IInvokableMultipleArgs invokable;
 
@@ -112,6 +116,9 @@ namespace HereticalSolutions.Delegates.Subscriptions
             this.publisher = publisher;
             
             Active = true;
+
+            logger?.Log<SubscriptionMultipleArgs>(
+                "SUBSCRIPTION ACTIVATED");
         }
         
         /// <summary>
@@ -149,6 +156,35 @@ namespace HereticalSolutions.Delegates.Subscriptions
             publisher = null;
             
             Active = false;
+
+            logger?.Log<SubscriptionNoArgs>(
+                "SUBSCRIPTION TERMINATED");
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (Active)
+                publisher.Unsubscribe(this);
+
+            if (invokable is ICleanUppable)
+                (invokable as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (Active)
+                publisher.Unsubscribe(this);
+
+            if (invokable is IDisposable)
+                (invokable as IDisposable).Dispose();
         }
 
         #endregion

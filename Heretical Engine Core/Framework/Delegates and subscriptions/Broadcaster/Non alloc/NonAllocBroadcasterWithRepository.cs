@@ -1,5 +1,7 @@
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Delegates.Broadcasting
@@ -10,7 +12,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
     /// </summary>
     public class NonAllocBroadcasterWithRepository
         : IPublisherSingleArg,
-          INonAllocSubscribableSingleArg
+          INonAllocSubscribableSingleArg,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IReadOnlyObjectRepository broadcasterRepository;
 
@@ -258,10 +262,34 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
         public void UnsubscribeAll()
         {
+            foreach (var broadcaster in broadcasterRepository.Values)
+            {
+                ((INonAllocSubscribable)broadcaster).UnsubscribeAll();
+            }
 
         }
 
         #endregion
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (broadcasterRepository is ICleanUppable)
+                (broadcasterRepository as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (broadcasterRepository is IDisposable)
+                (broadcasterRepository as IDisposable).Dispose();
+        }
 
         #endregion
     }

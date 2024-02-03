@@ -1,12 +1,16 @@
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Delegates.Broadcasting
 {
     public class BroadcasterWithRepository
         : IPublisherSingleArg,
-          ISubscribableSingleArg
+          ISubscribableSingleArg,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IReadOnlyObjectRepository broadcasterRepository;
 
@@ -183,6 +187,26 @@ namespace HereticalSolutions.Delegates.Broadcasting
         }
 
         #endregion
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (broadcasterRepository is ICleanUppable)
+                (broadcasterRepository as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (broadcasterRepository is IDisposable)
+                (broadcasterRepository as IDisposable).Dispose();
+        }
 
         #endregion
     }

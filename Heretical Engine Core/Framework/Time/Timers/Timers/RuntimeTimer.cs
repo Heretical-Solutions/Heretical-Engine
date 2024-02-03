@@ -4,6 +4,8 @@ using HereticalSolutions.Persistence;
 
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Time.Timers
@@ -14,7 +16,9 @@ namespace HereticalSolutions.Time.Timers
           IRuntimeTimerContext,
           ITimerWithState,
           ITickable,
-          IVisitable
+          IVisitable,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IReadOnlyRepository<ETimerState, ITimerStrategy<IRuntimeTimerContext, float>> strategyRepository;
 
@@ -323,6 +327,38 @@ namespace HereticalSolutions.Time.Timers
         public bool Accept(ILoadVisitor visitor, object DTO)
         {
             return visitor.Load<IRuntimeTimer, RuntimeTimerDTO>((RuntimeTimerDTO)DTO, this);
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (OnStartAsPublisher is ICleanUppable)
+                (OnStartAsPublisher as ICleanUppable).Cleanup();
+
+            if (OnFinishAsPublisher is ICleanUppable)
+                (OnFinishAsPublisher as ICleanUppable).Cleanup();
+
+            if (strategyRepository is ICleanUppable)
+                (strategyRepository as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (OnStartAsPublisher is IDisposable)
+                (OnStartAsPublisher as IDisposable).Dispose();
+
+            if (OnFinishAsPublisher is IDisposable)
+                (OnFinishAsPublisher as IDisposable).Dispose();
+
+            if (strategyRepository is IDisposable)
+                (strategyRepository as IDisposable).Dispose();
         }
 
         #endregion

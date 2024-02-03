@@ -2,12 +2,16 @@ using HereticalSolutions.Repositories;
 
 using HereticalSolutions.Synchronization;
 
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.Time
 {
     public class TimeManager
         : ITimeManager,
           ISynchronizablesGenericArgRepository<float>,
-          ISynchronizationProvidersRepository
+          ISynchronizationProvidersRepository,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IRepository<string, ISynchronizableGenericArg<float>> chronoRepository;
 
@@ -122,6 +126,38 @@ namespace HereticalSolutions.Time
             }
 
             return result;
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (chronoRepository is ICleanUppable)
+                (chronoRepository as ICleanUppable).Cleanup();
+
+            if (applicationRuntimeTimer is ICleanUppable)
+                (applicationRuntimeTimer as ICleanUppable).Cleanup();
+
+            if (applicationPersistentTimer is ICleanUppable)
+                (applicationPersistentTimer as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (chronoRepository is IDisposable)
+                (chronoRepository as IDisposable).Dispose();
+
+            if (applicationRuntimeTimer is IDisposable)
+                (applicationRuntimeTimer as IDisposable).Dispose();
+
+            if (applicationPersistentTimer is IDisposable)
+                (applicationPersistentTimer as IDisposable).Dispose();
         }
 
         #endregion

@@ -2,6 +2,8 @@ using HereticalSolutions.Delegates.Factories;
 
 using HereticalSolutions.Pools;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Delegates.Subscriptions
@@ -19,7 +21,9 @@ namespace HereticalSolutions.Delegates.Subscriptions
               IInvokableSingleArgGeneric<TValue>>,
           ISubscriptionHandler<
               INonAllocSubscribableSingleArg,
-              IInvokableSingleArg>
+              IInvokableSingleArg>,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IInvokableSingleArgGeneric<TValue> invokable;
 
@@ -192,6 +196,9 @@ namespace HereticalSolutions.Delegates.Subscriptions
             this.publisher = publisher;
 
             Active = true;
+
+            logger?.Log<SubscriptionMultipleArgs>(
+                "SUBSCRIPTION ACTIVATED");
         }
 
         public bool ValidateTermination(
@@ -222,6 +229,65 @@ namespace HereticalSolutions.Delegates.Subscriptions
             publisher = null;
 
             Active = false;
+
+            logger?.Log<SubscriptionNoArgs>(
+                "SUBSCRIPTION TERMINATED");
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (Active)
+            {
+                switch (publisher)
+                {
+                    case INonAllocSubscribableSingleArgGeneric<TValue> genericPublisher:
+
+                        genericPublisher.Unsubscribe(this);
+
+                        break;
+
+                    case INonAllocSubscribableSingleArg nonGenericPublisher:
+
+                        nonGenericPublisher.Unsubscribe<TValue>(this);
+
+                        break;
+                }
+            }
+
+            if (invokable is ICleanUppable)
+                (invokable as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (Active)
+            {
+                switch (publisher)
+                {
+                    case INonAllocSubscribableSingleArgGeneric<TValue> genericPublisher:
+
+                        genericPublisher.Unsubscribe(this);
+
+                        break;
+
+                    case INonAllocSubscribableSingleArg nonGenericPublisher:
+                    
+                        nonGenericPublisher.Unsubscribe<TValue>(this);
+
+                        break;
+                }
+            }
+
+            if (invokable is IDisposable)
+                (invokable as IDisposable).Dispose();
         }
 
         #endregion

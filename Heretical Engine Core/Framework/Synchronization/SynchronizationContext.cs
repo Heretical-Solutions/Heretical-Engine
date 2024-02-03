@@ -2,11 +2,15 @@ using HereticalSolutions.Delegates;
 
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.Synchronization
 {
     public class SynchronizationContext
         : ISynchronizableNoArgs,
-          ISynchronizationProvider
+          ISynchronizationProvider,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IReadOnlyObjectRepository metadata;
 
@@ -77,7 +81,33 @@ namespace HereticalSolutions.Synchronization
         {
             pingerAsSubscribable.UnsubscribeAll();
         }
-        
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (metadata is ICleanUppable)
+                (metadata as ICleanUppable).Cleanup();
+
+            if (pingerAsPublisher is ICleanUppable)
+                (pingerAsPublisher as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (metadata is IDisposable)
+                (metadata as IDisposable).Dispose();
+
+            if (pingerAsPublisher is IDisposable)
+                (pingerAsPublisher as IDisposable).Dispose();
+        }
+
         #endregion
     }
 }

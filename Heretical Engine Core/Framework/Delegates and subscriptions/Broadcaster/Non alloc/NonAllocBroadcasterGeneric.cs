@@ -2,6 +2,8 @@ using HereticalSolutions.Collections;
 
 using HereticalSolutions.Pools;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Delegates.Broadcasting
@@ -10,7 +12,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
         : IPublisherSingleArgGeneric<TValue>,
           IPublisherSingleArg,
           INonAllocSubscribableSingleArgGeneric<TValue>,
-          INonAllocSubscribableSingleArg
+          INonAllocSubscribableSingleArg,
+          ICleanUppable,
+          IDisposable
     {
         #region Subscriptions
 
@@ -68,6 +72,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             subscriptionElement.Value = (ISubscription)subscriptionState;
 
             subscription.Activate(this, subscriptionElement);
+
+            logger?.Log<NonAllocBroadcasterGeneric<TValue>>(
+                $"SUBSCRIPTION ADDED: {subscriptionElement.Value.GetHashCode()} <{typeof(TValue).Name}>");
         }
 
         public void Unsubscribe(
@@ -83,11 +90,16 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
             TryRemoveFromBuffer(poolElement);
 
+            var previousValue = poolElement.Value;
+
             poolElement.Value = null;
 
             subscriptionsPool.Push(poolElement);
 
             subscription.Terminate();
+
+            logger?.Log<NonAllocBroadcasterGeneric<TValue>>(
+                $"SUBSCRIPTION REMOVED: {previousValue.GetHashCode()} <{typeof(TValue).Name}>");
         }
 
         IEnumerable<
@@ -300,7 +312,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
                 var subscription = (ISubscriptionHandler<
                     INonAllocSubscribableSingleArgGeneric<TValue>,
                     IInvokableSingleArgGeneric<TValue>>)
-                    subscriptionsAsIndexable[0];
+                    subscriptionsAsIndexable[0].Value;
 
                 Unsubscribe(subscription);
             }
@@ -366,6 +378,50 @@ namespace HereticalSolutions.Delegates.Broadcasting
                     throw new Exception(
                         logger.TryFormat<NonAllocBroadcasterGeneric<TValue>>(
                             $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\""));
+            }
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (subscriptionsPool is ICleanUppable)
+                (subscriptionsPool as ICleanUppable).Cleanup();
+
+            for (int i = 0; i < currentSubscriptionsBufferCount; i++)
+            {
+                if (currentSubscriptionsBuffer[i] != null
+                    && currentSubscriptionsBuffer[i] is ICleanUppable)
+                {
+                    (currentSubscriptionsBuffer[i] as ICleanUppable).Cleanup();
+                }
+            }
+            
+            EmptyBuffer();
+
+            currentSubscriptionsBufferCount = -1;
+
+            broadcastInProgress = false;
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (subscriptionsPool is IDisposable)
+                (subscriptionsPool as IDisposable).Dispose();
+
+            for (int i = 0; i < currentSubscriptionsBufferCount; i++)
+            {
+                if (currentSubscriptionsBuffer[i] != null
+                    && currentSubscriptionsBuffer[i] is IDisposable)
+                {
+                    (currentSubscriptionsBuffer[i] as IDisposable).Dispose();
+                }
             }
         }
 

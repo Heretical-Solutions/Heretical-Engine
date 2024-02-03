@@ -47,7 +47,9 @@ namespace HereticalSolutions.Delegates.Factories
                 },
                 loggerResolver);
 
-            return BuildNonAllocPinger(subscriptionsPool);
+            return BuildNonAllocPinger(
+                subscriptionsPool,
+                loggerResolver);
         }
 
         public static NonAllocPinger BuildNonAllocPinger(
@@ -67,17 +69,25 @@ namespace HereticalSolutions.Delegates.Factories
                 additional,
                 loggerResolver);
 
-            return BuildNonAllocPinger(subscriptionsPool);
+            return BuildNonAllocPinger(
+                subscriptionsPool,
+                loggerResolver);
         }
 
         public static NonAllocPinger BuildNonAllocPinger(
-            INonAllocDecoratedPool<ISubscription> subscriptionsPool)
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool,
+            ILoggerResolver loggerResolver = null)
         {
             var contents = ((IModifiable<INonAllocPool<ISubscription>>)subscriptionsPool).Contents;
-			
+
+            ILogger logger =
+                loggerResolver?.GetLogger<NonAllocPinger>()
+                ?? null;
+
             return new NonAllocPinger(
                 subscriptionsPool,
-                contents);
+                contents,
+                logger);
         }
         
         #endregion

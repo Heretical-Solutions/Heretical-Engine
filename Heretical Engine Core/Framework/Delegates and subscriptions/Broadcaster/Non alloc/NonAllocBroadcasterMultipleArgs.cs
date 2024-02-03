@@ -2,11 +2,17 @@ using HereticalSolutions.Collections;
 
 using HereticalSolutions.Pools;
 
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Delegates.Broadcasting
 {
     public class NonAllocBroadcasterMultipleArgs
         : IPublisherMultipleArgs,
-          INonAllocSubscribableMultipleArgs
+          INonAllocSubscribableMultipleArgs,
+          ICleanUppable,
+          IDisposable
     {
         #region Subscriptions
 
@@ -17,6 +23,8 @@ namespace HereticalSolutions.Delegates.Broadcasting
         private readonly IFixedSizeCollection<IPoolElement<ISubscription>> subscriptionsWithCapacity;
 
         #endregion
+
+        private readonly ILogger logger;
 
         #region Buffer
 
@@ -30,11 +38,17 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
         public NonAllocBroadcasterMultipleArgs(
             INonAllocDecoratedPool<ISubscription> subscriptionsPool,
-            INonAllocPool<ISubscription> subscriptionsContents)
+            INonAllocPool<ISubscription> subscriptionsContents,
+            ILogger logger = null)
         {
             this.subscriptionsPool = subscriptionsPool;
+
+            this.logger = logger;
+
             subscriptionsAsIndexable = (IIndexable<IPoolElement<ISubscription>>)subscriptionsContents;
+
             subscriptionsWithCapacity = (IFixedSizeCollection<IPoolElement<ISubscription>>)subscriptionsContents;
+
             currentSubscriptionsBuffer = new ISubscription[subscriptionsWithCapacity.Capacity];
         }
 
@@ -56,6 +70,9 @@ namespace HereticalSolutions.Delegates.Broadcasting
             subscriptionElement.Value = (ISubscription)subscriptionState;
 
             subscription.Activate(this, subscriptionElement);
+
+            logger?.Log<NonAllocBroadcasterMultipleArgs>(
+                $"SUBSCRIPTION ADDED: {subscriptionElement.Value.GetHashCode()}");
         }
 
         public void Unsubscribe(
@@ -71,11 +88,16 @@ namespace HereticalSolutions.Delegates.Broadcasting
 
             TryRemoveFromBuffer(poolElement);
 
+            var previousValue = poolElement.Value;
+
             poolElement.Value = null;
 
             subscriptionsPool.Push(poolElement);
 
             subscription.Terminate();
+
+            logger?.Log<NonAllocBroadcasterMultipleArgs>(
+                $"SUBSCRIPTION REMOVED: {previousValue.GetHashCode()}");
         }
 
         IEnumerable<
@@ -123,7 +145,7 @@ namespace HereticalSolutions.Delegates.Broadcasting
                 var subscription = (ISubscriptionHandler<
                     INonAllocSubscribableMultipleArgs,
                     IInvokableMultipleArgs>)
-                    subscriptionsAsIndexable[0];
+                    subscriptionsAsIndexable[0].Value;
 
                 Unsubscribe(subscription);
             }
@@ -150,6 +172,50 @@ namespace HereticalSolutions.Delegates.Broadcasting
             InvokeSubscriptions(value);
 
             EmptyBuffer();
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (subscriptionsPool is ICleanUppable)
+                (subscriptionsPool as ICleanUppable).Cleanup();
+
+            for (int i = 0; i < currentSubscriptionsBufferCount; i++)
+            {
+                if (currentSubscriptionsBuffer[i] != null
+                    && currentSubscriptionsBuffer[i] is ICleanUppable)
+                {
+                    (currentSubscriptionsBuffer[i] as ICleanUppable).Cleanup();
+                }
+            }
+
+            EmptyBuffer();
+
+            currentSubscriptionsBufferCount = -1;
+
+            broadcastInProgress = false;
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (subscriptionsPool is IDisposable)
+                (subscriptionsPool as IDisposable).Dispose();
+
+            for (int i = 0; i < currentSubscriptionsBufferCount; i++)
+            {
+                if (currentSubscriptionsBuffer[i] != null
+                    && currentSubscriptionsBuffer[i] is IDisposable)
+                {
+                    (currentSubscriptionsBuffer[i] as IDisposable).Dispose();
+                }
+            }
         }
 
         #endregion

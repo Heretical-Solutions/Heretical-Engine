@@ -1,10 +1,14 @@
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Repositories.Factories;
 
 namespace HereticalSolutions.Repositories
 {
     public class DictionaryObjectRepository
         : IObjectRepository,
-          ICloneableObjectRepository
+          ICloneableObjectRepository,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IRepository<Type, object> database;
 
@@ -215,6 +219,39 @@ namespace HereticalSolutions.Repositories
         public IObjectRepository Clone()
         {
             return RepositoriesFactory.CloneDictionaryObjectRepository(database);
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            foreach (var value in database.Values)
+            {
+                if (value is ICleanUppable)
+                    (value as ICleanUppable).Cleanup();
+            }
+
+            foreach (var value in database.Values)
+            {
+                if (value is IDisposable)
+                    (value as IDisposable).Dispose();
+            }
+
+            Clear();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            Cleanup();
+
+            if (database is IDisposable)
+                (database as IDisposable).Dispose();
         }
 
         #endregion
