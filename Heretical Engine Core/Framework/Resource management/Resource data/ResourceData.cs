@@ -1,5 +1,7 @@
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
@@ -9,7 +11,9 @@ namespace HereticalSolutions.ResourceManagement
 	/// </summary>
 	public class ResourceData
 		: IResourceData,
-		  IContainsDependencyResourceVariants
+		  IContainsDependencyResourceVariants,
+		  ICleanUppable,
+		  IDisposable
 	{
 		private readonly IRepository<int, string> variantIDHashToID;
 
@@ -506,6 +510,44 @@ namespace HereticalSolutions.ResourceManagement
 						$"VARIANT {(string.IsNullOrEmpty(variantID) ? "NULL" : variantID)} DOES NOT EXIST"));
 
 			return dependencyResourceVariant;
+		}
+
+		#endregion
+
+		#region ICleanUppable
+
+		public void Cleanup()
+		{
+			if (variantIDHashToID is ICleanUppable)
+				(variantIDHashToID as ICleanUppable).Cleanup();
+
+			if (variantsRepository is ICleanUppable)
+				(variantsRepository as ICleanUppable).Cleanup();
+
+			if (nestedResourceIDHashToID is ICleanUppable)
+				(nestedResourceIDHashToID as ICleanUppable).Cleanup();
+
+			if (nestedResourcesRepository is ICleanUppable)
+				(nestedResourcesRepository as ICleanUppable).Cleanup();
+		}
+
+		#endregion
+
+		#region IDisposable
+
+		public void Dispose()
+		{
+			if (variantIDHashToID is IDisposable)
+				(variantIDHashToID as IDisposable).Dispose();
+
+			if (variantsRepository is IDisposable)
+				(variantsRepository as IDisposable).Dispose();
+
+			if (nestedResourceIDHashToID is IDisposable)
+				(nestedResourceIDHashToID as IDisposable).Dispose();
+
+			if (nestedResourcesRepository is IDisposable)
+				(nestedResourcesRepository as IDisposable).Dispose();
 		}
 
 		#endregion

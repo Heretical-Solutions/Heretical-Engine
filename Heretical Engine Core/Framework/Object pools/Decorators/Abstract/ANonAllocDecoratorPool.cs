@@ -1,11 +1,16 @@
-using HereticalSolutions.Logging;
 using HereticalSolutions.Pools.Arguments;
 using HereticalSolutions.Pools.Behaviours;
+
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools
 {
     public abstract class ANonAllocDecoratorPool<T>
-        : INonAllocDecoratedPool<T>
+        : INonAllocDecoratedPool<T>,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
@@ -105,6 +110,26 @@ namespace HereticalSolutions.Pools
         /// <param name="instance">The object to be returned to the pool.</param>
         protected virtual void OnAfterPush(IPoolElement<T> instance)
         {
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (innerPool is ICleanUppable)
+                (innerPool as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (innerPool is IDisposable)
+                (innerPool as IDisposable).Dispose();
         }
 
         #endregion

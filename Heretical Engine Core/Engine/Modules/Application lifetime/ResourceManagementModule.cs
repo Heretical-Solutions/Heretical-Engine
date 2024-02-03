@@ -1,6 +1,8 @@
 using HereticalSolutions.ResourceManagement;
 using HereticalSolutions.ResourceManagement.Factories;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 using Autofac;
@@ -73,7 +75,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				.TryResolve<IRuntimeResourceManager>(
 					out IRuntimeResourceManager runtimeResourceManager))
 			{
-				runtimeResourceManager.ClearAllRootResources();
+				//runtimeResourceManager.ClearAllRootResources();
+
+				((ICleanUppable)runtimeResourceManager).Cleanup();
 			}
 
 			base.CleanupInternal();

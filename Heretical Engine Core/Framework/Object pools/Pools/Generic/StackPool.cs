@@ -2,6 +2,8 @@ using HereticalSolutions.Collections;
 
 using HereticalSolutions.Allocations;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Generic
@@ -14,7 +16,9 @@ namespace HereticalSolutions.Pools.Generic
         : IPool<T>,
           IResizable<T>,
           IModifiable<Stack<T>>,
-          ICountUpdateable
+          ICountUpdateable,
+          ICleanUppable,
+          IDisposable
     {
         private readonly ILogger logger;
 
@@ -127,6 +131,32 @@ namespace HereticalSolutions.Pools.Generic
         /// Gets a value indicating whether the pool has free space.
         /// </summary>
         public bool HasFreeSpace { get { return true; } } // ¯\_(ツ)_/¯
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            foreach (var item in pool)
+                if (item is ICleanUppable)
+                    (item as ICleanUppable).Cleanup();
+
+            pool.Clear();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            foreach (var item in pool)
+                if (item is IDisposable)
+                    (item as IDisposable).Dispose();
+
+            pool.Clear();
+        }
 
         #endregion
     }

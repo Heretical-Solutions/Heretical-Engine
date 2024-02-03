@@ -5,12 +5,16 @@ using HereticalSolutions.Pools.Behaviours;
 
 using HereticalSolutions.RandomGeneration;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Decorators
 {
     public class NonAllocPoolWithVariants<T>
-        : INonAllocDecoratedPool<T>
+        : INonAllocDecoratedPool<T>,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IReadOnlyRepository<int, VariantContainer<T>> innerPoolsRepository;
 
@@ -117,6 +121,32 @@ namespace HereticalSolutions.Pools.Decorators
                         $"INVALID VARIANT {{variant}}"));
 
             poolByVariant.Pool.Push(instance, decoratorsOnly);
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (innerPoolsRepository is ICleanUppable)
+                (innerPoolsRepository as ICleanUppable).Cleanup();
+
+            if (pushBehaviourHandler is ICleanUppable)
+                (pushBehaviourHandler as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (innerPoolsRepository is IDisposable)
+                (innerPoolsRepository as IDisposable).Dispose();
+
+            if (pushBehaviourHandler is IDisposable)
+                (pushBehaviourHandler as IDisposable).Dispose();
         }
 
         #endregion

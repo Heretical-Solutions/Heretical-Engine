@@ -3,6 +3,8 @@ using HereticalSolutions.Repositories;
 using HereticalSolutions.Pools.Arguments;
 using HereticalSolutions.Pools.Behaviours;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Decorators
@@ -11,7 +13,10 @@ namespace HereticalSolutions.Pools.Decorators
     /// Represents a decorator for a non-allocating pool with address support.
     /// </summary>
     /// <typeparam name="T">The type of object stored in the pool.</typeparam>
-    public class NonAllocPoolWithAddress<T> : INonAllocDecoratedPool<T>
+    public class NonAllocPoolWithAddress<T>
+        : INonAllocDecoratedPool<T>,
+          ICleanUppable,
+          IDisposable
     {
         private readonly int level;
 
@@ -140,6 +145,32 @@ namespace HereticalSolutions.Pools.Decorators
                         $"INVALID ADDRESS {{ {currentAddressHash} }}"));
 
             pool.Push(instance, decoratorsOnly);
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (innerPoolsRepository is ICleanUppable)
+                (innerPoolsRepository as ICleanUppable).Cleanup();
+
+            if (pushBehaviourHandler is ICleanUppable)
+                (pushBehaviourHandler as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (innerPoolsRepository is IDisposable)
+                (innerPoolsRepository as IDisposable).Dispose();
+
+            if (pushBehaviourHandler is IDisposable)
+                (pushBehaviourHandler as IDisposable).Dispose();
         }
 
         #endregion

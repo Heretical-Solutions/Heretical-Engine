@@ -1,10 +1,14 @@
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
 	public abstract class AConcurrentReadOnlyResourceStorageHandle<TResource>
 		: AResourceStorageHandle<TResource>,
-		  IReadOnlyResourceStorageHandle
+		  IReadOnlyResourceStorageHandle,
+		  ICleanUppable,
+		  IDisposable
 	{
 		protected readonly SemaphoreSlim semaphore;
 
@@ -178,6 +182,24 @@ namespace HereticalSolutions.ResourceManagement
 			{
 				semaphore.Release(); // Release the semaphore
 			}
+		}
+
+		#endregion
+
+		#region ICleanUppable
+
+		public new void Cleanup()
+		{
+			Free();
+		}
+
+		#endregion
+
+		#region IDisposable
+
+		public new void Dispose()
+		{
+			Free();
 		}
 
 		#endregion

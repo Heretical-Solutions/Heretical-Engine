@@ -1,5 +1,8 @@
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Allocations;
+
+using HereticalSolutions.LifetimeManagement;
 
 using HereticalSolutions.Pools.Arguments;
 using HereticalSolutions.Pools.Behaviours;
@@ -9,7 +12,9 @@ namespace HereticalSolutions.Pools.Decorators
     public class SupplyAndMergePool<T> :
         INonAllocDecoratedPool<T>,
         IAppendable<IPoolElement<T>>,
-        ITopUppable<IPoolElement<T>>
+        ITopUppable<IPoolElement<T>>,
+        ICleanUppable,
+        IDisposable
     {
         private readonly INonAllocPool<T> basePool;
         
@@ -174,6 +179,38 @@ namespace HereticalSolutions.Pools.Decorators
         }
         
         public bool HasFreeSpace { get { return true; } }  // ¯\_(ツ)_/¯
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (basePool is ICleanUppable)
+                (basePool as ICleanUppable).Cleanup();
+
+            if (supplyPool is ICleanUppable)
+                (supplyPool as ICleanUppable).Cleanup();
+
+            if (pushBehaviourHandler is ICleanUppable)
+                (pushBehaviourHandler as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (basePool is IDisposable)
+                (basePool as IDisposable).Dispose();
+
+            if (supplyPool is ICleanUppable)
+                (supplyPool as ICleanUppable).Cleanup();
+
+            if (pushBehaviourHandler is IDisposable)
+                (pushBehaviourHandler as IDisposable).Dispose();
+        }
 
         #endregion
     }

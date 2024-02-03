@@ -1,12 +1,17 @@
 using HereticalSolutions.Pools.Arguments;
 
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.Pools
 {
     /// <summary>
     /// Represents an abstract base class for decorator pools.
     /// </summary>
     /// <typeparam name="T">The type of objects stored in the pool.</typeparam>
-    public abstract class ADecoratorPool<T> : IDecoratedPool<T>
+    public abstract class ADecoratorPool<T>
+        : IDecoratedPool<T>,
+          ICleanUppable,
+          IDisposable
     {
         protected IDecoratedPool<T> innerPool;
 
@@ -92,6 +97,26 @@ namespace HereticalSolutions.Pools
         /// <param name="instance">The object pushed back into the pool.</param>
         protected virtual void OnAfterPush(T instance)
         {
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (innerPool is ICleanUppable)
+                (innerPool as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (innerPool is IDisposable)
+                (innerPool as IDisposable).Dispose();
         }
 
         #endregion

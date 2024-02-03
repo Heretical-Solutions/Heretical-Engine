@@ -1,10 +1,14 @@
 using HereticalSolutions.Logging;
 
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.ResourceManagement
 {
 	public abstract class AReadOnlyResourceStorageHandle<TResource>
 		: AResourceStorageHandle<TResource>,
-		  IReadOnlyResourceStorageHandle
+		  IReadOnlyResourceStorageHandle,
+		  ICleanUppable,
+		  IDisposable
 	{
 		public AReadOnlyResourceStorageHandle(
 			IRuntimeResourceManager runtimeResourceManager,
@@ -126,6 +130,24 @@ namespace HereticalSolutions.ResourceManagement
 							GetType(),
 							$"CANNOT GET RESOURCE OF TYPE {typeof(TValue).Name} FROM RESOURCE OF TYPE {typeof(TResource).Name}"));
 			}
+		}
+
+		#endregion
+
+		#region ICleanUppable
+
+		public new void Cleanup()
+		{
+			Free();
+		}
+
+		#endregion
+
+		#region IDisposable
+
+		public new void Dispose()
+		{
+			Free();
 		}
 
 		#endregion

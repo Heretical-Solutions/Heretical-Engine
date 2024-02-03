@@ -124,6 +124,9 @@ namespace HereticalSolutions.Delegates.Subscriptions
             this.publisher = publisher;
 
             Active = true;
+
+            logger?.Log<SubscriptionSingleArgGeneric<TValue>>(
+                $"SUBSCRIPTION ACTIVATED: {this.GetHashCode()}");
         }
 
         /// <summary>
@@ -197,8 +200,8 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
             Active = true;
 
-            logger?.Log<SubscriptionMultipleArgs>(
-                "SUBSCRIPTION ACTIVATED");
+            logger?.Log<SubscriptionSingleArgGeneric<TValue>>(
+                $"SUBSCRIPTION ACTIVATED: {this.GetHashCode()}");
         }
 
         public bool ValidateTermination(
@@ -230,8 +233,8 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
             Active = false;
 
-            logger?.Log<SubscriptionNoArgs>(
-                "SUBSCRIPTION TERMINATED");
+            logger?.Log<SubscriptionSingleArgGeneric<TValue>>(
+                $"SUBSCRIPTION TERMINATED: {this.GetHashCode()}");
         }
 
         #endregion
@@ -240,23 +243,25 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
         public void Cleanup()
         {
-            if (Active)
-            {
-                switch (publisher)
-                {
-                    case INonAllocSubscribableSingleArgGeneric<TValue> genericPublisher:
+            //if (Active)
+            //{
+            //    switch (publisher)
+            //    {
+            //        case INonAllocSubscribableSingleArgGeneric<TValue> genericPublisher:
+            //
+            //            genericPublisher.Unsubscribe(this);
+            //
+            //            break;
+            //
+            //        case INonAllocSubscribableSingleArg nonGenericPublisher:
+            //
+            //            nonGenericPublisher.Unsubscribe<TValue>(this);
+            //
+            //            break;
+            //    }
+            //}
 
-                        genericPublisher.Unsubscribe(this);
-
-                        break;
-
-                    case INonAllocSubscribableSingleArg nonGenericPublisher:
-
-                        nonGenericPublisher.Unsubscribe<TValue>(this);
-
-                        break;
-                }
-            }
+            Terminate();
 
             if (invokable is ICleanUppable)
                 (invokable as ICleanUppable).Cleanup();
@@ -268,23 +273,25 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
         public void Dispose()
         {
-            if (Active)
-            {
-                switch (publisher)
-                {
-                    case INonAllocSubscribableSingleArgGeneric<TValue> genericPublisher:
+            //if (Active)
+            //{
+            //    switch (publisher)
+            //    {
+            //        case INonAllocSubscribableSingleArgGeneric<TValue> genericPublisher:
+            //
+            //            genericPublisher.Unsubscribe(this);
+            //
+            //            break;
+            //
+            //        case INonAllocSubscribableSingleArg nonGenericPublisher:
+            //        
+            //            nonGenericPublisher.Unsubscribe<TValue>(this);
+            //
+            //            break;
+            //    }
+            //}
 
-                        genericPublisher.Unsubscribe(this);
-
-                        break;
-
-                    case INonAllocSubscribableSingleArg nonGenericPublisher:
-                    
-                        nonGenericPublisher.Unsubscribe<TValue>(this);
-
-                        break;
-                }
-            }
+            Terminate();
 
             if (invokable is IDisposable)
                 (invokable as IDisposable).Dispose();

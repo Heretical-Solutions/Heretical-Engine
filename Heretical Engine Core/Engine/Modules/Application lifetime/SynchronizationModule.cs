@@ -1,6 +1,8 @@
 using HereticalSolutions.Synchronization;
 using HereticalSolutions.Synchronization.Factories;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 using Autofac;
@@ -68,7 +70,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				.TryResolve<ISynchronizationManager>(
 					out ISynchronizationManager synchronizationManager))
 			{
-				((ISynchronizablesRepository)synchronizationManager).RemoveAllSynchronizables();
+				//((ISynchronizablesRepository)synchronizationManager).RemoveAllSynchronizables();
+
+				((ICleanUppable)synchronizationManager).Cleanup();
 			}
 
 			base.CleanupInternal();

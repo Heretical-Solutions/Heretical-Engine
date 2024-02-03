@@ -3,6 +3,8 @@ using HereticalSolutions.Collections;
 
 using HereticalSolutions.Pools.Behaviours;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.GenericNonAlloc
@@ -12,7 +14,9 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
           INonAllocPool<T>,
           IIndexable<IPoolElement<T>>,
           IModifiable<IPoolElement<T>[]>,
-          ICountUpdateable
+          ICountUpdateable,
+          ICleanUppable,
+          IDisposable
     {
         private readonly ILogger logger;
 
@@ -269,7 +273,43 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
         /// Checks if the pool has free space for more items.
         /// </summary>
         public bool HasFreeSpace { get { return count < contents.Length; } }
-        
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            foreach (var item in contents)
+                if (item is ICleanUppable)
+                    (item as ICleanUppable).Cleanup();
+
+            for (int i = 0; i < contents.Length; i++)
+            {
+                contents[i] = null;
+            }
+
+            count = 0;
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            foreach (var item in contents)
+                if (item is IDisposable)
+                    (item as IDisposable).Dispose();
+
+            for (int i = 0; i < contents.Length; i++)
+            {
+                contents[i] = null;
+            }
+
+            count = 0;
+        }
+
         #endregion
     }
 }

@@ -1,5 +1,7 @@
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
@@ -9,7 +11,9 @@ namespace HereticalSolutions.ResourceManagement
     /// </summary>
     public class RuntimeResourceManager
         : IRuntimeResourceManager,
-          IContainsDependencyResources
+          IContainsDependencyResources,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IRepository<int, string> rootResourceIDHashToID;
 
@@ -476,6 +480,32 @@ namespace HereticalSolutions.ResourceManagement
                         $"RESOURCE {path} DOES NOT EXIST"));
 
             return dependencyResource;
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (rootResourceIDHashToID is ICleanUppable)
+                (rootResourceIDHashToID as ICleanUppable).Cleanup();
+
+            if (rootResourcesRepository is ICleanUppable)
+                (rootResourcesRepository as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (rootResourceIDHashToID is IDisposable)
+                (rootResourceIDHashToID as IDisposable).Dispose();
+
+            if (rootResourcesRepository is IDisposable)
+                (rootResourcesRepository as IDisposable).Dispose();
         }
 
         #endregion

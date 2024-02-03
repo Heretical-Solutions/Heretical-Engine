@@ -123,7 +123,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
             Active = true;
 
             logger?.Log<SubscriptionMultipleArgs>(
-                "SUBSCRIPTION ACTIVATED");
+                $"SUBSCRIPTION ACTIVATED: {this.GetHashCode()}");
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace HereticalSolutions.Delegates.Subscriptions
             Active = false;
 
             logger?.Log<SubscriptionNoArgs>(
-                "SUBSCRIPTION TERMINATED");
+                $"SUBSCRIPTION TERMINATED: {this.GetHashCode()}");
         }
 
         #endregion
@@ -173,8 +173,10 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
         public void Cleanup()
         {
-            if (Active)
-                publisher.Unsubscribe(this);
+            //if (Active)
+            //    publisher.Unsubscribe(this);
+
+            Terminate();
 
             if (invokable is ICleanUppable)
                 (invokable as ICleanUppable).Cleanup();
@@ -186,8 +188,10 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
         public void Dispose()
         {
-            if (Active)
-                publisher.Unsubscribe(this);
+            //if (Active)
+            //    publisher.Unsubscribe(this);
+
+            Terminate();
 
             if (invokable is IDisposable)
                 (invokable as IDisposable).Dispose();

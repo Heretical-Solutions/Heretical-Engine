@@ -5,9 +5,12 @@ using HereticalSolutions.Time.Factories;
 
 using HereticalSolutions.Synchronization;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 using Autofac;
+
 namespace HereticalSolutions.HereticalEngine.Rendering
 {
 	public class RenderingTimeModule
@@ -73,7 +76,9 @@ namespace HereticalSolutions.HereticalEngine.Rendering
 					RenderingConstants.RENDERING_TIME_MANAGER_NAME,
 					out ITimeManager renderingtimeManager))
 			{
-				((ISynchronizablesGenericArgRepository<float>)renderingtimeManager).RemoveAllSynchronizables();
+				//((ISynchronizablesGenericArgRepository<float>)renderingtimeManager).RemoveAllSynchronizables();
+
+				((ICleanUppable)renderingtimeManager).Cleanup();
 			}
 
 			base.CleanupInternal();

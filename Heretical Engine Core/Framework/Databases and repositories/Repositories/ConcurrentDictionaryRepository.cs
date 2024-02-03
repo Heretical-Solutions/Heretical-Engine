@@ -131,16 +131,10 @@ namespace HereticalSolutions.Repositories
 
 		public void Cleanup()
 		{
-			if (typeof(ICleanUppable).IsAssignableFrom(typeof(TValue)))
+			foreach (var value in database.Values)
 			{
-				foreach (var value in database.Values)
+				if (value is ICleanUppable)
 					(value as ICleanUppable).Cleanup();
-			}
-
-			if (typeof(IDisposable).IsAssignableFrom(typeof(TValue)))
-			{
-				foreach (var value in database.Values)
-					(value as IDisposable).Dispose();
 			}
 
 			Clear();
@@ -152,7 +146,13 @@ namespace HereticalSolutions.Repositories
 
 		public void Dispose()
 		{
-			Cleanup();
+			foreach (var value in database.Values)
+			{
+				if (value is IDisposable)
+					(value as IDisposable).Dispose();
+			}
+
+			Clear();
 
 			if (database is IDisposable)
 				(database as IDisposable).Dispose();

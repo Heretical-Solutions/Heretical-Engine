@@ -2,6 +2,8 @@ using HereticalSolutions.Repositories;
 
 using HereticalSolutions.Delegates.Notifiers;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
@@ -9,7 +11,9 @@ namespace HereticalSolutions.ResourceManagement
 	public class ConcurrentRuntimeResourceManager
 		: IRuntimeResourceManager,
 		  IAsyncContainsRootResources,
-		  IContainsDependencyResources
+		  IContainsDependencyResources,
+		  ICleanUppable,
+		  IDisposable
 	{
 		private readonly IRepository<int, string> rootResourceIDHashToID;
 
@@ -856,6 +860,38 @@ namespace HereticalSolutions.ResourceManagement
 				path.SplitAddressBySeparator())
 				.ThrowExceptions<IReadOnlyResourceData, ConcurrentRuntimeResourceManager>(
 					logger);
+		}
+
+		#endregion
+
+		#region ICleanUppable
+
+		public void Cleanup()
+		{
+			if (rootResourceIDHashToID is ICleanUppable)
+				(rootResourceIDHashToID as ICleanUppable).Cleanup();
+
+			if (rootResourcesRepository is ICleanUppable)
+				(rootResourcesRepository as ICleanUppable).Cleanup();
+
+			if (rootResourceAddedNotifier is ICleanUppable)
+				(rootResourceAddedNotifier as ICleanUppable).Cleanup();
+		}
+
+		#endregion
+
+		#region IDisposable
+
+		public void Dispose()
+		{
+			if (rootResourceIDHashToID is IDisposable)
+				(rootResourceIDHashToID as IDisposable).Dispose();
+
+			if (rootResourcesRepository is IDisposable)
+				(rootResourcesRepository as IDisposable).Dispose();
+
+			if (rootResourceAddedNotifier is IDisposable)
+				(rootResourceAddedNotifier as IDisposable).Dispose();
 		}
 
 		#endregion

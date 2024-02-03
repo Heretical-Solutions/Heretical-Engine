@@ -1,5 +1,8 @@
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Allocations;
+
+using HereticalSolutions.LifetimeManagement;
 
 using HereticalSolutions.Pools.Arguments;
 using HereticalSolutions.Pools.Behaviours;
@@ -11,7 +14,9 @@ namespace HereticalSolutions.Pools.Decorators
           IResizable<IPoolElement<T>>,
           IModifiable<INonAllocPool<T>>,
           ITopUppable<IPoolElement<T>>,
-          ICountUpdateable
+          ICountUpdateable,
+          ICleanUppable,
+          IDisposable
     {
         private INonAllocPool<T> contents;
 
@@ -124,6 +129,32 @@ namespace HereticalSolutions.Pools.Decorators
 
         //public bool HasFreeSpace { get { return contents.HasFreeSpace; } }
         public bool HasFreeSpace { get { return true; } } // ¯\_(ツ)_/¯
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (contents is ICleanUppable)
+                (contents as ICleanUppable).Cleanup();
+
+            if (pushBehaviourHandler is ICleanUppable)
+                (pushBehaviourHandler as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (contents is IDisposable)
+                (contents as IDisposable).Dispose();
+
+            if (pushBehaviourHandler is IDisposable)
+                (pushBehaviourHandler as IDisposable).Dispose();
+        }
 
         #endregion
     }

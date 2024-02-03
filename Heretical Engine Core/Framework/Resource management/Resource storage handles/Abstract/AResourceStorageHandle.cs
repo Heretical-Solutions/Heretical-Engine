@@ -2,11 +2,15 @@ using HereticalSolutions.Collections.Managed;
 
 using HereticalSolutions.HereticalEngine.Messaging;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.ResourceManagement
 {
 	public abstract class AResourceStorageHandle<TResource>
+		: ICleanUppable,
+		  IDisposable
 	{
 		protected readonly IRuntimeResourceManager runtimeResourceManager;
 
@@ -30,6 +34,26 @@ namespace HereticalSolutions.ResourceManagement
 
 			allocated = false;
 		}
+
+		#region ICleanUppable
+
+		public void Cleanup()
+		{
+			if (resource is ICleanUppable)
+				(resource as ICleanUppable).Cleanup();
+		}
+
+		#endregion
+
+		#region IDisposable
+
+		public void Dispose()
+		{
+			if (resource is IDisposable)
+				(resource as IDisposable).Dispose();
+		}
+
+		#endregion
 
 		protected abstract Task<TResource> AllocateResource(
 			IProgress<float> progress = null);

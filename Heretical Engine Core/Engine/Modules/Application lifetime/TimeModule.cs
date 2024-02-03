@@ -3,6 +3,8 @@ using HereticalSolutions.Time.Factories;
 
 using HereticalSolutions.Synchronization;
 
+using HereticalSolutions.LifetimeManagement;
+
 using HereticalSolutions.Logging;
 
 using Autofac;
@@ -69,7 +71,9 @@ namespace HereticalSolutions.HereticalEngine.Modules
 				.TryResolve<ITimeManager>(
 					out ITimeManager timeManager))
 			{
-				((ISynchronizablesGenericArgRepository<float>)timeManager).RemoveAllSynchronizables();
+				//((ISynchronizablesGenericArgRepository<float>)timeManager).RemoveAllSynchronizables();
+
+				((ICleanUppable)timeManager).Cleanup();
 			}
 
 			base.CleanupInternal();

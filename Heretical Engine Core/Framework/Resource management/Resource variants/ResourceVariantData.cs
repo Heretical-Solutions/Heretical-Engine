@@ -1,10 +1,14 @@
+using HereticalSolutions.LifetimeManagement;
+
 namespace HereticalSolutions.ResourceManagement
 {
     /// <summary>
     /// Represents a variant of a resource.
     /// </summary>
     public class ResourceVariantData
-        : IResourceVariantData
+        : IResourceVariantData,
+          ICleanUppable,
+          IDisposable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceVariantData"/> class.
@@ -34,6 +38,26 @@ namespace HereticalSolutions.ResourceManagement
         public IReadOnlyResourceStorageHandle StorageHandle { get; private set; }
 
         public IReadOnlyResourceData Resource { get; private set; }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (StorageHandle is ICleanUppable)
+                (StorageHandle as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (StorageHandle is IDisposable)
+                (StorageHandle as IDisposable).Dispose();
+        }
 
         #endregion
     }
