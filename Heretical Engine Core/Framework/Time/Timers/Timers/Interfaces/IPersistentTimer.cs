@@ -5,7 +5,7 @@ using HereticalSolutions.Delegates;
 namespace HereticalSolutions.Time
 {
     /// <summary>
-    /// Represents a persistent timer that can start and reset based on a given duration.
+    /// Represents a persistent timer that can start and reset based on a given duration
     /// </summary>
     public interface IPersistentTimer
         : ITimer
@@ -13,12 +13,12 @@ namespace HereticalSolutions.Time
         #region Timer state
 
         /// <summary>
-        /// Gets the start time of the timer.
+        /// Gets the start time of the timer
         /// </summary>
         DateTime StartTime { get; }
 
         /// <summary>
-        /// Gets the estimated finish time of the timer.
+        /// Gets the estimated finish time of the timer
         /// </summary>
         DateTime EstimatedFinishTime { get; }
 
@@ -27,12 +27,12 @@ namespace HereticalSolutions.Time
         #region Countdown and Time elapsed
 
         /// <summary>
-        /// Gets the time elapsed since the timer started.
+        /// Gets the time elapsed since the timer started
         /// </summary>
         TimeSpan TimeElapsedSpan { get; }
         
         /// <summary>
-        /// Gets the remaining countdown time.
+        /// Gets the remaining countdown time
         /// </summary>
         TimeSpan CountdownSpan { get; }
 
@@ -41,12 +41,12 @@ namespace HereticalSolutions.Time
         #region Duration
 
         /// <summary>
-        /// Gets the current duration of the timer.
+        /// Gets the current duration of the timer
         /// </summary>
         TimeSpan CurrentDurationSpan { get; }
 
         /// <summary>
-        /// Gets the default duration of the timer.
+        /// Gets the default duration of the timer
         /// </summary>
         TimeSpan DefaultDurationSpan { get; }
 
@@ -55,13 +55,13 @@ namespace HereticalSolutions.Time
         #region Controls
 
         /// <summary>
-        /// Resets the timer with the specified duration.
+        /// Resets the timer with the specified duration
         /// </summary>
         /// <param name="duration">The duration for the timer.</param>
         void Reset(TimeSpan duration);
 
         /// <summary>
-        /// Starts the timer with the specified duration.
+        /// Starts the timer with the specified duration
         /// </summary>
         /// <param name="duration">The duration for the timer.</param>
         void Start(TimeSpan duration);
@@ -71,12 +71,12 @@ namespace HereticalSolutions.Time
         #region Callbacks
 
         /// <summary>
-        /// Event that is triggered when the timer starts.
+        /// Event that is triggered when the timer starts
         /// </summary>
         INonAllocSubscribableSingleArgGeneric<IPersistentTimer> OnStart { get; }
         
         /// <summary>
-        /// Event that is triggered when the timer finishes.
+        /// Event that is triggered when the timer finishes
         /// </summary>
         INonAllocSubscribableSingleArgGeneric<IPersistentTimer> OnFinish { get; }
 

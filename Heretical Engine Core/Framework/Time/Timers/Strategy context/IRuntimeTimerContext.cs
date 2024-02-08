@@ -3,7 +3,7 @@ using HereticalSolutions.Delegates;
 namespace HereticalSolutions.Time
 {
     /// <summary>
-    /// Represents the runtime timer context.
+    /// Represents the runtime timer context
     /// </summary>
     public interface IRuntimeTimerContext
         : ITimerWithState

@@ -48,7 +48,7 @@ namespace HereticalSolutions.Time.Strategies
         #region Controls
         
         ///<summary>
-        /// Resets the persistent timer to its default state.
+        /// Resets the persistent timer to its default state
         ///</summary>
         ///<param name="context">The persistent timer context.</param>
         public void Reset(IPersistentTimerContext context)
@@ -64,7 +64,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         ///<summary>
-        /// Starts the persistent timer.
+        /// Starts the persistent timer
         ///</summary>
         ///<param name="context">The persistent timer context.</param>
         public void Start(IPersistentTimerContext context)
@@ -82,7 +82,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         ///<summary>
-        /// Pauses the persistent timer.
+        /// Pauses the persistent timer
         ///</summary>
         ///<param name="context">The persistent timer context.</param>
         public void Pause(IPersistentTimerContext context)
@@ -91,7 +91,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         ///<summary>
-        /// Resumes the persistent timer.
+        /// Resumes the persistent timer
         ///</summary>
         ///<param name="context">The persistent timer context.</param>
         public void Resume(IPersistentTimerContext context)
@@ -100,7 +100,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         ///<summary>
-        /// Aborts the persistent timer, resetting it to its default state.
+        /// Aborts the persistent timer, resetting it to its default state
         ///</summary>
         ///<param name="context">The persistent timer context.</param>
         public void Abort(IPersistentTimerContext context)
@@ -113,7 +113,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         ///<summary>
-        /// Finishes the persistent timer.
+        /// Finishes the persistent timer
         ///</summary>
         ///<param name="context">The persistent timer context.</param>
         public void Finish(IPersistentTimerContext context)
@@ -122,7 +122,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         ///<summary>
-        /// Updates the state of the persistent timer.
+        /// Updates the state of the persistent timer
         ///</summary>
         ///<param name="context">The persistent timer context.</param>
         ///<param name="delta">The time passed since the last update.</param>

@@ -1,7 +1,7 @@
 namespace HereticalSolutions.ResourceManagement
 {
     /// <summary>
-    /// Represents resource data.
+    /// Represents resource data
     /// </summary>
     public interface IResourceData
         : IReadOnlyResourceData

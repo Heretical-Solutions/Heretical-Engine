@@ -1,14 +1,14 @@
 namespace HereticalSolutions.Time.Strategies
 {
     /// <summary>
-    /// Represents a strategy for a runtime timer that starts automatically when the application starts.
+    /// Represents a strategy for a runtime timer that starts automatically when the application starts
     /// </summary>
     public class RuntimeStartedStrategy : ITimerStrategy<IRuntimeTimerContext, float>
     {
         #region Progress
         
         /// <summary>
-        /// Gets the progress of the runtime timer.
+        /// Gets the progress of the runtime timer
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         /// <returns>The progress of the runtime timer as a value between 0 and 1.</returns>
@@ -28,7 +28,7 @@ namespace HereticalSolutions.Time.Strategies
         #region Countdown and Time elapsed
         
         /// <summary>
-        /// Gets the time elapsed since the runtime timer started.
+        /// Gets the time elapsed since the runtime timer started
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         /// <returns>The time elapsed since the runtime timer started.</returns>
@@ -38,7 +38,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Gets the remaining time until the runtime timer finishes.
+        /// Gets the remaining time until the runtime timer finishes
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         /// <returns>The remaining time until the runtime timer finishes.</returns>
@@ -52,7 +52,7 @@ namespace HereticalSolutions.Time.Strategies
         #region Controls
 
         /// <summary>
-        /// Resets the runtime timer to its initial state.
+        /// Resets the runtime timer to its initial state
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         public void Reset(IRuntimeTimerContext context)
@@ -65,7 +65,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Starts the runtime timer.
+        /// Starts the runtime timer
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         public void Start(IRuntimeTimerContext context)
@@ -74,7 +74,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Pauses the runtime timer.
+        /// Pauses the runtime timer
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         public void Pause(IRuntimeTimerContext context)
@@ -83,7 +83,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Resumes the paused runtime timer.
+        /// Resumes the paused runtime timer
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         public void Resume(IRuntimeTimerContext context)
@@ -92,7 +92,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         /// <summary>
-        /// Aborts and resets the runtime timer.
+        /// Aborts and resets the runtime timer
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         public void Abort(IRuntimeTimerContext context)
@@ -103,7 +103,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         /// <summary>
-        /// Finishes the runtime timer.
+        /// Finishes the runtime timer
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         public void Finish(IRuntimeTimerContext context)
@@ -114,7 +114,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Advances the runtime timer by a specified amount of time.
+        /// Advances the runtime timer by a specified amount of time
         /// </summary>
         /// <param name="context">The runtime timer context.</param>
         /// <param name="delta">The amount of time to advance the runtime timer.</param>

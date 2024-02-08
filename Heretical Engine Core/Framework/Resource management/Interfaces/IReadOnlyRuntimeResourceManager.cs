@@ -1,7 +1,7 @@
 namespace HereticalSolutions.ResourceManagement
 {
     /// <summary>
-    /// Represents an interface for a read-only runtime resource manager.
+    /// Represents an interface for a read-only runtime resource manager
     /// </summary>
     public interface IReadOnlyRuntimeResourceManager
     {

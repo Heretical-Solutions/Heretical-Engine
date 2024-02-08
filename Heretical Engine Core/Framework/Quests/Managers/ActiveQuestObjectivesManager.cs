@@ -4,14 +4,14 @@ using HereticalSolutions.Repositories;
 namespace HereticalSolutions.Quests
 {
     /// <summary>
-    /// Manages the active quest objectives.
+    /// Manages the active quest objectives
     /// </summary>
     public class ActiveQuestObjectivesManager
     {
         private readonly IRepository<string, List<ActiveQuestObjective>> activeObjectivesRepository;
 
         /// <summary>
-        /// Initializes a new instance of the ActiveQuestObjectivesManager class with the specified active objectives repository.
+        /// Initializes a new instance of the ActiveQuestObjectivesManager class with the specified active objectives repository
         /// </summary>
         /// <param name="activeObjectivesRepository">The repository for storing active quest objectives.</param>
         public ActiveQuestObjectivesManager(IRepository<string, List<ActiveQuestObjective>> activeObjectivesRepository)
@@ -20,7 +20,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Adds an active quest objective.
+        /// Adds an active quest objective
         /// </summary>
         /// <param name="activeObjective">The active quest objective to add.</param>
         public void AddObjective(ActiveQuestObjective activeObjective)
@@ -39,7 +39,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Gets the active quest objectives with the specified objective ID.
+        /// Gets the active quest objectives with the specified objective ID
         /// </summary>
         /// <param name="objectiveID">The ID of the objective.</param>
         /// <param name="activeObjectives">When this method returns, contains the active quest objectives with the specified objective ID, if found; otherwise, an empty collection.</param>
@@ -54,7 +54,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Gets all active quest objectives.
+        /// Gets all active quest objectives
         /// </summary>
         /// <returns>A collection of all active quest objectives.</returns>
         public IEnumerable<ActiveQuestObjective> GetAllObjectives()
@@ -70,7 +70,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Removes an active quest objective.
+        /// Removes an active quest objective
         /// </summary>
         /// <param name="activeObjective">The active quest objective to remove.</param>
         public void RemoveObjective(ActiveQuestObjective activeObjective)

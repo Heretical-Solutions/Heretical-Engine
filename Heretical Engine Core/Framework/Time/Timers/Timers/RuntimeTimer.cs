@@ -67,27 +67,27 @@ namespace HereticalSolutions.Time.Timers
         #region IRuntimeTimerContext
 
         /// <summary>
-        /// Gets or sets the current time elapsed.
+        /// Gets or sets the current time elapsed
         /// </summary>
         public float CurrentTimeElapsed { get; set; }
 
         /// <summary>
-        /// Gets or sets the current duration of the timer.
+        /// Gets or sets the current duration of the timer
         /// </summary>
         public float CurrentDuration { get; set; }
 
         /// <summary>
-        /// Gets the default duration of the timer.
+        /// Gets the default duration of the timer
         /// </summary>
         public float DefaultDuration { get; private set; }
 
         /// <summary>
-        /// Gets the publisher for the OnStart event.
+        /// Gets the publisher for the OnStart event
         /// </summary>
         public IPublisherSingleArgGeneric<IRuntimeTimer> OnStartAsPublisher { get; private set; }
 
         /// <summary>
-        /// Gets the publisher for the OnFinish event.
+        /// Gets the publisher for the OnFinish event
         /// </summary>
         public IPublisherSingleArgGeneric<IRuntimeTimer> OnFinishAsPublisher { get; private set; }
 
@@ -96,34 +96,34 @@ namespace HereticalSolutions.Time.Timers
         #region ITimer
 
         /// <summary>
-        /// Gets the ID of the timer.
+        /// Gets the ID of the timer
         /// </summary>
         public string ID { get; private set; }
 
         /// <summary>
-        /// Gets the state of the timer.
+        /// Gets the state of the timer
         /// </summary>
         public ETimerState State { get; private set; }
 
         /// <summary>
-        /// Gets the progress of the timer.
+        /// Gets the progress of the timer
         /// </summary>
         public float Progress => currentStrategy.GetProgress(this);
 
         /// <summary>
-        /// Gets or sets a value indicating whether the timer should accumulate time when paused.
+        /// Gets or sets a value indicating whether the timer should accumulate time when paused
         /// </summary>
         public bool Accumulate { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the timer should repeat after finishing.
+        /// Gets or sets a value indicating whether the timer should repeat after finishing
         /// </summary>
         public bool Repeat { get; set; }
 
         public bool FlushTimeElapsedOnRepeat { get; set; }
 
         /// <summary>
-        /// Resets the timer.
+        /// Resets the timer
         /// </summary>
         public void Reset()
         {
@@ -131,7 +131,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Starts the timer.
+        /// Starts the timer
         /// </summary>
         public void Start()
         {
@@ -139,7 +139,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Pauses the timer.
+        /// Pauses the timer
         /// </summary>
         public void Pause()
         {
@@ -147,7 +147,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Resumes the timer.
+        /// Resumes the timer
         /// </summary>
         public void Resume()
         {
@@ -155,7 +155,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Aborts the timer.
+        /// Aborts the timer
         /// </summary>
         public void Abort()
         {
@@ -163,7 +163,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Finishes the timer.
+        /// Finishes the timer
         /// </summary>
         public void Finish()
         {
@@ -175,17 +175,17 @@ namespace HereticalSolutions.Time.Timers
         #region IRuntimeTimer
 
         /// <summary>
-        /// Gets the time elapsed since the timer started.
+        /// Gets the time elapsed since the timer started
         /// </summary>
         public float TimeElapsed => currentStrategy.GetTimeElapsed(this);
 
         /// <summary>
-        /// Gets the remaining time until the timer finishes.
+        /// Gets the remaining time until the timer finishes
         /// </summary>
         public float Countdown => currentStrategy.GetCountdown(this);
 
         /// <summary>
-        /// Resets the timer with the specified duration.
+        /// Resets the timer with the specified duration
         /// </summary>
         /// <param name="duration">The new duration of the timer.</param>
         public void Reset(float duration)
@@ -195,7 +195,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Starts the timer with the specified duration.
+        /// Starts the timer with the specified duration
         /// </summary>
         /// <param name="duration">The duration of the timer.</param>
         public void Start(float duration)
@@ -205,12 +205,12 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Gets the subscribable for the OnStart event.
+        /// Gets the subscribable for the OnStart event
         /// </summary>
         public INonAllocSubscribableSingleArgGeneric<IRuntimeTimer> OnStart { get; private set; }
 
         /// <summary>
-        /// Gets the subscribable for the OnFinish event.
+        /// Gets the subscribable for the OnFinish event
         /// </summary>
         public INonAllocSubscribableSingleArgGeneric<IRuntimeTimer> OnFinish { get; private set; }
 
@@ -219,7 +219,7 @@ namespace HereticalSolutions.Time.Timers
         #region ITickable
 
         /// <summary>
-        /// Performs a tick on the timer.
+        /// Performs a tick on the timer
         /// </summary>
         /// <param name="delta">The time since the last tick.</param>
         public void Tick(float delta)
@@ -232,7 +232,7 @@ namespace HereticalSolutions.Time.Timers
         #region ITimerWithState
 
         /// <summary>
-        /// Sets the state of the timer.
+        /// Sets the state of the timer
         /// </summary>
         /// <param name="state">The state to set.</param>
         public void SetState(ETimerState state)
@@ -247,7 +247,7 @@ namespace HereticalSolutions.Time.Timers
         #region IVisitable
 
         /// <summary>
-        /// Gets the type of the DTO object for serialization.
+        /// Gets the type of the DTO object for serialization
         /// </summary>
         public Type DTOType => typeof(RuntimeTimerDTO);
 
@@ -282,7 +282,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Accepts a save visitor and converts the timer to a DTO object.
+        /// Accepts a save visitor and converts the timer to a DTO object
         /// </summary>
         /// <param name="visitor">The save visitor to accept.</param>
         /// <param name="DTO">The converted DTO object.</param>
@@ -319,7 +319,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Accepts a load visitor and applies the values from the DTO object to the timer.
+        /// Accepts a load visitor and applies the values from the DTO object to the timer
         /// </summary>
         /// <param name="visitor">The load visitor to accept.</param>
         /// <param name="DTO">The DTO object containing the values to apply.</param>

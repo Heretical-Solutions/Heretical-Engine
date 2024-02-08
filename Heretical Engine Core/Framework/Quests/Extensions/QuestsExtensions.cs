@@ -2,17 +2,17 @@
 using System.Linq;
 
 /// <summary>
-/// Extension methods for the QuestStage class.
+/// Extension methods for the QuestStage class
 /// </summary>
 namespace HereticalSolutions.Quests
 {
     /// <summary>
-    /// Provides extension methods for the QuestStage class.
+    /// Provides extension methods for the QuestStage class
     /// </summary>
     public static class QuestsExtensions
     {
         /// <summary>
-        /// Retrieves an integer value from the specified property ID in the quest stage.
+        /// Retrieves an integer value from the specified property ID in the quest stage
         /// </summary>
         /// <param name="stage">The quest stage.</param>
         /// <param name="id">The ID of the property.</param>
@@ -29,7 +29,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Retrieves a float value from the specified property ID in the quest stage.
+        /// Retrieves a float value from the specified property ID in the quest stage
         /// </summary>
         /// <param name="stage">The quest stage.</param>
         /// <param name="id">The ID of the property.</param>
@@ -46,7 +46,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Retrieves a string value from the specified property ID in the quest stage.
+        /// Retrieves a string value from the specified property ID in the quest stage
         /// </summary>
         /// <param name="stage">The quest stage.</param>
         /// <param name="id">The ID of the property.</param>
@@ -63,7 +63,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Retrieves a QuestPropertyDTO object by the specified key from the quest property array.
+        /// Retrieves a QuestPropertyDTO object by the specified key from the quest property array
         /// </summary>
         /// <param name="properties">The quest property array.</param>
         /// <param name="key">The key of the property.</param>

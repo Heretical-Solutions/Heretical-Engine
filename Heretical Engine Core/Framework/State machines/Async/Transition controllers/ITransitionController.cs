@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 namespace HereticalSolutions.StateMachines
 {
     /// <summary>
-    /// Represents the interface for a transition controller.
+    /// Represents the interface for a transition controller
     /// </summary>
     /// <typeparam name="TBaseState">The base state type.</typeparam>
     public interface ITransitionController<TBaseState>
         where TBaseState : IState
     {
         /// <summary>
-        /// Enters the specified state.
+        /// Enters the specified state
         /// </summary>
         /// <param name="state">The state to enter.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -24,7 +24,7 @@ namespace HereticalSolutions.StateMachines
             IProgress<float> progress = null);
 
         /// <summary>
-        /// Exits the specified state.
+        /// Exits the specified state
         /// </summary>
         /// <param name="state">The state to exit.</param>
         /// <param name="cancellationToken">The cancellation token.</param>

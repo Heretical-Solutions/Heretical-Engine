@@ -1,27 +1,27 @@
 namespace HereticalSolutions.Time
 {
     /// <summary>
-    /// Represents the state of a timer.
+    /// Represents the state of a timer
     /// </summary>
     public enum ETimerState
     {
         /// <summary>
-        /// The timer is inactive.
+        /// The timer is inactive
         /// </summary>
         INACTIVE,
 
         /// <summary>
-        /// The timer has been started.
+        /// The timer has been started
         /// </summary>
         STARTED,
 
         /// <summary>
-        /// The timer has been paused.
+        /// The timer has been paused
         /// </summary>
         PAUSED,
 
         /// <summary>
-        /// The timer has finished.
+        /// The timer has finished
         /// </summary>
         FINISHED
     }

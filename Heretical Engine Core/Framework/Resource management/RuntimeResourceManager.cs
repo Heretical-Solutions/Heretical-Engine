@@ -7,7 +7,7 @@ using HereticalSolutions.Logging;
 namespace HereticalSolutions.ResourceManagement
 {
     /// <summary>
-    /// Represents a runtime resource manager.
+    /// Represents a runtime resource manager
     /// </summary>
     public class RuntimeResourceManager
         : IRuntimeResourceManager,

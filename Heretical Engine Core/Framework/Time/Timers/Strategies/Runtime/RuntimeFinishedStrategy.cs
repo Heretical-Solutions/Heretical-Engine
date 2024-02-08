@@ -1,19 +1,19 @@
 namespace HereticalSolutions.Time.Strategies
 {
     /// <summary>
-    /// Represents a strategy for a runtime finished timer.
+    /// Represents a strategy for a runtime finished timer
     /// </summary>
     public class RuntimeFinishedStrategy : ITimerStrategy<IRuntimeTimerContext, float>
     {
         #region Progress
         
         /// <summary>
-        /// Gets the progress of the timer.
+        /// Gets the progress of the timer
         /// </summary>
         /// <param name="context">The timer context.</param>
         /// <returns>The progress of the timer.</returns>
         /// <remarks>
-        /// This method returns 0 if the timer was finished prematurely by a <see cref="Finish"/> call rather than the timer actually running out.
+        /// This method returns 0 if the timer was finished prematurely by a <see cref="Finish"/> call rather than the timer actually running out
         /// </remarks>
         public float GetProgress(IRuntimeTimerContext context)
         {
@@ -32,7 +32,7 @@ namespace HereticalSolutions.Time.Strategies
         #region Countdown and Time elapsed
 
         /// <summary>
-        /// Gets the time elapsed since the timer started.
+        /// Gets the time elapsed since the timer started
         /// </summary>
         /// <param name="context">The timer context.</param>
         /// <returns>The time elapsed in seconds.</returns>
@@ -42,7 +42,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         /// <summary>
-        /// Gets the time remaining until the timer finishes.
+        /// Gets the time remaining until the timer finishes
         /// </summary>
         /// <param name="context">The timer context.</param>
         /// <returns>The time remaining in seconds.</returns>
@@ -56,7 +56,7 @@ namespace HereticalSolutions.Time.Strategies
         #region Controls
         
         /// <summary>
-        /// Resets the timer by setting the time elapsed to zero and the duration to the default duration.
+        /// Resets the timer by setting the time elapsed to zero and the duration to the default duration
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Reset(IRuntimeTimerContext context)
@@ -69,7 +69,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Starts the timer by setting the time elapsed to zero and changing the timer state to started.
+        /// Starts the timer by setting the time elapsed to zero and changing the timer state to started
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Start(IRuntimeTimerContext context)
@@ -82,7 +82,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Pauses the timer. This method does nothing.
+        /// Pauses the timer. This method does nothing
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Pause(IRuntimeTimerContext context)
@@ -91,7 +91,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Resumes the timer. This method does nothing.
+        /// Resumes the timer. This method does nothing
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Resume(IRuntimeTimerContext context)
@@ -100,7 +100,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         /// <summary>
-        /// Aborts the timer by setting the time elapsed to zero and changing the timer state to inactive.
+        /// Aborts the timer by setting the time elapsed to zero and changing the timer state to inactive
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Abort(IRuntimeTimerContext context)
@@ -111,7 +111,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         /// <summary>
-        /// Finishes the timer. This method does nothing.
+        /// Finishes the timer. This method does nothing
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Finish(IRuntimeTimerContext context)
@@ -120,7 +120,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Advances the timer. This method does nothing.
+        /// Advances the timer. This method does nothing
         /// </summary>
         /// <param name="context">The timer context.</param>
         /// <param name="delta">The time in seconds since the last tick.</param>

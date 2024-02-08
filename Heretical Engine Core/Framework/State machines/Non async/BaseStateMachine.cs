@@ -7,7 +7,7 @@
 	namespace HereticalSolutions.StateMachines
 	{
 		/// <summary>
-		/// Represents a base state machine.
+		/// Represents a base state machine
 		/// </summary>
 		/// <typeparam name="TBaseState">The base state type.</typeparam>
 		public class BaseStateMachine<TBaseState> : IStateMachine<TBaseState>
@@ -22,7 +22,7 @@
 			private readonly ILogger logger;
 
 			/// <summary>
-			/// Initializes a new instance of the <see cref="BaseStateMachine{TBaseState}"/> class.
+			/// Initializes a new instance of the <see cref="BaseStateMachine{TBaseState}"/> class
 			/// </summary>
 			/// <param name="states">The repository of states.</param>
 			/// <param name="events">The repository of events.</param>
@@ -50,24 +50,24 @@
 			#region IStateMachine
 
 			/// <summary>
-			/// Gets a value indicating whether a transition is in progress.
+			/// Gets a value indicating whether a transition is in progress
 			/// </summary>
 			public bool TransitionInProgress { get; private set; }
 
 			#region Current state
 
 			/// <summary>
-			/// Gets or sets the current state of the state machine.
+			/// Gets or sets the current state of the state machine
 			/// </summary>
 			public TBaseState CurrentState { get; private set; }
 
 			/// <summary>
-			/// Gets or sets the action to perform when the current state change is started.
+			/// Gets or sets the action to perform when the current state change is started
 			/// </summary>
 			public Action<TBaseState, TBaseState> OnCurrentStateChangeStarted { get; set; }
 
 			/// <summary>
-			/// Gets or sets the action to perform when the current state change is finished.
+			/// Gets or sets the action to perform when the current state change is finished
 			/// </summary>
 			public Action<TBaseState, TBaseState> OnCurrentStateChangeFinished { get; set; }
 
@@ -76,7 +76,7 @@
 			#region All states
 
 			/// <summary>
-			/// Gets all the types of states in the state machine.
+			/// Gets all the types of states in the state machine
 			/// </summary>
 			public IEnumerable<Type> AllStates
 			{
@@ -84,7 +84,7 @@
 			}
 
 			/// <summary>
-			/// Gets the state of the specified type.
+			/// Gets the state of the specified type
 			/// </summary>
 			/// <typeparam name="TConcreteState">The concrete state type.</typeparam>
 			/// <returns>The state of the specified type.</returns>
@@ -100,7 +100,7 @@
 			}
 
 			/// <summary>
-			/// Gets the state of the specified type.
+			/// Gets the state of the specified type
 			/// </summary>
 			/// <param name="stateType">The type of the state.</param>
 			/// <returns>The state of the specified type.</returns>
@@ -120,7 +120,7 @@
 			#region Event handling
 
 			/// <summary>
-			/// Handles the specified event.
+			/// Handles the specified event
 			/// </summary>
 			/// <typeparam name="TEvent">The type of the event.</typeparam>
 			public void Handle<TEvent>()
@@ -140,7 +140,7 @@
 			}
 
 			/// <summary>
-			/// Handles the specified event.
+			/// Handles the specified event
 			/// </summary>
 			/// <param name="eventType">The type of the event.</param>
 			public void Handle(Type eventType)
@@ -160,7 +160,7 @@
 			}
 
 			/// <summary>
-			/// Gets or sets the action to perform when an event is fired.
+			/// Gets or sets the action to perform when an event is fired
 			/// </summary>
 			public Action<ITransitionEvent<TBaseState>> OnEventFired { get; set; }
 
@@ -169,7 +169,7 @@
 			#region Immediate transition
 
 			/// <summary>
-			/// Transitions immediately to the specified state.
+			/// Transitions immediately to the specified state
 			/// </summary>
 			/// <typeparam name="TState">The type of the state.</typeparam>
 			public void TransitToImmediately<TState>()
@@ -189,7 +189,7 @@
 			}
 
 			/// <summary>
-			/// Transitions immediately to the specified state.
+			/// Transitions immediately to the specified state
 			/// </summary>
 			/// <param name="stateType">The type of the state.</param>
 			public void TransitToImmediately(Type stateType)

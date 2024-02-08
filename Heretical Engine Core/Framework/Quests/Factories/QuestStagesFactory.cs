@@ -6,7 +6,7 @@ namespace HereticalSolutions.Quests.Factories
     public static partial class QuestsFactory
     {
         /// <summary>
-        /// Builds a quest stage based on a prototype and stage data.
+        /// Builds a quest stage based on a prototype and stage data
         /// </summary>
         /// <param name="prototypeStages">The repository of prototype stages.</param>
         /// <param name="stageData">The data for the quest stage.</param>
@@ -21,7 +21,7 @@ namespace HereticalSolutions.Quests.Factories
         }
 
         /// <summary>
-        /// Builds the prototype stages repository.
+        /// Builds the prototype stages repository
         /// </summary>
         /// <returns>The prototype stages repository.</returns>
         public static IReadOnlyRepository<string, QuestStage> BuildPrototypeStages()
@@ -40,7 +40,7 @@ namespace HereticalSolutions.Quests.Factories
         #region Actions
 
         /// <summary>
-        /// Adds action stages to the prototype stages repository.
+        /// Adds action stages to the prototype stages repository
         /// </summary>
         /// <param name="prototypeStages">The prototype stages repository.</param>
         private static void AddActions(IRepository<string, QuestStage> prototypeStages)
@@ -50,7 +50,7 @@ namespace HereticalSolutions.Quests.Factories
         }
 
         /// <summary>
-        /// Gets a "NOP_ACTION" quest stage.
+        /// Gets a "NOP_ACTION" quest stage
         /// </summary>
         /// <returns>The "NOP_ACTION" quest stage.</returns>
         private static QuestStage NOPAction()
@@ -93,7 +93,7 @@ namespace HereticalSolutions.Quests.Factories
         #region Trackers
 
         /// <summary>
-        /// Adds tracker stages to the prototype stages repository.
+        /// Adds tracker stages to the prototype stages repository
         /// </summary>
         /// <param name="prototypeStages">The prototype stages repository.</param>
         private static void AddTrackers(IRepository<string, QuestStage> prototypeStages)
@@ -105,7 +105,7 @@ namespace HereticalSolutions.Quests.Factories
         }
 
         /// <summary>
-        /// Gets an "ENABLE_OBJECTIVE" quest stage.
+        /// Gets an "ENABLE_OBJECTIVE" quest stage
         /// </summary>
         /// <returns>The "ENABLE_OBJECTIVE" quest stage.</returns>
         private static QuestStage EnableObjective()
@@ -127,7 +127,7 @@ namespace HereticalSolutions.Quests.Factories
         }
 
         /// <summary>
-        /// Gets an "ENABLE_ALL_OBJECTIVES" quest stage.
+        /// Gets an "ENABLE_ALL_OBJECTIVES" quest stage
         /// </summary>
         /// <returns>The "ENABLE_ALL_OBJECTIVES" quest stage.</returns>
         private static QuestStage EnableAllObjectives()
@@ -147,7 +147,7 @@ namespace HereticalSolutions.Quests.Factories
         }
 
         /// <summary>
-        /// Gets a "DISABLE_OBJECTIVE" quest stage.
+        /// Gets a "DISABLE_OBJECTIVE" quest stage
         /// </summary>
         /// <returns>The "DISABLE_OBJECTIVE" quest stage.</returns>
         private static QuestStage DisableObjective()
@@ -169,7 +169,7 @@ namespace HereticalSolutions.Quests.Factories
         }
 
         /// <summary>
-        /// Gets a "DISABLE_ALL_OBJECTIVES" quest stage.
+        /// Gets a "DISABLE_ALL_OBJECTIVES" quest stage
         /// </summary>
         /// <returns>The "DISABLE_ALL_OBJECTIVES" quest stage.</returns>
         private static QuestStage DisableAllObjectives()
@@ -193,7 +193,7 @@ namespace HereticalSolutions.Quests.Factories
         #region Awaiters
 
         /// <summary>
-        /// Adds awaiter stages to the prototype stages repository.
+        /// Adds awaiter stages to the prototype stages repository
         /// </summary>
         /// <param name="prototypeStages">The prototype stages repository.</param>
         private static void AddAwaiters(IRepository<string, QuestStage> prototypeStages)
@@ -203,7 +203,7 @@ namespace HereticalSolutions.Quests.Factories
         }
 
         /// <summary>
-        /// Gets an "AWAIT_ALL_ACTIVE_OBJECTIVES_COMPLETE" quest stage.
+        /// Gets an "AWAIT_ALL_ACTIVE_OBJECTIVES_COMPLETE" quest stage
         /// </summary>
         /// <returns>The "AWAIT_ALL_ACTIVE_OBJECTIVES_COMPLETE" quest stage.</returns>
         private static QuestStage AwaitAllActiveObjectivesComplete()
@@ -251,7 +251,7 @@ namespace HereticalSolutions.Quests.Factories
         }
 
         /// <summary>
-        /// Gets a "DEBUG_AWAIT_NEVER" quest stage.
+        /// Gets a "DEBUG_AWAIT_NEVER" quest stage
         /// </summary>
         /// <returns>The "DEBUG_AWAIT_NEVER" quest stage.</returns>
         private static QuestStage DebugAwaitNever()

@@ -3,14 +3,14 @@ using System;
 namespace HereticalSolutions.Time.Strategies
 {
     /// <summary>
-    /// Represents a timer strategy for persistent timers with ability to pause and resume.
+    /// Represents a timer strategy for persistent timers with ability to pause and resume
     /// </summary>
     public class PersistentPausedStrategy : ITimerStrategy<IPersistentTimerContext, TimeSpan>
     {
         #region Progress
         
         /// <summary>
-        /// Gets the progress of the timer as a value between 0 and 1.
+        /// Gets the progress of the timer as a value between 0 and 1
         /// </summary>
         /// <param name="context">The timer context.</param>
         /// <returns>The progress of the timer as a value between 0 and 1.</returns>
@@ -34,7 +34,7 @@ namespace HereticalSolutions.Time.Strategies
         #region Countdown and Time elapsed
 
         /// <summary>
-        /// Gets the time elapsed since the timer started.
+        /// Gets the time elapsed since the timer started
         /// </summary>
         /// <param name="context">The timer context.</param>
         /// <returns>The time elapsed since the timer started.</returns>
@@ -44,7 +44,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Gets the remaining time until the timer finishes.
+        /// Gets the remaining time until the timer finishes
         /// </summary>
         /// <param name="context">The timer context.</param>
         /// <returns>The remaining time until the timer finishes.</returns>
@@ -58,7 +58,7 @@ namespace HereticalSolutions.Time.Strategies
         #region Controls
         
         /// <summary>
-        /// Resets the timer to its default state.
+        /// Resets the timer to its default state
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Reset(IPersistentTimerContext context)
@@ -76,7 +76,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Starts the timer.
+        /// Starts the timer
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Start(IPersistentTimerContext context)
@@ -85,7 +85,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Pauses the timer.
+        /// Pauses the timer
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Pause(IPersistentTimerContext context)
@@ -94,7 +94,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Resumes the timer.
+        /// Resumes the timer
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Resume(IPersistentTimerContext context)
@@ -106,7 +106,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         /// <summary>
-        /// Aborts the timer.
+        /// Aborts the timer
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Abort(IPersistentTimerContext context)
@@ -122,7 +122,7 @@ namespace HereticalSolutions.Time.Strategies
         }
         
         /// <summary>
-        /// Finishes the timer.
+        /// Finishes the timer
         /// </summary>
         /// <param name="context">The timer context.</param>
         public void Finish(IPersistentTimerContext context)
@@ -136,7 +136,7 @@ namespace HereticalSolutions.Time.Strategies
         }
 
         /// <summary>
-        /// Executes a tick of the timer.
+        /// Executes a tick of the timer
         /// </summary>
         /// <param name="context">The timer context.</param>
         /// <param name="delta">The delta time of the tick.</param>

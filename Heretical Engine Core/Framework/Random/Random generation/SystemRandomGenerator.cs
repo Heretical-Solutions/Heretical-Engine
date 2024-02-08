@@ -3,14 +3,14 @@ using System;
 namespace HereticalSolutions.RandomGeneration
 {
     /// <summary>
-    /// A random number generator that uses the System.Random class.
+    /// A random number generator that uses the System.Random class
     /// </summary>
     public class SystemRandomGenerator : IRandomGenerator
     {
         private Random random;
 
         /// <summary>
-        /// Initializes a new instance of the SystemRandomGenerator class.
+        /// Initializes a new instance of the SystemRandomGenerator class
         /// </summary>
         public SystemRandomGenerator()
         {
@@ -19,7 +19,7 @@ namespace HereticalSolutions.RandomGeneration
         }
 
         /// <summary>
-        /// Generates a random float within the given range.
+        /// Generates a random float within the given range
         /// </summary>
         /// <param name="min">The minimum value of the range.</param>
         /// <param name="max">The maximum value of the range.</param>

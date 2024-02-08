@@ -7,12 +7,12 @@ using HereticalSolutions.Repositories;
 namespace HereticalSolutions.StateMachines.Factories
 {
     /// <summary>
-    /// Provides methods for building state machines.
+    /// Provides methods for building state machines
     /// </summary>
     public static class StateMachinesFactory
     {
         /// <summary>
-        /// Builds a new instance of the BaseAsyncStateMachine class.
+        /// Builds a new instance of the BaseAsyncStateMachine class
         /// </summary>
         /// <typeparam name="TBaseState">The base state type.</typeparam>
         /// <param name="states">The repository of states.</param>
@@ -46,7 +46,7 @@ namespace HereticalSolutions.StateMachines.Factories
         }
         
         /// <summary>
-        /// Builds a new instance of the BaseStateMachine class.
+        /// Builds a new instance of the BaseStateMachine class
         /// </summary>
         /// <typeparam name="TBaseState">The base state type.</typeparam>
         /// <param name="states">The repository of states.</param>
@@ -74,7 +74,7 @@ namespace HereticalSolutions.StateMachines.Factories
         }
 
         /// <summary>
-        /// Adds a new state to the repository of states.
+        /// Adds a new state to the repository of states
         /// </summary>
         /// <typeparam name="TBaseState">The base state type.</typeparam>
         /// <typeparam name="T">The state type.</typeparam>
@@ -94,7 +94,7 @@ namespace HereticalSolutions.StateMachines.Factories
         }
         
         /// <summary>
-        /// Adds a new state with arguments to the repository of states.
+        /// Adds a new state with arguments to the repository of states
         /// </summary>
         /// <typeparam name="TBaseState">The base state type.</typeparam>
         /// <typeparam name="T">The state type.</typeparam>
@@ -117,7 +117,7 @@ namespace HereticalSolutions.StateMachines.Factories
         }
         
         /// <summary>
-        /// Adds a new transition event to the repository of transition events.
+        /// Adds a new transition event to the repository of transition events
         /// </summary>
         /// <typeparam name="TBaseState">The base state type.</typeparam>
         /// <typeparam name="TEvent">The transition event type.</typeparam>

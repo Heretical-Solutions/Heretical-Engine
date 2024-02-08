@@ -5,7 +5,7 @@ using HereticalSolutions.Quests.Factories;
 namespace HereticalSolutions.Quests
 {
     /// <summary>
-    /// Manages active quests and their objectives.
+    /// Manages active quests and their objectives
     /// </summary>
     public class ActiveQuestsManager
     {
@@ -18,7 +18,7 @@ namespace HereticalSolutions.Quests
         private readonly ActiveQuestObjectivesManager objectivesManager;
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActiveQuestsManager"/> class.
+        /// Initializes a new instance of the <see cref="ActiveQuestsManager"/> class
         /// </summary>
         /// <param name="questsDatabase">The database of quest prototypes.</param>
         /// <param name="questPrototypeStagesDatabase">The database of quest stage prototypes.</param>
@@ -39,7 +39,7 @@ namespace HereticalSolutions.Quests
         #region Get active quest
         
         /// <summary>
-        /// Checks if a quest is active.
+        /// Checks if a quest is active
         /// </summary>
         /// <param name="questID">The ID of the quest.</param>
         /// <returns>Returns true if the quest is active, otherwise returns false.</returns>
@@ -49,7 +49,7 @@ namespace HereticalSolutions.Quests
         }
         
         /// <summary>
-        /// Gets the active quest with the specified ID.
+        /// Gets the active quest with the specified ID
         /// </summary>
         /// <param name="questID">The ID of the quest.</param>
         /// <returns>Returns the active quest.</returns>
@@ -67,7 +67,7 @@ namespace HereticalSolutions.Quests
         #region Start quest
         
         /// <summary>
-        /// Starts a quest with the specified ID.
+        /// Starts a quest with the specified ID
         /// </summary>
         /// <param name="questID">The ID of the quest to start.</param>
         /// <returns>Returns the started active quest.</returns>
@@ -149,7 +149,7 @@ namespace HereticalSolutions.Quests
         #region Toggle objectives
 
         /// <summary>
-        /// Enables a quest objective for the specified active quest.
+        /// Enables a quest objective for the specified active quest
         /// </summary>
         /// <param name="activeQuest">The active quest.</param>
         /// <param name="objectiveIndex">The index of the objective to enable.</param>
@@ -168,7 +168,7 @@ namespace HereticalSolutions.Quests
         }
         
         /// <summary>
-        /// Enables a quest objective for the specified active quest.
+        /// Enables a quest objective for the specified active quest
         /// </summary>
         /// <param name="activeQuest">The active quest.</param>
         /// <param name="objectiveID">The ID of the objective to enable.</param>
@@ -187,7 +187,7 @@ namespace HereticalSolutions.Quests
         }
         
         /// <summary>
-        /// Enables all quest objectives for the specified active quest.
+        /// Enables all quest objectives for the specified active quest
         /// </summary>
         /// <param name="activeQuest">The active quest.</param>
         public void EnableAllQuestObjectives(ActiveQuest activeQuest)
@@ -205,7 +205,7 @@ namespace HereticalSolutions.Quests
         }
         
         /// <summary>
-        /// Disables a quest objective for the specified active quest.
+        /// Disables a quest objective for the specified active quest
         /// </summary>
         /// <param name="activeQuest">The active quest.</param>
         /// <param name="objectiveIndex">The index of the objective to disable.</param>
@@ -219,7 +219,7 @@ namespace HereticalSolutions.Quests
         }
         
         /// <summary>
-        /// Disables a quest objective for the specified active quest.
+        /// Disables a quest objective for the specified active quest
         /// </summary>
         /// <param name="activeQuest">The active quest.</param>
         /// <param name="objectiveID">The ID of the objective to disable.</param>
@@ -233,7 +233,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Disables all active objectives for the specified active quest.
+        /// Disables all active objectives for the specified active quest
         /// </summary>
         /// <param name="activeQuest">The active quest.</param>
         public void DisableAllActiveObjectives(ActiveQuest activeQuest)

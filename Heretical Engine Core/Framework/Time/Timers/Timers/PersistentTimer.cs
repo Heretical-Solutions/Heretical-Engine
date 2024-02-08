@@ -73,17 +73,17 @@ namespace HereticalSolutions.Time.Timers
         #region Variables
 
         /// <summary>
-        /// Gets or sets the start time of the timer.
+        /// Gets or sets the start time of the timer
         /// </summary>
         public DateTime StartTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the estimated finish time of the timer.
+        /// Gets or sets the estimated finish time of the timer
         /// </summary>
         public DateTime EstimatedFinishTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the saved progress of the timer.
+        /// Gets or sets the saved progress of the timer
         /// </summary>
         public TimeSpan SavedProgress { get; set; }
 
@@ -92,12 +92,12 @@ namespace HereticalSolutions.Time.Timers
         #region Duration
 
         /// <summary>
-        /// Gets or sets the current duration span of the timer.
+        /// Gets or sets the current duration span of the timer
         /// </summary>
         public TimeSpan CurrentDurationSpan { get; set; }
 
         /// <summary>
-        /// Gets or sets the default duration span of the timer.
+        /// Gets or sets the default duration span of the timer
         /// </summary>
         public TimeSpan DefaultDurationSpan { get; set; }
 
@@ -106,12 +106,12 @@ namespace HereticalSolutions.Time.Timers
         #region Publishers
 
         /// <summary>
-        /// Gets the publisher for the "on start" event of the timer.
+        /// Gets the publisher for the "on start" event of the timer
         /// </summary>
         public IPublisherSingleArgGeneric<IPersistentTimer> OnStartAsPublisher { get; private set; }
 
         /// <summary>
-        /// Gets the subscribable for the "on finish" event of the timer.
+        /// Gets the subscribable for the "on finish" event of the timer
         /// </summary>
         public IPublisherSingleArgGeneric<IPersistentTimer> OnFinishAsPublisher { get; private set; }
 
@@ -122,14 +122,14 @@ namespace HereticalSolutions.Time.Timers
         #region ITimer
 
         /// <summary>
-        /// Gets the ID of the timer.
+        /// Gets the ID of the timer
         /// </summary>
         public string ID { get; private set; }
 
         #region Timer state
 
         /// <summary>
-        /// Gets the state of the timer.
+        /// Gets the state of the timer
         /// </summary>
         public ETimerState State { get; private set; }
 
@@ -138,7 +138,7 @@ namespace HereticalSolutions.Time.Timers
         #region Progress
 
         /// <summary>
-        /// Gets the progress of the timer.
+        /// Gets the progress of the timer
         /// </summary>
         public float Progress
         {
@@ -150,19 +150,19 @@ namespace HereticalSolutions.Time.Timers
         #region Controls
 
         /// <summary>
-        /// Gets or sets a value indicating whether the timer should accumulate time when paused.
+        /// Gets or sets a value indicating whether the timer should accumulate time when paused
         /// </summary>
         public bool Accumulate { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the timer should repeat after finishing.
+        /// Gets or sets a value indicating whether the timer should repeat after finishing
         /// </summary>
         public bool Repeat { get; set; }
 
         public bool FlushTimeElapsedOnRepeat { get; set; }
 
         /// <summary>
-        /// Resets the timer.
+        /// Resets the timer
         /// </summary>
         public void Reset()
         {
@@ -170,7 +170,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Starts the timer.
+        /// Starts the timer
         /// </summary>
         public void Start()
         {
@@ -178,7 +178,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Pauses the timer.
+        /// Pauses the timer
         /// </summary>
         public void Pause()
         {
@@ -186,7 +186,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Resumes the timer.
+        /// Resumes the timer
         /// </summary>
         public void Resume()
         {
@@ -194,7 +194,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Aborts the timer.
+        /// Aborts the timer
         /// </summary>
         public void Abort()
         {
@@ -202,7 +202,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Finishes the timer.
+        /// Finishes the timer
         /// </summary>
         public void Finish()
         {
@@ -218,7 +218,7 @@ namespace HereticalSolutions.Time.Timers
         #region Countdown and Time elapsed
 
         /// <summary>
-        /// Gets the time elapsed span of the timer.
+        /// Gets the time elapsed span of the timer
         /// </summary>
         public TimeSpan TimeElapsedSpan
         {
@@ -226,7 +226,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Gets the countdown span of the timer.
+        /// Gets the countdown span of the timer
         /// </summary>
         public TimeSpan CountdownSpan
         {
@@ -238,7 +238,7 @@ namespace HereticalSolutions.Time.Timers
         #region Controls
 
         /// <summary>
-        /// Resets the timer with a specified duration span.
+        /// Resets the timer with a specified duration span
         /// </summary>
         /// <param name="durationSpan">The duration span to set for the timer.</param>
         public void Reset(TimeSpan durationSpan)
@@ -249,7 +249,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Starts the timer with a specified duration span.
+        /// Starts the timer with a specified duration span
         /// </summary>
         /// <param name="durationSpan">The duration span to set for the timer.</param>
         public void Start(TimeSpan durationSpan)
@@ -264,12 +264,12 @@ namespace HereticalSolutions.Time.Timers
         #region Callbacks
 
         /// <summary>
-        /// Gets the subscribable for the "on start" event of the timer.
+        /// Gets the subscribable for the "on start" event of the timer
         /// </summary>
         public INonAllocSubscribableSingleArgGeneric<IPersistentTimer> OnStart { get; private set; }
 
         /// <summary>
-        /// Gets the subscribable for the "on finish" event of the timer.
+        /// Gets the subscribable for the "on finish" event of the timer
         /// </summary>
         public INonAllocSubscribableSingleArgGeneric<IPersistentTimer> OnFinish { get; private set; }
 
@@ -280,7 +280,7 @@ namespace HereticalSolutions.Time.Timers
         #region ITickable
 
         /// <summary>
-        /// Ticks the timer.
+        /// Ticks the timer
         /// </summary>
         /// <param name="delta">The time difference.</param>
         public void Tick(float delta)
@@ -293,7 +293,7 @@ namespace HereticalSolutions.Time.Timers
         #region ITimerWithState
 
         /// <summary>
-        /// Sets the state of the timer.
+        /// Sets the state of the timer
         /// </summary>
         /// <param name="state">The state to set.</param>
         public void SetState(ETimerState state)
@@ -309,7 +309,7 @@ namespace HereticalSolutions.Time.Timers
         #region IVisitable
 
         /// <summary>
-        /// Gets the type of the data transfer object for the timer.
+        /// Gets the type of the data transfer object for the timer
         /// </summary>
         public Type DTOType
         {
@@ -347,7 +347,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Accepts a save visitor and returns whether the visit was successful.
+        /// Accepts a save visitor and returns whether the visit was successful
         /// </summary>
         /// <param name="visitor">The save visitor.</param>
         /// <param name="DTO">The data transfer object.</param>
@@ -384,7 +384,7 @@ namespace HereticalSolutions.Time.Timers
         }
 
         /// <summary>
-        /// Accepts a load visitor and returns whether the visit was successful.
+        /// Accepts a load visitor and returns whether the visit was successful
         /// </summary>
         /// <param name="visitor">The load visitor.</param>
         /// <param name="DTO">The data transfer object.</param>

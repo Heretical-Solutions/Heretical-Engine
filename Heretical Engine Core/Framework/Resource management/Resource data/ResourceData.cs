@@ -7,7 +7,7 @@ using HereticalSolutions.Logging;
 namespace HereticalSolutions.ResourceManagement
 {
 	/// <summary>
-	/// Represents resource data that can be read and modified.
+	/// Represents resource data that can be read and modified
 	/// </summary>
 	public class ResourceData
 		: IResourceData,
@@ -61,14 +61,14 @@ namespace HereticalSolutions.ResourceManagement
 		#region IReadOnlyResourceData
 
 		/// <summary>
-		/// Gets the descriptor of the resource.
+		/// Gets the descriptor of the resource
 		/// </summary>
 		public ResourceDescriptor Descriptor { get; private set; }
 
 		#region IContainsResourceVariants
 
 		/// <summary>
-		/// Gets the default variant data of the resource.
+		/// Gets the default variant data of the resource
 		/// </summary>
 		public IResourceVariantData DefaultVariant => defaultVariant;
 
@@ -83,7 +83,7 @@ namespace HereticalSolutions.ResourceManagement
 		}
 
 		/// <summary>
-		/// Gets the variant data of the resource based on the variant ID hash.
+		/// Gets the variant data of the resource based on the variant ID hash
 		/// </summary>
 		/// <param name="variantIDHash">The hash of the variant ID.</param>
 		/// <returns>The variant data associated with the specified variant ID hash.</returns>
@@ -98,7 +98,7 @@ namespace HereticalSolutions.ResourceManagement
 		}
 
 		/// <summary>
-		/// Gets the variant data of the resource based on the variant ID.
+		/// Gets the variant data of the resource based on the variant ID
 		/// </summary>
 		/// <param name="variantID">The ID of the variant.</param>
 		/// <returns>The variant data associated with the specified variant ID.</returns>
@@ -126,7 +126,7 @@ namespace HereticalSolutions.ResourceManagement
 		}
 
 		/// <summary>
-		/// Gets the variant hashes available for the resource.
+		/// Gets the variant hashes available for the resource
 		/// </summary>
 		public IEnumerable<int> VariantIDHashes => variantsRepository.Keys;
 
@@ -197,7 +197,7 @@ namespace HereticalSolutions.ResourceManagement
 		#endregion
 
 		/// <summary>
-		/// Adds a variant to the resource.
+		/// Adds a variant to the resource
 		/// </summary>
 		/// <param name="variant">The variant data to add.</param>
 		/// <param name="progress">An optional progress reporter for tracking the add operation.</param>

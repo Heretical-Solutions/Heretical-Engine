@@ -1,6 +1,6 @@
 # AllocationCommand\<T\>
 
-A command pattern class that encapsulates the descriptor struct and the delegate to perform the allocation (creation) of (whatever)
+A `command` pattern class that encapsulates the descriptor struct and the delegate to perform the allocation (creation) of (whatever)
 
 ## Properties
 

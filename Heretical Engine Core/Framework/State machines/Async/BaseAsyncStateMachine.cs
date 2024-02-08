@@ -8,7 +8,7 @@ using HereticalSolutions.Repositories;
 namespace HereticalSolutions.StateMachines
 {
     /// <summary>
-    /// Represents a base asynchronous state machine implementation.
+    /// Represents a base asynchronous state machine implementation
     /// </summary>
     /// <typeparam name="TBaseState">The base state type.</typeparam>
     public class BaseAsyncStateMachine<TBaseState> : IAsyncStateMachine<TBaseState>
@@ -39,7 +39,7 @@ namespace HereticalSolutions.StateMachines
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BaseAsyncStateMachine{TBaseState}"/> class.
+        /// Initializes a new instance of the <see cref="BaseAsyncStateMachine{TBaseState}"/> class
         /// </summary>
         /// <param name="states">The repository of all states.</param>
         /// <param name="events">The repository of all transition events.</param>
@@ -84,24 +84,24 @@ namespace HereticalSolutions.StateMachines
         #region IAsyncStateMachine
 
         /// <summary>
-        /// Gets a value indicating whether a transition is currently in progress.
+        /// Gets a value indicating whether a transition is currently in progress
         /// </summary>
         public bool TransitionInProgress => transitionInProgress;
 
         #region Current state
 
         /// <summary>
-        /// Gets or sets the current state of the state machine.
+        /// Gets or sets the current state of the state machine
         /// </summary>
         public TBaseState CurrentState { get; private set; }
 
         /// <summary>
-        /// Gets or sets the action invoked when the current state change is started.
+        /// Gets or sets the action invoked when the current state change is started
         /// </summary>
         public Action<TBaseState, TBaseState> OnCurrentStateChangeStarted { get; set; }
 
         /// <summary>
-        /// Gets or sets the action invoked when the current state change is finished.
+        /// Gets or sets the action invoked when the current state change is finished
         /// </summary>
         public Action<TBaseState, TBaseState> OnCurrentStateChangeFinished { get; set; }
 
@@ -110,7 +110,7 @@ namespace HereticalSolutions.StateMachines
         #region All states
 
         /// <summary>
-        /// Gets the state of the specified concrete type.
+        /// Gets the state of the specified concrete type
         /// </summary>
         /// <typeparam name="TConcreteState">The concrete state type.</typeparam>
         /// <returns>The state instance.</returns>
@@ -126,7 +126,7 @@ namespace HereticalSolutions.StateMachines
         }
 
         /// <summary>
-        /// Gets the state of the specified type.
+        /// Gets the state of the specified type
         /// </summary>
         /// <param name="stateType">The type of the state.</param>
         /// <returns>The state instance.</returns>
@@ -142,7 +142,7 @@ namespace HereticalSolutions.StateMachines
         }
 
         /// <summary>
-        /// Gets all the types of states in the state machine.
+        /// Gets all the types of states in the state machine
         /// </summary>
         public IEnumerable<Type> AllStates => states.Keys;
 
@@ -151,7 +151,7 @@ namespace HereticalSolutions.StateMachines
         #region Event handling
 
         /// <summary>
-        /// Handles the specified event asynchronously.
+        /// Handles the specified event asynchronously
         /// </summary>
         /// <typeparam name="TEvent">The type of the event to handle.</typeparam>
         /// <param name="stateExitProgress">The progress reporter for the state exit.</param>
@@ -201,7 +201,7 @@ namespace HereticalSolutions.StateMachines
         }
 
         /// <summary>
-        /// Handles the specified event type asynchronously.
+        /// Handles the specified event type asynchronously
         /// </summary>
         /// <param name="eventType">The type of the event to handle.</param>
         /// <param name="stateExitProgress">The progress reporter for the state exit.</param>
@@ -252,7 +252,7 @@ namespace HereticalSolutions.StateMachines
         }
 
         /// <summary>
-        /// Handles the specified event asynchronously with a cancellation token.
+        /// Handles the specified event asynchronously with a cancellation token
         /// </summary>
         /// <typeparam name="TEvent">The type of the event to handle.</typeparam>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -306,7 +306,7 @@ namespace HereticalSolutions.StateMachines
         }
 
         /// <summary>
-        /// Handles the specified event type asynchronously with a cancellation token.
+        /// Handles the specified event type asynchronously with a cancellation token
         /// </summary>
         /// <param name="eventType">The type of the event to handle.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -361,7 +361,7 @@ namespace HereticalSolutions.StateMachines
         }
 
         /// <summary>
-        /// Gets or sets the action invoked when an event is fired.
+        /// Gets or sets the action invoked when an event is fired
         /// </summary>
         public Action<ITransitionEvent<TBaseState>> OnEventFired { get; set; }
 
@@ -370,7 +370,7 @@ namespace HereticalSolutions.StateMachines
         #region Immediate transition
 
         /// <summary>
-        /// Transitions immediately to the specified state type asynchronously.
+        /// Transitions immediately to the specified state type asynchronously
         /// </summary>
         /// <typeparam name="TState">The type of the state to transition to.</typeparam>
         /// <param name="stateExitProgress">The progress reporter for the state exit.</param>
@@ -420,7 +420,7 @@ namespace HereticalSolutions.StateMachines
         }
 
         /// <summary>
-        /// Transitions immediately to the specified state type asynchronously.
+        /// Transitions immediately to the specified state type asynchronously
         /// </summary>
         /// <param name="stateType">The type of the state to transition to.</param>
         /// <param name="stateExitProgress">The progress reporter for the state exit.</param>
@@ -471,7 +471,7 @@ namespace HereticalSolutions.StateMachines
         }
 
         /// <summary>
-        /// Transitions immediately to the specified state type asynchronously with a cancellation token.
+        /// Transitions immediately to the specified state type asynchronously with a cancellation token
         /// </summary>
         /// <typeparam name="TState">The type of the state to transition to.</typeparam>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -523,7 +523,7 @@ namespace HereticalSolutions.StateMachines
         }
 
         /// <summary>
-        /// Transitions immediately to the specified state type asynchronously with a cancellation token.
+        /// Transitions immediately to the specified state type asynchronously with a cancellation token
         /// </summary>
         /// <param name="stateType">The type of the state to transition to.</param>
         /// <param name="cancellationToken">The cancellation token.</param>

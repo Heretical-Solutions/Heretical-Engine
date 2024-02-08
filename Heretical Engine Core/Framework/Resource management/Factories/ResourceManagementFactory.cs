@@ -7,12 +7,12 @@ using HereticalSolutions.Logging;
 namespace HereticalSolutions.ResourceManagement.Factories
 {
     /// <summary>
-    /// Factory class for creating instances related to the runtime resource manager.
+    /// Factory class for creating instances related to the runtime resource manager
     /// </summary>
     public static class ResourceManagementFactory
     {
         /// <summary>
-        /// Builds a new instance of the <see cref="RuntimeResourceManager"/> class.
+        /// Builds a new instance of the <see cref="RuntimeResourceManager"/> class
         /// </summary>
         /// <returns>A new instance of the <see cref="RuntimeResourceManager"/> class.</returns>
         public static RuntimeResourceManager BuildRuntimeResourceManager(
@@ -81,7 +81,7 @@ namespace HereticalSolutions.ResourceManagement.Factories
         }
 
         /// <summary>
-        /// Builds a new instance of the <see cref="ResourceVariantData"/> class.
+        /// Builds a new instance of the <see cref="ResourceVariantData"/> class
         /// </summary>
         /// <param name="descriptor">The descriptor of the resource variant data.</param>
         /// <param name="storageHandle">The storage handle of the resource variant data.</param>

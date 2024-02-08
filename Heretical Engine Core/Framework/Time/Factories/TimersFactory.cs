@@ -43,7 +43,7 @@ namespace HereticalSolutions.Time.Factories
         }
 
         /// <summary>
-        /// Builds the repository of timer strategies for a persistent timer.
+        /// Builds the repository of timer strategies for a persistent timer
         /// </summary>
         /// <returns>The built repository of timer strategies.</returns>
         private static IReadOnlyRepository<ETimerState, ITimerStrategy<IPersistentTimerContext, TimeSpan>>
@@ -96,7 +96,7 @@ namespace HereticalSolutions.Time.Factories
         }
 
         /// <summary>
-        /// Builds the repository of timer strategies for a runtime timer.
+        /// Builds the repository of timer strategies for a runtime timer
         /// </summary>
         /// <returns>The built repository of timer strategies.</returns>
         private static IReadOnlyRepository<ETimerState, ITimerStrategy<IRuntimeTimerContext, float>>
