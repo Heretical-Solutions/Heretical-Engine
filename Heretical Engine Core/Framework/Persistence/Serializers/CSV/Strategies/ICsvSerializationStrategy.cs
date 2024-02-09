@@ -3,12 +3,12 @@ using System;
 namespace HereticalSolutions.Persistence.Serializers
 {
     /// <summary>
-    /// The interface for CSV serialization strategy.
+    /// The interface for CSV serialization strategy
     /// </summary>
     public interface ICsvSerializationStrategy
     {
         /// <summary>
-        /// Serializes the specified value using the provided serialization argument.
+        /// Serializes the specified value using the provided serialization argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="valueType">The type of the value to be serialized.</param>
@@ -17,7 +17,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Serialize(ISerializationArgument argument, Type valueType, object value);
         
         /// <summary>
-        /// Deserializes the value using the provided serialization argument.
+        /// Deserializes the value using the provided serialization argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="valueType">The type of the value to be deserialized.</param>
@@ -26,7 +26,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Deserialize(ISerializationArgument argument, Type valueType, out object value);
 
         /// <summary>
-        /// Erases the value using the provided serialization argument.
+        /// Erases the value using the provided serialization argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         void Erase(ISerializationArgument argument);

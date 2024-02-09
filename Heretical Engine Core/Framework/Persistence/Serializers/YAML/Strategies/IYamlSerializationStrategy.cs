@@ -1,12 +1,12 @@
 namespace HereticalSolutions.Persistence.Serializers
 {
     /// <summary>
-    /// Interface for a YAML serialization strategy.
+    /// Interface for a YAML serialization strategy
     /// </summary>
     public interface IYamlSerializationStrategy
     {
         /// <summary>
-        /// Serializes the specified YAML string using the given serialization argument.
+        /// Serializes the specified YAML string using the given serialization argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="yaml">The YAML string to serialize.</param>
@@ -14,7 +14,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Serialize(ISerializationArgument argument, string yaml);
         
         /// <summary>
-        /// Deserializes the YAML string using the given serialization argument.
+        /// Deserializes the YAML string using the given serialization argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="yaml">The deserialized YAML string.</param>
@@ -22,7 +22,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Deserialize(ISerializationArgument argument, out string yaml);
 
         /// <summary>
-        /// Erases any serialized data associated with the given serialization argument.
+        /// Erases any serialized data associated with the given serialization argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         void Erase(ISerializationArgument argument);

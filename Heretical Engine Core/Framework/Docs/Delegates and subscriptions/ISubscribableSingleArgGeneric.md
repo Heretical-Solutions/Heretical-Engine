@@ -53,7 +53,7 @@ ISubscribableSingleArgGeneric<T> foo = DelegatesFactory.BuildBroadcasterGeneric<
 ## Implementing ISubscribableSingleArgGeneric\<T\>
 
 ```csharp
-private Action multicastDelegate;
+private Action<T> multicastDelegate;
 
 #region ISubscribableSingleArgGeneric
 

@@ -4,22 +4,22 @@ using HereticalSolutions.MVVM.Observable;
 namespace HereticalSolutions.Quests
 {
     /// <summary>
-    /// Represents an active quest objective.
+    /// Represents an active quest objective
     /// </summary>
     public class ActiveQuestObjective
     {
         /// <summary>
-        /// Gets the quest objective associated with this active quest objective.
+        /// Gets the quest objective associated with this active quest objective
         /// </summary>
         public QuestObjective Objective { get; private set; }
 
         /// <summary>
-        /// Gets the progress of the active quest objective.
+        /// Gets the progress of the active quest objective
         /// </summary>
         public IObservableProperty<int> Progress { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the ActiveQuestObjective class.
+        /// Initializes a new instance of the ActiveQuestObjective class
         /// </summary>
         /// <param name="objective">The quest objective.</param>
         /// <param name="progress">The progress of the objective.</param>
@@ -32,7 +32,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Modifies the progress of the active quest objective based on the specified operation and value.
+        /// Modifies the progress of the active quest objective based on the specified operation and value
         /// </summary>
         /// <param name="operation">The operation to perform on the progress.</param>
         /// <param name="value">The value to modify the progress by.</param>
@@ -71,7 +71,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Validates the active quest objective based on the comparison specified by the objective descriptor.
+        /// Validates the active quest objective based on the comparison specified by the objective descriptor
         /// </summary>
         /// <returns>True if the active quest objective is valid, otherwise false.</returns>
         public bool Validate()

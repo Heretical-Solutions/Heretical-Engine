@@ -24,7 +24,7 @@ namespace HereticalSolutions.Delegates.Notifiers
 			this.logger = logger;
 		}
 
-		#region IAsyncPropertySingleArgGeneric
+		#region IAsyncNotifierSingleArgGeneric
 
 		public async Task<TValue> GetValueWhenNotified(
 			TArgument argument = default,

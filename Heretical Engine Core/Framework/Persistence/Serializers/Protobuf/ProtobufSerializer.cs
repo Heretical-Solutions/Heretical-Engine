@@ -5,7 +5,7 @@ using HereticalSolutions.Logging;
 namespace HereticalSolutions.Persistence.Serializers
 {
     /// <summary>
-    /// Represents a Protobuf serializer implementation of the <see cref="ISerializer"/> interface.
+    /// Represents a Protobuf serializer implementation of the <see cref="ISerializer"/> interface
     /// </summary>
     public class ProtobufSerializer : ISerializer
     {

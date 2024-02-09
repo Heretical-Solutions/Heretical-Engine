@@ -3,12 +3,12 @@ using System;
 namespace HereticalSolutions.Persistence
 {
     /// <summary>
-    /// Interface for serializing and deserializing objects.
+    /// Interface for serializing and deserializing objects
     /// </summary>
     public interface ISerializer
     {
         /// <summary>
-        /// Serializes the provided data transfer object (DTO) using the specified argument.
+        /// Serializes the provided data transfer object (DTO) using the specified argument
         /// </summary>
         /// <typeparam name="TValue">The type of the data transfer object.</typeparam>
         /// <param name="argument">The serialization argument to use.</param>
@@ -17,7 +17,7 @@ namespace HereticalSolutions.Persistence
         bool Serialize<TValue>(ISerializationArgument argument, TValue DTO);
         
         /// <summary>
-        /// Serializes the provided data transfer object (DTO) of the specified type using the specified argument.
+        /// Serializes the provided data transfer object (DTO) of the specified type using the specified argument
         /// </summary>
         /// <param name="argument">The serialization argument to use.</param>
         /// <param name="DTOType">The type of the data transfer object.</param>
@@ -26,7 +26,7 @@ namespace HereticalSolutions.Persistence
         bool Serialize(ISerializationArgument argument, Type DTOType, object DTO);
         
         /// <summary>
-        /// Deserializes a data transfer object (DTO) using the specified argument.
+        /// Deserializes a data transfer object (DTO) using the specified argument
         /// </summary>
         /// <typeparam name="TValue">The type of the data transfer object.</typeparam>
         /// <param name="argument">The serialization argument to use.</param>
@@ -35,7 +35,7 @@ namespace HereticalSolutions.Persistence
         bool Deserialize<TValue>(ISerializationArgument argument, out TValue DTO);
 
         /// <summary>
-        /// Deserializes a data transfer object (DTO) of the specified type using the specified argument.
+        /// Deserializes a data transfer object (DTO) of the specified type using the specified argument
         /// </summary>
         /// <param name="argument">The serialization argument to use.</param>
         /// <param name="DTOType">The type of the data transfer object.</param>
@@ -44,7 +44,7 @@ namespace HereticalSolutions.Persistence
         bool Deserialize(ISerializationArgument argument, Type DTOType, out object DTO);
         
         /// <summary>
-        /// Erases the serialized data using the specified argument.
+        /// Erases the serialized data using the specified argument
         /// </summary>
         /// <param name="argument">The serialization argument to use.</param>
         void Erase(ISerializationArgument argument);

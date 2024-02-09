@@ -3,26 +3,26 @@ using System;
 namespace HereticalSolutions.Quests
 {
     /// <summary>
-    /// Represents an active quest in the game.
+    /// Represents an active quest in the game
     /// </summary>
     public class ActiveQuest
     {
         /// <summary>
-        /// Gets the quest associated with this active quest.
+        /// Gets the quest associated with this active quest
         /// </summary>
         public Quest Quest { get; private set; }
 
         #region Current stage
 
         /// <summary>
-        /// Gets or sets the current stage of the quest.
+        /// Gets or sets the current stage of the quest
         /// </summary>
         public QuestStage CurrentStage { get; set; }
 
         private int currentStageIndex;
 
         /// <summary>
-        /// Gets the index of the current stage.
+        /// Gets the index of the current stage
         /// </summary>
         public int CurrentStageIndex { get =>  currentStageIndex; }
 
@@ -33,7 +33,7 @@ namespace HereticalSolutions.Quests
         #region Progress
         
         /// <summary>
-        /// Gets the progress tracker for the quest.
+        /// Gets the progress tracker for the quest
         /// </summary>
         public QuestProgressTracker QuestProgressTracker { get; private set; }
 
@@ -42,29 +42,29 @@ namespace HereticalSolutions.Quests
         #region Callbacks
         
         /// <summary>
-        /// Gets or sets the callback for when the quest is started.
+        /// Gets or sets the callback for when the quest is started
         /// </summary>
         public Action<ActiveQuest> OnQuestStarted { get; set; }
         
         /// <summary>
-        /// Gets or sets the callback for when a stage of the quest is started.
+        /// Gets or sets the callback for when a stage of the quest is started
         /// </summary>
         public Action<ActiveQuest> OnStageStarted { get; set; }
         
         /// <summary>
-        /// Gets or sets the callback for when a stage of the quest is completed.
+        /// Gets or sets the callback for when a stage of the quest is completed
         /// </summary>
         public Action<ActiveQuest> OnStageCompleted { get; set; }
         
         /// <summary>
-        /// Gets or sets the callback for when the quest is completed.
+        /// Gets or sets the callback for when the quest is completed
         /// </summary>
         public Action<ActiveQuest> OnQuestCompleted { get; set; }
 
         #endregion
         
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActiveQuest"/> class.
+        /// Initializes a new instance of the <see cref="ActiveQuest"/> class
         /// </summary>
         /// <param name="quest">The quest associated with this active quest.</param>
         /// <param name="questProgressTracker">The progress tracker for the quest.</param>
@@ -80,7 +80,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Starts the quest.
+        /// Starts the quest
         /// </summary>
         public void Start()
         {
@@ -97,7 +97,7 @@ namespace HereticalSolutions.Quests
         }
 
         /// <summary>
-        /// Marks the current stage as complete and proceeds to the next stage of the quest.
+        /// Marks the current stage as complete and proceeds to the next stage of the quest
         /// </summary>
         public void StageComplete()
         {

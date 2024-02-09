@@ -5,8 +5,8 @@ using HereticalSolutions.Persistence.IO;
 
 using HereticalSolutions.Logging;
 
-//BinaryFormatter.Serialize(Stream, object)' is obsolete: 'BinaryFormatter serialization is obsolete and should not be used. See https://aka.ms/binaryformatter for more information.
-// Disable the warning.
+//BinaryFormatter.Serialize(Stream, object)' is obsolete: 'BinaryFormatter serialization is obsolete and should not be used. See https://aka.ms/binaryformatter for more information
+// Disable the warning
 #pragma warning disable SYSLIB0011
 
 namespace HereticalSolutions.Persistence.Serializers

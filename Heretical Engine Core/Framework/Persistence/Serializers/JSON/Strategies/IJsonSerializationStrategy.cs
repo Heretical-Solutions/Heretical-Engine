@@ -1,12 +1,12 @@
 namespace HereticalSolutions.Persistence.Serializers
 {
     /// <summary>
-    /// Represents a strategy for serializing JSON data.
+    /// Represents a strategy for serializing JSON data
     /// </summary>
     public interface IJsonSerializationStrategy
     {
         /// <summary>
-        /// Serializes the JSON data to the specified argument.
+        /// Serializes the JSON data to the specified argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="json">The JSON string to be serialized.</param>
@@ -14,7 +14,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Serialize(ISerializationArgument argument, string json);
         
         /// <summary>
-        /// Deserializes the JSON data from the specified argument.
+        /// Deserializes the JSON data from the specified argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="json">The deserialized JSON string.</param>
@@ -22,7 +22,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Deserialize(ISerializationArgument argument, out string json);
 
         /// <summary>
-        /// Erases the serialized data from the specified argument.
+        /// Erases the serialized data from the specified argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         void Erase(ISerializationArgument argument);

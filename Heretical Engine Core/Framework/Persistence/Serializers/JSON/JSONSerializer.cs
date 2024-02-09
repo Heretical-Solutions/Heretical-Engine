@@ -90,7 +90,7 @@ namespace HereticalSolutions.Persistence.Serializers
         //TODO: fix deserialize as <GENERIC> is NOT working at all - the value does NOT get populated properly
         //WARNING: THIS ONE MAY NOT PROPERLY POPULATE. I HAVE NO IDEA WHY
         /// <summary>
-        /// Deserializes a DTO using the given argument and returns the result.
+        /// Deserializes a DTO using the given argument and returns the result
         /// </summary>
         /// <typeparam name="TValue">The type of the DTO.</typeparam>
         /// <param name="argument">The serialization argument.</param>
@@ -124,7 +124,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         //TODO: fix deserialize as <GENERIC> is NOT working at all - the value does NOT get populated properly
         /// <summary>
-        /// Deserializes a DTO object using the given argument and returns the result.
+        /// Deserializes a DTO object using the given argument and returns the result
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="DTOType">The type of the DTO.</param>

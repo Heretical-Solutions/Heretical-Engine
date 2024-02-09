@@ -3,12 +3,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace HereticalSolutions.Persistence.Serializers
 {
     /// <summary>
-    /// Interface for binary serialization strategy.
+    /// Interface for binary serialization strategy
     /// </summary>
     public interface IBinarySerializationStrategy
     {
         /// <summary>
-        /// Serializes the specified value using the provided serializer.
+        /// Serializes the specified value using the provided serializer
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="formatter">The binary formatter used for serialization.</param>
@@ -17,7 +17,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Serialize(ISerializationArgument argument, BinaryFormatter formatter, object value);
 
         /// <summary>
-        /// Deserializes the value using the provided serializer.
+        /// Deserializes the value using the provided serializer
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="formatter">The binary formatter used for deserialization.</param>
@@ -26,7 +26,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Deserialize(ISerializationArgument argument, BinaryFormatter formatter, out object value);
 
         /// <summary>
-        /// Erases the serialized data related to the provided serialization argument.
+        /// Erases the serialized data related to the provided serialization argument
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         void Erase(ISerializationArgument argument);

@@ -75,7 +75,7 @@ namespace HereticalSolutions.Persistence.IO
         }
 
         /// <summary>
-        /// Deletes the file specified by the given <see cref="FilePathSettings"/>, if it exists.
+        /// Deletes the file specified by the given <see cref="FilePathSettings"/>, if it exists
         /// </summary>
         /// <param name="settings">The file system settings.</param>
         public static void Erase(FilePathSettings settings)

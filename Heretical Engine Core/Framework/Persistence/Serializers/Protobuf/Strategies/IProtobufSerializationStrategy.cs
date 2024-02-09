@@ -3,12 +3,12 @@ using System;
 namespace HereticalSolutions.Persistence.Serializers
 {
     /// <summary>
-    /// Interface for Protobuf serialization strategy.
+    /// Interface for Protobuf serialization strategy
     /// </summary>
     public interface IProtobufSerializationStrategy
     {
         /// <summary>
-        /// Serializes the specified value using protobuf.
+        /// Serializes the specified value using protobuf
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="valueType">The type of the value being serialized.</param>
@@ -17,7 +17,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Serialize(ISerializationArgument argument, Type valueType, object value);
 
         /// <summary>
-        /// Deserializes the value using protobuf.
+        /// Deserializes the value using protobuf
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         /// <param name="valueType">The type of the value being deserialized.</param>
@@ -26,7 +26,7 @@ namespace HereticalSolutions.Persistence.Serializers
         bool Deserialize(ISerializationArgument argument, Type valueType, out object value);
 
         /// <summary>
-        /// Erases the serialized data.
+        /// Erases the serialized data
         /// </summary>
         /// <param name="argument">The serialization argument.</param>
         void Erase(ISerializationArgument argument);
