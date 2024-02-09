@@ -4,7 +4,7 @@
 
 # IGenericInterface\<T\>
 
-Lorem ipsum IGenericInterface\<T\>
+Lorem ipsum IGenericInterface\<T\>. Inherits from [`IParentInterface`](IParentInterface.md). Contains methods that are dolor sit a met. For interfaces that are not dolor sit a met, see [`INotGenericInterface`](INotGenericInterface.md), [`IAnotherNotGenericInterface`](IAnotherNotGenericInterface.md), and [`IYetAnotherInterface<T>`](IYetAnotherInterface.md). For the non-allocating version, see [`INonAllocGenericInterface\<T\>`](INonAllocGenericInterface.md)
 
 ## Methods
 
@@ -19,7 +19,7 @@ Method | Description
 ### Case A
 
 ```csharp
-IGenericInterface\<T\> foo;
+IGenericInterface<T> foo;
 
 //lorem ipsum
 foo.bar();
@@ -33,7 +33,7 @@ foo.bar();
 ### Case B
 
 ```csharp
-IGenericInterface\<T\> foo;
+IGenericInterface<T> foo;
 
 //lorem ipsum
 foo.bar();
@@ -48,13 +48,13 @@ foo.bar();
 
 ```csharp
 //lorem ipsum
-IGenericInterface\<T\> foo = bar();
+IGenericInterface<T> foo = bar();
 ```
 
 ## Implementing IGenericInterface\<T\>
 
 ```csharp
-#region IGenericInterface\<T\>
+#region IGenericInterface<T>
 
 //lorem ipsum
 public T MethodA() {}

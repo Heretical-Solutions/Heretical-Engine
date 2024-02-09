@@ -11,15 +11,15 @@ Property | Description
 
 ## Using AllocationCommand\<T\>
 
-### Spawn one instance of IMessage on the beginning, spawn twice as much every time after
+### Spawn one instance of TInterfaceType on the beginning, spawn twice as much every time after
 
 ```csharp
-//The allocation delegate used in the command is creating a new instance of TMessage via Activator.CreateInstance method, casts it to IMessage and returns an instance of IMessage
-Func<IMessage> valueAllocationDelegate = AllocationsFactory
-	.ActivatorAllocationDelegate<IMessage, TMessage>;
+//The allocation delegate used in the command is creating a new instance of TConcreteType via Activator.CreateInstance method, casts it to TInterfaceType and returns an instance of TInterfaceType
+Func<TInterfaceType> valueAllocationDelegate = AllocationsFactory
+	.ActivatorAllocationDelegate<TInterfaceType, TConcreteType>;
 
-//The command tells its consumer to spawn one instance of IMessage with the delegate described above every time it's used
-var initialAllocationCommand = new AllocationCommand<IMessage>
+//The command tells its consumer to spawn one instance of TInterfaceType with the delegate described above every time it's used
+var initialAllocationCommand = new AllocationCommand<TInterfaceType>
 {
     Descriptor = new AllocationCommandDescriptor
     {
@@ -28,8 +28,8 @@ var initialAllocationCommand = new AllocationCommand<IMessage>
     AllocationDelegate = valueAllocationDelegate
 };
 
-//The command tells its consumer to spawn twice the amount of IMessages it already has with the delegate described above every time it's used
-var additionalAllocationCommand = new AllocationCommand<IMessage>
+//The command tells its consumer to spawn twice the amount of TInterfaceTypes it already has with the delegate described above every time it's used
+var additionalAllocationCommand = new AllocationCommand<TInterfaceType>
 {
     Descriptor = new AllocationCommandDescriptor
     {

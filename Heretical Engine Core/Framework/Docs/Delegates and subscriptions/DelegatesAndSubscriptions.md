@@ -1,5 +1,14 @@
 # Delegates and subscriptions
 
+## TL;DR
+
+- Use [`ISubscribable`](ISubscribable.md) interface family just like you would use a C#'s delegate (`Action`, `Func`) as a publisher for events (methods `Subscribe` and `Unsubscribe`)
+- Use `IPublisher` interface family just like you would use a C#'s delegate (`Action`, `Func`) as an event invoker (method `Publish`)
+- Use [`ISubscription`](ISubscription.md) interface family just like you would use a C#'s delegate (`Action`, `Func`) as an event subscription (methods `Activate` and `Terminate`)
+- Use `IInvokable` interface family just like you would use a C#'s delegate (`Action`, `Func`) as a delegate wrapper (method `Invoke`)
+- Use [`INonAllocSubscribable`](INonAllocSubscribable.md) interface family just like you would use a C#'s delegate (`Action`, `Func`) as a publisher for events, but with non-allocating subscription methods (methods `Subscribe` and `Unsubscribe`)
+
+
 ## Reasoning for non-alloc classes
 
 - C# `delegates` (including `Actions` and `Funcs`) are designed to be `multicasts`, meaning that whenever you store an instance of the delegate, you actually store an entire array of method references.
@@ -63,3 +72,7 @@
 - Sometimes you may want to retrieve a value from some source but you're not sure if the value is already stored at the moment of the request. For instance, you may have a producer thread that is designed to provide a value to the source and a consumer thread that acquires the value from the source. The consumer thread may want to wait for the value to be provided by the producer thread, and the producer thread may want to notify the consumer thread when the value is provided. This is where the [`IAsyncNotifierSingleArgGeneric<TArgument, TValue>`](IAsyncNotifierSingleArgGeneric.md) interface comes in
 - [`IAsyncNotifierSingleArgGeneric<TArgument, TValue>`](IAsyncNotifierSingleArgGeneric.md) provides a way to notify the consumer when the value is provided by the producer. The consumer can either wait for the value to be provided or continue with its work and check the value later. The producer can either notify the consumer immediately or wait for the consumer to be ready to receive the value
 - The [`IAsyncNotifierSingleArgGeneric<TArgument, TValue>`](IAsyncNotifierSingleArgGeneric.md) interface is designed to be thread-safe
+
+## Implementations
+
+[Work in progress]
